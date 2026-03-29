@@ -44,44 +44,41 @@ export function ProjectDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 pb-20 md:pb-0">
       {/* 顶部导航 */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200 safe-area-top">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/projects')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-1 text-gray-600 hover:text-gray-900 active:scale-95 transition-transform"
             >
               <ChevronLeft size={20} />
-              <span>返回</span>
+              <span className="hidden sm:inline">返回</span>
             </button>
             <button
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-gray-400 hover:text-gray-600"
+              className="flex items-center gap-1 text-gray-400 hover:text-gray-600"
             >
               <Home size={18} />
             </button>
           </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="primary">{currentIndex + 1} / {cards.length}</Badge>
-            <Badge variant="default">{currentCard.category}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="primary" className="text-xs">{currentIndex + 1} / {cards.length}</Badge>
+            <Badge variant="default" className="text-xs hidden sm:inline">{currentCard.category}</Badge>
           </div>
         </div>
       </div>
 
       {/* 章节标题 */}
-      <div className="pt-24 pb-4 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="pt-16 pb-2 text-center">
+        <h1 className="text-lg font-bold text-gray-900">
           {projectId === 'didi' ? '🚗 滴滴企业版' : '📝 GResume'}
         </h1>
-        <p className="text-gray-500">
-          {currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
-        </p>
       </div>
 
-      {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
-      <div className="flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
+      {/* 桌面端：卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
+      <div className="hidden md:flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
         {/* 左侧按钮 */}
         <button
           onClick={prev}
@@ -125,6 +122,59 @@ export function ProjectDetail() {
         >
           <ChevronRight size={28} className="text-gray-600" />
         </button>
+      </div>
+
+      {/* 移动端：卡片 */}
+      <div className="md:hidden flex items-center justify-center px-4 pt-2">
+        <motion.div
+          key={currentCard.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full"
+        >
+          <FlashCardComponent
+            card={currentCard}
+            onStatusChange={handleStatusChange}
+          />
+        </motion.div>
+      </div>
+
+      {/* 移动端：底部导航栏 */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-sm border-t border-gray-200 safe-area-bottom">
+        <div className="flex items-center justify-between px-6 py-3">
+          <button
+            onClick={prev}
+            disabled={currentIndex === 0}
+            className={`
+              flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
+              ${currentIndex === 0
+                ? 'opacity-40 cursor-not-allowed bg-gray-100 text-gray-400'
+                : 'bg-white shadow-md border border-gray-200 text-gray-700 active:scale-95'}
+            `}
+          >
+            <ChevronLeft size={20} />
+            <span className="text-sm font-medium">上一题</span>
+          </button>
+
+          <span className="text-sm text-gray-500 font-medium">
+            {currentIndex + 1} / {cards.length}
+          </span>
+
+          <button
+            onClick={next}
+            disabled={currentIndex === cards.length - 1}
+            className={`
+              flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
+              ${currentIndex === cards.length - 1
+                ? 'opacity-40 cursor-not-allowed bg-gray-100 text-gray-400'
+                : 'bg-purple-500 shadow-md text-white active:scale-95'}
+            `}
+          >
+            <span className="text-sm font-medium">下一题</span>
+            <ChevronRight size={20} />
+          </button>
+        </div>
       </div>
     </div>
   );
