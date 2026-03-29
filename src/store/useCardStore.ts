@@ -7,16 +7,26 @@ interface CardState {
   isFlipped: boolean;
   currentIndex: number;
   cards: FlashCard[];
+  currentChapterId: string | null;
 
   // 筛选状态
   filter: string;
   searchQuery: string;
 
+  // 所有章节的卡片进度（用于首页统计）
+  allCardProgress: Record<string, CardStatus>;
+
+  // 每个章节的当前位置记忆
+  chapterPositions: Record<string, number>;
+
   // Actions
   setCards: (cards: FlashCard[]) => void;
+  setCurrentChapterId: (chapterId: string | null) => void;
   flip: () => void;
   resetFlip: () => void;
   setCurrentIndex: (index: number) => void;
+  saveChapterPosition: (chapterId: string, index: number) => void;
+  getChapterPosition: (chapterId: string) => number;
   next: () => void;
   prev: () => void;
   setFilter: (filter: string) => void;
@@ -31,16 +41,32 @@ export const useCardStore = create<CardState>()(
       isFlipped: false,
       currentIndex: 0,
       cards: [],
+      currentChapterId: null,
       filter: 'all',
       searchQuery: '',
+      allCardProgress: {},
+      chapterPositions: {},
 
       setCards: (cards) => set({ cards }),
+
+      setCurrentChapterId: (chapterId) => set({ currentChapterId: chapterId }),
 
       flip: () => set((state) => ({ isFlipped: !state.isFlipped })),
 
       resetFlip: () => set({ isFlipped: false }),
 
       setCurrentIndex: (index) => set({ currentIndex: index, isFlipped: false }),
+
+      saveChapterPosition: (chapterId, index) => set((state) => ({
+        chapterPositions: {
+          ...state.chapterPositions,
+          [chapterId]: index,
+        },
+      })),
+
+      getChapterPosition: (chapterId) => {
+        return get().chapterPositions[chapterId] || 0;
+      },
 
       next: () => set((state) => ({
         currentIndex: Math.min(state.currentIndex + 1, state.cards.length - 1),
@@ -56,11 +82,21 @@ export const useCardStore = create<CardState>()(
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 
-      updateCardStatus: (cardId, status) => set((state) => ({
-        cards: state.cards.map((card) =>
+      updateCardStatus: (cardId, status) => set((state) => {
+        // 更新当前章节的 cards
+        const updatedCards = state.cards.map((card) =>
           card.id === cardId ? { ...card, status } : card
-        ),
-      })),
+        );
+        // 同时更新 allCardProgress（用于首页统计）
+        const updatedAllProgress = {
+          ...state.allCardProgress,
+          [cardId]: status,
+        };
+        return {
+          cards: updatedCards,
+          allCardProgress: updatedAllProgress,
+        };
+      }),
 
       getProgress: () => {
         const { cards } = get();
@@ -74,6 +110,8 @@ export const useCardStore = create<CardState>()(
       name: 'card-storage',
       partialize: (state) => ({
         cards: state.cards.map((c) => ({ id: c.id, status: c.status })),
+        allCardProgress: state.allCardProgress,
+        chapterPositions: state.chapterPositions,
       }),
     }
   )

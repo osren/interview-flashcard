@@ -1,30 +1,38 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { useCardStore } from '@/store';
 import { algorithmCards } from '@/data/algorithms';
 import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
-import { CardStatus } from '@/types';
+import { CardStatus, FlashCard } from '@/types';
 
 export function AlgorithmDetail() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
 
-  const {
-    cards,
-    currentIndex,
-    setCards,
-    next,
-    prev,
-    updateCardStatus,
-  } = useCardStore();
+  const [cards, setCards] = useState<FlashCard[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const { updateCardStatus, allCardProgress, saveChapterPosition, getChapterPosition } = useCardStore();
 
   useEffect(() => {
     const typeCards = algorithmCards.filter((c) => c.chapterId === type);
-    setCards(typeCards);
-  }, [type, setCards]);
+    const cardsWithStatus = typeCards.map((card) => ({
+      ...card,
+      status: allCardProgress[card.id] || card.status,
+    }));
+    setCards(cardsWithStatus);
+    const savedIndex = getChapterPosition(type || '');
+    setCurrentIndex(savedIndex);
+  }, [type, allCardProgress]);
+
+  const handleIndexChange = useCallback((newIndex: number) => {
+    setCurrentIndex(newIndex);
+    if (type) {
+      saveChapterPosition(type, newIndex);
+    }
+  }, [type, saveChapterPosition]);
 
   const currentCard = cards[currentIndex];
 
@@ -39,7 +47,19 @@ export function AlgorithmDetail() {
   const handleStatusChange = (status: CardStatus) => {
     updateCardStatus(currentCard.id, status);
     if (currentIndex < cards.length - 1) {
-      setTimeout(() => next(), 300);
+      setTimeout(() => handleIndexChange(currentIndex + 1), 300);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < cards.length - 1) {
+      handleIndexChange(currentIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      handleIndexChange(currentIndex - 1);
     }
   };
 
@@ -87,7 +107,7 @@ export function AlgorithmDetail() {
       <div className="hidden md:flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
         {/* 左侧按钮 */}
         <button
-          onClick={prev}
+          onClick={handlePrev}
           disabled={currentIndex === 0}
           className={`
             flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
@@ -116,7 +136,7 @@ export function AlgorithmDetail() {
 
         {/* 右侧按钮 */}
         <button
-          onClick={next}
+          onClick={handleNext}
           disabled={currentIndex === cards.length - 1}
           className={`
             flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
@@ -150,7 +170,7 @@ export function AlgorithmDetail() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-sm border-t border-gray-200 safe-area-bottom">
         <div className="flex items-center justify-between px-6 py-3">
           <button
-            onClick={prev}
+            onClick={handlePrev}
             disabled={currentIndex === 0}
             className={`
               flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
@@ -168,7 +188,7 @@ export function AlgorithmDetail() {
           </span>
 
           <button
-            onClick={next}
+            onClick={handleNext}
             disabled={currentIndex === cards.length - 1}
             className={`
               flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200

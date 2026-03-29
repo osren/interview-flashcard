@@ -153,7 +153,7 @@ export function Pomodoro() {
       </div>
 
       {/* 移动端悬浮按钮 */}
-      <div className="md:hidden fixed bottom-20 right-4 z-50">
+      <div className="md:hidden fixed bottom-24 right-4 z-50">
         <AnimatePresence>
           {isExpanded && (
             <motion.div

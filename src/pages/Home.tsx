@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui';
-import { useProgressStore } from '@/store';
+import { useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { algorithmChapters, algorithmCards } from '@/data/algorithms';
@@ -37,8 +37,9 @@ const modules = [
 ];
 
 export function Home() {
-  const { totalMastered } = useProgressStore();
+  const { allCardProgress } = useCardStore();
   const totalCards = coreCards.length + projectCards.length + algorithmCards.length;
+  const totalMastered = Object.values(allCardProgress).filter((s) => s === 'mastered').length;
   const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
 
   return (

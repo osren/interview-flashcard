@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { useCardStore } from '@/store';
@@ -15,14 +15,29 @@ export function CoreChapter() {
   // 直接使用 useState 管理本地卡片状态
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { updateCardStatus } = useCardStore();
+  const { updateCardStatus, allCardProgress, saveChapterPosition, getChapterPosition } = useCardStore();
 
-  // 加载章节卡片
+  // 加载章节卡片（带已保存的状态）
   useEffect(() => {
     const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
-    setCards(chapterCards);
-    setCurrentIndex(0); // 重置到第一张
-  }, [chapterId]);
+    // 恢复每个卡片已保存的状态
+    const cardsWithStatus = chapterCards.map((card) => ({
+      ...card,
+      status: allCardProgress[card.id] || card.status,
+    }));
+    setCards(cardsWithStatus);
+    // 恢复保存的位置
+    const savedIndex = getChapterPosition(chapterId || '');
+    setCurrentIndex(savedIndex);
+  }, [chapterId, allCardProgress]);
+
+  // 保存当前位置
+  const handleIndexChange = useCallback((newIndex: number) => {
+    setCurrentIndex(newIndex);
+    if (chapterId) {
+      saveChapterPosition(chapterId, newIndex);
+    }
+  }, [chapterId, saveChapterPosition]);
 
   const currentCard = cards[currentIndex];
 
@@ -39,20 +54,20 @@ export function CoreChapter() {
     // 自动下一题
     if (currentIndex < cards.length - 1) {
       setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1);
+        handleIndexChange(currentIndex + 1);
       }, 300);
     }
   };
 
   const handleNext = () => {
     if (currentIndex < cards.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+      handleIndexChange(currentIndex + 1);
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+      handleIndexChange(currentIndex - 1);
     }
   };
 
