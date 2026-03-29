@@ -28,7 +28,7 @@ export function FlashCard({ card, onStatusChange }: FlashCardProps) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-[768px] max-w-[768px] flex-shrink-0">
       {/* 卡片容器 - 使用 fixed height 确保长方形布局 */}
       <div
         className="relative cursor-pointer"
