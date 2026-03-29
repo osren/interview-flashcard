@@ -42,14 +42,14 @@ export function Home() {
   const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pb-20 md:pb-0 overflow-x-hidden">
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-16 md:py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-gray-900 mb-4"
+            className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 md:mb-4"
           >
             InterviewFlash
           </motion.h1>
@@ -57,7 +57,7 @@ export function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-gray-600 mb-8"
+            className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8"
           >
             前端面试备考记忆卡片系统
           </motion.p>
@@ -67,7 +67,7 @@ export function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6"
+            className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-5 md:p-6"
           >
             <div className="flex justify-between items-center mb-3">
               <span className="text-gray-600 font-medium">学习进度</span>
@@ -82,9 +82,9 @@ export function Home() {
       </section>
 
       {/* 模块卡片 */}
-      <section className="py-12 px-4">
+      <section className="py-8 md:py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {modules.map((module, index) => (
               <motion.div
                 key={module.path}
@@ -96,10 +96,10 @@ export function Home() {
                   to={module.path}
                   className="block bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group"
                 >
-                  <div className={`h-2 bg-gradient-to-r ${module.color}`} />
-                  <div className="p-6">
-                    <div className="text-5xl mb-4">{module.icon}</div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                  <div className={`h-1.5 md:h-2 bg-gradient-to-r ${module.color}`} />
+                  <div className="p-5 md:p-6">
+                    <div className="text-4xl md:text-5xl mb-3 md:mb-4">{module.icon}</div>
+                    <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
                       {module.title}
                     </h2>
                     <p className="text-gray-600 text-sm mb-4">
@@ -127,12 +127,12 @@ export function Home() {
       </section>
 
       {/* 特性介绍 */}
-      <section className="py-12 px-4">
+      <section className="py-8 md:py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 text-center mb-6 md:mb-8">
             功能特点
           </h2>
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {[
               { icon: '🔄', title: '卡片翻转', desc: '点击翻转查看答案' },
               { icon: '📊', title: '进度追踪', desc: '记录掌握程度' },
@@ -141,11 +141,11 @@ export function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="bg-white rounded-xl p-4 text-center shadow-sm"
+                className="bg-white rounded-xl p-3 md:p-4 text-center shadow-sm"
               >
-                <div className="text-3xl mb-2">{feature.icon}</div>
-                <h3 className="font-medium text-gray-900">{feature.title}</h3>
-                <p className="text-sm text-gray-500">{feature.desc}</p>
+                <div className="text-2xl md:text-3xl mb-1 md:mb-2">{feature.icon}</div>
+                <h3 className="font-medium text-gray-900 text-sm md:text-base">{feature.title}</h3>
+                <p className="text-xs md:text-sm text-gray-500">{feature.desc}</p>
               </div>
             ))}
           </div>
