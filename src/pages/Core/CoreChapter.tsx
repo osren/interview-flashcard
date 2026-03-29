@@ -15,7 +15,7 @@ export function CoreChapter() {
   // 直接使用 useState 管理本地卡片状态
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { updateCardStatus, allCardProgress, saveChapterPosition, getChapterPosition } = useCardStore();
+  const { updateCardStatus, allCardProgress, saveChapterPosition, getChapterPosition, setLastVisitedCoreChapter } = useCardStore();
 
   // 加载章节卡片（带已保存的状态）
   useEffect(() => {
@@ -29,7 +29,11 @@ export function CoreChapter() {
     // 恢复保存的位置
     const savedIndex = getChapterPosition(chapterId || '');
     setCurrentIndex(savedIndex);
-  }, [chapterId, allCardProgress]);
+    // 记录最后访问的章节
+    if (chapterId) {
+      setLastVisitedCoreChapter(chapterId);
+    }
+  }, [chapterId, allCardProgress, setLastVisitedCoreChapter]);
 
   // 保存当前位置
   const handleIndexChange = useCallback((newIndex: number) => {
@@ -153,7 +157,7 @@ export function CoreChapter() {
       </div>
 
       {/* 移动端：卡片 */}
-      <div className="md:hidden flex items-center justify-center px-4 pt-2">
+      <div className="md:hidden flex flex-col items-center px-4 pt-2">
         <motion.div
           key={currentCard.id}
           initial={{ opacity: 0, x: 20 }}
@@ -166,6 +170,37 @@ export function CoreChapter() {
             onStatusChange={handleStatusChange}
           />
         </motion.div>
+
+        {/* 卡片下方导航按钮 */}
+        <div className="flex items-center justify-center gap-8 mt-4">
+          <button
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className={`
+              flex items-center gap-1 px-4 py-2 rounded-full transition-all duration-200
+              ${currentIndex === 0
+                ? 'opacity-40 cursor-not-allowed'
+                : 'bg-white shadow-md border border-gray-200 text-gray-700 active:scale-95'}
+            `}
+          >
+            <ChevronLeft size={18} />
+            <span className="text-sm font-medium">上一题</span>
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === cards.length - 1}
+            className={`
+              flex items-center gap-1 px-4 py-2 rounded-full transition-all duration-200
+              ${currentIndex === cards.length - 1
+                ? 'opacity-40 cursor-not-allowed'
+                : 'bg-blue-500 shadow-md text-white active:scale-95'}
+            `}
+          >
+            <span className="text-sm font-medium">下一题</span>
+            <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
 
       {/* 移动端：底部导航栏 */}

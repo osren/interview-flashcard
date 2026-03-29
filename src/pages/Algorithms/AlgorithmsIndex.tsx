@@ -1,9 +1,24 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { algorithmCards } from '@/data/algorithms';
 import { Badge } from '@/components/ui';
+import { useCardStore } from '@/store';
 
 export function AlgorithmsIndex() {
+  const navigate = useNavigate();
+  const { lastVisitedAlgorithm } = useCardStore();
+
+  // 只有从其他模块主动点击"刷题"时才跳转，后退不跳转
+  useEffect(() => {
+    const shouldRedirect = sessionStorage.getItem('from_algorithm_detail') === 'true';
+    sessionStorage.removeItem('from_algorithm_detail');
+
+    if (shouldRedirect && lastVisitedAlgorithm) {
+      navigate(`/algorithms/${lastVisitedAlgorithm}`, { replace: true });
+    }
+  }, [lastVisitedAlgorithm, navigate]);
+
   const categories = [
     { id: 'coding', label: '手撕代码', icon: '💻', color: 'from-green-500 to-green-600' },
     { id: 'concept', label: '概念解释', icon: '📖', color: 'from-blue-500 to-blue-600' },

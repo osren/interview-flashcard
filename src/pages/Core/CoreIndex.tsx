@@ -1,9 +1,24 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { coreChapters } from '@/data/core';
 import { Badge, Progress } from '@/components/ui';
+import { useCardStore } from '@/store';
 
 export function CoreIndex() {
+  const navigate = useNavigate();
+  const { lastVisitedCoreChapter } = useCardStore();
+
+  // 只有从其他模块主动点击"核心考点"时才跳转，后退不跳转
+  useEffect(() => {
+    const shouldRedirect = sessionStorage.getItem('from_core_detail') === 'true';
+    sessionStorage.removeItem('from_core_detail');
+
+    if (shouldRedirect && lastVisitedCoreChapter) {
+      navigate(`/core/${lastVisitedCoreChapter}`, { replace: true });
+    }
+  }, [lastVisitedCoreChapter, navigate]);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">

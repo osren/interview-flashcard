@@ -19,6 +19,11 @@ interface CardState {
   // 每个章节的当前位置记忆
   chapterPositions: Record<string, number>;
 
+  // 最后访问的章节（用于底部导航恢复）
+  lastVisitedCoreChapter: string | null;
+  lastVisitedProject: string | null;
+  lastVisitedAlgorithm: string | null;
+
   // Actions
   setCards: (cards: FlashCard[]) => void;
   setCurrentChapterId: (chapterId: string | null) => void;
@@ -33,6 +38,9 @@ interface CardState {
   setSearchQuery: (query: string) => void;
   updateCardStatus: (cardId: string, status: CardStatus) => void;
   getProgress: () => { mastered: number; total: number; percentage: number };
+  setLastVisitedCoreChapter: (chapterId: string | null) => void;
+  setLastVisitedProject: (projectId: string | null) => void;
+  setLastVisitedAlgorithm: (type: string | null) => void;
 }
 
 export const useCardStore = create<CardState>()(
@@ -46,6 +54,9 @@ export const useCardStore = create<CardState>()(
       searchQuery: '',
       allCardProgress: {},
       chapterPositions: {},
+      lastVisitedCoreChapter: null,
+      lastVisitedProject: null,
+      lastVisitedAlgorithm: null,
 
       setCards: (cards) => set({ cards }),
 
@@ -105,6 +116,10 @@ export const useCardStore = create<CardState>()(
         const percentage = total > 0 ? Math.round((mastered / total) * 100) : 0;
         return { mastered, total, percentage };
       },
+
+      setLastVisitedCoreChapter: (chapterId) => set({ lastVisitedCoreChapter: chapterId }),
+      setLastVisitedProject: (projectId) => set({ lastVisitedProject: projectId }),
+      setLastVisitedAlgorithm: (type) => set({ lastVisitedAlgorithm: type }),
     }),
     {
       name: 'card-storage',
@@ -112,6 +127,9 @@ export const useCardStore = create<CardState>()(
         cards: state.cards.map((c) => ({ id: c.id, status: c.status })),
         allCardProgress: state.allCardProgress,
         chapterPositions: state.chapterPositions,
+        lastVisitedCoreChapter: state.lastVisitedCoreChapter,
+        lastVisitedProject: state.lastVisitedProject,
+        lastVisitedAlgorithm: state.lastVisitedAlgorithm,
       }),
     }
   )

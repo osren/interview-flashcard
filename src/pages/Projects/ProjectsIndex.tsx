@@ -1,7 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { projectChapters } from '@/data/projects';
 import { Badge } from '@/components/ui';
+import { useCardStore } from '@/store';
 
 const moduleInfo = {
   didi: {
@@ -17,6 +19,19 @@ const moduleInfo = {
 };
 
 export function ProjectsIndex() {
+  const navigate = useNavigate();
+  const { lastVisitedProject } = useCardStore();
+
+  // 只有从其他模块主动点击"项目复盘"时才跳转，后退不跳转
+  useEffect(() => {
+    const shouldRedirect = sessionStorage.getItem('from_project_detail') === 'true';
+    sessionStorage.removeItem('from_project_detail');
+
+    if (shouldRedirect && lastVisitedProject) {
+      navigate(`/projects/${lastVisitedProject}`, { replace: true });
+    }
+  }, [lastVisitedProject, navigate]);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">

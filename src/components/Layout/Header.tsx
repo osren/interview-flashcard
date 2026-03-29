@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
 import { Home, BookOpen, Briefcase, Code } from 'lucide-react';
+import { useCardStore } from '@/store';
 
 const navItems = [
   { path: '/', label: '首页', icon: Home },
@@ -12,6 +14,29 @@ const navItems = [
 
 export function Header() {
   const location = useLocation();
+  const prevLocationRef = useRef(location.pathname);
+  const { lastVisitedCoreChapter, lastVisitedProject, lastVisitedAlgorithm } = useCardStore();
+
+  // 检测从 Core/Projects/Algorithms 详情页离开时设置标记
+  useEffect(() => {
+    const prev = prevLocationRef.current;
+    const current = location.pathname;
+
+    // 从 core 详情页离开
+    if (prev.startsWith('/core/') && !current.startsWith('/core/')) {
+      sessionStorage.setItem('from_core_detail', lastVisitedCoreChapter || 'true');
+    }
+    // 从 projects 详情页离开
+    if (prev.startsWith('/projects/') && !current.startsWith('/projects/')) {
+      sessionStorage.setItem('from_project_detail', lastVisitedProject || 'true');
+    }
+    // 从 algorithms 详情页离开
+    if (prev.startsWith('/algorithms/') && !current.startsWith('/algorithms/')) {
+      sessionStorage.setItem('from_algorithm_detail', lastVisitedAlgorithm || 'true');
+    }
+
+    prevLocationRef.current = current;
+  }, [location.pathname, lastVisitedCoreChapter, lastVisitedProject, lastVisitedAlgorithm]);
 
   return (
     <>
