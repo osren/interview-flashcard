@@ -24,6 +24,9 @@ interface CardState {
   lastVisitedProject: string | null;
   lastVisitedAlgorithm: string | null;
 
+  // 收藏的卡片
+  favorites: FlashCard[];
+
   // Actions
   setCards: (cards: FlashCard[]) => void;
   setCurrentChapterId: (chapterId: string | null) => void;
@@ -41,6 +44,8 @@ interface CardState {
   setLastVisitedCoreChapter: (chapterId: string | null) => void;
   setLastVisitedProject: (projectId: string | null) => void;
   setLastVisitedAlgorithm: (type: string | null) => void;
+  toggleFavorite: (card: FlashCard) => void;
+  isFavorited: (cardId: string) => boolean;
 }
 
 export const useCardStore = create<CardState>()(
@@ -57,6 +62,7 @@ export const useCardStore = create<CardState>()(
       lastVisitedCoreChapter: null,
       lastVisitedProject: null,
       lastVisitedAlgorithm: null,
+      favorites: [],
 
       setCards: (cards) => set({ cards }),
 
@@ -120,6 +126,19 @@ export const useCardStore = create<CardState>()(
       setLastVisitedCoreChapter: (chapterId) => set({ lastVisitedCoreChapter: chapterId }),
       setLastVisitedProject: (projectId) => set({ lastVisitedProject: projectId }),
       setLastVisitedAlgorithm: (type) => set({ lastVisitedAlgorithm: type }),
+
+      toggleFavorite: (card) => set((state) => {
+        const exists = state.favorites.some((f) => f.id === card.id);
+        if (exists) {
+          return { favorites: state.favorites.filter((f) => f.id !== card.id) };
+        } else {
+          return { favorites: [...state.favorites, card] };
+        }
+      }),
+
+      isFavorited: (cardId) => {
+        return get().favorites.some((f) => f.id === cardId);
+      },
     }),
     {
       name: 'card-storage',
@@ -130,6 +149,7 @@ export const useCardStore = create<CardState>()(
         lastVisitedCoreChapter: state.lastVisitedCoreChapter,
         lastVisitedProject: state.lastVisitedProject,
         lastVisitedAlgorithm: state.lastVisitedAlgorithm,
+        favorites: state.favorites,
       }),
     }
   )

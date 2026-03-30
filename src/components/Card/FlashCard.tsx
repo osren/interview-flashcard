@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
+import { useCardStore } from '@/store';
+import { cn } from '@/utils/cn';
 
 interface FlashCardProps {
   card: FlashCardType;
@@ -12,6 +15,8 @@ interface FlashCardProps {
 
 export function FlashCard({ card, onStatusChange, currentIndex, totalCards }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { toggleFavorite, isFavorited } = useCardStore();
+  const favorited = isFavorited(card.id);
 
   // 切换卡片时重置翻转状态
   useEffect(() => {
@@ -20,6 +25,11 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards }: Fl
 
   const handleFlip = () => {
     setIsFlipped((prev) => !prev);
+  };
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(card);
   };
 
   const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' }> = {
@@ -60,9 +70,20 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards }: Fl
                   <Badge variant="secondary" className="text-xs">{currentIndex + 1}/{totalCards}</Badge>
                 )}
               </div>
-              <Badge variant={statusConfig[card.status].variant} className="text-xs">
-                {statusConfig[card.status].label}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleFavorite}
+                  className={cn(
+                    'p-1.5 rounded-full transition-all active:scale-90',
+                    favorited ? 'text-red-500 hover:text-red-600' : 'text-gray-300 hover:text-red-400'
+                  )}
+                >
+                  <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
+                </button>
+                <Badge variant={statusConfig[card.status].variant} className="text-xs">
+                  {statusConfig[card.status].label}
+                </Badge>
+              </div>
             </div>
 
             {/* 问题内容区 */}
@@ -105,7 +126,18 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards }: Fl
             {/* 顶部标签区 */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200">
               <Badge variant="primary" className="text-xs">参考答案</Badge>
-              <span className="text-xs text-blue-600">点击收起</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleFavorite}
+                  className={cn(
+                    'p-1.5 rounded-full transition-all active:scale-90',
+                    favorited ? 'text-red-500 hover:text-red-600' : 'text-gray-300 hover:text-red-400'
+                  )}
+                >
+                  <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
+                </button>
+                <span className="text-xs text-blue-600">点击收起</span>
+              </div>
             </div>
 
             {/* 答案内容区 - 可滚动 */}
