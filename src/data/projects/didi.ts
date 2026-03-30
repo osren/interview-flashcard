@@ -1345,6 +1345,820 @@ src/pages/
     status: 'unvisited',
     difficulty: 'easy',
   },
+  // ===== 补充问题：核心架构重构 =====
+  {
+    id: 'didi-schema-error-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '架构设计',
+    question: '当业务方配置了非法的 JSON Schema（如循环引用、不存在的组件名）时，动态表单引擎是如何处理的？',
+    answer: `非法 Schema 的容错处理：
+
+### 1. 校验层设计
+在解析阶段使用 **AJV** 进行 Schema 预校验：
+\`\`\`javascript
+import Ajv from 'ajv';
+
+const ajv = new Ajv({ allErrors: true });
+
+const validateSchema = (schema) => {
+  const validate = ajv.compile(schema);
+  const valid = validate(schema);
+  if (!valid) {
+    return {
+      valid: false,
+      errors: validate.errors.map(e => ({
+        path: e.instancePath,
+        message: e.message,
+      })),
+    };
+  }
+  return { valid: true };
+};
+\`\`\`
+
+### 2. 循环引用检测
+\`\`\`javascript
+const detectCircular = (schema, path = new Set()) => {
+  if (typeof schema !== 'object') return false;
+  const key = JSON.stringify(schema);
+  if (path.has(key)) return true;
+  path.add(key);
+  return Object.values(schema).some(v => detectCircular(v, path));
+};
+\`\`\`
+
+### 3. 组件名不存在处理
+\`\`\`javascript
+const COMPONENT_REGISTRY = {
+  Input: InputComponent,
+  Select: SelectComponent,
+  DatePicker: DatePickerComponent,
+};
+
+const resolveComponent = (type) => {
+  if (!COMPONENT_REGISTRY[type]) {
+    console.warn(\`组件 \${type} 不存在，使用默认 Fallback\`);
+    return FallbackComponent;
+  }
+  return COMPONENT_REGISTRY[type];
+};
+\`\`\`
+
+### 4. UI 层优雅降级
+\`\`\`javascript
+const SchemaRenderer = ({ schema }) => {
+  const validation = validateSchema(schema);
+
+  if (!validation.valid) {
+    return (
+      <div className="schema-error">
+        <Alert
+          type="error"
+          message="配置错误"
+          description={validation.errors.map(e => e.message).join(', ')}
+        />
+      </div>
+    );
+  }
+
+  return <FormRenderer schema={schema} />;
+};
+\`\`\`
+
+### 5. 生产环境效果
+- 不会白屏崩溃
+- 显示友好错误提示（红色边框 + 具体错误信息）
+- 不影响其他正常表单
+- 错误日志上报 Sentry`,
+    tags: ['滴滴', 'JSON Schema', '动态表单', '容错处理'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'didi-schema-design-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '架构设计',
+    question: '通用定价模型是如何设计的？如何兼容满减、折扣、时段价、人群价等复杂业务场景？',
+    answer: `通用定价模型设计：
+
+### 1. 业务场景分析
+| 场景 | 条件 | 动作 |
+|------|------|------|
+| 满减 | 订单金额 >= X | 减 Y 元 |
+| 折扣 | 用户类型 = VIP | 打 Y 折 |
+| 时段价 | 当前时间 in [A, B] | 价格 = Y |
+| 人群价 | 用户部门 = 销售部 | 价格 = Y |
+
+### 2. 规则引擎设计
+采用 **规则引擎 + 策略模式**：
+
+\`\`\`javascript
+// 规则配置（存储在数据库）
+const pricingRules = [
+  {
+    id: 'rule_001',
+    name: 'VIP折扣',
+    condition: {
+      type: 'user_type',
+      operator: 'eq',
+      value: 'VIP',
+    },
+    action: {
+      type: 'discount',
+      value: 0.9, // 9折
+    },
+    priority: 10,
+  },
+  {
+    id: 'rule_002',
+    name: '满100减10',
+    condition: {
+      type: 'order_amount',
+      operator: 'gte',
+      value: 100,
+    },
+    action: {
+      type: 'subtract',
+      value: 10,
+    },
+    priority: 5,
+  },
+];
+\`\`\`
+
+### 3. 引擎执行逻辑
+\`\`\`javascript
+class PricingEngine {
+  calculate(order, rules) {
+    let price = order.basePrice;
+    const appliedRules = [];
+
+    // 按优先级排序
+    const sortedRules = [...rules].sort((a, b) => b.priority - a.priority);
+
+    for (const rule of sortedRules) {
+      if (this.matchCondition(rule.condition, order)) {
+        price = this.applyAction(rule.action, price);
+        appliedRules.push(rule);
+      }
+    }
+
+    return { finalPrice: price, appliedRules };
+  }
+
+  matchCondition(condition, order) {
+    const value = this.getValue(condition.type, order);
+    switch (condition.operator) {
+      case 'eq': return value === condition.value;
+      case 'gte': return value >= condition.value;
+      case 'in': return condition.value.includes(value);
+      default: return false;
+    }
+  }
+
+  applyAction(action, price) {
+    switch (action.type) {
+      case 'discount': return price * action.value;
+      case 'subtract': return price - action.value;
+      case 'fixed': return action.value;
+      default: return price;
+    }
+  }
+}
+\`\`\`
+
+### 4. 自定义 Hook 扩展
+对于无法用配置覆盖的"特例"：
+\`\`\`javascript
+const pricingRules = [
+  {
+    id: 'rule_custom',
+    name: '自定义规则',
+    condition: { type: 'custom', script: 'order.items.length > 5' },
+    action: { type: 'custom', script: 'price * 0.85' },
+  },
+];
+
+// 注意：生产环境需要沙箱隔离
+const executeCustomScript = (script, context) => {
+  return new Function('order', script)(context);
+};
+\`\`\`
+
+### 5. 模型优势
+- 配置化而非硬编码
+- 新业务只需添加规则，无需改代码
+- 规则可配置优先级
+- 支持规则组合（先折扣再满减）`,
+    tags: ['滴滴', '定价模型', '规则引擎', '策略模式'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  // ===== 补充问题：性能优化 =====
+  {
+    id: 'didi-preload-timing-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '性能优化',
+    question: '路由预加载的具体时机是如何判断的？如果预加载资源很大，如何避免影响当前页面加载？',
+    answer: `预加载策略详解：
+
+### 1. 预加载时机选择
+
+#### a. 鼠标悬停预加载（最常用）
+\`\`\`javascript
+<Link to="/supplier" onMouseEnter={() => handlePrefetch('/supplier')}>
+  供应商管理
+</Link>
+
+const handlePrefetch = (path) => {
+  const module = getModuleByPath(path);
+  if (module && !module.loaded) {
+    import(/* webpackPrefetch: true */ \`./pages/\${module.name}\`);
+  }
+};
+\`\`\`
+
+#### b. 空闲时间预加载（requestIdleCallback）
+\`\`\`javascript
+// 用户无操作时预加载
+const prefetchOnIdle = (paths) => {
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      paths.forEach(path => prefetchModule(path));
+    });
+  } else {
+    setTimeout(() => {
+      paths.forEach(path => prefetchModule(path));
+    }, 3000);
+  }
+};
+\`\`\`
+
+#### c. 基于用户行为预测
+\`\`\`javascript
+// 登录页预加载首页资源
+const LoginPage = () => {
+  useEffect(() => {
+    // 用户可能下一步去首页
+    prefetchModule('/home');
+    // 或用户可能去个人中心
+    prefetchModule('/profile');
+  }, []);
+
+  return <LoginForm />;
+};
+\`\`\`
+
+### 2. Resource Hints 优化
+\`\`\`html
+<!-- 关键资源预加载 -->
+<link rel="preload" as="script" href="/bundle.js">
+
+<!-- 空闲时间预加载（不阻塞） -->
+<link rel="prefetch" as="script" href="/supplier.js">
+\`\`\`
+
+### 3. 带宽竞争处理
+\`\`\`javascript
+// 检测网络状态
+const getEffectiveConnectionType = () => {
+  const nav = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  return nav?.effectiveType; // '4g', '3g', '2g', 'slow-2g'
+};
+
+// 弱网时禁用预加载
+const shouldPrefetch = () => {
+  const ect = getEffectiveConnectionType();
+  return ect === '4g' || ect === undefined; // 4G 或有线网络才预加载
+};
+\`\`\`
+
+### 4. 优先级控制
+\`\`\`javascript
+// Webpack 配置动态 import 优先级
+import(/* webpackPrefetch: 0 */ './pages/Home')  // 高优先级
+import(/* webpackPrefetch: 10 */ './pages/About') // 低优先级
+\`\`\`
+
+### 5. 效果数据
+- FCP 从 3.2s → 1.8s
+- 预加载命中率 70%+
+- 弱网下不影响主流程加载`,
+    tags: ['滴滴', '预加载', 'Resource Hints', '性能优化'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'didi-bundle-optimize-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '性能优化',
+    question: '你是如何发现冗余依赖的？能分享一个具体的包体积优化案例吗？',
+    answer: `包体积优化实践：
+
+### 1. 分析工具
+
+#### Bundle Analyzer（Webpack）
+\`\`\`javascript
+// webpack.config.js
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+module.exports = {
+  plugins: [
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      reportFilename: 'bundle-report.html',
+    }),
+  ],
+};
+\`\`\`
+
+#### rollup-plugin-visualizer（Vite）
+\`\`\`javascript
+// vite.config.js
+import visualizer from 'rollup-plugin-visualizer';
+
+plugins: [
+  visualizer({
+    filename: 'stats.html',
+    open: true,
+  }),
+];
+\`\`\`
+
+### 2. 典型优化案例
+
+#### Case 1: lodash → lodash-es（按需引入）
+\`\`\`javascript
+// ❌ 错误：全量引入
+import _ from 'lodash';
+_.cloneDeep(obj);
+_.groupBy(arr, 'key');
+
+// ✅ 正确：按需引入
+import cloneDeep from 'lodash-es/cloneDeep';
+import groupBy from 'lodash-es/groupBy';
+
+// 结果：lodash 包从 70KB → 3KB
+\`\`\`
+
+#### Case 2: moment.js → dayjs
+\`\`\`javascript
+// ❌ 错误：moment.js 打包后 300KB+
+import moment from 'moment';
+moment().format('YYYY-MM-DD');
+
+// ✅ 正确：dayjs 只有 2KB
+import dayjs from 'dayjs';
+dayjs().format('YYYY-MM-DD');
+\`\`\`
+
+#### Case 3: Ant Design 按需引入
+\`\`\`javascript
+// ❌ 错误：全量引入
+import { Button, Table, Form, Modal } from 'antd';
+
+// ✅ 正确：babel-plugin-import
+// 配置 .babelrc
+{
+  "plugins": [
+    ["import", { "libraryName": "antd", "libraryDirectory": "es" }]
+  ]
+}
+// 使用时自动按需引入
+import { Button } from 'antd';
+\`\`\`
+
+### 3. 其他优化手段
+
+| 优化点 | 方法 | 收益 |
+|--------|------|------|
+| 图片压缩 | image-webpack-loader | 30%+ |
+| 代码压缩 | terser-webpack-plugin | 40%+ |
+| Tree Shaking | ES Module | 20%+ |
+| CDN 引入 | external 配置 | 50%+ |
+| gzip 压缩 | 服务端开启 | 70%+ |
+
+### 4. 最终效果
+- 首屏 JS 减少 45%
+- 整体包体积减少 30%
+- 弱网 FCP 提升 50%`,
+    tags: ['滴滴', 'Bundle Analyzer', '包体积优化', 'lodash', '性能优化'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'didi-component-api-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '架构设计',
+    question: '你提到封装了高内聚业务组件，当父组件需要控制组件的 loading 状态或缓存数据时，你会暴露哪些接口？',
+    answer: `组件 API 设计实践：
+
+### 1. 受控（Controlled）与非受控（Uncontrolled）模式
+\`\`\`javascript
+const SearchSelect = ({
+  // 受控模式
+  value,
+  onChange,
+  loading,
+  // 非受控模式（内部状态）
+  defaultValue,
+  defaultOptions,
+  // 通用
+  placeholder,
+  onSearch,
+}) => {
+  // 内部状态
+  const [internalValue, setInternalValue] = useState(defaultValue);
+  const [options, setOptions] = useState(defaultOptions || []);
+
+  // 受控优先
+  const isControlled = value !== undefined;
+  const currentValue = isControlled ? value : internalValue;
+
+  const handleChange = (newValue) => {
+    if (!isControlled) {
+      setInternalValue(newValue);
+    }
+    onChange?.(newValue);
+  };
+
+  return (
+    <Select
+      value={currentValue}
+      onChange={handleChange}
+      loading={loading}
+      options={options}
+    />
+  );
+};
+\`\`\`
+
+### 2. 暴露的接口设计
+
+| 接口类型 | 示例 | 说明 |
+|----------|------|------|
+| 数据相关 | value/onChange | 受控模式入口 |
+| 加载状态 | loading | 外部控制请求状态 |
+| 数据注入 | options | 外部传入数据 |
+| 事件回调 | onSearch | 搜索事件通知 |
+| 方法暴露 | ref.search() | 主动触发搜索 |
+| 缓存控制 | cacheKey | 相同 key 复用数据 |
+
+### 3. 高级：自定义 Hook 暴露
+\`\`\`javascript
+// 组件内部暴露数据给外部
+const useSearchSelect = (props) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const search = async (keyword) => {
+    setLoading(true);
+    const result = await fetchOptions(keyword);
+    setOptions(result);
+    setLoading(false);
+  };
+
+  // 暴露给外部
+  return {
+    options,
+    loading,
+    search,
+    clear: () => setOptions([]),
+  };
+};
+
+// 使用
+const Parent = () => {
+  const { options, loading, search } = useSearchSelect();
+
+  return (
+    <SearchSelect
+      options={options}
+      loading={loading}
+      onSearch={search}
+    />
+  );
+};
+\`\`\`
+
+### 4. 实际应用案例
+\`\`\`javascript
+// 供应商选择组件
+<SupplierSelect
+  value={selectedSupplier}
+  onChange={setSelectedSupplier}
+  loading={loading}
+  onSearch={handleSearch}
+  cacheKey="supplier-list"  // 缓存 key
+  ref={supplierSelectRef}   // 暴露方法
+/>
+\`\`\`
+
+### 5. 设计原则
+- 保持内部状态简洁
+- 受控/非受控兼容
+- 暴露必要的控制力
+- 不过度设计`,
+    tags: ['滴滴', '组件设计', '受控模式', 'API设计'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  // ===== 补充问题：AI 工程化 =====
+  {
+    id: 'didi-openspec-challenge-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: '制定 OpenSpec 标准容易，但推行难。AI 生成代码经常不符合标准（如 ESLint 报错或用了危险 API），你是怎么解决的？',
+    answer: `OpenSpec 落地挑战解决方案：
+
+### 1. System Prompt 约束
+在 AI 的 System Prompt 中明确写入规范：
+\`\`\`markdown
+# 开发规范
+
+## 代码规范
+1. 禁止使用 any 类型，必须显式声明类型
+2. 禁止使用 eval、new Function 等危险 API
+3. 变量命名使用 camelCase
+4. 组件必须使用 React.FC 声明
+
+## ESLint 规则
+- no-unused-vars: warn
+- no-console: off（允许调试）
+- react/prop-types: off（使用 TS）
+
+## OpenSpec 输出格式
+\`\`\`json
+{
+  "type": "component",
+  "name": "SupplierTable",
+  "props": {...},
+  "code": "..."
+}
+\`\`\`
+\`\`\`
+
+### 2. 后处理（Post-process）机制
+\`\`\`javascript
+// AI 生成代码后处理
+const postProcess = (code) => {
+  // 1. 类型修复
+  code = code.replace(/: any/g, ': unknown');
+
+  // 2. 危险 API 检测
+  if (code.includes('eval(') || code.includes('new Function(')) {
+    throw new Error('检测到危险 API');
+  }
+
+  // 3. 自动格式化
+  code = prettier.format(code);
+
+  // 4. ESLint 自动修复
+  code = eslintFix(code);
+
+  return code;
+};
+\`\`\`
+
+### 3. 人工审核环节
+\`\`\`markdown
+## Code Review 流程
+
+1. AI 生成代码
+2. 自动执行 ESLint + Prettier
+3. 显示修复建议
+4. 人工确认是否采纳
+5. 合并到主干
+
+> AI 负责 80% 基础工作，人工负责 20% 关键决策
+\`\`\`
+
+### 4. 错误反馈循环
+\`\`\`javascript
+// 将错误信息反馈给 AI
+const handleError = (error) => {
+  return ai.generate(\`修复以下错误：
+
+\`\`\`
+\${error.message}
+\`\`\`
+
+原代码：
+\`\`\`
+\${originalCode}
+\`\`\`
+\`);
+};
+\`\`\`
+
+### 5. 效果
+- ESLint 错误减少 60%
+- 代码格式问题 0
+- 人工 review 效率提升 50%`,
+    tags: ['滴滴', 'OpenSpec', 'AI工程化', 'Prompt Engineering'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'didi-ai-limit-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: 'AI 适合做"架构重构"吗？在遗留系统拆解中，AI 具体帮了什么忙？是写代码还是写文档？',
+    answer: `AI 在重构中的边界与实践：
+
+### 1. AI 适合的场景
+
+| 场景 | AI 能力 | 适用程度 |
+|------|---------|----------|
+| 生成单元测试 | ★★★★★ | 高 |
+| 代码注释/文档 | ★★★★☆ | 高 |
+| 模式识别/总结 | ★★★☆☆ | 中 |
+| 复杂逻辑设计 | ★★☆☆☆ | 低 |
+| 架构决策 | ★☆☆☆☆ | 低 |
+
+### 2. 实际工作分配
+
+#### AI 负责（80%）
+\`\`\`javascript
+// 1. 生成单元测试
+// AI：根据现有函数生成测试用例
+describe('PricingEngine', () => {
+  test('满减规则正确计算', () => {
+    const engine = new PricingEngine();
+    const result = engine.calculate(
+      { basePrice: 150 },
+      [{ condition: { type: 'amount', value: 100 }, action: { type: 'subtract', value: 10 } }]
+    );
+    expect(result.finalPrice).toBe(140);
+  });
+});
+
+// 2. 代码注释
+// AI：为老代码生成 JSDoc 注释
+/**
+ * 计算订单最终价格
+ * @param {Order} order - 订单对象
+ * @param {Rule[]} rules - 定价规则数组
+ * @returns {Object} { finalPrice, appliedRules }
+ */
+function calculatePrice(order, rules) { ... }
+\`\`\`
+
+#### 人类负责（20%）
+\`\`\`javascript
+// 1. Schema 设计决策
+const pricingSchema = {
+  // 定价模型抽象成什么结构？
+  // 策略模式还是规则引擎？
+  // 这个决策必须由人来做
+};
+
+// 2. 拆解策略
+// 哪些模块先拆？哪些后拆？
+// 依赖关系如何处理？
+// 灰度方案是什么？
+\`\`\`
+
+### 3. 重构工作流
+\`\`\`markdown
+## 人机协作重构流程
+
+1. **人工分析**（人类）
+   - 分析代码依赖关系
+   - 确定拆解顺序
+   - 设计新架构
+
+2. **AI 辅助理解**（AI）
+   - 生成代码文档
+   - 分析潜在的调用链路
+   - 识别循环依赖
+
+3. **AI 生成测试**（AI）
+   - 为旧代码生成单元测试
+   - 覆盖率目标 80%+
+
+4. **人工实现新逻辑**（人类）
+   - 实现新的 Schema 引擎
+   - 配置驱动替代硬编码
+
+5. **AI 对比差异**（AI）
+   - 验证新旧逻辑等价
+   - 生成回归测试
+\`\`\`
+
+### 4. 客观认知
+- AI 是**辅助工具**，不是**决策者**
+- 复杂业务逻辑需要人类把控
+- 重构的**安全感**来自测试，不是 AI
+- 文档可以 AI 生成，但架构必须人设计`,
+    tags: ['滴滴', 'AI辅助开发', '重构', '人机协作'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'didi-ssd-def-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: 'SSD 智能体的定义是什么？它与普通的 AI 提示词有什么区别？',
+    answer: `SSD 智能体定义：
+
+### 1. 什么是 SSD
+\`\`\`
+SSD = Smart Specification Driven
+智能体规范驱动开发
+\`\`\`
+
+### 2. 对比普通 Prompt
+
+| 维度 | 普通 Prompt | SSD 智能体 |
+|------|-------------|------------|
+| 形式 | 一次性对话 | 持久化配置 |
+| 约束力 | 低 | 高 |
+| 复用性 | 低 | 高 |
+| 标准化 | 无 | 有 |
+
+### 3. SSD 结构
+\`\`\`yaml
+# jiazi-component-dev Skill
+name: jiazi-component-dev
+description: 甲子项目 React 组件开发规范
+
+# 约束条件
+constraints:
+  - 技术栈: React 17, TypeScript, Ant Design 4.x
+  - 禁止: any 类型、eval、console.log
+  - 路径别名: @ -> src/
+
+# 输入模板
+templates:
+  - "新建页面组件"
+  - "添加列表页"
+  - "创建表单页"
+
+# 输出格式
+output:
+  format: json
+  schema:
+    code: string
+    tests: string
+    docs: string
+\`\`\`
+
+### 4. Skills 封装示例
+\`\`\`javascript
+// .claude/skills/jiazi-component-dev/SKILL.md
+# 甲子项目 React 组件开发规范
+
+## 适用场景
+- 新建页面组件
+- 添加列表页
+- 创建表单页
+- 封装公共组件
+
+## 技术约束
+1. 使用 React Hooks（useState, useEffect, useMemo）
+2. 使用 TypeScript（严格模式）
+3. 使用 Ant Design 组件
+4. 使用 @ 路径别名
+5. 禁止使用 any 类型
+
+## 代码规范
+- 组件文件：PascalCase
+- 样式文件：同名的 .module.css
+- 测试文件：同名的 .test.tsx
+- 导出使用 export default
+
+## 输出格式
+\`\`\`typescript
+// 输出示例
+export interface ComponentProps {
+  // ...
+}
+
+const MyComponent: React.FC<ComponentProps> = ({ ... }) => {
+  // ...
+};
+
+export default MyComponent;
+\`\`\`
+\`\`\`
+
+### 5. 效果
+- 团队成员可复用同一套规范
+- AI 生成代码质量稳定
+- 新人上手成本降低`,
+    tags: ['滴滴', 'SSD', 'AI智能体', 'Skills'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
 ];
 
 export const didiChapter: Chapter = {
