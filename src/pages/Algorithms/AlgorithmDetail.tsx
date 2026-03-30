@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
@@ -11,6 +11,7 @@ import { CardStatus, FlashCard } from '@/types';
 export function AlgorithmDetail() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -36,13 +37,24 @@ export function AlgorithmDetail() {
       status: allCardProgress[card.id] || card.status,
     }));
     setCards(cardsWithStatus);
-    const savedIndex = getChapterPosition(type || '');
-    setCurrentIndex(savedIndex);
+
+    // 如果 URL 有 cardIndex 参数，优先使用它
+    const cardIndexParam = searchParams.get('cardIndex');
+    if (cardIndexParam !== null) {
+      const index = parseInt(cardIndexParam, 10);
+      if (!isNaN(index) && index >= 0 && index < typeCards.length) {
+        setCurrentIndex(index);
+      }
+    } else {
+      const savedIndex = getChapterPosition(type || '');
+      setCurrentIndex(savedIndex);
+    }
+
     // 记录最后访问的类型
     if (type) {
       setLastVisitedAlgorithm(type);
     }
-  }, [type, allCardProgress, setLastVisitedAlgorithm]);
+  }, [type, allCardProgress, setLastVisitedAlgorithm, searchParams]);
 
   const handleIndexChange = useCallback((newIndex: number) => {
     setCurrentIndex(newIndex);

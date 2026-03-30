@@ -5,6 +5,22 @@ import { useCardStore } from '@/store';
 import { FlashCard, ModuleType } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/utils/cn';
+import { coreCards } from '@/data/core';
+import { projectCards } from '@/data/projects';
+import { algorithmCards } from '@/data/algorithms';
+
+// 获取卡片在原始数据中的索引
+const getCardIndex = (card: FlashCard): number => {
+  let cards: FlashCard[];
+  if (card.module === 'core') {
+    cards = coreCards.filter((c) => c.chapterId === card.chapterId);
+  } else if (card.module === 'projects') {
+    cards = projectCards.filter((c) => c.chapterId === card.chapterId);
+  } else {
+    cards = algorithmCards.filter((c) => c.chapterId === card.chapterId);
+  }
+  return cards.findIndex((c) => c.id === card.id);
+};
 
 const moduleConfig: Record<ModuleType, { label: string; icon: typeof BookOpen; color: string }> = {
   core: { label: '核心考点', icon: BookOpen, color: 'bg-blue-500' },
@@ -43,13 +59,14 @@ export function FavoritesBar() {
   };
 
   const handleCardClick = (card: FlashCard) => {
-    // 跳转到对应模块的章节
+    const cardIndex = getCardIndex(card);
+    // 跳转到对应模块的章节，携带卡片索引
     if (card.module === 'core') {
-      navigate(`/core/${card.chapterId}`);
+      navigate(`/core/${card.chapterId}?cardIndex=${cardIndex}`);
     } else if (card.module === 'projects') {
-      navigate(`/projects/${card.chapterId}`);
+      navigate(`/projects/${card.chapterId}?cardIndex=${cardIndex}`);
     } else if (card.module === 'algorithms') {
-      navigate(`/algorithms/${card.chapterId}`);
+      navigate(`/algorithms/${card.chapterId}?cardIndex=${cardIndex}`);
     }
   };
 

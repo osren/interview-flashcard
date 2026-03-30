@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
@@ -11,6 +11,7 @@ import { CardStatus, FlashCard } from '@/types';
 export function CoreChapter() {
   const { chapterId } = useParams<{ chapterId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // 直接使用 useState 管理本地卡片状态
   const [cards, setCards] = useState<FlashCard[]>([]);
@@ -39,14 +40,25 @@ export function CoreChapter() {
       status: allCardProgress[card.id] || card.status,
     }));
     setCards(cardsWithStatus);
-    // 恢复保存的位置
-    const savedIndex = getChapterPosition(chapterId || '');
-    setCurrentIndex(savedIndex);
+
+    // 如果 URL 有 cardIndex 参数，优先使用它
+    const cardIndexParam = searchParams.get('cardIndex');
+    if (cardIndexParam !== null) {
+      const index = parseInt(cardIndexParam, 10);
+      if (!isNaN(index) && index >= 0 && index < chapterCards.length) {
+        setCurrentIndex(index);
+      }
+    } else {
+      // 恢复保存的位置
+      const savedIndex = getChapterPosition(chapterId || '');
+      setCurrentIndex(savedIndex);
+    }
+
     // 记录最后访问的章节
     if (chapterId) {
       setLastVisitedCoreChapter(chapterId);
     }
-  }, [chapterId, allCardProgress, setLastVisitedCoreChapter]);
+  }, [chapterId, allCardProgress, setLastVisitedCoreChapter, searchParams]);
 
   // 保存当前位置
   const handleIndexChange = useCallback((newIndex: number) => {
