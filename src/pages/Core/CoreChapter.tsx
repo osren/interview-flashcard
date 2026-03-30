@@ -136,7 +136,7 @@ export function CoreChapter() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-16"
                     onClick={() => setShowIndexPicker(false)}
                   >
                     <div
