@@ -109,14 +109,62 @@ export function ProjectDetail() {
           </div>
           <div className="flex items-center gap-2">
             {/* 移动端：可点击的序号 */}
-            <button
-              onClick={() => setShowIndexPicker(!showIndexPicker)}
-              className="md:hidden flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
-            >
-              <span>{currentIndex + 1}</span>
-              <span className="text-blue-400">/</span>
-              <span>{cards.length}</span>
-            </button>
+            <div className="md:hidden relative" ref={indexPickerRef}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowIndexPicker(!showIndexPicker);
+                }}
+                className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
+              >
+                <span>{currentIndex + 1}</span>
+                <span className="text-blue-400">/</span>
+                <span>{cards.length}</span>
+              </button>
+              {/* 序号选择器弹窗 - 移动端 */}
+              <AnimatePresence>
+                {showIndexPicker && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    onClick={() => setShowIndexPicker(false)}
+                  >
+                    <div
+                      className="bg-white rounded-lg shadow-xl p-3 max-h-[60vh] overflow-y-auto w-[80%]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                        <span className="text-sm font-medium text-gray-600">选择序号</span>
+                        <button
+                          onClick={() => setShowIndexPicker(false)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {cards.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleJumpTo(idx)}
+                            className={`
+                              py-2 text-xs rounded transition-colors
+                              ${idx === currentIndex
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'}
+                            `}
+                          >
+                            {idx + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <Badge variant="primary" className="text-xs hidden md:inline">{currentIndex + 1} / {cards.length}</Badge>
             <Badge variant="default" className="text-xs hidden sm:inline">{currentCard.category}</Badge>
           </div>
