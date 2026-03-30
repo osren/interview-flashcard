@@ -129,6 +129,8 @@ export function ProjectDetail() {
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
+            currentIndex={currentIndex}
+            totalCards={cards.length}
           />
         </motion.div>
 
@@ -160,6 +162,8 @@ export function ProjectDetail() {
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
+            currentIndex={currentIndex}
+            totalCards={cards.length}
           />
         </motion.div>
 

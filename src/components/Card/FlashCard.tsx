@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui';
 interface FlashCardProps {
   card: FlashCardType;
   onStatusChange: (status: CardStatus) => void;
+  currentIndex?: number;
+  totalCards?: number;
 }
 
-export function FlashCard({ card, onStatusChange }: FlashCardProps) {
+export function FlashCard({ card, onStatusChange, currentIndex, totalCards }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   // 切换卡片时重置翻转状态
@@ -52,7 +54,12 @@ export function FlashCard({ card, onStatusChange }: FlashCardProps) {
           >
             {/* 顶部标签区 */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <Badge variant="primary" className="text-xs">{card.category || card.module}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="primary" className="text-xs">{card.category || card.module}</Badge>
+                {currentIndex !== undefined && totalCards !== undefined && (
+                  <Badge variant="secondary" className="text-xs">{currentIndex + 1}/{totalCards}</Badge>
+                )}
+              </div>
               <Badge variant={statusConfig[card.status].variant} className="text-xs">
                 {statusConfig[card.status].label}
               </Badge>

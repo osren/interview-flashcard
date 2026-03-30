@@ -137,6 +137,8 @@ export function CoreChapter() {
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
+            currentIndex={currentIndex}
+            totalCards={cards.length}
           />
         </motion.div>
 
@@ -168,6 +170,8 @@ export function CoreChapter() {
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
+            currentIndex={currentIndex}
+            totalCards={cards.length}
           />
         </motion.div>
 
