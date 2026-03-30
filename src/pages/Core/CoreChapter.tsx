@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { Badge } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 
 export function CoreChapter() {
@@ -15,14 +15,35 @@ export function CoreChapter() {
   // 直接使用 useState 管理本地卡片状态
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { updateCardStatus } = useCardStore();
+  const [showIndexPicker, setShowIndexPicker] = useState(false);
+  const indexPickerRef = useRef<HTMLDivElement>(null);
+  const { updateCardStatus, getMergedCards } = useCardStore();
+
+  // 点击外部关闭序号选择器
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
+        setShowIndexPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // 加载章节卡片
   useEffect(() => {
     const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
-    setCards(chapterCards);
+    const mergedCards = getMergedCards('core', chapterId || '', chapterCards);
+    setCards(mergedCards);
     setCurrentIndex(0); // 重置到第一张
   }, [chapterId]);
+
+  const handleJumpTo = (idx: number) => {
+    if (idx >= 0 && idx < cards.length) {
+      setCurrentIndex(idx);
+      setShowIndexPicker(false);
+    }
+  };
 
   const currentCard = cards[currentIndex];
 
@@ -76,8 +97,7 @@ export function CoreChapter() {
               <Home size={18} />
             </button>
           </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="primary">{currentIndex + 1} / {cards.length}</Badge>
+          <div className="flex items-center gap-3">
             <Badge variant="default">{currentCard.category}</Badge>
           </div>
         </div>
@@ -88,9 +108,64 @@ export function CoreChapter() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2 capitalize">
           {chapterId}
         </h1>
-        <p className="text-gray-500">
-          卡片 {currentIndex + 1} of {cards.length}
-        </p>
+        {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
+        <div className="relative inline-flex" ref={indexPickerRef}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowIndexPicker(!showIndexPicker);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors text-lg font-medium"
+          >
+            <span>{currentIndex + 1}</span>
+            <span className="text-orange-400">/</span>
+            <span>{cards.length}</span>
+          </button>
+          {/* 序号选择器弹窗 */}
+          <AnimatePresence>
+            {showIndexPicker && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-h-80 overflow-y-auto z-50"
+                style={{ minWidth: '240px' }}
+              >
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">选择序号</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowIndexPicker(false);
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-5 gap-1">
+                  {cards.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleJumpTo(idx);
+                      }}
+                      className={`
+                        w-9 h-9 text-sm rounded transition-colors
+                        ${idx === currentIndex
+                          ? 'bg-orange-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-600'}
+                      `}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
@@ -123,6 +198,7 @@ export function CoreChapter() {
             onStatusChange={handleStatusChange}
             currentIndex={currentIndex}
             totalCards={cards.length}
+            showEdit={true}
           />
         </motion.div>
 

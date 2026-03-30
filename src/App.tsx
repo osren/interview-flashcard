@@ -4,6 +4,7 @@ import { Home } from '@/pages/Home';
 import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
 import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
+import { CustomCardsPage } from '@/pages/Custom';
 
 function App() {
   return (
@@ -24,6 +25,9 @@ function App() {
           {/* 刷题模块 */}
           <Route path="/algorithms" element={<AlgorithmsIndex />} />
           <Route path="/algorithms/:type" element={<AlgorithmDetail />} />
+
+          {/* 自定义卡片 */}
+          <Route path="/custom" element={<CustomCardsPage />} />
 
           {/* 404 */}
           <Route

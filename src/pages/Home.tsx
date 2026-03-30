@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui';
-import { useProgressStore } from '@/store';
+import { useProgressStore, useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { algorithmChapters, algorithmCards } from '@/data/algorithms';
@@ -34,11 +34,22 @@ const modules = [
     chapters: algorithmChapters.length,
     color: 'from-green-500 to-green-600',
   },
+  {
+    path: '/custom',
+    icon: '✨',
+    title: '自定义卡片',
+    description: '添加你自己的面试问题和答案',
+    cardCount: 0, // 动态获取
+    chapters: 0,
+    color: 'from-orange-500 to-orange-600',
+    isCustom: true,
+  },
 ];
 
 export function Home() {
   const { totalMastered } = useProgressStore();
-  const totalCards = coreCards.length + projectCards.length + algorithmCards.length;
+  const { customCards } = useCardStore();
+  const totalCards = coreCards.length + projectCards.length + algorithmCards.length + customCards.length;
   const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
 
   return (
@@ -84,7 +95,7 @@ export function Home() {
       {/* 模块卡片 */}
       <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {modules.map((module, index) => (
               <motion.div
                 key={module.path}
@@ -106,17 +117,26 @@ export function Home() {
                       {module.description}
                     </p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium text-gray-700">{module.chapters}</span>
-                        个章节
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium text-gray-700">{module.cardCount}</span>
-                        张卡片
-                      </span>
+                      {module.isCustom ? (
+                        <span className="flex items-center gap-1">
+                          <span className="font-medium text-gray-700">{customCards.length}</span>
+                          张卡片
+                        </span>
+                      ) : (
+                        <>
+                          <span className="flex items-center gap-1">
+                            <span className="font-medium text-gray-700">{module.chapters}</span>
+                            个章节
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span className="font-medium text-gray-700">{module.cardCount}</span>
+                            张卡片
+                          </span>
+                        </>
+                      )}
                     </div>
                     <div className="mt-4 flex items-center text-primary-600 font-medium text-sm">
-                      开始学习 →
+                      {module.isCustom ? '管理卡片 →' : '开始学习 →'}
                     </div>
                   </div>
                 </Link>

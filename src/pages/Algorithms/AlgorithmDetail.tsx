@@ -1,30 +1,60 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { useCardStore } from '@/store';
 import { algorithmCards } from '@/data/algorithms';
 import { Badge } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
-import { CardStatus } from '@/types';
+import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
+import { CardStatus, FlashCard } from '@/types';
 
 export function AlgorithmDetail() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
 
-  const {
-    cards,
-    currentIndex,
-    setCards,
-    next,
-    prev,
-    updateCardStatus,
-  } = useCardStore();
+  // 本地状态管理
+  const [cards, setCards] = useState<FlashCard[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showIndexPicker, setShowIndexPicker] = useState(false);
+  const indexPickerRef = useRef<HTMLDivElement>(null);
+  const { updateCardStatus, getMergedCards } = useCardStore();
+
+  // 点击外部关闭序号选择器
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
+        setShowIndexPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const typeCards = algorithmCards.filter((c) => c.chapterId === type);
-    setCards(typeCards);
-  }, [type, setCards]);
+    const merged = getMergedCards('algorithms', type || '', typeCards);
+    setCards(merged);
+    setCurrentIndex(0);
+  }, [type]);
+
+  const handleJumpTo = (idx: number) => {
+    if (idx >= 0 && idx < cards.length) {
+      setCurrentIndex(idx);
+      setShowIndexPicker(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < cards.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
 
   const currentCard = cards[currentIndex];
 
@@ -39,7 +69,7 @@ export function AlgorithmDetail() {
   const handleStatusChange = (status: CardStatus) => {
     updateCardStatus(currentCard.id, status);
     if (currentIndex < cards.length - 1) {
-      setTimeout(() => next(), 300);
+      setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
     }
   };
 
@@ -69,8 +99,7 @@ export function AlgorithmDetail() {
               <Home size={18} />
             </button>
           </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="primary">{currentIndex + 1} / {cards.length}</Badge>
+          <div className="flex items-center gap-3">
             <Badge variant="default">{typeLabels[type || ''] || type}</Badge>
           </div>
         </div>
@@ -81,16 +110,71 @@ export function AlgorithmDetail() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           {typeLabels[type || '']}
         </h1>
-        <p className="text-gray-500">
-          练习 {currentIndex + 1} of {cards.length}
-        </p>
+        {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
+        <div className="relative inline-flex" ref={indexPickerRef}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowIndexPicker(!showIndexPicker);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors text-lg font-medium"
+          >
+            <span>{currentIndex + 1}</span>
+            <span className="text-green-400">/</span>
+            <span>{cards.length}</span>
+          </button>
+          {/* 序号选择器弹窗 */}
+          <AnimatePresence>
+            {showIndexPicker && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-h-80 overflow-y-auto z-50"
+                style={{ minWidth: '240px' }}
+              >
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">选择序号</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowIndexPicker(false);
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-5 gap-1">
+                  {cards.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleJumpTo(idx);
+                      }}
+                      className={`
+                        w-9 h-9 text-sm rounded transition-colors
+                        ${idx === currentIndex
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-600'}
+                      `}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
       <div className="flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
         {/* 左侧按钮 */}
         <button
-          onClick={prev}
+          onClick={handlePrev}
           disabled={currentIndex === 0}
           className={`
             flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
@@ -116,12 +200,13 @@ export function AlgorithmDetail() {
             onStatusChange={handleStatusChange}
             currentIndex={currentIndex}
             totalCards={cards.length}
+            showEdit={true}
           />
         </motion.div>
 
         {/* 右侧按钮 */}
         <button
-          onClick={next}
+          onClick={handleNext}
           disabled={currentIndex === cards.length - 1}
           className={`
             flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
