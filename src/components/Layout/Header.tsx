@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
-import { Home, BookOpen, Briefcase, Code } from 'lucide-react';
+import { Home, BookOpen, Briefcase, Code, Heart } from 'lucide-react';
 import { useCardStore } from '@/store';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { path: '/core', label: '核心考点', icon: BookOpen },
   { path: '/projects', label: '项目复盘', icon: Briefcase },
   { path: '/algorithms', label: '刷题', icon: Code },
+  { path: '/favorites', label: '收藏', icon: Heart },
 ];
 
 export function Header() {

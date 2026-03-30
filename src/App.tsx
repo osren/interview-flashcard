@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { Header, Footer } from '@/components/Layout';
-import { FavoritesBar } from '@/components/FavoritesBar';
+import { Favorites } from '@/pages/Favorites';
 import { Home } from '@/pages/Home';
 import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
@@ -10,7 +10,6 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <FavoritesBar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -26,6 +25,9 @@ function App() {
           {/* 刷题模块 */}
           <Route path="/algorithms" element={<AlgorithmsIndex />} />
           <Route path="/algorithms/:type" element={<AlgorithmDetail />} />
+
+          {/* 收藏 */}
+          <Route path="/favorites" element={<Favorites />} />
 
           {/* 404 */}
           <Route
