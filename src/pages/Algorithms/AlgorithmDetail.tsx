@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { useCardStore } from '@/store';
 import { algorithmCards } from '@/data/algorithms';
 import { Badge } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 
 export function AlgorithmDetail() {
@@ -14,7 +14,20 @@ export function AlgorithmDetail() {
 
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showIndexPicker, setShowIndexPicker] = useState(false);
+  const indexPickerRef = useRef<HTMLDivElement>(null);
   const { updateCardStatus, allCardProgress, saveChapterPosition, getChapterPosition, setLastVisitedAlgorithm } = useCardStore();
+
+  // 点击外部关闭序号选择器
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
+        setShowIndexPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const typeCards = algorithmCards.filter((c) => c.chapterId === type);
@@ -67,6 +80,13 @@ export function AlgorithmDetail() {
     }
   };
 
+  const handleJumpTo = (idx: number) => {
+    if (idx >= 0 && idx < cards.length) {
+      handleIndexChange(idx);
+      setShowIndexPicker(false);
+    }
+  };
+
   const typeLabels: Record<string, string> = {
     coding: '💻 手撕代码',
     concept: '📖 概念解释',
@@ -94,7 +114,16 @@ export function AlgorithmDetail() {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="primary" className="text-xs">{currentIndex + 1} / {cards.length}</Badge>
+            {/* 移动端：可点击的序号 */}
+            <button
+              onClick={() => setShowIndexPicker(!showIndexPicker)}
+              className="md:hidden flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
+            >
+              <span>{currentIndex + 1}</span>
+              <span className="text-green-400">/</span>
+              <span>{cards.length}</span>
+            </button>
+            <Badge variant="primary" className="text-xs hidden md:inline">{currentIndex + 1} / {cards.length}</Badge>
             <Badge variant="default" className="text-xs hidden sm:inline">{typeLabels[type || '']}</Badge>
           </div>
         </div>
@@ -105,6 +134,55 @@ export function AlgorithmDetail() {
         <h1 className="text-lg font-bold text-gray-900">
           {typeLabels[type || '']}
         </h1>
+        {/* 桌面端：序号选择器 */}
+        <div className="hidden md:block relative mt-2" ref={indexPickerRef}>
+          <button
+            onClick={() => setShowIndexPicker(!showIndexPicker)}
+            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors text-lg font-medium"
+          >
+            <span>{currentIndex + 1}</span>
+            <span className="text-green-400">/</span>
+            <span>{cards.length}</span>
+          </button>
+          {/* 序号选择器弹窗 */}
+          <AnimatePresence>
+            {showIndexPicker && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-h-80 overflow-y-auto z-50"
+                style={{ minWidth: '240px' }}
+              >
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">选择序号</span>
+                  <button
+                    onClick={() => setShowIndexPicker(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-5 gap-1">
+                  {cards.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleJumpTo(idx)}
+                      className={`
+                        w-9 h-9 text-sm rounded transition-colors
+                        ${idx === currentIndex
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-600'}
+                      `}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* 桌面端：卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
