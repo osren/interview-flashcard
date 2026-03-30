@@ -1,12 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
+import { Heart } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: '首页' },
   { path: '/core', label: '核心考点' },
   { path: '/projects', label: '项目复盘' },
   { path: '/algorithms', label: '刷题模块' },
+  { path: '/favorites', label: '收藏', icon: Heart },
 ];
 
 export function Header() {
@@ -31,13 +33,14 @@ export function Header() {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5',
                   location.pathname === item.path ||
                     (item.path !== '/' && location.pathname.startsWith(item.path))
                     ? 'bg-primary-100 text-primary-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 )}
               >
+                {item.icon && <item.icon size={16} className={location.pathname === item.path ? 'text-primary-600' : ''} />}
                 {item.label}
               </Link>
             ))}

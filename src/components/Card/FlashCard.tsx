@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
-import { Edit, Save, X } from 'lucide-react';
+import { Edit, Save, X, Heart } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { useCardStore } from '@/store';
 
@@ -19,7 +19,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const [isEditing, setIsEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(card.answer);
 
-  const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards } = useCardStore();
+  const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
 
   // 获取应用修改后的卡片
   const displayCard = getCardWithModifications(card);
@@ -93,9 +93,23 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                   <Badge variant="warning" className="text-xs">已修改</Badge>
                 )}
               </div>
-              <Badge variant={statusConfig[displayCard.status].variant}>
-                {statusConfig[displayCard.status].label}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(card);
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                >
+                  <Heart
+                    size={18}
+                    className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+                  />
+                </button>
+                <Badge variant={statusConfig[displayCard.status].variant}>
+                  {statusConfig[displayCard.status].label}
+                </Badge>
+              </div>
             </div>
 
             {/* 问题内容区 */}
@@ -143,6 +157,18 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                 )}
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(card);
+                  }}
+                  className="p-1 hover:bg-blue-100 rounded transition-colors"
+                >
+                  <Heart
+                    size={18}
+                    className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-blue-400'}
+                  />
+                </button>
                 {showEdit && !isEditing && (
                   <button
                     onClick={(e) => {

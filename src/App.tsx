@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { Header, Footer } from '@/components/Layout';
+import { Favorites } from '@/pages/Favorites';
 import { Home } from '@/pages/Home';
 import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
@@ -28,6 +29,9 @@ function App() {
 
           {/* 自定义卡片 */}
           <Route path="/custom" element={<CustomCardsPage />} />
+
+          {/* 收藏 */}
+          <Route path="/favorites" element={<Favorites />} />
 
           {/* 404 */}
           <Route

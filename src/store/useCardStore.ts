@@ -42,6 +42,11 @@ interface CardState {
 
   // 获取合并后的卡片列表（静态数据 + 自定义卡片）
   getMergedCards: (module: string, chapterId: string, staticCards: FlashCard[]) => FlashCard[];
+
+  // 收藏卡片
+  favorites: FlashCard[];
+  toggleFavorite: (card: FlashCard) => void;
+  isFavorited: (cardId: string) => boolean;
 }
 
 export const useCardStore = create<CardState>()(
@@ -142,6 +147,22 @@ export const useCardStore = create<CardState>()(
         });
         return [...staticCards, ...appliedCustomCards];
       },
+
+      // 收藏卡片
+      favorites: [],
+
+      toggleFavorite: (card) => set((state) => {
+        const exists = state.favorites.some((f) => f.id === card.id);
+        if (exists) {
+          return { favorites: state.favorites.filter((f) => f.id !== card.id) };
+        } else {
+          return { favorites: [...state.favorites, card] };
+        }
+      }),
+
+      isFavorited: (cardId) => {
+        return get().favorites.some((f) => f.id === cardId);
+      },
     }),
     {
       name: 'card-storage',
@@ -149,6 +170,7 @@ export const useCardStore = create<CardState>()(
         cards: state.cards.map((c) => ({ id: c.id, status: c.status })),
         customCards: state.customCards,
         modifiedCards: state.modifiedCards,
+        favorites: state.favorites,
       }),
     }
   )
