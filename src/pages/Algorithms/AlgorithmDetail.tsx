@@ -150,10 +150,10 @@ export function AlgorithmDetail() {
                     onClick={() => setShowIndexPicker(false)}
                   >
                     <div
-                      className="bg-white rounded-lg shadow-xl p-3 max-h-[60vh] overflow-y-auto w-[80%]"
+                      className="bg-white rounded-lg shadow-xl p-4 w-[85%] max-w-sm"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
                         <span className="text-sm font-medium text-gray-600">选择序号</span>
                         <button
                           onClick={() => setShowIndexPicker(false)}
@@ -162,13 +162,13 @@ export function AlgorithmDetail() {
                           <X size={16} />
                         </button>
                       </div>
-                      <div className="grid grid-cols-4 gap-1.5">
+                      <div className="grid grid-cols-5 gap-2">
                         {cards.map((_, idx) => (
                           <button
                             key={idx}
                             onClick={() => handleJumpTo(idx)}
                             className={`
-                              py-2 text-xs rounded transition-colors
+                              py-2 text-sm rounded transition-colors
                               ${idx === currentIndex
                                 ? 'bg-green-500 text-white'
                                 : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-600'}
@@ -208,36 +208,41 @@ export function AlgorithmDetail() {
           <AnimatePresence>
             {showIndexPicker && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-h-80 overflow-y-auto z-50"
-                style={{ minWidth: '240px' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                onClick={() => setShowIndexPicker(false)}
               >
-                <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                  <span className="text-sm font-medium text-gray-600">选择序号</span>
-                  <button
-                    onClick={() => setShowIndexPicker(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-5 gap-1">
-                  {cards.map((_, idx) => (
+                <div
+                  className="bg-white rounded-lg shadow-xl p-4 w-[85%] max-w-sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                    <span className="text-sm font-medium text-gray-600">选择序号</span>
                     <button
-                      key={idx}
-                      onClick={() => handleJumpTo(idx)}
-                      className={`
-                        w-9 h-9 text-sm rounded transition-colors
-                        ${idx === currentIndex
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-600'}
-                      `}
+                      onClick={() => setShowIndexPicker(false)}
+                      className="text-gray-400 hover:text-gray-600"
                     >
-                      {idx + 1}
+                      <X size={16} />
                     </button>
-                  ))}
+                  </div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {cards.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleJumpTo(idx)}
+                        className={`
+                          py-2 text-sm rounded transition-colors
+                          ${idx === currentIndex
+                            ? 'bg-green-500 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-600'}
+                        `}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
