@@ -10,25 +10,53 @@ export const didiCards: FlashCard[] = [
     answer: `STAR 法则回答：
 
 S (情境)：
-原系统使用 jQuery + 硬编码表单配置，维护困难，每次加字段都要改代码
+机票政策模块（plane_policy）是55个业务模块中最复杂的，单文件超2000行代码，运行超5年。国内/国际两套代码分离，重复开发，维护成本倍增。
 
 T (任务)：
-将硬编码转为配置驱动，提升研发效率
+拆解遗留系统，统一国内/国际机票政策模块，抽象通用定价模型
 
 A (行动)：
-1. 设计配置 Schema（字段定义、校验规则、依赖关系）
-2. 开发配置编辑器可视化工具
-3. 编写 Schema 校验（zod/ajv）
-4. 灰度上线，逐步迁移旧配置
+1. **抽象统一模型**：提取国内/国际共性为基类，差异通过配置扩展
+   \`\`\`javascript
+   const BASE_POLICY_FIELDS = ['policy_code', 'airline_codes', 'cabin_codes', ...];
+   const DOMESTIC_EXTENSIONS = ['member_types', 'ticket_channels'];
+   const INTERNATIONAL_EXTENSIONS = ['intl_airline_codes'];
+   \`\`\`
+
+2. **数据兼容处理**：老数据编辑时正确推导新字段初始值
+   \`\`\`javascript
+   // 新增字段，老数据为空需设置默认值
+   current_policy.member_types = [];
+   // 根据会员类型设置初始状态
+   const onlyNewMember = memberTypes.length === 1 && memberTypes.includes("1");
+   \`\`\`
+
+3. **隐性规则显性化**：将业务规则提取为配置
+   \`\`\`javascript
+   const MEMBER_TYPE_LINKAGE = {
+     '1': { showFields: [] },
+     '2': { showFields: ['ticket_channels', 'history_booking_days'] },
+   };
+   \`\`\`
+
+4. **UI嵌套优化**：提取渲染函数解决深度超标问题
+   \`\`\`javascript
+   const renderAirlineTypeSelect = () => (
+     <Select>...</Select>
+   );
+   // 使用时嵌套深度从7层降到5层
+   \`\`\`
+
+5. **渐进式重构**：第一阶段统一数据模型，第二阶段合并UI组件，第三阶段移除重复代码
 
 R (结果)：
-• 表单开发时间从 3天 → 0.5天
-• 代码量减少 60%
-• 0 线上事故`,
-    tags: ['滴滴', '重构', '配置驱动'],
+• 国内/国际代码合并为统一模块，维护效率提升
+• 隐性规则配置化，新业务只需添加配置无需改代码
+• 0 线上事故（机票价格政策涉及财务，变更风险极高）`,
+    tags: ['滴滴', '重构', '遗留系统', '机票政策'],
     status: 'unvisited',
     difficulty: 'hard',
-    extendQuestion: '配置 Schema 如何设计能够兼顾扩展性和可维护性？',
+    extendQuestion: '如何平衡重构进度与业务稳定性？',
   },
   {
     id: 'didi-config-001',
