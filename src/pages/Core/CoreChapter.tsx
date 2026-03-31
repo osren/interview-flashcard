@@ -148,11 +148,11 @@ export function CoreChapter() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black/50 z-[100]"
                     onClick={() => setShowIndexPicker(false)}
                   >
                     <div
-                      className="bg-white rounded-lg shadow-xl p-4 w-[85%] max-w-sm"
+                      className="absolute left-1/2 -translate-x-1/2 top-[20%] w-[85%] max-w-sm bg-white rounded-lg shadow-xl p-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
@@ -216,11 +216,11 @@ export function CoreChapter() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                className="fixed inset-0 bg-black/50 z-[100]"
                 onClick={() => setShowIndexPicker(false)}
               >
                 <div
-                  className="bg-white rounded-lg shadow-xl p-4 w-[85%] max-w-sm"
+                  className="absolute left-1/2 -translate-x-1/2 top-[20%] w-[85%] max-w-sm bg-white rounded-lg shadow-xl p-4"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
