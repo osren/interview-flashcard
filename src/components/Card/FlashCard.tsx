@@ -32,7 +32,14 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
     setEditedAnswer(displayCard.answer);
   }, [card.id, displayCard.answer]);
 
-  const handleFlip = () => {
+  const handleFlip = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    
+    // 如果点击的是按钮等可交互元素，则不翻转
+    if (e && (e.target as HTMLElement).closest('button, a, [data-stop-propagation]')) {
+      return;
+    }
+
     if (!isEditing) {
       setIsFlipped((prev) => !prev);
     }
@@ -59,6 +66,8 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
     fuzzy: { label: '模糊', variant: 'warning' },
     mastered: { label: '掌握', variant: 'success' },
   };
+
+  const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
     <div className="w-[768px] max-w-[768px] flex-shrink-0">
@@ -142,182 +151,110 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
 
           {/* 背面 - 答案 */}
           <div
-            className="absolute inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl shadow-xl border border-blue-200 overflow-hidden"
+            className="absolute inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-xl border border-indigo-200 overflow-hidden"
             style={{
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)',
             }}
           >
-            {/* 顶部标签区 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-blue-200">
+            {/* 顶部操作区 */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-100">
               <div className="flex items-center gap-2">
-                <Badge variant="primary">参考答案</Badge>
-                {hasModification && (
-                  <Badge variant="warning" className="text-xs">已修改</Badge>
-                )}
+                <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
+                <Badge variant={statusConfig[displayCard.status].variant}>
+                  {statusConfig[displayCard.status].label}
+                </Badge>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(card);
-                  }}
-                  className="p-1 hover:bg-blue-100 rounded transition-colors"
-                >
-                  <Heart
-                    size={18}
-                    className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-blue-400'}
-                  />
-                </button>
-                {showEdit && !isEditing && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsEditing(true);
-                    }}
-                    className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded"
-                  >
-                    <Edit size={16} />
-                  </button>
-                )}
-                {isEditing && (
-                  <>
+              {showEdit && (
+                <div className="flex items-center gap-2" data-stop-propagation>
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }}
+                        className="p-1.5 text-gray-600 hover:bg-green-100 hover:text-green-700 rounded transition-colors"
+                        title="保存"
+                      >
+                        <Save size={16} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }}
+                        className="p-1.5 text-gray-600 hover:bg-red-100 hover:text-red-700 rounded transition-colors"
+                        title="取消"
+                      >
+                        <X size={16} />
+                      </button>
+                    </>
+                  ) : (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSaveEdit();
-                      }}
-                      className="p-1 text-green-600 hover:text-green-800 hover:bg-green-100 rounded"
+                      onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+                      className="p-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded transition-colors"
+                      title="编辑答案"
                     >
-                      <Save size={16} />
+                      <Edit size={16} />
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancelEdit();
-                      }}
-                      className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded"
+                  )}
+                  {hasModification && !isEditing && (
+                     <button
+                      onClick={(e) => { e.stopPropagation(); handleReset(); }}
+                      className="p-1.5 text-xs text-gray-500 hover:text-blue-600"
+                      title="恢复原始答案"
                     >
-                      <X size={16} />
+                      恢复默认
                     </button>
-                  </>
-                )}
-                {!isEditing && hasModification && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleReset();
-                    }}
-                    className="text-xs text-gray-500 hover:text-gray-700"
-                  >
-                    重置
-                  </button>
-                )}
-                <span className="text-sm text-blue-600">点击收起</span>
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* 答案内容区 - 可滚动 */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            {/* 答案内容区 */}
+            <div className="flex-1 px-6 py-4 overflow-y-auto" data-color-mode="light">
               {isEditing ? (
-                // 编辑模式
-                <div data-color-mode="light">
-                  <MDEditor
-                    value={editedAnswer}
-                    onChange={(value) => setEditedAnswer(value || '')}
-                    height={320}
-                    preview="edit"
-                    enableScroll={true}
-                  />
-                </div>
+                <MDEditor
+                  value={editedAnswer}
+                  onChange={(val) => setEditedAnswer(val || '')}
+                  height="100%"
+                  preview="edit"
+                  style={{ height: '100%', backgroundColor: '#f0f4ff' }}
+                />
               ) : (
-                // 显示模式
-                <>
-                  {/* 文字答案 */}
-                  <div>
-                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed text-base">
-                      {displayCard.answer}
-                    </div>
-                  </div>
-
-                  {/* 代码示例 - 如果有的话 */}
-                  {displayCard.codeExample && (
-                    <div className="mt-4">
-                      <h4 className="text-base font-semibold text-blue-800 mb-2 flex items-center gap-2">
-                        <span>💻</span> 代码示例
-                      </h4>
-                      <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto leading-relaxed">
-                        <code>{displayCard.codeExample}</code>
-                      </pre>
-                    </div>
-                  )}
-
-                  {/* 延伸追问 */}
-                  {displayCard.extendQuestion && (
-                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <h4 className="text-base font-semibold text-yellow-800 mb-2 flex items-center gap-2">
-                        <span>💡</span> 延伸追问
-                      </h4>
-                      <p className="text-base text-yellow-700">
-                        {displayCard.extendQuestion}
-                      </p>
-                    </div>
-                  )}
-                </>
+                <MDEditor.Markdown
+                  source={formattedAnswer}
+                  style={{ backgroundColor: 'transparent', color: '#37352f' }}
+                />
               )}
+            </div>
+
+            {/* 底部提示 */}
+            <div className="px-6 py-3 bg-indigo-100/50 text-center text-sm text-gray-500 border-t border-indigo-200">
+              再次点击卡片可返回问题
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* 底部操作区 */}
-      <div className="mt-6 flex flex-col items-center gap-4">
-        {/* 收起按钮 */}
+      {/* 底部状态控制按钮 */}
+      <div className="flex justify-center gap-4 mt-6">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (isEditing) {
-              handleCancelEdit();
-            }
-            setIsFlipped(false);
-          }}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+          onClick={() => onStatusChange('forgotten')}
+          className="px-5 py-2.5 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
         >
-          {isEditing ? '取消编辑' : '收起答案'}
+          <span>😵</span>
+          <span>忘记</span>
         </button>
-
-        {/* 掌握程度按钮 */}
-        {!isEditing && (
-          <div className="flex gap-3">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onStatusChange('forgotten');
-              }}
-              className="px-5 py-2.5 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors text-sm font-medium shadow-sm"
-            >
-              😵 忘记
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onStatusChange('fuzzy');
-              }}
-              className="px-5 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl hover:bg-yellow-200 transition-colors text-sm font-medium shadow-sm"
-            >
-              🤔 模糊
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onStatusChange('mastered');
-              }}
-              className="px-5 py-2.5 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors text-sm font-medium shadow-sm"
-            >
-              ✅ 掌握
-            </button>
-          </div>
-        )}
+        <button
+          onClick={() => onStatusChange('fuzzy')}
+          className="px-5 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl hover:bg-yellow-200 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
+        >
+          <span>🤔</span>
+          <span>模糊</span>
+        </button>
+        <button
+          onClick={() => onStatusChange('mastered')}
+          className="px-5 py-2.5 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
+        >
+          <span>✅</span>
+          <span>掌握</span>
+        </button>
       </div>
     </div>
   );

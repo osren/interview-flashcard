@@ -80,7 +80,7 @@ export function AlgorithmDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-gray-100 flex flex-col pt-20">
       {/* 顶部导航 */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -106,8 +106,8 @@ export function AlgorithmDetail() {
       </div>
 
       {/* 章节标题 */}
-      <div className="pt-24 pb-4 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="py-1 text-center">
+        <h1 className="text-xl font-bold text-gray-900 mb-0.5">
           {typeLabels[type || '']}
         </h1>
         {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
@@ -117,7 +117,7 @@ export function AlgorithmDetail() {
               e.stopPropagation();
               setShowIndexPicker(!showIndexPicker);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors text-lg font-medium"
+            className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors text-base font-medium"
           >
             <span>{currentIndex + 1}</span>
             <span className="text-green-400">/</span>
@@ -171,7 +171,7 @@ export function AlgorithmDetail() {
       </div>
 
       {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
-      <div className="flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
+      <div className="flex-1 flex items-center 2xl:items-start justify-center px-4 -mt-2 2xl:pt-2">
         {/* 左侧按钮 */}
         <button
           onClick={handlePrev}

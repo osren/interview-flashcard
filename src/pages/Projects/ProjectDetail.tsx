@@ -74,7 +74,7 @@ export function ProjectDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 flex flex-col pt-20">
       {/* 顶部导航 */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -100,11 +100,11 @@ export function ProjectDetail() {
       </div>
 
       {/* 章节标题 */}
-      <div className="pt-24 pb-4 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="py-1 text-center">
+        <h1 className="text-xl font-bold text-gray-900 mb-0.5">
           {projectId === 'didi' ? '🚗 滴滴企业版' : '📝 GResume'}
         </h1>
-        <p className="text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 mb-1">
           {currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
         </p>
         {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
@@ -114,7 +114,7 @@ export function ProjectDetail() {
               e.stopPropagation();
               setShowIndexPicker(!showIndexPicker);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors text-lg font-medium"
+            className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors text-base font-medium"
           >
             <span>{currentIndex + 1}</span>
             <span className="text-blue-400">/</span>
@@ -168,7 +168,7 @@ export function ProjectDetail() {
       </div>
 
       {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
-      <div className="flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
+      <div className="flex-1 flex items-center 2xl:items-start justify-center px-4 -mt-2 2xl:pt-2">
         {/* 左侧按钮 */}
         <button
           onClick={handlePrev}
