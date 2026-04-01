@@ -1123,6 +1123,169 @@ const updateResume = (changes: Change[]) => {
     status: 'unvisited',
     difficulty: 'hard',
   },
+  // ===== 面试指南补充：Zustand + IndexedDB 回滚机制 =====
+  {
+    id: 'gresume-rollback-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '架构设计',
+    question: '你在简历中提到的"乐观更新 → CRDT 同步 → 延迟持久化"三步模型，在实际操作中如果 IndexedDB 写入失败了，你是怎么回滚的？',
+    answer: `三步模型回滚机制：
+
+### 1. 三步模型流程
+\`\`\`
+1. 乐观更新：立即更新 UI（Zustand）
+2. CRDT 同步：本地 Automerge 同步
+3. 延迟持久化：批量写入 IndexedDB
+\`\`\`
+
+### 2. 回滚场景
+\`\`\`typescript
+// 延迟持久化阶段可能失败的情况
+const persistToIndexedDB = async (data: string) => {
+  try {
+    await db.put('resumes', data);
+  } catch (error) {
+    // 需要回滚的情况：
+    // - 磁盘空间不足
+    // - 数据库损坏
+    // - 浏览器限制了存储
+  }
+};
+\`\`\`
+
+### 3. 回滚方案设计
+\`\`\`typescript
+// 方案 1：事务 + 检查点
+const saveWithRollback = async () => {
+  const checkpoint = await createCheckpoint(); // 保存当前 CRDT 状态
+
+  try {
+    await db.transaction('rw', db.resumes, async () => {
+      await db.put('resume', currentDoc);
+    });
+  } catch (error) {
+    // 回滚到检查点
+    await restoreFromCheckpoint(checkpoint);
+    // 重新尝试保存
+    await retrySave();
+  }
+};
+
+// 方案 2：双写 + 对比
+const dualWriteSave = async () => {
+  const localData = autocommitJSON(currentDoc);
+
+  try {
+    // 同时写入两个存储
+    await Promise.all([
+      db.put('resume_backup', localData), // 备份
+      db.put('resume', localData),        // 主存储
+    ]);
+  } catch (error) {
+    // 从备份恢复
+    const backup = await db.get('resume_backup');
+    applyToZustand(backup);
+  }
+};
+\`\`\`
+
+### 4. 实际实现
+\`\`\`typescript
+// Zustand 中间件捕获异常
+const persistMiddleware: StateCreator<ResumeState> = (set, get) => {
+  return {
+    ...set((state) => {
+      try {
+        // 尝试持久化
+        batchPersist(state);
+      } catch (error) {
+        console.error('持久化失败，触发回滚:', error);
+        // 标记状态为"未同步"
+        return { syncStatus: 'pending_rollback' };
+      }
+      return state;
+    }),
+  };
+};
+\`\`\`
+
+### 5. 用户感知
+\`\`\`
+- 写入失败不会导致白屏
+- 显示"同步中"状态
+- 下次打开自动重试
+- 严重错误引导用户导出 JSON 备份
+\`\`\``,
+    tags: ['GResume', 'Zustand', 'IndexedDB', '回滚机制'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  // ===== GResume 缺陷处理 =====
+  {
+    id: 'gresume-limitation-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '架构设计',
+    question: 'GResume 目前有什么技术缺陷或局限性？你是如何认知和应对的？',
+    answer: `GResume 技术局限性分析：
+
+### 1. 已识别的局限性
+
+#### a. 大文档性能
+\`\`\`
+问题：简历超过 50KB 时，Automerge 同步变慢
+原因：CRDT 需要遍历整个文档树
+缓解：分块同步，只同步变更的部分
+\`\`\`
+
+#### b. 冲突展示
+\`\`\`
+问题：复杂冲突时只能"最后写入胜出"
+原因：没有实现可视化的冲突解决 UI
+缓解：记录冲突日志，供用户手动处理
+\`\`\`
+
+#### c. 冷启动
+\`\`\`
+问题：首次打开需要重建 CRDT 状态
+原因：从 IndexedDB 加载后需要转换为 Automerge 对象
+缓解：缓存转换结果，小型简历无感知
+\`\`\`
+
+### 2. 应对策略
+\`\`\`typescript
+// 限制策略
+const LIMIT = {
+  maxSections: 20,        // 最多 20 个模块
+  maxItemsPerSection: 50, // 每个模块最多 50 条
+  maxTextLength: 10000,   // 单个文本字段上限
+};
+
+// 性能监控
+useEffect(() => {
+  const metrics = getPerformanceMetrics();
+  if (metrics.syncTime > 1000) {
+    // 触发优化
+    optimizeCRDT();
+  }
+}, []);
+\`\`\`
+
+### 3. 技术债务
+\`\`\`
+1. 没有单元测试（时间优先）
+2. 文档不完整
+3. 错误处理可以更精细
+
+### 4. 回答策略
+- 诚实承认局限性
+- 展示已经想到的优化方向
+- 体现技术判断力和诚实态度`,
+    tags: ['GResume', '局限性', '技术复盘'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
 ];
 
 export const gresumeChapter: Chapter = {
