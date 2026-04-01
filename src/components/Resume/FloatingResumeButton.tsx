@@ -1,12 +1,11 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
-import { FileText, X, Upload, ChevronRight, Eye, Trash2, Plus } from 'lucide-react';
+import { FileText, X, ChevronRight, Eye, Trash2, Plus } from 'lucide-react';
 
 export function FloatingResumeButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
-  const [showUpload, setShowUpload] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { resumes, addResume, removeResume } = useResumeStore();
 
@@ -27,7 +26,6 @@ export function FloatingResumeButton() {
         data: base64,
         size: file.size,
       });
-      setShowUpload(false);
     };
     reader.readAsDataURL(file);
 
