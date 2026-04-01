@@ -1286,13 +1286,627 @@ useEffect(() => {
     status: 'unvisited',
     difficulty: 'medium',
   },
+  {
+    id: 'gresume-realtime-edit-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '协同编辑',
+    question: '两三个人实时在线编辑是怎么实现的？',
+    answer: `通过 Supabase Realtime 广播频道实现 P2P 式的多用户同步：
+
+架构：
+\`\`\`
+用户 A ──┐
+用户 B ──┼── Supabase Realtime Channel ──→ 所有人收到消息
+用户 C ──┘         │
+                   └── broadcast（广播）+ presence（在线状态）
+\`\`\`
+
+源码实现：
+\`\`\`typescript
+// 创建 Supabase Realtime 频道
+this.channelName = \`automerge:resume:\${resumeId}:\${sessionId}\`
+this.channel = supabase.channel(this.channelName)
+
+// 注册 CRDT 消息广播
+this.registerSyncBroadcast()
+
+// 注册用户在线状态（presence）
+this.registerPresenceEvents()
+
+// 订阅频道
+this.channel.subscribe(async (status) => {
+  if (status !== 'SUBSCRIBED') return
+  await this.channel?.track({ peerId: String(this.peerId), ... })
+  this.ready = true
+})
+\`\`\`
+
+当 handle 发生变化时，Automerge 会自动通过 send() 方法将 CRDT change 编码为 bytes，通过 Supabase 频道广播给所有在线协作者。`,
+    tags: ['GResume', '实时编辑', 'Supabase', '协同'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'gresume-websocket-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '协同编辑',
+    question: 'WebSocket 怎样建立连接？',
+    answer: `本项目不直接使用 WebSocket，而是通过 Supabase Realtime 间接实现。
+
+Supabase Realtime 底层基于 WebSocket 协议，建立连接的过程：
+\`\`\`
+supabase.channel(name)  →  创建 RealtimeChannel 实例
+       ↓
+channel.subscribe()      →  建立 WebSocket 长连接（自动重连）
+       ↓
+channel.track()         →  注册用户在线状态（Presence）
+       ↓
+ready = true            →  连接建立完成，触发回调
+\`\`\`
+
+源码：
+\`\`\`typescript
+private subscribeToChannel(peerMetadata?: PeerMetadata) {
+  this.channel?.subscribe(async (status) => {
+    if (status !== 'SUBSCRIBED') return
+    await this.channel?.track({
+      peerId: String(this.peerId),
+      metadata: { ...peerMetadata, ...this.presenceMetadata },
+      online_at: new Date().toISOString(),
+      sessionId: this.sessionId,
+    })
+    this.ready = true
+    this.callbacks.onChannelReady?.(this.channelName)
+  })
+}
+\`\`\`
+
+Supabase Realtime 自动处理：
+- WebSocket 握手和心跳
+- 自动重连（网络波动时）
+- 多路复用（同一个连接承载多个频道）`,
+    tags: ['GResume', 'WebSocket', 'Supabase', '连接管理'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-cursor-sync-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '协同编辑',
+    question: '光标同步的时机是什么？发送端和接收端分别怎么处理？',
+    answer: `两个维度：发送时机 + 接收时机。
+
+**发送端（节流 + rAF 调度）：**
+\`\`\`typescript
+const scheduleOutgoingCursorFlush = useCallback(() => {
+  if (sendFrameRef.current !== null) return  // 已有待发送帧，跳过
+  sendFrameRef.current = requestAnimationFrame((frameTime) => {
+    flushOutgoingCursorRef.current(frameTime)  // 下一帧发送
+  })
+}, [])
+
+const flushOutgoingCursor = useCallback((frameTime: number) => {
+  if (frameTime - lastSentAtRef.current < throttleMs) {
+    // 节流：未到时间，调度到下一帧
+    sendFrameRef.current = requestAnimationFrame((nextFrameTime) => {
+      flushOutgoingCursorRef.current(nextFrameTime)
+    })
+    return
+  }
+  // 实际广播光标
+  broadcastCursorPayload(channelRef.current, payload)
+  lastSentAtRef.current = frameTime
+}, [throttleMs, ...])
+\`\`\`
+
+throttleMs 默认约 50ms（每帧约 16ms，所以约每 3 帧发一次）。
+
+**接收端（批量合并 + rAF）：**
+\`\`\`typescript
+const scheduleRemoteCursorFlush = useCallback(() => {
+  if (flushRemoteFrameRef.current !== null) return
+  flushRemoteFrameRef.current = requestAnimationFrame(flushRemoteCursors)
+}, [])
+
+const flushRemoteCursors = useCallback(() => {
+  flushRemoteFrameRef.current = null
+  const batch = Object.values(pendingRemoteCursorsRef.current)
+  pendingRemoteCursorsRef.current = {}
+  if (batch.length === 0) return
+  // 批量更新状态，合并同一帧内的多次光标移动
+  setCursors(prev => upsertRealtimeCursorBatch(prev, batch))
+}, [])
+\`\`\`
+
+**时序总结：**
+\`\`\`
+PointerMove → requestAnimationFrame → 节流检查 → 广播
+                                           ↓
+                                    对方接收 → requestAnimationFrame → 批量合并 → 渲染
+\`\`\``,
+    tags: ['GResume', '光标同步', '协同编辑', '节流'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'gresume-cursor-position-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '协同编辑',
+    question: '显示光标同步的位置怎么实现？坐标如何转换？',
+    answer: `通过 CursorEventPayload 携带屏幕绝对坐标实现：
+
+\`\`\`typescript
+export interface CursorEventPayload {
+  position: { x: number; y: number }   // 屏幕绝对坐标
+  viewport?: { width: number; height: number }  // 视口尺寸
+  user: { id: number; name: string }
+  color: string
+  timestamp: number
+}
+\`\`\`
+
+**收集光标位置：**
+\`\`\`typescript
+const handlePointerMove = useCallback((event: PointerEvent) => {
+  latestPointerPositionRef.current = {
+    x: event.clientX,  // 相对于视口的坐标
+    y: event.clientY,
+  }
+  scheduleOutgoingCursorFlush()
+}, [scheduleOutgoingCursorFlush])
+
+const payload = createCursorPayload({
+  position: latestPosition,
+  viewport: getViewportSize(),
+  userId,
+  username,
+  color,
+})
+\`\`\`
+
+**投影到本地视口（坐标转换）：**
+远程光标坐标需要从发送者的视口投影到接收者的视口：
+\`\`\`typescript
+export function projectRealtimeCursor(
+  payload: CursorEventPayload,
+  projectPoint: (point, viewport) => CursorEventPayload['position'],
+): CursorEventPayload {
+  return {
+    ...payload,
+    position: projectPoint(payload.position, payload.viewport),
+  }
+}
+\`\`\`
+
+实际投影函数 projectPointToViewport 会根据双方视口宽高比进行线性变换。
+
+**渲染光标：**
+光标数据存储在 cursors state 中，UI 层直接读取并渲染带颜色标签的光标 DOM 元素（通常用 position: fixed + left/top 定位）。`,
+    tags: ['GResume', '光标位置', '协同编辑', '坐标转换'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'gresume-offline-design-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '离线优先怎么设计和实现的？',
+    answer: `三层存储架构：
+\`\`\`
+内存（Zustand 状态）
+    ↓ 变化时延迟写入
+IndexedDB（Automerge 文档 + 离线简历）
+    ↓ 在线时异步同步
+Supabase（云端持久化）
+\`\`\`
+
+两条独立路径：
+
+路径 A — 在线简历（Supabase 关联）：
+\`\`\`
+编辑 → Zustand → Automerge Document → 延迟 3s → Supabase
+                                   → IndexedDB（Automerge Repo 自动持久化）
+\`\`\`
+
+路径 B — 离线简历（纯本地）：
+\`\`\`
+编辑 → Zustand → 延迟 3s → IndexedDB（offline-resume-manager）
+\`\`\`
+
+关键代码：
+\`\`\`typescript
+function applyResumeChange(set, get, stateUpdate, docUpdate?) {
+  // 1. Optimistic UI - 立即更新本地状态
+  set({ ...stateUpdate, pendingChanges: true })
+
+  // 2. 离线模式 → 写 IndexedDB
+  if (freshState.mode === 'offline' || isOfflineResumeId(resumeId)) {
+    scheduleOfflinePersist(() => get().syncToSupabase())
+    return
+  }
+
+  // 3. 在线模式 → 更新 Automerge + 延迟同步 Supabase
+  if (docUpdate) {
+    freshState.docManager?.change(doc => docUpdate(doc))
+  }
+  scheduleOnlinePersist(() => get().syncToSupabase())
+}
+\`\`\``,
+    tags: ['GResume', '离线优先', 'IndexedDB', 'Zustand'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  {
+    id: 'gresume-storage-type-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '本地保存的是全量还是增量？',
+    answer: `两者结合：
+
+- IndexedDB 中的 Automerge 文档：保存的是全量快照（Automerge.save(doc) 序列化的完整二进制）
+- Supabase 中的 automerge_documents 表：也是全量快照（document_data 字段存 Base64 编码的完整二进制，heads 字段记录当前 Heads）
+
+\`\`\`typescript
+// src/lib/automerge/document/persistence.ts
+const binary = Automerge.save(doc)      // 全量序列化
+const heads = Automerge.getHeads(doc)   // 当前 heads（用于增量同步判断）
+\`\`\`
+
+注意：Automerge Repo 本身支持增量 sync（只同步 diff），但本项目的 Supabase Network Adapter 实现的是完整二进制广播，没有使用 Automerge 的增量 sync 协议。`,
+    tags: ['GResume', '存储', '全量', '增量'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-cleanup-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '什么时候清理数据？清理机制是什么？',
+    answer: `三个清理时机：
+
+**1. 简历切换时（useResumeLoader.ts）：**
+\`\`\`typescript
+useEffect(() => {
+  return () => {
+    useResumeStore.getState().cleanup()
+    useCollaborationStore.getState().stopSharing({ silent: true })
+  }
+}, [])
+\`\`\`
+
+**2. cleanup() 函数（form.ts）：**
+\`\`\`typescript
+cleanup: () => {
+  const { cleanupFns, docManager } = get()
+  cleanupFns.forEach(fn => fn())    // 注销所有事件监听
+  docManager?.destroy()              // 销毁 Automerge 文档句柄
+  if (syncTimer) clearTimeout(syncTimer)
+  if (onlineSyncTimer) clearTimeout(onlineSyncTimer)
+  set({ cleanupFns: [], docManager: null, ... })
+}
+\`\`\`
+
+**3. docManager.destroy()（manager.ts）：**
+\`\`\`typescript
+destroy() {
+  this.saveListeners.clear()
+  this.saveStartListeners.clear()
+  this.collaboration?.disable()      // 断开协作连接
+  this.collaboration = null
+  this.repo = null
+  this.handle = null
+}
+\`\`\`
+
+IndexedDB 数据清理：用户需手动删除（deleteOfflineResume），没有自动过期策略。`,
+    tags: ['GResume', '数据清理', '内存管理'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-offline-upload-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '离线之后怎么上传云端？',
+    answer: `登录后触发迁移（migrateOfflineResumesToCloud）：
+
+\`\`\`typescript
+export async function migrateOfflineResumesToCloud(
+  uploadFn: (resume) => Promise<string>,  // 创建云端简历
+  selectedIds?: string[],
+): Promise<{ success: number, failed: number, errors: string[] }> {
+  const offlineResumes = await getAllOfflineResumes()
+  // 遍历每个离线简历，上传到云端
+  for (const resume of offlineResumes) {
+    await uploadFn({ ... })     // 调用 Supabase 创建简历
+    await deleteOfflineResume(resume.resume_id)  // 上传成功后删除本地副本
+  }
+}
+\`\`\`
+
+触发场景：用户从离线模式登录后，在 Dashboard 页面选择要同步的简历。`,
+    tags: ['GResume', '离线上传', '云端同步'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-online-upload-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '联网了就需要立即上传吗？',
+    answer: `不是立即上传，而是延迟批量同步。
+
+编辑产生变化后，通过 scheduleOnlinePersist() 延迟 3 秒执行上传：
+\`\`\`typescript
+export const ONLINE_SYNC_DELAY = 3000
+
+function scheduleOnlinePersist(flushFn) {
+  if (onlineSyncTimer) clearTimeout(onlineSyncTimer)
+  onlineSyncTimer = setTimeout(flushFn, ONLINE_SYNC_DELAY)
+}
+\`\`\`
+
+即：用户停止编辑 3 秒后，才触发 Supabase 持久化。如果用户在 3 秒内继续编辑，计时器被重置。`,
+    tags: ['GResume', '延迟同步', '批量上传'],
+    status: 'unvisited',
+    difficulty: 'easy',
+  },
+  {
+    id: 'gresume-offline-sync-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '离线没有编辑也会同步吗？',
+    answer: `离线场景下，即使没有编辑，也会将当前状态持久化到 IndexedDB。
+
+但不会主动上传云端（因为离线）。上线后：
+- 如果有 pending changes，会在 syncToSupabase() 时上传
+- 如果无编辑变化，则没有需要同步的内容
+
+**自动恢复机制**：重新打开已离线编辑的简历时，会从 IndexedDB 恢复最后一次保存的状态。`,
+    tags: ['GResume', '离线同步', '状态恢复'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-version-def-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '离线优先',
+    question: '版本怎么定义的？有哪些维度？',
+    answer: `多维度版本体系：
+
+**1. Automerge 文档内部版本（_metadata.version）：**
+\`\`\`typescript
+// 每次 handle.change() 时自增
+metadata.version = typeof metadata.version === 'number' ? metadata.version + 1 : 1
+\`\`\`
+
+**2. Supabase resume_config_versions 表（快照版本）：**
+\`\`\`typescript
+interface ResumeHistoryVersionBase {
+  id: number
+  version_no: number           // 版本序号
+  version_name: string | null  // 用户自定义名称
+  source_type: ResumeVersionSourceType  // 'manual' | 'autosave' | 'restore' | 'ai_optimize' | 'import'
+  snapshot: ResumeSnapshot     // 完整快照
+  content_hash: string | null // SHA-256 哈希
+  base_updated_at: string | null
+}
+\`\`\`
+
+**3. 版本来源类型：**
+| source_type | 说明 |
+|---|---|
+| manual | 用户手动保存 |
+| autosave | 自动保存 |
+| restore | 从历史版本恢复 |
+| ai_optimize | AI 优化后生成 |
+| import | 外部导入 |
+
+**内容哈希用于检测内容是否变化：**
+\`\`\`typescript
+// SHA-256 哈希 + key 排序确保序列化稳定
+const content = stableSerializeSnapshot(snapshot)
+const digest = await crypto.subtle.digest('SHA-256', encoded)
+\`\`\``,
+    tags: ['GResume', '版本控制', '快照'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-module-design-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '编辑架构',
+    question: '模块化编辑有设计吗？简历模块是如何划分的？',
+    answer: `有。简历内容按模块划分，每个模块独立编辑：
+
+\`\`\`typescript
+export interface FormDataMap {
+  basics: BasicFormType               // 基础信息
+  job_intent: JobIntentFormType        // 求职意向
+  application_info: ApplicationInfoFormType  // 报名信息
+  edu_background: EduBackgroundFormType  // 教育背景
+  work_experience: WorkExperienceFormType  // 工作经历
+  internship_experience: InternshipExperienceFormType  // 实习经历
+  campus_experience: CampusExperienceFormType  // 校园经历
+  project_experience: ProjectExperienceFormType  // 项目经历
+  skill_specialty: SkillSpecialtyFormType  // 专业技能
+  honors_certificates: HonorsCertificatesFormType  // 荣誉证书
+  self_evaluation: SelfEvaluationFormType  // 自我评价
+  hobbies: HobbiesFormType              // 兴趣爱好
+}
+\`\`\`
+
+每个模块对应左侧边栏的一个可拖拽 Tab，模块顺序由 order: ORDERType[] 控制，支持拖拽排序。`,
+    tags: ['GResume', '模块化', '编辑架构'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-rich-text-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '编辑架构',
+    question: '富文本编辑是怎么实现的？用了什么技术栈？',
+    answer: `使用了 TipTap（基于 ProseMirror）作为富文本编辑器核心：
+
+模块化架构：
+\`\`\`
+src/components/tiptap-icons/      → 各格式图标组件
+src/components/tiptap-node/      → 自定义节点（如图片上传、分割线）
+src/components/tiptap-templates/  → 编辑器模板（simple 等）
+src/components/tiptap-ui/         → 格式化操作按钮（bold/italic/code/heading 等）
+src/components/tiptap-ui-primitive/ → 基础 UI 原语（Toolbar、Popover 等）
+\`\`\`
+
+关键扩展：
+\`\`\`typescript
+'tiptap-editor': [
+  '@tiptap/react',
+  '@tiptap/starter-kit',
+  '@tiptap/extension-highlight',
+  '@tiptap/extension-image',
+  '@tiptap/extension-text-align',
+  '@tiptap/extension-typography',
+  '@tiptap/extension-horizontal-rule',
+  '@tiptap/extension-list',
+  '@tiptap/extension-subscript',
+  '@tiptap/extension-superscript',
+]
+\`\`\``,
+    tags: ['GResume', 'TipTap', '富文本', 'ProseMirror'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-lazy-load-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '性能优化',
+    question: '按需加载怎么实现的？有哪些层次？',
+    answer: `三层按需加载：
+
+**1. 路由级代码分割（动态 import）：**
+\`\`\`typescript
+// vite.config.ts
+Pages({
+  importMode: 'async',  // 路由页面 → 独立 chunk
+})
+\`\`\`
+
+访问 /resume/editor 才加载对应的页面组件。
+
+**2. 组件库分包（manualChunks）：**
+将大型库（TipTap、Radix UI、Automerge）单独打包，只有访问编辑页时才加载对应 chunk。
+
+**3. 依赖预构建（optimizeDeps.include）：**
+\`\`\`typescript
+optimizeDeps: {
+  include: [
+    'react', 'react-dom', 'react-router-dom',
+    '@supabase/supabase-js', '@automerge/automerge',
+    'motion', 'react-markdown', 'openai/streaming', 'shiki',
+  ]
+}
+\`\`\`
+
+确保这些库在首次访问前完成 Vite 的依赖预构建，避免生产环境懒加载时的卡顿。`,
+    tags: ['GResume', '按需加载', '代码分割', 'Vite'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-perf-metrics-002',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '性能优化',
+    question: '提升的指标是怎么统计的？有哪些测量方式？',
+    answer: `本项目使用自定义指标 + AI 辅助评判两种方式。
+
+**自定义指标（src/pages/optimize/）：**
+简历优化模块会分析：
+- 关键词匹配度：JD 中的关键词在简历中的出现频率
+- ATS 通过率模拟：根据简历完整度、结构化程度打分
+- 内容质量：通过 OpenAI API 分析简历内容的专业程度
+
+**AI 评判（src/lib/llm/）：**
+\`\`\`typescript
+// 调用 AI 分析
+const response = await streamText({
+  model: 'gpt-4o',
+  messages: [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: resumeContent },
+  ],
+})
+\`\`\`
+
+AI 评判维度：
+- 简历与 JD 的匹配度
+- 技能描述的专业性
+- 工作经历描述的量化程度
+- 整体可读性和结构`,
+    tags: ['GResume', '性能指标', 'AI评判', 'ATS'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  {
+    id: 'gresume-project-owner-001',
+    module: 'projects',
+    chapterId: 'gresume',
+    category: '项目理解',
+    question: 'GResume 是个人项目还是共同完成？性能优化是自己做的吗？',
+    answer: `根据 git 提交记录分析：本项目为个人项目（commit 作者均为同一账号），但引入了多个第三方协作库（Automerge、Supabase Realtime）来支持多用户功能。
+
+性能优化部分（自己实现）：
+
+1. Vite 手动分包（vite.config.ts）：
+\`\`\`typescript
+manualChunks: {
+  'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+  'radix-ui': [多个 @radix-ui/* 包],
+  'tiptap-editor': [9个 TipTap 扩展],
+  'automerge-core': [4个 Automerge 包],
+  'motion': ['motion'],
+  'icons': ['@tabler/icons-react', 'lucide-react'],
+  'supabase': ['@supabase/supabase-js'],
+  'utils': ['clsx', 'tailwind-merge', 'dayjs', 'zod', 'zustand', 'shiki'],
+}
+\`\`\`
+
+2. 路由异步加载（vite-plugin-pages）：
+\`\`\`typescript
+Pages({
+  importMode: 'async',  // 每个页面组件独立 chunk
+})
+\`\`\`
+
+3. CSS 按路由分割：
+\`\`\`typescript
+cssCodeSplit: true  // 每个 chunk 独立 CSS
+\`\`\``,
+    tags: ['GResume', '项目归属', '性能优化'],
+    status: 'unvisited',
+    difficulty: 'easy',
+  },
 ];
 
 export const gresumeChapter: Chapter = {
   id: 'gresume',
   module: 'projects',
   title: 'GResume 智能简历平台',
-  description: 'CRDT文档冲突、IndexedDB离线、AI集成ATS评分',
+  description: 'CRDT文档冲突、IndexedDB离线、AI集成ATS评分、协同编辑',
   cardCount: gresumeCards.length,
   icon: '📝',
 };
