@@ -220,10 +220,20 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                   style={{ height: '100%', backgroundColor: '#f0f4ff' }}
                 />
               ) : (
-                <MDEditor.Markdown
-                  source={formattedAnswer}
-                  style={{ backgroundColor: 'transparent', color: '#37352f' }}
-                />
+                <>
+                  <MDEditor.Markdown
+                    source={formattedAnswer}
+                    style={{ backgroundColor: 'transparent', color: '#37352f' }}
+                  />
+                  {displayCard.codeExample && (
+                    <div className="mt-6">
+                      <div className="text-sm font-medium text-gray-600 mb-2">代码示例：</div>
+                      <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+                        <code>{displayCard.codeExample}</code>
+                      </pre>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

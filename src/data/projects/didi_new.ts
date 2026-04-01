@@ -1341,6 +1341,226 @@ src/
     status: 'unvisited',
     difficulty: 'medium',
   },
+  // ===== 面试指南补充：AI Native 开发范式 =====
+  {
+    id: 'didi-ai-native-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: '什么是 AI Native（AI 原生开发）？你在项目中是如何体现的？',
+    answer: `AI Native 开发范式理解：
+
+### 1. 定义（S）
+\`\`\`
+我认为 AI Native 不仅仅是使用 AI 工具，而是一种开发范式的转变。
+它在设计系统时，就预设了 AI 是开发团队的一员。
+代码结构、接口定义都要让 AI 能"看懂"和"参与"。
+\`\`\`
+
+### 2. 行动（A）
+\`\`\`
+在滴滴项目中，我引入了 OpenSpec 标准。
+这不仅仅是一个文档，而是一套人机契约（Contract）。
+我将业务组件的定义结构化（Schema），规定了 AI 在生成组件时必须遵循的 Inputs 和 Outputs。
+\`\`\`
+
+### 3. 结果（R）
+\`\`\`
+这解决了 AI 生成代码的"幻觉"问题。
+以前 AI 生成的代码可能跑不起来，现在因为有 Schema 的约束，
+AI 生成的代码可以直接融入现有架构，实现了真正的"零代码扩展"。
+\`\`\`
+
+### 与传统开发的区别
+
+| 维度 | 传统开发 | AI Native |
+|------|---------|-----------|
+| 主体 | 人类程序员 | 人 + AI 协作 |
+| 代码生成 | 纯手写 | AI 生成 + 人类审核 |
+| 规范约束 | 代码评审 | 从源头约束 |
+| 沟通成本 | 高 | 低 |
+
+### 核心思想
+AI Native = 以 AI 为中心重构开发范式
+不仅仅是"用 AI 写代码"，而是"让 AI 成为开发团队的一员"`,
+    tags: ['滴滴', 'AI Native', 'AI工程化', 'OpenSpec'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  // ===== OpenSpec 和 SSD 工作原理 =====
+  {
+    id: 'didi-openspec-ssd-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: '你提到的 OpenSpec 和 SSD 模式具体是如何工作的？',
+    answer: `OpenSpec 和 SSD 工作原理：
+
+### 1. SSD 核心思想
+\`\`\`
+SSD = Structured Specification-Driven（结构化规范驱动）
+核心思想是"先定义，后生成"
+\`\`\`
+
+### 2. OpenSpec 定义
+\`\`\`
+我利用 OpenSpec 定义了业务的元数据（Metadata）。
+它是一套人机契约，规定了 AI 生成的边界。
+\`\`\`
+
+### 3. 工作流程示例
+
+#### 动态表单引擎场景：
+\`\`\`typescript
+// 定义 JSON Schema（OpenSpec）
+const FormSchema = {
+  type: 'object',
+  properties: {
+    fieldType: { type: 'string', enum: ['input', 'select', 'date'] },
+    validation: { type: 'object', properties: { required: 'boolean' } },
+    component: { type: 'string' }
+  }
+};
+
+// AI 不需要"创造"逻辑，只需要根据 Schema 填充数据
+// AI 的角色从"写代码的程序员"变成"填表格的工人"
+\`\`\`
+
+### 4. 优势
+- 大大降低了 AI 出错率
+- 代码质量可预测、可控制
+- 团队成员可以复用同一套规范
+
+### 一句话总结
+把 AI 的角色从"创造者"变成"执行者"，通过规范约束保证输出质量`,
+    tags: ['滴滴', 'OpenSpec', 'SSD', 'AI工程化'],
+    status: 'unvisited',
+    difficulty: 'hard',
+  },
+  // ===== AI 结伴编程工作流 =====
+  {
+    id: 'didi-ai-pair-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: '你平时是如何进行 AI 结伴编程的？你的 Prompt 工程有什么技巧？',
+    answer: `AI 结伴编程工作流：
+
+### 1. 我的三阶段工作流
+
+#### 设计阶段
+让 AI 充当架构师：
+- 输入需求，让它输出代码结构图
+- 输出核心接口定义
+- 分析潜在技术风险
+
+\`\`\`python
+# 示例 Prompt
+"你是一个资深系统架构师，请分析以下需求：
+[需求描述]
+请给出：1. 模块划分 2. 数据流设计 3. 技术选型建议"
+\`\`\`
+
+#### 编码阶段
+我主导核心逻辑，AI 负责样板代码：
+- 样板代码（Boilerplate）
+- 类型定义
+- 重复性劳动
+
+#### Code Review 阶段
+让 AI 扮演资深工程师：
+- 检查潜在 Bug
+- 检查安全漏洞
+- 检查性能问题
+\`\`\`
+"你是一个资深代码审查专家，请检查以下代码的：
+1. 潜在 Bug 2. 安全风险 3. 性能问题"
+\`\`\`
+
+### 2. 高阶 Prompt 技巧
+
+#### Role（角色设定）
+\`\`\`
+"你是一个资深 React 专家，擅长 TypeScript 和性能优化"
+\`\`\`
+
+#### Context（上下文）
+\`\`\`
+"当前项目使用 React 18, TypeScript, Tailwind CSS"
+\`\`\`
+
+#### Chain of Thought（思维链）
+\`\`\`
+"请先分析需求，再给出代码，最后解释设计思路"
+\`\`\`
+
+### 3. 核心原则
+- AI 是助手，人是最终决策者
+- 不会盲目信任 AI 的输出
+- 通过不断优化 Prompt 来提升 AI 输出质量`,
+    tags: ['滴滴', 'AI结伴编程', 'Prompt工程', '人机协作'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  // ===== AI 代码问题处理 =====
+  {
+    id: 'didi-ai-bug-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: 'AI集成',
+    question: '如果 AI 生成的代码有 Bug，或者不符合团队规范，你是怎么处理的？',
+    answer: `AI 生成代码问题处理：
+
+### 1. 核心态度
+\`\`\`
+AI 是助手，人是最终决策者。
+我不会盲目信任 AI 的输出。
+\`\`\`
+
+### 2. 具体处理措施
+
+#### 规范源头约束
+\`\`\`typescript
+// 将团队的 ESLint 和代码风格写入 Prompt 指令
+const systemPrompt = \`
+你是一个 React 专家，请遵循以下规范：
+1. 使用 TypeScript，禁止 any 类型
+2. 使用 React.FC 声明组件
+3. 组件文件使用 PascalCase
+4. 禁止使用 console.log
+5. 遵循 ESLint 规则
+\`;
+\`\`\`
+
+#### 问题分析
+\`\`\`
+如果 AI 出错，我会分析：
+1. 是 Prompt 写得不够好？
+2. 还是 AI 对业务逻辑理解有偏差？
+\`\`\`
+
+#### Prompt 优化（Refine）
+\`\`\`
+通过精炼 Prompt 来修正问题，而不是直接放弃。
+不断迭代 Prompt，直到 AI 能稳定输出符合规范的内容。
+\`\`\`
+
+### 3. 团队规范自动化
+\`\`\`
+在滴滴，我推动了团队规范的自动化落地：
+- ESLint 检查 AI 输出
+- 自动格式化
+- 代码质量评分
+\`\`\`
+
+### 4. 回答要点
+- 展现责任心：不把问题推给 AI
+- 展现技术判断力：知道什么是好的代码
+- 展现优化能力：会迭代和改进 Prompt`,
+    tags: ['滴滴', 'AI代码审查', 'Prompt优化', '人机协作'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
   // ===== 面试指南补充：实习生时间稳定性 =====
   {
     id: 'didi-intern-time-001',
