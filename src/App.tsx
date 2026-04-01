@@ -7,12 +7,14 @@ import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
 import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
 import { CustomCardsPage } from '@/pages/Custom';
 import { ResumePage } from '@/pages/Resume/ResumePage';
+import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 
 function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
+        <FloatingResumeButton />
         <Routes>
           <Route path="/" element={<Home />} />
 
