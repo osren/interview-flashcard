@@ -6,6 +6,7 @@ import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
 import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
 import { CustomCardsPage } from '@/pages/Custom';
+import { ResumePage } from '@/pages/Resume/ResumePage';
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
 
           {/* 收藏 */}
           <Route path="/favorites" element={<Favorites />} />
+
+          {/* 简历 */}
+          <Route path="/resume" element={<ResumePage />} />
 
           {/* 404 */}
           <Route
