@@ -10,53 +10,25 @@ export const didiCards: FlashCard[] = [
     answer: `STAR 法则回答：
 
 S (情境)：
-机票政策模块（plane_policy）是55个业务模块中最复杂的，单文件超2000行代码，运行超5年。国内/国际两套代码分离，重复开发，维护成本倍增。
+原系统使用 jQuery + 硬编码表单配置，维护困难，每次加字段都要改代码
 
 T (任务)：
-拆解遗留系统，统一国内/国际机票政策模块，抽象通用定价模型
+将硬编码转为配置驱动，提升研发效率
 
 A (行动)：
-1. **抽象统一模型**：提取国内/国际共性为基类，差异通过配置扩展
-   \`\`\`javascript
-   const BASE_POLICY_FIELDS = ['policy_code', 'airline_codes', 'cabin_codes', ...];
-   const DOMESTIC_EXTENSIONS = ['member_types', 'ticket_channels'];
-   const INTERNATIONAL_EXTENSIONS = ['intl_airline_codes'];
-   \`\`\`
-
-2. **数据兼容处理**：老数据编辑时正确推导新字段初始值
-   \`\`\`javascript
-   // 新增字段，老数据为空需设置默认值
-   current_policy.member_types = [];
-   // 根据会员类型设置初始状态
-   const onlyNewMember = memberTypes.length === 1 && memberTypes.includes("1");
-   \`\`\`
-
-3. **隐性规则显性化**：将业务规则提取为配置
-   \`\`\`javascript
-   const MEMBER_TYPE_LINKAGE = {
-     '1': { showFields: [] },
-     '2': { showFields: ['ticket_channels', 'history_booking_days'] },
-   };
-   \`\`\`
-
-4. **UI嵌套优化**：提取渲染函数解决深度超标问题
-   \`\`\`javascript
-   const renderAirlineTypeSelect = () => (
-     <Select>...</Select>
-   );
-   // 使用时嵌套深度从7层降到5层
-   \`\`\`
-
-5. **渐进式重构**：第一阶段统一数据模型，第二阶段合并UI组件，第三阶段移除重复代码
+1. 设计配置 Schema（字段定义、校验规则、依赖关系）
+2. 开发配置编辑器可视化工具
+3. 编写 Schema 校验（zod/ajv）
+4. 灰度上线，逐步迁移旧配置
 
 R (结果)：
-• 国内/国际代码合并为统一模块，维护效率提升
-• 隐性规则配置化，新业务只需添加配置无需改代码
-• 0 线上事故（机票价格政策涉及财务，变更风险极高）`,
-    tags: ['滴滴', '重构', '遗留系统', '机票政策'],
+• 表单开发时间从 3天 → 0.5天
+• 代码量减少 60%
+• 0 线上事故`,
+    tags: ['滴滴', '重构', '配置驱动'],
     status: 'unvisited',
     difficulty: 'hard',
-    extendQuestion: '如何平衡重构进度与业务稳定性？',
+    extendQuestion: '配置 Schema 如何设计能够兼顾扩展性和可维护性？',
   },
   {
     id: 'didi-config-001',
@@ -64,86 +36,22 @@ R (结果)：
     chapterId: 'didi',
     category: '配置驱动',
     question: '硬编码转配置驱动，配置 Schema 如何设计？',
-    answer: `Schema 设计实践：
+    answer: `Schema 设计要点：
 
-### 1. 枚举类配置
-\`\`\`javascript
-// 硬编码 → 配置化
-const AIRLINE_TYPE_SCHEMA = {
-  type: 'enum',
-  options: [
-    { value: 1, label: '国内机票' },
-    { value: 2, label: '国际机票' },
-  ],
-  map: { 1: 'domestic', 2: 'international' }
-};
+interface ComponentConfig {
+  type: 'input' | 'select' | 'date';
+  name: string;
+  label: string;
+  rules?: ValidationRule[];
+  visible?: Condition;
+  default?: any;
+}
 
-// 通用渲染
-const EnumSelect = ({ schema, ...props }) => (
-  <Select {...props}>
-    {schema.options.map(opt => (
-      <Option key={opt.value} value={opt.value}>{opt.label}</Option>
-    ))}
-  </Select>
-);
-\`\`\`
-
-### 2. 字段级配置（JSON Schema 风格）
-\`\`\`javascript
-const FIELD_SCHEMA = {
-  airline_code: {
-    type: 'string',
-    label: '航司二字码',
-    required: true,
-    rules: [{ pattern: /^[A-Z0-9,]+$/i, message: '格式不正确' }],
-    visibility: (values) => values.airline_type === 1,
-  },
-  member_types: {
-    type: 'multi-select',
-    label: '会员类型',
-    linkage: {
-      showFields: ['ticket_channels', 'history_booking_days'],
-      condition: (value) => !(value.length === 1 && value.includes('1')),
-    }
-  },
-};
-\`\`\`
-
-### 3. 业务规则配置
-\`\`\`javascript
-// 会员类型联动规则
-const MEMBER_TYPE_LINKAGE = {
-  '1': { showFields: [] },  // 仅新会员，隐藏字段
-  '2': { showFields: ['ticket_channels', 'history_booking_days', 'purchase_segment_count'] },
-  '1,2': { showFields: ['ticket_channels', 'history_booking_days', 'purchase_segment_count'] },
-};
-
-// 票价类别交叉校验
-const FARE_CATEGORY_RULES = {
-  crossValidate: [{
-    fields: ['fare_bases', 'match_type', 'fbc_rule'],
-    validate: (values) => {
-      const oldFilled = values.fare_bases && values.match_type;
-      const newFilled = values.fbc_rule;
-      if (!oldFilled && !newFilled) return { ok: false, msg: '需填写票价类别或通配符定义' };
-      return { ok: true };
-    }
-  }]
-};
-\`\`\`
-
-### 4. 设计原则
-| 原则 | 说明 |
-|------|------|
-| 单一职责 | 每个 Schema 只描述一种配置类型 |
-| 可扩展 | 支持新增选项、字段而不破坏现有结构 |
-| 类型安全 | 配合 TypeScript 进行校验 |
-| 版本管理 | 配置变更记录版本，便于回滚 |
-
-### 5. 收益
-• 新增选项无需改代码，配置即可生效
-• 统一配置源，避免散落在各处
-• 通过 JSON Schema 实现复杂表单的动态生成`,
+关键设计原则：
+1. 声明式而非命令式
+2. 支持嵌套和组合
+3. 有明确的类型定义（TypeScript）
+4. 支持校验规则内联`,
     tags: ['滴滴', '配置驱动', 'Schema'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -156,42 +64,17 @@ const FARE_CATEGORY_RULES = {
     question: '什么是 SSD 规范驱动模式？用通俗语言解释',
     answer: `通俗解释：
 
-**SSD = "先定规范，再写代码"**
+SSD = "规范说明书"驱动 AI 写代码
 
-类比：建房子
-- 传统开发：边想边盖，边改边修，工人现场决定尺寸
-- SSD 模式：先画详细蓝图，按图施工，有据可依
+类比：
+传统：告诉装修师傅"我要简约风格" → 装修师傅自己理解 → 结果可能不符合预期
+SSD：给装修师傅一份详细的"装修规范书" → 师傅按规范执行 → 结果可控
 
-技术类比：接口文档
-- 传统：先写代码，后补文档，文档和代码可能不一致
-- SSD：先用 OpenAPI 定义规范，代码自动生成或严格遵守
-
-### 项目实践：OpenSpec 体系
-
-\`\`\`yaml
-# .openspec.yaml - 变更规范
-schema: spec-driven
-change_type: feature
-created: 2026-03-27
-\`\`\`
-
-\`\`\`markdown
-# design.md - 设计文档
-## 需求背景
-新增会员类型字段，支持区分新会员/老会员
-
-## 方案设计
-- member_types: 多选，会员类型
-- 联动逻辑：仅选"新会员"时，隐藏后续三个字段
-\`\`\`
-
-### 解决的问题
-1. **需求传递失真**：产品→设计→开发逐步失真，返工率高
-2. **代码质量不一**：有人用 class，有人用 function
-3. **知识传承困难**：老代码看不懂，新人上手慢
-4. **AI 辅助落地难**：AI 不知道业务背景，产出质量不可控
-
-**一句话总结**：SSD 规范驱动就是"用文档代替口头沟通，让代码有据可依，让 AI 有章可循"。`,
+核心：
+• 规范文档 = 需求 + 验收标准
+• AI 读懂规范后生成代码
+• 代码必须符合规范
+• 有人工审核环节`,
     tags: ['滴滴', 'SSD', 'AI工程化'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -204,46 +87,17 @@ created: 2026-03-27
     question: 'OpenSpec 在项目中解决了什么问题？',
     answer: `解决的问题：
 
-### 1. 需求传递失真
-- 产品写 PRD，设计师出 UI，开发凭理解
-- 环节越多，信息损耗越大
-- **解决**：用结构化规范文档作为唯一真相源
+1. AI 输出格式不统一
+   → 定义标准 JSON Schema 约束输出
 
-### 2. 代码质量参差不齐
-- 有人用 Class 组件，有人用 Hooks
-- Redux / useState 混用，命名风格不统一
-- **解决**：规范中定义代码风格和最佳实践
+2. 难以校验生成质量
+   → Schema 校验 + metadata 置信度
 
-\`\`\`yaml
-code_standards:
-  - 使用函数组件 + Hooks
-  - 优先使用 useState 管理组件状态
-  - 组件命名使用 PascalCase
-\`\`\`
+3. AI 与 IDE 集成困难
+   → 定义通信协议
 
-### 3. 历史代码难以维护
-- 代码没有文档注释，隐性业务逻辑无人知晓
-- 改代码像拆炸弹，不知道会触发什么
-- **解决**：每个变更都有完整的规范文档
-
-### 4. 多人协作混乱
-- 同时开发多个需求，不知道别人改了什么
-- **解决**：用统一工作流串联，任务拆分，状态追踪
-
-### 5. AI 辅助开发难落地
-- AI 不了解业务背景，生成代码不符合规范
-- **解决**：规范文档为 AI 提供业务上下文
-
-\`\`\`
-需求 → 规范文档 → AI 基于规范生成 → 人工 Review → 产出符合预期
-\`\`\`
-
-### 效果数据
-| 指标 | 改善前 | 改善后 |
-|------|--------|--------|
-| 需求理解偏差 | 30% 返工 | <5% |
-| 代码风格一致性 | 依赖个人 | 规范约束 |
-| AI 辅助效率 | 需大量校正 | 产出精准 |`,
+4. 难以追踪规范与代码对应
+   → 规范版本化，可单独管理`,
     tags: ['滴滴', 'OpenSpec', 'AI工程化'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -254,70 +108,19 @@ code_standards:
     chapterId: 'didi',
     category: '性能优化',
     question: '弱网场景的路由分割和预加载具体是怎么实施的？',
-    answer: `问题背景：55+ 业务模块的巨型应用，弱网环境下首次加载需下载全部代码，FCP 超 10s。
+    answer: `路由分割：
+React.lazy + Suspense 按需加载
+const Home = lazy(() => import('./pages/Home'));
 
-### 1. 路由分割（@loadable/component）
+预加载策略：
+1. 空闲预加载：requestIdleCallback
+2. 鼠标悬停预加载：onMouseEnter
+3. IntersectionObserver：内容进入视口前预加载
 
-\`\`\`javascript
-// Routes.jsx
-import loadable from '@loadable/component';
-
-const ROUTETOCOMPONENTS = {
-  '/plane_policy': loadable(() => import('./pages/plane_policy'), {
-    fallback: <div>Loading...</div>,
-  }),
-  '/trust': loadable(() => import('./pages/trust'), {
-    fallback: <div>Loading...</div>,
-  }),
-};
-
-// Vite 配置
-build: {
-  rollupOptions: {
-    output: {
-      manualChunks: {
-        'vendor-react': ['react', 'react-dom'],
-        'vendor-antd': ['antd', '@ant-design/icons'],
-      }
-    }
-  }
-}
-\`\`\`
-
-### 2. 预加载策略
-
-\`\`\`javascript
-// 1. 鼠标悬停预加载
-<Link to="/plane_policy/special" onMouseEnter={() => PolicySpecial.preload()}>
-  特殊政策
-</Link>
-
-// 2. webpackPrefetch 空闲预加载
-import(/* webpackPrefetch: true */ './pages/PolicyDetail');
-
-// 3. 空闲时间预加载（requestIdleCallback）
-requestIdleCallback(() => {
-  prefetchModule('/high-priority');
-});
-\`\`\`
-
-### 3. 带宽竞争处理
-\`\`\`javascript
-// 弱网时禁用预加载
-const shouldPrefetch = () => {
-  const ect = navigator.connection?.effectiveType;
-  return ect === '4g' || ect === undefined;
-};
-\`\`\`
-
-### 4. 关键指标
-| 指标 | 优化前 | 优化后 |
-|------|--------|--------|
-| 首屏加载 | 10s+ | 2-3s |
-| FCP | 3.5s | 1.2s |
-| JS 包体积 | 2.5MB | 1.2MB |
-
-**核心思路**：不是一次性加载所有，而是"让用户看到什么，就先加载什么"。`,
+关键指标：
+• FCP 从 3.2s → 1.8s
+• 首屏 JS 减少 45%
+• 弱网环境下白屏时间减少 50%`,
     tags: ['滴滴', '性能优化', '路由分割', '预加载'],
     status: 'unvisited',
     difficulty: 'hard',
@@ -365,64 +168,35 @@ const shouldPrefetch = () => {
     question: 'Redux + Redux Thunk 状态管理方案解决了什么问题？',
     answer: `解决的问题：
 
-### 1. 全局状态共享
-- 痛点：组件间需要传递数据 props 层层传递，兄弟组件通信困难
-- 解决：统一的状态仓库 Store
-
-\`\`\`javascript
-// 组件 A                    组件 B
-   ↓                        ↓
-   └────────┬───────────────┘
-            ↓
-      Redux Store
-            ↓
-   ┌────────┴────────┐
-状态: {           状态:
-  user: {...}        menus: [...]
-}
-\`\`\`
+### 1. 状态分散问题
+- 原来：用户信息、权限、菜单分散在不同组件
+- 现在：集中到 Redux Store 统一管理
 
 ### 2. 异步请求处理
-- 痛点：接口请求代码散落在组件各处，重复逻辑，无法统一管理 loading/error
-- 解决：Redux Thunk 封装异步 action
+- Redux Thunk 支持异步 action
+- 允许 action 返回函数，封装异步逻辑
 
+### 3. 数据流可预测
+- 单一数据源
+- 每次状态变化都有记录（配合 Redux DevTools）
+
+### 实现方案：
 \`\`\`javascript
 // actions/user.actions.js
-export const userActions = {
-  getUserInfo: () => (dispatch) => {
-    dispatch({ type: 'USER_INFO_REQUEST' });
-    userService.getInfo()
-      .then((res) => dispatch({ type: 'USER_INFO_SUCCESS', payload: res.data }))
-      .catch((err) => dispatch({ type: 'USER_INFO_FAILURE', error: err }));
-  }
-};
-
-// 组件内使用
-const dispatch = useDispatch();
-useEffect(() => { dispatch(userActions.getUserInfo()); }, []);
-\`\`\`
-
-### 3. 服务层统一封装
-\`\`\`javascript
-// services/planePolicy.service.js
-export const planePolicyService = {
-  getSpecialPolicyList: (params) =>
-    request.post('/api/flight/huidu/company/specialPolicy/queryList/v1.0', params),
-  addSpecialPolicy: (data) =>
-    request.post('/api/flight/huidu/company/specialPolicy/add/v1.0', data),
+export const getUserInfo = () => {
+  return dispatch => {
+    dispatch({ type: 'USER/REQUEST' });
+    userService.getInfo().then(data => {
+      dispatch({ type: 'USER/SUCCESS', payload: data });
+    });
+  };
 };
 \`\`\`
 
-### 4. 用户信息与权限
-典型应用：用户登录信息、菜单权限、动态路由配置
-
-### 方案优势
-| 维度 | 说明 |
-|------|------|
-| 可预测 | 单一数据源，状态变化可追踪 |
-| 可维护 | 逻辑集中在 action/reducer |
-| 可测试 | action 和 reducer 可单独测试 |
-| 可扩展 | 中间件机制可扩展功能 |`,
+### 适用场景：
+- 用户登录信息全局共享
+- 权限、菜单动态生成
+- 多组件共享的表单数据`,
     tags: ['滴滴', 'Redux', '状态管理'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -435,96 +209,40 @@ export const planePolicyService = {
     question: '供应商管理模块的批量操作功能是如何实现的？',
     answer: `批量操作实现方案：
 
-### 1. 表格多选配置
-\`\`\`javascript
-const rowSelection = {
-  selectedRowKeys,
-  onChange: (keys) => setSelectedRowKeys(keys),
-  getCheckboxProps: (record) => ({
-    disabled: record.status === 'locked',  // 锁定项不可选择
-  }),
-};
+### 功能需求
+- 国内外供应商的引入、审核、上下架
+- 批量导入、批量审核、批量上下架
 
-<Table rowSelection={rowSelection} columns={columns} dataSource={data} />
-\`\`\`
+### 技术实现
+1. **Table 选择批量**
+   - 使用 Ant Design Table 的 rowSelection
+   - 支持全选、单选、跨页选择
 
-### 2. 批量删除
+2. **批量操作栏**
+   - 底部固定操作栏，显示已选数量
+   - 支持批量删除、批量审核、批量导出
+
+3. **防抖处理**
+   - 批量操作前防抖，避免重复提交
+   - 使用 lodash.debounce 或自定义 hook
+
+4. **进度反馈**
+   - 大批量操作显示 progress 进度条
+   - 支持取消操作
+
+### 代码示例：
 \`\`\`javascript
-const handleBatchDelete = async () => {
-  const res = await supplierService.batchDeleteSupplier({
-    ids: selectedRowKeys.join(','),  // 逗号分隔 IDs
-    operator: operatorName,
-  });
-  if (res.errno === 0) {
-    message.success('删除成功');
-    loadTableData();
-    setSelectedRowKeys([]);
+const handleBatch = async (selectedIds) => {
+  for (const id of selectedIds) {
+    await supplierService.updateStatus(id, 'online');
   }
+  message.success('批量操作成功');
 };
 \`\`\`
 
-### 3. 批量启用/禁用
-\`\`\`javascript
-const handleBatchEnable = async (status) => {
-  await supplierService.batchUpdateStatus({
-    ids: selectedRowKeys.join(','),
-    status,  // 1-启用 0-禁用
-    operator: operatorName,
-  });
-};
-
-<Popconfirm title="确定批量启用选中的供应商吗？" onConfirm={() => handleBatchEnable(1)}>
-  <Button>批量启用</Button>
-</Popconfirm>
-\`\`\`
-
-### 4. 批量导入
-\`\`\`javascript
-const handleBatchImport = (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-  return supplierService.importSupplier(formData)
-    .then(res => message.success(\`成功导入 \${res.data.successCount} 条\`));
-};
-
-<Upload beforeUpload={(file) => {
-  const isExcel = file.type === 'application/vnd.ms-excel' || ...;
-  if (!isExcel) { message.error('只能上传 Excel 文件！'); return false; }
-  handleBatchImport(file);
-  return false;
-}}>
-  <Button>批量导入</Button>
-</Upload>
-\`\`\`
-
-### 5. 批量导出
-\`\`\`javascript
-const handleBatchExport = () => {
-  downloadFile('/api/supplier/export', {
-    ...searchParams,
-    ids: selectedRowKeys.join(','),
-  });
-};
-\`\`\`
-
-### 6. 错误处理与回滚
-\`\`\`javascript
-const handleBatchWithRollback = async () => {
-  const res = await supplierService.batchOperate(params);
-  if (res.data?.failedIds?.length > 0) {
-    message.warning(\`成功 \${res.data.successCount} 条，失败 \${res.data.failedIds.length} 条\`);
-    setSelectedRowKeys(res.data.failedIds);  // 保留选中失败的项
-  }
-};
-\`\`\`
-
-### 操作类型总结
-| 操作 | 实现方式 | 关键点 |
-|------|----------|--------|
-| 批量删除 | 逗号分隔 IDs | 确认弹窗，防止误删 |
-| 批量启用/禁用 | status 字段控制 | 锁定项不可操作 |
-| 批量导入 | FormData + Excel | 格式校验 + 错误报告 |
-| 批量导出 | form 提交 | 大数据量分页导出 |`,
+### 效率提升：
+- 单功能开发效率提升 40%（AI 辅助）
+- 批量操作从手动逐个处理改为自动化`,
     tags: ['滴滴', 'CRUD', '批量操作', 'Ant Design'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -540,42 +258,26 @@ const handleBatchWithRollback = async () => {
 
 \`\`\`
 src/
-├── pages/                 # 页面组件（55+业务模块）
-│   ├── plane_policy/      # 机票政策模块
-│   │   ├── index.jsx     # 路由入口
-│   │   ├── components/   # 模块级公共组件
-│   │   └── page/         # 子页面
-│   │       └── plane_policy_special/
-│   │           ├── index.jsx
-│   │           └── page/
-│   │               ├── PolicySpecial.jsx
-│   │               └── EditSpecialPolicy.jsx
-│   ├── trust/             # 酒店托管模块（30+ 组件）
-│   └── supplier/          # 供应商模块
-├── components/            # 公共组件（~10个）
-│   ├── DynamicForm.jsx   # 动态表单引擎
-│   ├── UploadModal.jsx   # 上传弹窗
-│   └── MyParagraph.jsx   # 文本省略组件
-├── services/              # API 服务层（~50个 service 文件）
-├── actions/               # Redux actions（部分使用）
-├── reducers/              # Redux reducers
-├── utils/                 # 工具函数
-│   ├── request.js        # HTTP 请求封装
-│   ├── browserStorage.js # 存储封装
-│   └── util.js            # 通用工具
-├── constants/             # 常量定义
-└── Routes.jsx             # 路由配置
+├── pages/          # 页面组件（57个业务模块）
+├── components/     # 可复用UI组件
+├── services/       # API请求封装（~50个service文件）
+├── actions/        # Redux actions
+├── reducers/       # Redux reducers
+├── utils/          # 工具函数
+├── constants/      # 常量配置
+├── helpers/        # 辅助函数（store创建等）
+├── models/         # 数据模型
+└── Routes.jsx      # 路由定义
 \`\`\`
 
-### 文件命名规范
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 页面组件 | PascalCase | PolicySpecial.jsx |
-| 列表页 | {业务名}List.jsx | SupplierList.jsx |
-| 编辑页 | Edit{业务名}.jsx | EditSpecialPolicy.jsx |
-| 服务层 | camelCase | planePolicy.service.js |
+### 分层原则：
+1. **pages/** - 业务页面，按模块划分（supplier, flight, hotel等）
+2. **services/** - API服务层，每个模块对应一个service文件
+3. **actions/reducers** - Redux 数据层，分离关注点
+4. **utils/** - 工具函数，纯函数优先
+5. **constants/** - 常量配置，减少魔法值
 
-### 优势
+### 优势：
 - 模块间解耦，修改影响范围可控
 - 便于团队协作，减少冲突
 - 新人入职快速定位代码位置`,
@@ -591,68 +293,32 @@ src/
     question: '服务层封装方案是怎样的？如何管理约50个service文件？',
     answer: `服务层封装方案：
 
-### 1. 目录结构
-\`\`\`
-src/services/
-├── planePolicy.service.js    # 机票政策接口
-├── planeAgreement.service.js # 协议价接口
-├── supplier.service.js       # 供应商接口
-└── user.service.js            # 用户接口
-\`\`\`
+### 1. 文件组织
+- 按业务模块划分：supplier.service.js, hotel.service.js, flight.service.js
+- 统一在 services/index.js 导出
 
-### 2. 封装模式
+### 2. 请求封装（基于 @didi/dajax）
 \`\`\`javascript
-// services/planePolicy.service.js
-import request from '../utils/request';
-import config from 'config';
+// supplier.service.js
+import axios from '@didi/dajax';
 
-const BASE_URL = config.yichou;
-
-export const planePolicyService = {
-  // 列表
-  getSpecialPolicyList: (params) =>
-    request.post(\`\${BASE_URL}/api/flight/huidu/company/specialPolicy/queryList/v1.0\`, params),
-  // 新增
-  addSpecialPolicy: (data) =>
-    request.post(\`\${BASE_URL}/api/flight/huidu/company/specialPolicy/add/v1.0\`, data),
-  // 修改
-  updateSpecialPolicy: (data) =>
-    request.post(\`\${BASE_URL}/api/flight/huidu/company/specialPolicy/update/v1.0\`, data),
-  // 删除
-  deleteSpecialPolicy: (params) =>
-    request.post(\`\${BASE_URL}/api/flight/huidu/company/specialPolicy/delete/v1.0\`, params),
+export const supplierService = {
+  getList: (params) => axios.get('/api/supplier/list', { params }),
+  add: (data) => axios.post('/api/supplier/add', data),
+  update: (id, data) => axios.put(\`/api/supplier/\${id}\`, data),
+  delete: (id) => axios.delete(\`/api/supplier/\${id}\`),
 };
 \`\`\`
 
-### 3. 方法命名规范
-| 操作 | 命名 |
-|------|------|
-| 列表获取 | getXxxList / queryXxxList |
-| 单条获取 | getXxx / queryXxx |
-| 新增 | addXxx / createXxx |
-| 修改 | updateXxx / editXxx |
-| 删除 | deleteXxx / removeXxx |
-| 批量操作 | batchXxx |
+### 3. 统一管理
+- 所有 service 统一导出：export * from './supplier.service'
+- 配合 ESLint import 规则检查未使用导入
 
-### 4. 50 个文件分类
-\`\`\`
-services/
-├── 机票相关 (8个)   # planePolicy, planeAgreement, planeCabin...
-├── 酒店相关 (10个)  # hotelSupplier, hotelBonus, hotelChannel...
-├── 火车票相关 (2个) # train, trainSupplier
-├── 用户/权限 (2个)  # user, permission
-└── 其他 (~30个)     # 增值服务、保险、标签等
-\`\`\`
+### 4. 类型约束（TypeScript 逐步迁移）
+- 定义请求参数接口
+- 统一错误处理
 
-### 5. 管理策略
-| 策略 | 说明 |
-|------|------|
-| 按业务模块划分 | 每个模块对应一个 service 文件 |
-| 命名一致性 | xxx.service.js 格式 |
-| 单一职责 | 每个文件只对应一个业务域 |
-| 版本管理 | URL 中带版本号（v1.0） |
-
-### 优势
+### 优势：
 - API 集中管理，修改只需改一处
 - 统一错误处理、请求拦截
 - 便于接口调试和文档生成`,
@@ -668,77 +334,46 @@ services/
     question: '动态路由和权限菜单是如何实现的？',
     answer: `动态路由实现方案：
 
-### 1. 路由来源
-路由不是硬编码的，而是从后端获取的菜单配置动态生成：
-
+### 1. 路由配置结构
 \`\`\`javascript
-// Routes.jsx
-const Routes = () => {
-  const routes = useSelector(state => getRoutes(state.user.menus));
-
-  return (
-    <Switch>
-      {routes.map((route) => (
-        <Route key={route.path} path={route.path} component={ROUTETOCOMPONENTS[route.path]} />
-      ))}
-    </Switch>
-  );
-};
-\`\`\`
-
-### 2. 菜单数据结构
-\`\`\`javascript
-const menus = [
+const routes = [
   {
-    id: 1,
-    name: '机票管理',
-    url: '/plane_policy',
-    cmenus: [
-      { id: 11, name: '特殊政策', url: '/plane_policy/special' },
-      { id: 12, name: '普通政策', url: '/plane_policy/ordinary' },
-    ]
+    path: '/supplier',
+    component: SupplierPage,
+    permission: 'supplier:view',
+  },
+  {
+    path: '/flight',
+    component: FlightPage,
+    permission: 'flight:view',
   },
 ];
 \`\`\`
 
-### 3. 路由映射表
+### 2. 权限菜单生成
+- 用户登录后获取权限菜单配置
+- 根据权限过滤可用路由
+- 动态生成左侧菜单
+
+### 3. 路由守卫
 \`\`\`javascript
-const ROUTETOCOMPONENTS = {
-  '/plane_policy': loadable(() => import('./pages/plane_policy')),
-  '/trust': loadable(() => import('./pages/trust')),
-  '/supplier': loadable(() => import('./pages/supplier')),
+const ProtectedRoute = ({ permission, children }) => {
+  const { userPermissions } = useAuth();
+  if (!userPermissions.includes(permission)) {
+    return <Navigate to="/unauthorized" />;
+  }
+  return children;
 };
 \`\`\`
 
 ### 4. 按钮级权限
-\`\`\`javascript
-const usePermission = (permission) => {
-  const permissions = useSelector(state => state.user.permissions);
-  return permissions.includes(permission);
-};
+- 使用 HOC 或自定义 Hook 封装
+- 控制页面内按钮的显示/隐藏
 
-const DeleteButton = ({ record }) => {
-  const canDelete = usePermission('policy:delete');
-  if (!canDelete) return null;
-  return <Button onClick={handleDelete}>删除</Button>;
-};
-\`\`\`
-
-### 5. 路由守卫
-\`\`\`javascript
-const ProtectedRoute = ({ component: Component, ...props }) => {
-  const isLoggedIn = useSelector(state => state.user.isLoggedIn);
-  if (!isLoggedIn) return <Redirect to="/login" />;
-  return <Component {...props} />;
-};
-\`\`\`
-
-### 机制总结
-| 机制 | 实现方式 |
-|------|----------|
-| 菜单来源 | 后端返回，存储在 Redux |
-| 路由生成 | 递归解析菜单，动态生成 Route |
-| 权限控制 | 按钮级 + 页面级权限校验 |`,
+### 优势：
+- 菜单与权限解耦
+- 支持不同企业客户的个性化配置
+- 安全性保障`,
     tags: ['滴滴', '动态路由', '权限管理'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -756,57 +391,39 @@ const ProtectedRoute = ({ component: Component, ...props }) => {
 - 防止请求被重放攻击
 - 验证请求合法性
 
-### 2. 签名算法
+### 2. 签名算法（sign.js）
 \`\`\`javascript
-// utils/signature.js
-export const generateNonce = () => {
-  return Math.random().toString(36).substring(2, 10);
-};
-
-export const generateSignature = (config, secret = 'your-app-secret') => {
-  const { method, url, params, data } = config;
-
-  // 1. 排序所有参数
-  const sortedParams = sortObjectKeys({ ...params, ...data });
-
-  // 2. 拼接字符串
-  const signString = [method.toUpperCase(), url, sortedParams, timestamp, nonce, secret].join('&');
-
-  // 3. MD5 加密
-  return md5(signString);
-};
+// Phoebe签名实现
+getPhoebeSign(params) {
+  // 1. 按key字母排序参数
+  const sorted = Object.keys(params).sort();
+  // 2. 拼接 key=value& 格式
+  const signStr = sorted.map(k => \`\${k}=\${params[k]}\`).join('&');
+  // 3. 末尾拼接密钥
+  const finalStr = signStr + 'phoebe_123_111_!@#_';
+  // 4. MD5加密
+  return md5(finalStr);
+}
 \`\`\`
 
 ### 3. 请求拦截器自动签名
 \`\`\`javascript
-// utils/request.js
-request.interceptors.request.use((config) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const nonce = generateNonce();
-  const signature = generateSignature(config);
-
-  config.headers['X-Timestamp'] = timestamp;
-  config.headers['X-Nonce'] = nonce;
-  config.headers['X-Signature'] = signature;
-
+// request.js
+service.interceptors.request.use(config => {
+  if (isHotelApi(config.url)) {
+    config.headers['app-id'] = APP_ID;
+    config.headers['timestamp'] = Date.now();
+    config.headers['nonce'] = generateNonce();
+    config.headers['sign'] = getPhoebeSign(config.params);
+  }
   return config;
 });
 \`\`\`
 
-### 4. 服务端验证
-\`\`\`javascript
-// 1. 检查 timestamp 是否在有效时间范围内（如 5 分钟）
-// 2. 检查 nonce 是否已使用（防止重放）
-// 3. 重新计算 signature，与请求中的 signature 比较
-\`\`\`
-
-### 安全考虑
-| 机制 | 作用 |
-|------|------|
-| MD5 签名 | 防止请求被篡改 |
-| timestamp | 限制请求有效期，防止重放 |
-| nonce | 唯一标识每次请求，防止重放攻击 |
-| 参数排序 | 相同参数不同顺序产生相同签名 |`,
+### 4. 优势
+- 自动签名，应用层无感知
+- 时间戳防止重放（设置有效期）
+- nonce 防止重放攻击`,
     tags: ['滴滴', 'API签名', '安全机制', 'MD5'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -823,69 +440,38 @@ request.interceptors.request.use((config) => {
 \`\`\`javascript
 import loadable from '@loadable/component';
 
-const PolicySpecial = loadable(() => import('./pages/plane_policy/page/plane_policy_special'), {
+const SupplierPage = loadable(() => import('./pages/supplier'), {
   fallback: <div>Loading...</div>,
 });
 \`\`\`
 
-### 2. 路由配置
+### 2. Routes.jsx 配置
 \`\`\`javascript
-const ROUTETOCOMPONENTS = {
-  '/plane_policy': loadable(() => import('./pages/plane_policy'), {
-    fallback: <div>Loading...</div>,
-  }),
-  '/trust': loadable(() => import('./pages/trust'), {
-    fallback: <div>Loading...</div>,
-  }),
-};
+<Switch>
+  <Route path="/supplier" component={SupplierPage} />
+  <Route path="/hotel" component={HotelPage} />
+  <Route path="/flight" component={FlightPage} />
+</Switch>
 \`\`\`
 
-### 3. Vite 配置
+### 3. Webpack 输出配置
 \`\`\`javascript
-// vite.config.js
-export default {
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router'],
-          'vendor-antd': ['antd', '@ant-design/icons'],
-          'policy': ['./pages/plane_policy/**'],
-          'trust': ['./pages/trust/**'],
-        }
-      }
-    }
-  }
-};
+// webpack.config.js
+output: {
+  filename: '[name].[contenthash].js',
+  chunkFilename: '[id].[name].[contenthash].js',
+}
 \`\`\`
 
-### 4. 构建产物对比
-\`\`\`
-优化前：bundle.js → 2.5MB（全部代码）
-
-优化后：
-main.js      → 500KB（框架 + 路由）
-1.js         → 300KB（机票政策）
-2.js         → 400KB（酒店托管）
-3.js         → 350KB（供应商）
-...按需加载
-\`\`\`
-
-### 5. 预加载优化
-\`\`\`javascript
-// 鼠标 hover 时预加载
-<Link to="/plane_policy/special" onMouseEnter={() => PolicySpecial.preload()}>
-  特殊政策
-</Link>
-
-// 或使用 webpackPrefetch
-import(/* webpackPrefetch: true */ './pages/PolicyDetail');
-\`\`\`
-
-### 性能效果
-- 首屏加载体积减少 50%+
+### 4. 性能效果
+- 首屏加载体积减少 30%
 - 按需加载，用户只加载访问的页面
-- 浏览器缓存优化（contenthash）`,
+- 浏览器缓存优化（contenthash）
+
+### 5. 注意事项
+- 预加载策略避免用户等待
+- 错误边界处理加载失败
+- SSR 兼容（@loadable/server）`,
     tags: ['滴滴', '代码分割', 'loadable', 'Webpack'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -901,61 +487,45 @@ import(/* webpackPrefetch: true */ './pages/PolicyDetail');
 ### 1. ESLint 配置（.eslintrc.js）
 \`\`\`javascript
 module.exports = {
-  parser: 'babel-eslint',
-  extends: ['airbnb', 'plugin:react/recommended'],
+  extends: [
+    'eslint:recommended',
+    'react-app',
+  ],
   rules: {
-    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
+    'no-unused-vars': 'warn',
     'react/prop-types': 'off',
-    'camelcase': 'off',  // 业务字段常用下划线
   },
 };
 \`\`\`
 
-### 2. Prettier 配置（.prettierrc）
-\`\`\`json
-{
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "es5",
-  "printWidth": 100,
-  "tabWidth": 2,
-  "arrowParens": "always"
-}
+### 2. Prettier 配置（.prettierrc.js）
+\`\`\`javascript
+module.exports = {
+  semi: true,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'es5',
+};
 \`\`\`
 
 ### 3. VSCode 保存时格式化
 \`\`\`json
+// settings.json
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  }
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
 \`\`\`
 
-### 4. Git Hooks 集成
-\`\`\`javascript
-// package.json
-{
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,jsx}": ["eslint --fix", "prettier --write"]
-  }
-}
-\`\`\`
+### 4. CI/CD 集成
+- pre-commit hook 检查
+- PR 流水线自动检查
+- 不符合规范无法合并
 
-### 工具对比
-| 工具 | 作用 |
-|------|------|
-| ESLint | 代码检查、问题发现 |
-| Prettier | 代码格式统一 |
-| VS Code 插件 | 保存时自动格式化 |
-| Husky + lint-staged | Git 提交前检查 |`,
+### 5. 效果
+- 团队代码风格统一
+- 减少 code review 格式问题
+- 提升代码可维护性`,
     tags: ['滴滴', 'ESLint', 'Prettier', '工程化'],
     status: 'unvisited',
     difficulty: 'easy',
@@ -969,64 +539,43 @@ module.exports = {
     question: 'useMemo 在列表页面渲染优化中是如何使用的？',
     answer: `useMemo 优化实践：
 
-### 1. 表格列配置缓存
+### 1. 缓存计算属性
 \`\`\`javascript
-// 避免每次渲染重新生成 columns
-const columns = useMemo(() => [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-  },
-  {
-    title: '政策名称',
-    dataIndex: 'policy_name',
-    key: 'policy_name',
-    render: (value) => <MyParagraph content={value} rows={1} />,
-  },
-], []); // 空依赖，只计算一次
+const MyComponent = ({ data }) => {
+  // 避免每次渲染都重新计算
+  const sortedData = useMemo(() => {
+    return data
+      .filter(item => item.status === 'active')
+      .sort((a, b) => b.score - a.score);
+  }, [data]);
+
+  // 依赖项变化才重新计算
+  const totalCount = useMemo(() => {
+    return data.reduce((sum, item) => sum + item.count, 0);
+  }, [data]);
+
+  return <List data={sortedData} total={totalCount} />;
+};
 \`\`\`
 
-### 2. 映射数据缓存
+### 2. 避免对象引用问题
 \`\`\`javascript
-const tableData = useMemo(() => {
-  return listData.map((item, index) => ({
-    key: item.id || index,
-    ...item,
-    statusText: STATUS_MAP[item.status],
-    typeText: TYPE_MAP[item.type],
-  }));
-}, [listData]);
+// 错误：每次渲染都创建新对象
+const options = { pageSize: 10, showHeader: true };
+
+// 正确：使用 useMemo 缓存
+const options = useMemo(() => ({
+  pageSize: 10,
+  showHeader: true,
+}), []);
 \`\`\`
 
-### 3. 搜索参数构建
-\`\`\`javascript
-const searchParams = useMemo(() => {
-  const params = {};
-  if (values.airline_code) params.airline_code = values.airline_code;
-  if (values.status) params.status = values.status;
-  return params;
-}, [values.airline_code, values.status]);
-\`\`\`
-
-### 4. 分页参数
-\`\`\`javascript
-const pagination = useMemo(() => ({
-  current: pageNum + 1,
-  pageSize: pageSize,
-  total: totalCount,
-  showSizeChanger: true,
-  showQuickJumper: true,
-  showTotal: (total) => \`共 \${total} 条\`,
-}), [pageNum, pageSize, totalCount]);
-\`\`\`
-
-### 适用场景
+### 3. 适用场景
 - 复杂计算（排序、筛选、汇总）
 - 派生数据
 - 避免子组件不必要渲染
 
-### 性能收益
+### 4. 性能指标
 - 大数据列表渲染时间减少 40%
 - 减少主线程阻塞`,
     tags: ['滴滴', 'React Hooks', 'useMemo', '性能优化'],
@@ -1041,20 +590,17 @@ const pagination = useMemo(() => ({
     question: 'useCallback 在回调函数优化中是如何使用的？',
     answer: `useCallback 优化实践：
 
-### 1. 表格操作回调
+### 1. 缓存事件回调
 \`\`\`javascript
-// 传递给 Table 的回调函数
-const handleEdit = useCallback((record) => {
-  setEditRecord(record);
-  setEditModalVisible(true);
-}, []); // 空依赖，函数引用不变
+const MyComponent = ({ onSubmit }) => {
+  // 避免子组件不必要渲染
+  const handleClick = useCallback((id) => {
+    console.log('clicked', id);
+    onSubmit(id);
+  }, [onSubmit]);
 
-const handleDelete = useCallback((record) => {
-  Modal.confirm({
-    title: '确认删除',
-    onOk: () => deleteRecord(record.id);
-  });
-}, [deleteRecord]); // 依赖 deleteRecord
+  return <Button onClick={handleClick}>Submit</Button>;
+};
 \`\`\`
 
 ### 2. 配合 React.memo
@@ -1065,13 +611,15 @@ const ListItem = memo(({ onClick, item }) => (
 ));
 
 // 父组件使用 useCallback
-const handleItemClick = useCallback((id) => {
-  console.log(id);
-}, []);
+const Parent = () => {
+  const handleItemClick = useCallback((id) => {
+    console.log(id);
+  }, []);
 
-return items.map(item => (
-  <ListItem key={item.id} item={item} onClick={handleItemClick} />
-));
+  return items.map(item => (
+    <ListItem key={item.id} item={item} onClick={handleItemClick} />
+  ));
+};
 \`\`\`
 
 ### 3. 防抖/节流场景
@@ -1084,23 +632,7 @@ const handleSearch = useCallback(
 );
 \`\`\`
 
-### 4. 表单提交回调
-\`\`\`javascript
-const handleSubmit = useCallback(async (values) => {
-  setLoading(true);
-  try {
-    const res = await submitData(values);
-    if (res.errno === 0) {
-      message.success('提交成功');
-      onSuccess?.();
-    }
-  } finally {
-    setLoading(false);
-  }
-}, [submitData, onSuccess]);
-\`\`\`
-
-### 注意事项
+### 4. 注意事项
 - 不要过度使用，只在性能瓶颈处使用
 - 依赖项正确设置
 - 配合 React DevTools Profiler 分析`,
@@ -1148,33 +680,12 @@ const ListItem = memo(({ item }) => (
 });
 \`\`\`
 
-### 3. 表格列渲染
-\`\`\`javascript
-const StatusCell = memo(({ status }) => {
-  const statusMap = { 1: '未生效', 2: '生效中', 3: '已过期' };
-  return <Tag color={getColor(status)}>{statusMap[status]}</Tag>;
-});
-\`\`\`
-
-### 4. 列表项组件
-\`\`\`javascript
-const PolicyRow = memo(({ data, onEdit, onDelete }) => (
-  <div className="policy-row">
-    <span>{data.policy_name}</span>
-    <Space>
-      <Button onClick={() => onEdit(data.id)}>编辑</Button>
-      <Button onClick={() => onDelete(data.id)}>删除</Button>
-    </Space>
-  </div>
-));
-\`\`\`
-
-### 适用场景
+### 3. 适用场景
 - 数据展示组件（表格行、卡片）
 - 纯展示组件，无内部状态
 - 大量重复渲染的列表项
 
-### 性能收益
+### 4. 性能收益
 - 减少不必要的渲染
 - 列表渲染性能提升 50%+`,
     tags: ['滴滴', 'React.memo', '纯组件', '性能优化'],
@@ -1191,83 +702,62 @@ const PolicyRow = memo(({ data, onEdit, onDelete }) => (
 
 ### 1. 搜索框防抖
 \`\`\`javascript
-const [searchValue, setSearchValue] = useState('');
-const [debouncedValue, setDebouncedValue] = useState('');
+const SearchInput = () => {
+  const [keyword, setKeyword] = useState('');
 
-// 使用 useEffect 实现防抖
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setDebouncedValue(searchValue);
-  }, 300); // 300ms 延迟
-
-  return () => clearTimeout(timer);
-}, [searchValue]);
-
-// debouncedValue 变化时请求
-useEffect(() => {
-  if (debouncedValue) {
-    loadTableData({ keyword: debouncedValue });
-  }
-}, [debouncedValue]);
-\`\`\`
-
-### 2. 防抖 Hook 封装
-\`\`\`javascript
-export const useDebounce = (value, delay = 300) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
+  // 防抖：停止输入 300ms 后才请求
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+    const timer = setTimeout(() => {
+      if (keyword) fetchResults(keyword);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [keyword]);
 
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debouncedValue;
+  return <input value={keyword} onChange={e => setKeyword(e.target.value)} />;
 };
-
-// 使用
-const debouncedKeyword = useDebounce(keyword, 500);
 \`\`\`
 
-### 3. 按钮点击节流
+### 2. 按钮节流
 \`\`\`javascript
-const [submitting, setSubmitting] = useState(false);
+const submitForm = useCallback(
+  throttle(() => {
+    api.submit();
+  }, 1000),
+  []
+);
 
-const handleSubmit = async () => {
-  if (submitting) return; // 防止重复提交
-
-  setSubmitting(true);
-  try {
-    await submitData(values);
-    message.success('提交成功');
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-<Button loading={submitting} onClick={handleSubmit}>提交</Button>
-\`\`\`
-
-### 4. 滚动加载节流
-\`\`\`javascript
-const handleScroll = useCallback((e) => {
-  const { scrollTop, scrollHeight, clientHeight } = e.target;
-
-  if (scrollHeight - scrollTop - clientHeight < 100) {
-    if (!loading && hasMore) {
-      loadMoreData();
+// 或自定义 Hook
+const useThrottle = (callback, delay) => {
+  const lastRun = useRef(Date.now());
+  return useCallback((...args) => {
+    if (Date.now() - lastRun.current >= delay) {
+      callback(...args);
+      lastRun.current = Date.now();
     }
-  }
-}, [loading, hasName, loadMoreData]);
+  }, [callback, delay]);
+};
 \`\`\`
 
-### 概念区分
-| 概念 | 说明 | 场景 |
-|------|------|------|
-| 防抖 (Debounce) | 触发后等待 N 秒，若再次触发则重置 | 搜索框输入 |
-| 节流 (Throttle) | 触发后固定间隔执行一次 | 按钮点击、滚动 |`,
+### 3. 请求拦截器层处理
+\`\`\`javascript
+// request.js 统一处理
+let pendingRequests = new Map();
+
+const addPendingRequest(config) {
+  const key = config.url + JSON.stringify(config.params);
+  if (pendingRequests.has(key)) {
+    return config; // 忽略重复请求
+  }
+  pendingRequests.set(key, config);
+  return config;
+}
+\`\`\`
+
+### 4. 使用场景
+- 搜索框输入
+- 表单提交按钮
+- 滚动加载
+- 窗口 resize`,
     tags: ['滴滴', '防抖', '节流', '性能优化'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -1281,66 +771,45 @@ const handleScroll = useCallback((e) => {
     question: 'SSD 智能体开发规范是什么？包含哪些核心组件？',
     answer: `SSD 规范体系：
 
-### 1. OpenSpec 变更体系
-\`\`\`yaml
-# .openspec.yaml
-schema: spec-driven
-change_type: feature
-created: 2026-03-27
-owner: patricktan
-status: in_progress
-\`\`\`
+### 1. 核心组件
 
-### 2. Skills 封装标准
+| 组件 | 作用 |
+|------|------|
+| Skills | 技能封装，标准化 AI 操作 |
+| Rules | 规则集，约束 AI 行为 |
+| Commands | 命令模板，快速执行任务 |
+| CLAUDE.md | 项目上下文同步 |
+
+### 2. Skills 技能封装
 \`\`\`javascript
-const skills = {
-  // 生成组件
-  'gen:component': {
-    description: '生成标准 React 组件',
-    template: '...',
-    rules: ['使用函数组件', '使用 hooks'],
-  },
-  // 生成 Service
-  'gen:service': {
-    description: '生成 API Service 文件',
-    template: '...',
-    rules: ['使用 request.post', '错误处理'],
-  },
-  // 重构建议
-  'refactor:optimize': {
-    description: '代码优化建议',
-    rules: ['避免 useEffect 循环', 'useMemo 优化'],
-  },
-};
+// jiazi-component-dev Skill
+{
+  name: 'jiazi-component-dev',
+  description: '甲子项目 React 组件开发规范',
+  prompts: [
+    '新建页面组件',
+    '添加列表页',
+    '创建表单页',
+    '封装公共组件',
+  ],
+}
 \`\`\`
 
-### 3. 目录结构
-\`\`\`
-openspec/
-├── changes/
-│   ├── add-airline-member-pricing/
-│   │   ├── .openspec.yaml      # 变更元信息
-│   │   ├── proposal.md         # 提案
-│   │   ├── design.md          # 设计
-│   │   ├── tasks.md           # 任务
-│   │   └── specs/
-│   │       └── airline-member-pricing/
-│   │           └── spec.md   # 技术规格
-│   └── ...
-└── templates/                  # 模板库
-    ├── component.md
-    └── service.md
-\`\`\`
+### 3. Rules 规则集
+- 代码风格规则
+- 安全规范
+- 性能规范
+- 注释规范
 
-### 解决的问题
-| 问题 | 解决方案 |
-|------|----------|
-| AI 生成代码质量不一 | 基于规范生成，产出更标准 |
-| 需求传递失真 | 结构化文档，统一理解 |
-| 多人协作混乱 | 任务拆分，状态追踪 |
-| 历史代码难维护 | 规范沉淀，知识传承 |
+### 4. Commands 命令模板
+- /dev-survey 需求分析
+- /proposal-gen 方案生成
+- /project-sum 项目总结
 
-**核心**：用文档代替口头沟通，让 AI 有章可循。`,
+### 5. 效果
+- 大需求开发周期缩短 30%
+- 小需求平均处理时间减少 50%
+- 团队协作成本降低`,
     tags: ['滴滴', 'SSD', 'AI工程化', 'Skills'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -1355,15 +824,11 @@ openspec/
 
 ### 1. 文件结构
 \`\`\`markdown
-# 甲子 (jiazi) 商旅运营系统
+# 甲子商旅运营系统
 
 ## 项目概述
-- 技术栈：React 17, Ant Design 4.x, Redux + Redux Thunk
+- 技术栈：React 17, Ant Design 4.x, Redux
 - 目录结构：pages/services/actions/reducers
-
-## 常用命令
-npm run dev
-npm run build
 
 ## 开发规范
 - Prettier: tabSize=2
@@ -1374,38 +839,24 @@ npm run build
 - MD5 + timestamp + nonce
 \`\`\`
 
-### 2. 项目规则（.claude/rules/）
-\`\`\`
-.claude/
-├── rules/
-│   ├── ai-development.md   # AI 开发规范
-│   └── code-style.md       # 代码风格指南
-└── commands/               # 自定义命令
-\`\`\`
+### 2. 解决的问题
 
-### 3. 解决的问题
-| 维度 | 效果 |
-|------|------|
-| 技术栈 | AI 知道用什么框架/库 |
-| 目录结构 | AI 知道文件放哪里 |
-| 命名规范 | AI 知道怎么命名 |
-| 代码风格 | AI 知道按什么风格写 |
+| 问题 | 解决方案 |
+|------|----------|
+| AI 不理解项目架构 | 详细的项目概述 |
+| 技术栈版本冲突 | 明确版本约束 |
+| API 签名机制复杂 | 完整的示例代码 |
+| 代码风格不统一 | Prettier 配置说明 |
 
-### 4. 解决重复说明
-- 不用每次都解释项目背景
-- AI 自动遵循项目规范
-- 减少沟通成本
+### 3. 维护策略
+- 新功能开发后同步更新
+- 重大重构时重新梳理
+- 团队成员均可编辑
 
-### 5. 内容维护建议
-| 内容 | 说明 |
-|------|------|
-| 项目概述 | 一句话介绍项目 |
-| 技术栈 | 关键依赖版本 |
-| 目录结构 | 主要目录职责 |
-| 编码规范 | 团队约定 |
-| 常用命令 | 开发/构建/部署 |
-
-**一句话总结**：CLAUDE.md 让 AI 成为"了解项目的人"，而不是"陌生的助手"。`,
+### 4. 效果
+- AI 辅助开发上下文理解一致性
+- 降低团队协作成本
+- 新人入职快速上手`,
     tags: ['滴滴', 'CLAUDE.md', 'AI集成'],
     status: 'unvisited',
     difficulty: 'easy',
@@ -1418,58 +869,40 @@ npm run build
     question: 'Claude Code Agent 是如何辅助大需求全流程开发的？',
     answer: `Claude Code Agent 辅助开发流程：
 
-### 1. 需求理解阶段
-\`\`\`
-用户描述需求 → Claude 分析 → 生成技术方案
-\`\`\`
-- 阅读现有代码，理解业务逻辑
-- 分析需求可行性
-- 提供技术建议
+### 1. 需求分析阶段
+- Agent 阅读 PRD 文档
+- 生成需求理解确认书
+- 识别技术难点和风险点
 
-### 2. 设计阶段
-\`\`\`
-OpenSpec 规范 → Claude 参与 → 设计文档
-\`\`\`
-- 生成标准的设计模板
-- 检查设计完整性
-- 提供最佳实践建议
+### 2. 方案设计阶段
+- 生成技术方案文档
+- 提供多个可选方案
+- 评估各方案优缺点
 
-### 3. 开发阶段
+### 3. 代码实现阶段
+- 生成代码骨架
+- 实现核心逻辑
+- 编写单元测试
+
+### 4. 测试阶段
+- 生成测试用例
+- 辅助问题定位
+- 提供修复建议
+
+### 5. 实践示例
+\`\`\`bash
+# 使用 Agent 辅助开发
+claude -p "实现供应商批量导入功能，包含：
+1. Excel 文件上传
+2. 数据解析和校验
+3. 批量提交
+4. 进度反馈"
 \`\`\`
-规范文档 → Claude 生成代码 → 人工 Review
-\`\`\`
-- 基于规范生成代码
-- 自动添加注释
-- 遵循代码规范
 
-### 4. 审查阶段
-\`\`\`
-代码 → Claude Review → 问题修复
-\`\`\`
-- 检查潜在 bug
-- 提示性能问题
-- 建议代码优化
-
-### 实践案例
-
-#### 需求：新增会员类型字段
-1. 需求描述给 Claude
-2. Claude 分析并生成 tasks.md
-3. 逐步实现任务
-4. Claude 代码 Review
-
-#### 优化：JSX 嵌套深度
-1. ESLint 报错
-2. Claude 分析代码结构
-3. 提取为渲染函数
-4. 验证功能无损
-
-### 效果数据
+### 6. 效果数据
 - 大需求开发周期缩短 30%
 - 代码缺陷率降低 20%
-- 文档完整性提升 40%
-
-**核心价值**：让 AI 成为开发伙伴，而不是工具。`,
+- 文档完整性提升 40%`,
     tags: ['滴滴', 'Claude Code', 'AI辅助开发', 'Agent'],
     status: 'unvisited',
     difficulty: 'hard',
@@ -1482,67 +915,37 @@ OpenSpec 规范 → Claude 参与 → 设计文档
     question: 'AI 代码审查工作流是如何设计的？',
     answer: `AI 代码审查流程：
 
-### 1. 审查流程
-\`\`\`
-代码提交 → Claude 审查 → 问题报告 → 人工确认 → 修复
-\`\`\`
+### 1. 触发时机
+- PR 创建时自动触发
+- 定时全量扫描
+- 手动触发
 
 ### 2. 审查维度
 
 | 维度 | 检查内容 |
 |------|----------|
-| 语法与规范 | ESLint 规则检查、代码格式、命名规范 |
-| 逻辑问题 | useEffect 依赖、循环调用、边界条件 |
-| 性能问题 | useMemo/useCallback 缺失、内存泄漏 |
-| 安全风险 | XSS、eval、SQL 注入 |
+| 代码规范 | ESLint/Prettier |
+| 性能隐患 | 内存泄漏、循环引用 |
+| 安全风险 | XSS、SQL注入 |
+| 业务逻辑 | 边界条件、空值处理 |
 
-### 3. 具体检查示例
-\`\`\`javascript
-// 逻辑问题
-useEffect(() => {
-  fetchData(); // 每次渲染都执行
-}, [data]);    // 依赖包含 data，但 data 变化又会触发
+### 3. AI 辅助方式
+\`\`\`bash
+# 使用 Claude Code 进行代码审查
+claude -p "审查以下代码的安全性问题：
 
-// 建议
-useEffect(() => {
-  fetchData();
-}, []); // 应该在组件挂载时执行一次
-
-// 性能问题
-const items = data.map(item => (
-  <ChildComponent
-    onClick={() => handleClick(item.id)} // 每次创建新函数
-  />
-));
-
-// 建议
-const handleClick = useCallback((id) => {
-  handleItemClick(id);
-}, [handleItemClick]);
-
-// 安全问题
-eval(userInput);           // 危险
-innerHTML = userContent;   // XSS 风险
+const UserDisplay = ({ user }) => (
+  <div dangerouslySetInnerHTML={{__html: user.bio}} />
+);
+"
 \`\`\`
 
-### 4. 审查输出
-\`\`\`markdown
-## 代码审查报告
+### 4. 输出报告
+- 问题等级：Critical / Major / Minor
+- 修复建议
+- 参考文档链接
 
-### 问题
-- [高] 第 23 行：useEffect 依赖导致循环调用
-- [中] 第 45 行：未使用 useMemo 优化
-- [低] 第 67 行：缺少分号
-
-### 建议
-- 使用 useCallback 缓存函数
-- 提取重复代码为公共方法
-
-### 总结
-共 3 个问题，建议修复后合并
-\`\`\`
-
-### 效果
+### 5. 效果
 - 发现潜在问题 30%+
 - 人工 review 效率提升
 - 团队代码质量提升`,
@@ -1561,75 +964,45 @@ innerHTML = userContent;   // XSS 风险
 
 ### 1. RESTful 风格
 \`\`\`
-GET    /api/flight/huidu/company/specialPolicy/queryList/v1.0  # 获取列表
-POST   /api/flight/huidu/company/specialPolicy/add/v1.0        # 新增
-POST   /api/flight/huidu/company/specialPolicy/update/v1.0    # 修改
-POST   /api/flight/huidu/company/specialPolicy/delete/v1.0    # 删除
+GET    /api/supplier        # 获取列表
+POST   /api/supplier        # 创建
+PUT    /api/supplier/:id    # 更新
+DELETE /api/supplier/:id    # 删除
 \`\`\`
 
-### 2. 命名规范
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 资源 | 名词复数 | policies |
-| 版本 | v1.0, v1.1 | v1.0 |
-| 动作 | 查询用 query | queryList |
+### 2. 请求参数规范
+- 分页：page, pageSize
+- 排序：sortBy, sortOrder
+- 过滤：filters（JSON 字符串）
 
-### 3. 请求格式
+### 3. 响应格式统一
 \`\`\`javascript
-// GET 请求
-GET /api/xxx?page_num=0&page_size=10
-
-// POST 请求
-POST /api/xxx
-Content-Type: application/json
-
 {
-  "policy_code": "POL001",
-  "airline_codes": "CA,CZ"
-}
-\`\`\`
-
-### 4. 响应格式
-\`\`\`javascript
-// 成功
-{
-  "errno": 0,
-  "errmsg": "success",
+  "status": 0,
+  "message": "success",
   "data": {
-    "content": [...],
-    "total_num": 100
+    "list": [],
+    "total": 100,
+    "page": 1,
+    "pageSize": 20
   }
 }
-
-// 失败
-{
-  "errno": 1001,
-  "errmsg": "参数错误"
-}
 \`\`\`
 
-### 5. 错误码设计
+### 4. 错误码设计
 \`\`\`javascript
 const ERROR_CODES = {
-  SUCCESS: 0,
-  // 客户端错误
-  PARAM_ERROR: 1001,    // 参数错误
-  NOT_FOUND: 1002,     // 资源不存在
-  PERMISSION_DENIED: 1003,  // 权限不足
-  // 服务端错误
-  SERVER_ERROR: 2001,   // 服务器错误
-  // 业务错误
-  POLICY_EXIST: 3001,   // 政策已存在
+  1001: '参数错误',
+  1002: '权限不足',
+  1003: '资源不存在',
+  2001: '服务器错误',
 };
 \`\`\`
 
-### 总结
-| 维度 | 规范 |
-|------|------|
-| URL | RESTful 风格，版本号 |
-| 请求 | GET/POST 分离 |
-| 响应 | errno + errmsg + data |
-| 错误码 | 分类定义 |`,
+### 5. 文档生成
+- 使用 Swagger/OpenAPI
+- AI 辅助生成接口文档
+- 前后端协作效率提升`,
     tags: ['滴滴', 'API设计', 'RESTful', '前后端协作'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -1642,75 +1015,52 @@ const ERROR_CODES = {
     question: '数据脱敏工具是如何实现的？',
     answer: `数据脱敏实现：
 
-### 1. 常见脱敏场景
-| 类型 | 示例 | 处理方式 |
-|------|------|----------|
-| 手机号 | 13812345678 → 138****5678 | 保留前后各3位 |
-| 身份证 | 110101199001011234 → 110101********1234 | 保留前后各4位 |
-| 银行卡 | 6222021234567890123 → 6222 **** **** 0123 | 保留前4后4 |
-| 姓名 | 张三 → 张* | 保留姓，隐藏名 |
-| 邮箱 | zhangsan@email.com → z***n@email.com | 隐藏中间部分 |
+### 1. 脱敏场景
+- 手机号：138****5678
+- 银行卡：6222 **** **** 1234
+- 身份证号：310110****12345678
+- 邮箱：j***@example.com
 
-### 2. 工具函数实现
+### 2. 实现代码
 \`\`\`javascript
-// utils/mask.js
+// utils/encryptData.js
+export const encryptData = {
+  // 手机号脱敏
+  mobile: (phone) => {
+    if (!phone) return '';
+    return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+  },
 
-// 手机号脱敏
-export const maskPhone = (phone) => {
-  if (!phone) return '';
-  return phone.replace(/(\\d{3})\\d{4}(\\d{4})/, '$1****$2');
-};
+  // 银行卡脱敏
+  bankCard: (card) => {
+    if (!card) return '';
+    return card.replace(/(\d{4})\s*\d{4}\s*\d{4}\s*(\d{4})/, '$1 **** **** $2');
+  },
 
-// 身份证脱敏
-export const maskIdCard = (idCard) => {
-  if (!idCard) return '';
-  return idCard.replace(/(\\d{4})\\d{10}(\\d{4})/, '$1**********$2');
-};
+  // 身份证脱敏
+  idCard: (id) => {
+    if (!id) return '';
+    return id.replace(/(\d{6})\d{8}(\d{4})/, '$1****$2');
+  },
 
-// 银行卡脱敏
-export const maskBankCard = (cardNo) => {
-  if (!cardNo) return '';
-  return cardNo.replace(/(\\d{4})\\d+(\\d{4})/, '$1 **** **** $2');
-};
-
-// 姓名脱敏
-export const maskName = (name) => {
-  if (!name) return '';
-  if (name.length === 2) return name[0] + '*';
-  return name[0] + '*'.repeat(name.length - 1) + name[name.length - 1];
-};
-
-// 邮箱脱敏
-export const maskEmail = (email) => {
-  if (!email) return '';
-  const [name, domain] = email.split('@');
-  if (!domain) return email;
-  const maskedName = name.length > 2
-    ? name[0] + '*'.repeat(name.length - 2) + name[name.length - 1]
-    : name[0] + '*';
-  return \`\${maskedName}@\${domain}\`;
+  // 邮箱脱敏
+  email: (email) => {
+    if (!email) return '';
+    const [name, domain] = email.split('@');
+    return name[0] + '***@' + domain;
+  },
 };
 \`\`\`
 
-### 3. 表格列配置使用
-\`\`\`javascript
-const columns = [
-  { title: '手机号', dataIndex: 'phone', render: (value) => maskPhone(value) },
-  { title: '身份证', dataIndex: 'idCard', render: (value) => maskIdCard(value) },
-  { title: '姓名', dataIndex: 'name', render: (value) => maskName(value) },
-];
-\`\`\`
+### 3. 使用场景
+- 列表页展示
+- 详情页查看
+- 日志记录
+- 数据导出
 
-### 4. 前端脱敏原则
-⚠️ 注意：前端脱敏只是展示层安全，敏感数据不应传给前端，或后端返回脱敏后的数据
-
-### 总结
-| 场景 | 方法 |
-|------|------|
-| 手机号 | 保留前3后4位 |
-| 身份证 | 保留前4后4位 |
-| 银行卡 | 保留前4后4位 |
-| 姓名 | 保留姓 |`,
+### 4. 权限控制
+- 根据用户权限决定是否脱敏
+- 管理员可查看完整数据`,
     tags: ['滴滴', '数据脱敏', '安全机制'],
     status: 'unvisited',
     difficulty: 'easy',
@@ -1723,84 +1073,51 @@ const columns = [
     question: '金额精度计算是如何处理的？浮点数精度问题怎么解决？',
     answer: `金额精度计算方案：
 
-### 1. 浮点数精度问题
+### 1. 问题背景
 \`\`\`javascript
-// ❌ 错误示例
+// JavaScript 浮点数精度问题
 0.1 + 0.2 = 0.30000000000000004
-0.7 * 100 = 70.00000000000001
-1.1 - 0.1 = 1.0000000000000002
+1.1 + 0.1 = 1.2000000000000002
 \`\`\`
 
-### 2. 金额单位转换（元 ↔ 分）
+### 2. 解决方案：整数计算
 \`\`\`javascript
-// 金额单位转换（元 -> 分）
-export const yuanToFen = (yuan) => {
-  if (yuan == null) return 0;
-  return Math.round(Number(yuan) * 100);
+// utils/currency.js
+const precision = 100; // 放大倍数
+
+export const numAdd = (a, b) => {
+  const aInt = Math.round(a * precision);
+  const bInt = Math.round(b * precision);
+  return (aInt + bInt) / precision;
 };
 
-// 金额单位转换（分 -> 元）
-export const fenToYuan = (fen) => {
-  if (fen == null) return 0;
-  return Number(fen) / 100;
+export const numSub = (a, b) => {
+  const aInt = Math.round(a * precision);
+  const bInt = Math.round(b * precision);
+  return (aInt - bInt) / precision;
+};
+
+export const numMul = (a, b) => {
+  return Math.round(a * precision * b) / (precision * precision);
+};
+
+export const numDiv = (a, b) => {
+  return Math.round(a * precision * precision) / (b * precision);
 };
 \`\`\`
 
-### 3. 精度处理工具（整数计算）
+### 3. 实际应用
 \`\`\`javascript
-// 避免浮点数精度问题：先转为整数，计算后转回
-export const add = (a, b) => {
-  const aInt = Math.round(a * 100);
-  const bInt = Math.round(b * 100);
-  return (aInt + bInt) / 100;
-};
-
-export const subtract = (a, b) => {
-  const aInt = Math.round(a * 100);
-  const bInt = Math.round(b * 100);
-  return (aInt - bInt) / 100;
-};
-
-export const multiply = (a, b) => {
-  const aInt = Math.round(a * 100);
-  return Math.round(aInt * b) / 100;
-};
-
-export const divide = (a, b) => {
-  const aInt = Math.round(a * 100);
-  return Math.round(aInt / b * 100) / 100;
-};
-
-// 金额格式化显示
-export const formatMoney = (amount) => {
-  if (amount == null) return '0.00';
-  return Number(amount).toFixed(2);
-};
+// 订单金额计算
+const total = numAdd(price, serviceFee);
+const discount = numMul(total, discountRate);
+const finalPrice = numSub(total, discount);
 \`\`\`
 
-### 4. 后端交互
-\`\`\`javascript
-// 提交时：元转分
-const submitAmount = (values) => {
-  const params = {
-    amount: yuanToFen(values.amount), // 100.5 -> 10050
-    discount: yuanToFen(values.discount),
-  };
-  request.post('/api/xxx', params);
-};
-
-// 接收时：分转元
-const formatAmount = (data) => ({
-  amount: fenToYuan(data.amount), // 10050 -> 100.5
-});
-\`\`\`
-
-### 总结
-| 方法 | 说明 |
-|------|------|
-| 整数计算 | 先 *100 转整数，计算后 /100 |
-| toFixed | 用于展示，保留2位小数 |
-| 前后端统一 | 后端存分，前端负责显示转换 |`,
+### 4. 注意要点
+- 后端也要统一精度处理
+- 展示时格式化（千分位、货币符号）
+- 存储和传输使用整数`,
     tags: ['滴滴', '金额计算', '浮点数精度'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -1813,81 +1130,54 @@ const formatAmount = (data) => ({
     question: '浏览器存储方案是如何设计的？sessionStorage 和 localStorage 如何选择？',
     answer: `浏览器存储方案：
 
-### 1. 两种存储对比
-| 特性 | sessionStorage | localStorage |
-|------|----------------|--------------|
-| 生命周期 | 标签页关闭 | 永久（手动清除） |
-| 作用域 | 同标签页 | 同源（跨标签页） |
-| 容量 | 约 5MB | 约 5MB |
-
-### 2. 项目中的封装
+### 1. 封装统一 API
 \`\`\`javascript
 // utils/browserStorage.js
-const PREFIX = 'jiazi_';
-
 export const browserStorage = {
-  // sessionStorage
-  setSessionStorage: (key, value) => {
-    try {
-      const data = typeof value === 'string' ? value : JSON.stringify(value);
-      sessionStorage.setItem(PREFIX + key, data);
-    } catch (e) { console.error('sessionStorage set error:', e); }
-  },
-
-  getSessionStorage: (key) => {
-    try {
-      const data = sessionStorage.getItem(PREFIX + key);
-      return data ? JSON.parse(data) : null;
-    } catch (e) { return null; }
-  },
-
   // localStorage
-  setLocalStorage: (key, value) => {
-    try {
-      const data = typeof value === 'string' ? value : JSON.stringify(value);
-      localStorage.setItem(PREFIX + key, data);
-    } catch (e) { console.error('localStorage set error:', e); }
-  },
-
   getLocalStorage: (key) => {
     try {
-      const data = localStorage.getItem(PREFIX + key);
-      return data ? JSON.parse(data) : null;
-    } catch (e) { return null; }
+      return JSON.parse(localStorage.getItem(key));
+    } catch {
+      return null;
+    }
+  },
+  setLocalStorage: (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  },
+
+  // sessionStorage
+  getSessionStorage: (key) => {
+    try {
+      return JSON.parse(sessionStorage.getItem(key));
+    } catch {
+      return null;
+    }
+  },
+  setSessionStorage: (key, value) => {
+    sessionStorage.setItem(key, JSON.stringify(value));
   },
 };
 \`\`\`
 
-### 3. 使用场景
-\`\`\`javascript
-// sessionStorage（临时数据）
-browserStorage.setSessionStorage('user_info', userInfo);
-browserStorage.setSessionStorage('form_draft', formData);
+### 2. 选择策略
 
-// localStorage（持久数据）
-browserStorage.setLocalStorage('theme', 'dark');
-browserStorage.setLocalStorage('table_columns', columnConfig);
-\`\`\`
+| 场景 | 存储方式 | 原因 |
+|------|----------|------|
+| 用户登录态 | localStorage | 持久化 |
+| 搜索关键词 | sessionStorage | 单次会话 |
+| 表单草稿 | sessionStorage | 页面关闭丢失 |
+| 主题配置 | localStorage | 持久化 |
+| 敏感信息 | sessionStorage | 页面关闭清除 |
 
-### 4. 选择原则
-| 场景 | 存储方式 |
-|------|----------|
-| 用户信息 | sessionStorage |
-| 临时表单数据 | sessionStorage |
-| 登录凭证 | sessionStorage（安全） |
-| 个性化设置 | localStorage |
-| 离线数据缓存 | localStorage |
-| 敏感信息 | ❌ 不建议存储 |
+### 3. 错误处理
+- JSON.parse 异常捕获
+- 存储满时提示用户
+- 隐私数据加密存储
 
-### 5. 注意事项
-⚠️ 敏感信息不应存储：使用内存或 HttpOnly Cookie
-
-### 总结
-| 维度 | sessionStorage | localStorage |
-|------|----------------|---------------|
-| 用途 | 临时数据 | 持久数据 |
-| 安全 | 相对安全 | 相对不安全 |
-| 清除 | 自动 | 手动/过期 |`,
+### 4. 替代方案
+- IndexedDB：大量结构化数据
+- Cookie：需要发送服务端的少量数据`,
     tags: ['滴滴', '浏览器存储', 'localStorage', 'sessionStorage'],
     status: 'unvisited',
     difficulty: 'easy',
@@ -1898,40 +1188,33 @@ browserStorage.setLocalStorage('table_columns', columnConfig);
     chapterId: 'didi',
     category: '架构设计',
     question: 'HTTP 请求拦截器和响应拦截器是如何设计的？',
-    answer: `HTTP 拦截器架构：
+    answer: `请求/响应拦截器设计：
 
-### 1. request.js 封装
+### 1. 请求拦截器
 \`\`\`javascript
 // utils/request.js
-import axios from 'axios';
-
-const request = axios.create({
-  baseURL: config.yichou,
-  timeout: 30000,
-  headers: { 'Content-Type': 'application/json' },
-});
-\`\`\`
-
-### 2. 请求拦截器
-\`\`\`javascript
-request.interceptors.request.use(
+service.interceptors.request.use(
   (config) => {
-    // 1. 添加用户信息
-    const userInfo = JSON.parse(browserStorage.getSessionStorage('user_info') || '{}');
-    if (userInfo.userId) {
-      config.headers['X-User-Id'] = userInfo.userId;
+    // 环境一致性校验
+    if (!checkEnvConsistency(config.url)) {
+      throw new Error('环境不匹配');
     }
 
-    // 2. 添加签名
-    const timestamp = Math.floor(Date.now() / 1000);
-    const nonce = Math.random().toString(36).substring(2, 10);
-    const signature = generateSignature(config);
-    config.headers['X-Timestamp'] = timestamp;
-    config.headers['X-Nonce'] = nonce;
-    config.headers['X-Signature'] = signature;
+    // 添加 token
+    const token = getToken();
+    config.headers['Authorization'] = \`Bearer \${token}\`;
 
-    // 3. 添加租户信息
-    config.headers['X-Tenant-Id'] = userInfo.tenantId || '';
+    // POST Content-Type 处理
+    if (config.method === 'post') {
+      if (config.url.includes('hotel/flight/insurance')) {
+        config.headers['Content-Type'] = 'application/json';
+      }
+    }
+
+    // API 签名
+    if (isPhoebeApi(config.url)) {
+      addSignature(config);
+    }
 
     return config;
   },
@@ -1939,47 +1222,41 @@ request.interceptors.request.use(
 );
 \`\`\`
 
-### 3. 响应拦截器
+### 2. 响应拦截器
 \`\`\`javascript
-request.interceptors.response.use(
+service.interceptors.response.use(
   (response) => {
-    const { data } = response;
-    // 业务层错误处理
-    if (data.errno !== undefined && data.errno !== 0) {
-      message.error(data.errmsg || '请求失败');
-      return Promise.reject(data);
+    const { status, data, config } = response;
+
+    // 状态码处理
+    if (status === 3) {
+      redirectToLogin();
     }
-    return data;
+
+    // 错误信息附加请求URL
+    if (status === 99) {
+      handleError(data, config.url);
+    }
+
+    return response;
   },
   (error) => {
     // 网络错误处理
-    if (error.response) {
-      const status = error.response.status;
-      switch (status) {
-        case 401:
-          message.error('登录已过期，请重新登录');
-          browserStorage.removeSessionStorage('user_info');
-          window.location.href = '/login';
-          break;
-        case 403: message.error('没有权限'); break;
-        case 404: message.error('请求资源不存在'); break;
-        case 500: message.error('服务器错误'); break;
-        default: message.error(error.message || '网络错误');
-      }
-    } else {
-      message.error('网络连接失败');
-    }
+    handleNetworkError(error);
     return Promise.reject(error);
   }
 );
 \`\`\`
 
-### 拦截器职责
-| 拦截器 | 职责 |
-|--------|------|
-| 请求前 | 添加签名、用户信息、租户 ID |
-| 响应成功 | 统一处理业务错误 (errno) |
-| 响应失败 | 处理 401/403/500 等 HTTP 状态 |`,
+### 3. 统一错误处理
+- 错误码映射
+- 错误提示优化
+- 错误日志上报
+
+### 4. 效果
+- 代码重复减少 60%
+- 错误处理一致性
+- 调试效率提升`,
     tags: ['滴滴', '拦截器', 'HTTP', 'axios'],
     status: 'unvisited',
     difficulty: 'medium',
@@ -1993,30 +1270,31 @@ request.interceptors.response.use(
     question: '滴滴企业版商旅系统主要解决什么问题？',
     answer: `商旅系统业务理解：
 
-### 一、系统定位
-滴滴企业版商旅系统（代号"甲子"）是**一站式企业差旅管理平台**，为企业提供机票、酒店、火车票、用车等全品类差旅服务。
+### 1. 核心问题
+- 企业员工差旅出行需求（机票、酒店、火车票）
+- 企业差旅费用管控
+- 供应商资源管理
 
-### 二、核心问题
+### 2. 系统模块
 
-#### 2.1 企业差旅管理分散
-| 痛点 | 解决方案 |
-|------|----------|
-| 多供应商对接麻烦 | 统一 API 接入 |
-| 财务核对困难 | 统一账单管理 |
-| 政策执行不严 | 差旅政策配置 |
+| 模块 | 功能 |
+|------|------|
+| 供应商管理 | 国内外供应商引入、审核、上下架 |
+| 机票政策 | 普通/特殊政策管理，审批流配置 |
+| 差旅配置 | 企业差旅规则、审批流程、品类开关 |
+| 酒店管理 | 静态数据、渠道价格、排序规则 |
+| 配置管理 | 功能开关、业务配置、灰度发布 |
 
-#### 2.2 供应链整合
-- 航空公司协议价管理
-- 酒店托管与分销
-- 供应商价格策略
+### 3. 用户角色
+- 企业管理员：配置企业差旅规则
+- 供应商：管理资源上/下架
+- 运营人员：审核、管理日常工作
+- 员工：预订差旅服务
 
-#### 2.3 运营效率
-- 政策配置管理
-- 价格规则引擎
-- 订单数据可视化
-
-### 三、总结
-让企业差旅"更省心、更合规、更高效"。`,
+### 4. 业务价值
+- 57 个业务模块全覆盖
+- 企业差旅一站式管理
+- 成本管控和效率提升`,
     tags: ['滴滴', '商旅系统', '业务理解'],
     status: 'unvisited',
     difficulty: 'easy',
@@ -2029,45 +1307,40 @@ request.interceptors.response.use(
     question: '57个业务模块是如何组织管理的？',
     answer: `业务模块组织管理：
 
-### 一、模块分类
+### 1. 模块划分策略
 \`\`\`
 src/pages/
-├── 机票相关 (约12个)
-│   ├── plane_policy/         # 机票政策
-│   ├── plane_policy_intl/   # 国际机票政策
-│   ├── plane_basic_data/   # 基础数据
-│   └── ...
-│
-├── 酒店相关 (约10个)
-│   ├── trust/               # 酒店托管
-│   ├── supplier/            # 酒店供应商
-│   ├── static/              # 国内静态数据
-│   └── ...
-│
-├── 火车票相关 (约3个)
-├── 用车相关 (约3个)
-├── 配置与权限 (约10个)
-└── 其他 (约20个)
+├── supplier/      # 供应商管理
+├── flight/        # 机票相关
+│   ├── policy/   # 政策管理
+│   ├── supplier/ # 供应商
+│   └── price/    # 价格管理
+├── hotel/        # 酒店相关
+├── train/        # 火车票
+├── config/       # 配置管理
+└── ...           # 其他模块
 \`\`\`
 
-### 二、组织原则
-| 原则 | 说明 |
-|------|------|
-| 按业务线 | 机票、酒店、火车票分目录 |
-| 按功能 | 列表页、编辑页、详情页分文件 |
-| 公共抽取 | 通用组件放 components/ |
+### 2. 目录结构规范
+- 每个模块独立目录
+- 内部按 page/components/services 常量划分
+- 共享代码提取到公共目录
 
-### 三、路由注册
-\`\`\`javascript
-// Routes.jsx - 路由与模块映射
-const ROUTETOCOMPONENTS = {
-  '/plane_policy': loadable(() => import('./pages/plane_policy')),
-  '/trust': loadable(() => import('./pages/trust')),
-};
-\`\`\`
+### 3. 代码复用
+- 公共组件：src/components/
+- 公共工具：src/utils/
+- 公共服务：src/services/
+- 公共常量：src/constants/
 
-### 四、总结
-57个模块按"业务线 → 功能模块 → 页面"三层组织。`,
+### 4. 模块间通信
+- Redux 跨模块状态共享
+- 事件总线（少量场景）
+- 父组件层层传递（尽量避免）
+
+### 5. 优势
+- 职责清晰
+- 便于团队分工
+- 修改影响范围可控`,
     tags: ['滴滴', '模块化', '目录结构'],
     status: 'unvisited',
     difficulty: 'easy',
@@ -2883,6 +2156,120 @@ export default MyComponent;
 - AI 生成代码质量稳定
 - 新人上手成本降低`,
     tags: ['滴滴', 'SSD', 'AI智能体', 'Skills'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
+  // ===== 实习生时间稳定性 =====
+  {
+    id: 'didi-intern-time-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '面试策略',
+    question: '你是硕士在读，研二下学期学业压力应该很大。你来实习的时间能保证吗？如果学校有紧急任务怎么办？',
+    answer: `实习生时间保证回答策略：
+
+### 1. 诚实自信表态
+\`\`\`
+目前研二下学期，课程已基本修完，主要任务是论文研究。
+我已将实习纳入研究生培养计划，导师已知情并支持。
+\`\`\`
+
+### 2. 时间承诺
+\`\`\`
+- 周一至周五：全职实习（可保证 5 天）
+- 特殊情况下：可周末远程办公
+- 论文相关：利用晚上和周末时间推进
+\`\`\`
+
+### 3. 导师沟通情况
+\`\`\`
+- 已和导师沟通，实习是导师推荐的企业实践项目
+- 论文方向与实习工作相关，可相互促进
+- 导师允许以项目成果作为论文支撑材料
+\`\`\`
+
+### 4. 应急预案
+\`\`\`
+- 如果学校有紧急任务，会提前报备并说明情况
+- 关键项目节点会预留缓冲时间
+- 保持手机和钉钉在线，及时响应
+\`\`\`
+
+### 5. 竞争优势说明
+\`\`\`
+相比全职员工，我的优势：
+- 时间更灵活，可以加班完成紧急任务
+- 学习能力强，能快速上手新业务
+- 有导师和学校资源支持
+\`\`\`
+
+### 回答要点
+- 诚实但展现积极性
+- 体现规划性和责任感
+- 避免过度承诺，但展现诚意`,
+    tags: ['滴滴', '实习生', '时间安排', '面试'],
+    status: 'unvisited',
+    difficulty: 'easy',
+  },
+  // ===== 项目主导权 =====
+  {
+    id: 'didi-intern-lead-001',
+    module: 'projects',
+    chapterId: 'didi',
+    category: '面试策略',
+    question: '滴滴的 AI 工程化项目，作为实习生，是你主导的还是导师让你做的？你在整个项目中具体负责什么？',
+    answer: `项目主导权回答策略：
+
+### 1. 实际情况说明
+\`\`\`
+关于 OpenSpec 和 SSD 项目：
+- 这是团队共同推进的项目，我有幸参与核心工作
+- 项目由团队 Tech Lead 发起，我是核心贡献者之一
+- 导师是团队负责人之一（通过导师推荐获得实习机会）
+\`\`\`
+
+### 2. 具体职责
+\`\`\`
+我负责的工作：
+1. OpenSpec 规范制定
+   - 定义组件描述 JSON Schema
+   - 编写 AI 交互 Prompt
+   - 设计代码质量检测规则
+
+2. CLAUDE.md 维护
+   - 整理项目技术文档
+   - 编写组件开发规范
+   - 维护代码示例库
+
+3. 工具开发
+   - 开发配置编辑器
+   - 编写自动化脚本
+   - AI 辅助开发工作流落地
+\`\`\`
+
+### 3. 推动过程描述
+\`\`\`
+作为实习生的推动经历：
+- 主动调研业界最佳实践（Claude Code, Cursor 等）
+- 输出技术调研报告，获得团队认可
+- 在小组内分享，得到 Leader 支持
+- 从小功能开始落地，逐步扩展到更多场景
+\`\`\`
+
+### 4. 团队协作
+\`\`\`
+- 定期向 Leader 汇报进展
+- 与同事结对编程，代码互审
+- 遇到技术难点会主动求助
+- 重大决策由团队共同讨论
+\`\`\`
+
+### 回答要点
+- 诚实说明角色定位
+- 强调核心贡献
+- 展现推动能力和团队协作能力
+- 避免过度邀功，也不过度谦虚`,
+    tags: ['滴滴', '实习生', '项目主导', 'AI工程化'],
     status: 'unvisited',
     difficulty: 'medium',
   },

@@ -5,6 +5,7 @@ import { Home } from '@/pages/Home';
 import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
 import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
+import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      <FloatingResumeButton />
     </div>
   );
 }
