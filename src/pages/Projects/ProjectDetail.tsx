@@ -17,7 +17,7 @@ export function ProjectDetail() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
-  const { updateCardStatus, getMergedCards } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress } = useCardStore();
 
   // 点击外部关闭序号选择器
   useEffect(() => {
@@ -34,8 +34,17 @@ export function ProjectDetail() {
     const projectCardsList = projectCards.filter((c) => c.chapterId === projectId);
     const merged = getMergedCards('projects', projectId || '', projectCardsList);
     setCards(merged);
-    setCurrentIndex(0);
+    // 恢复保存的进度
+    const savedIndex = getCardProgress('projects', projectId || '');
+    setCurrentIndex(Math.min(savedIndex, merged.length - 1));
   }, [projectId]);
+
+  // 保存进度
+  useEffect(() => {
+    if (cards.length > 0 && projectId) {
+      saveCardProgress('projects', projectId, currentIndex);
+    }
+  }, [currentIndex, projectId]);
 
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {

@@ -17,7 +17,7 @@ export function CoreChapter() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
-  const { updateCardStatus, getMergedCards } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress } = useCardStore();
 
   // 点击外部关闭序号选择器
   useEffect(() => {
@@ -35,8 +35,17 @@ export function CoreChapter() {
     const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
     const mergedCards = getMergedCards('core', chapterId || '', chapterCards);
     setCards(mergedCards);
-    setCurrentIndex(0); // 重置到第一张
+    // 恢复保存的进度
+    const savedIndex = getCardProgress('core', chapterId || '');
+    setCurrentIndex(Math.min(savedIndex, mergedCards.length - 1));
   }, [chapterId]);
+
+  // 保存进度
+  useEffect(() => {
+    if (cards.length > 0 && chapterId) {
+      saveCardProgress('core', chapterId, currentIndex);
+    }
+  }, [currentIndex, chapterId]);
 
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {

@@ -8,6 +8,9 @@ interface CardState {
   currentIndex: number;
   cards: FlashCard[];
 
+  // 各模块/章节的浏览进度 (module-chapterId -> currentIndex)
+  cardProgress: Record<string, number>;
+
   // 自定义卡片（用户添加的）
   customCards: FlashCard[];
 
@@ -25,6 +28,11 @@ interface CardState {
   setCurrentIndex: (index: number) => void;
   next: () => void;
   prev: () => void;
+
+  // 章节进度管理
+  saveCardProgress: (module: string, chapterId: string, index: number) => void;
+  getCardProgress: (module: string, chapterId: string) => number;
+
   setFilter: (filter: string) => void;
   setSearchQuery: (query: string) => void;
   updateCardStatus: (cardId: string, status: CardStatus) => void;
@@ -55,6 +63,7 @@ export const useCardStore = create<CardState>()(
       isFlipped: false,
       currentIndex: 0,
       cards: [],
+      cardProgress: {},
       customCards: [],
       modifiedCards: {},
       filter: 'all',
@@ -77,6 +86,17 @@ export const useCardStore = create<CardState>()(
         currentIndex: Math.max(state.currentIndex - 1, 0),
         isFlipped: false,
       })),
+
+      saveCardProgress: (module, chapterId, index) => set((state) => ({
+        cardProgress: {
+          ...state.cardProgress,
+          [`${module}-${chapterId}`]: index,
+        },
+      })),
+
+      getCardProgress: (module, chapterId) => {
+        return get().cardProgress[`${module}-${chapterId}`] || 0;
+      },
 
       setFilter: (filter) => set({ filter }),
 
@@ -171,6 +191,7 @@ export const useCardStore = create<CardState>()(
         customCards: state.customCards,
         modifiedCards: state.modifiedCards,
         favorites: state.favorites,
+        cardProgress: state.cardProgress,
       }),
     }
   )

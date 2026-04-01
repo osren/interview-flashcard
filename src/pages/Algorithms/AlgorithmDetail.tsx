@@ -17,7 +17,7 @@ export function AlgorithmDetail() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
-  const { updateCardStatus, getMergedCards } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress } = useCardStore();
 
   // 点击外部关闭序号选择器
   useEffect(() => {
@@ -34,8 +34,17 @@ export function AlgorithmDetail() {
     const typeCards = algorithmCards.filter((c) => c.chapterId === type);
     const merged = getMergedCards('algorithms', type || '', typeCards);
     setCards(merged);
-    setCurrentIndex(0);
+    // 恢复保存的进度
+    const savedIndex = getCardProgress('algorithms', type || '');
+    setCurrentIndex(Math.min(savedIndex, merged.length - 1));
   }, [type]);
+
+  // 保存进度
+  useEffect(() => {
+    if (cards.length > 0 && type) {
+      saveCardProgress('algorithms', type, currentIndex);
+    }
+  }, [currentIndex, type]);
 
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {
