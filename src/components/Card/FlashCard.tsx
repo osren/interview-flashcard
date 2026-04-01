@@ -29,8 +29,11 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   useEffect(() => {
     setIsFlipped(false);
     setIsEditing(false);
-    setEditedAnswer(displayCard.answer);
-  }, [card.id, displayCard.answer]);
+    // 只有在不编辑时才同步答案，防止保存时触发翻转
+    if (!isEditing) {
+      setEditedAnswer(displayCard.answer);
+    }
+  }, [card.id]);
 
   const handleFlip = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();

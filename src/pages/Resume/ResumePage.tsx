@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
-import { Upload, FileText, Trash2, X, Eye, Download } from 'lucide-react';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function ResumePage() {
@@ -18,7 +18,6 @@ export function ResumePage() {
         return;
       }
 
-      // 限制文件大小为 10MB
       if (file.size > 10 * 1024 * 1024) {
         alert(`"${file.name}" 超过 10MB 限制`);
         return;
@@ -35,7 +34,6 @@ export function ResumePage() {
       reader.readAsDataURL(file);
     });
 
-    // 清空 input 以便重复上传同名文件
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -51,92 +49,157 @@ export function ResumePage() {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('zh-CN', {
       year: 'numeric',
-      month: 'short',
+      month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 pt-20 pb-8">
-      {/* 顶部导航 */}
-      <div className="max-w-4xl mx-auto px-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">我的简历</h1>
-        <p className="text-gray-500">上传和管理您的简历 PDF</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-20 pb-8">
+      {/* 背景装饰 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl" />
+        <div className="absolute top-40 right-20 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl" />
       </div>
 
-      {/* 上传区域 */}
-      <div className="max-w-4xl mx-auto px-4 mb-8">
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
-        >
-          <Upload className="w-12 h-12 mx-auto text-blue-400 mb-3" />
-          <p className="text-gray-600 font-medium">点击上传 PDF 简历</p>
-          <p className="text-gray-400 text-sm mt-1">支持多选，单个文件最大 10MB</p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,application/pdf"
-            multiple
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </div>
-      </div>
-
-      {/* 简历列表 */}
-      <div className="max-w-4xl mx-auto px-4">
-        {resumes.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">暂无简历</p>
-            <p className="text-gray-400 text-sm">上传您的第一份简历吧</p>
+      <div className="relative max-w-5xl mx-auto px-4">
+        {/* 顶部标题区域 */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100/60 rounded-full mb-4">
+            <Sparkles className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">简历管理</span>
           </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">我的简历</h1>
+          <p className="text-gray-500">上传、管理和预览您的 PDF 简历</p>
+        </div>
+
+        {/* 统计信息 */}
+        {resumes.length > 0 && (
+          <div className="flex justify-center gap-8 mb-8">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{resumes.length}</div>
+              <div className="text-sm text-gray-500">简历数量</div>
+            </div>
+            <div className="w-px bg-gray-200" />
+            <div className="text-center">
+              <div className="text-3xl font-bold text-indigo-600">
+                {(resumes.reduce((total, r) => {
+                  // base64 编码: 3字节 -> 4字符, 去掉 padding = 号
+                  const base64Length = r.data.length - r.data.split('=').length + 1;
+                  const byteSize = base64Length * 0.75;
+                  return total + byteSize;
+                }, 0) / 1024 / 1024).toFixed(2)}MB
+              </div>
+              <div className="text-sm text-gray-500">总大小</div>
+            </div>
+          </div>
+        )}
+
+        {/* 上传区域 */}
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          className="relative mb-10 group"
+        >
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl p-10 text-center cursor-pointer border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-300"
+          >
+            {/* 渐变背景 */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+            <div className="relative">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Upload className="w-9 h-9 text-blue-600" />
+              </div>
+              <p className="text-lg font-semibold text-gray-800 mb-1">点击上传 PDF 简历</p>
+              <p className="text-gray-400 text-sm">拖拽文件到此处，或点击选择文件</p>
+              <p className="text-gray-300 text-xs mt-2">支持 PDF 格式，单个文件最大 10MB，可多选</p>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </div>
+        </motion.div>
+
+        {/* 简历列表 */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-500" />
+            已上传简历
+            <span className="text-sm font-normal text-gray-400">({resumes.length})</span>
+          </h2>
+        </div>
+
+        {resumes.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100"
+          >
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-2xl mb-4">
+              <FileText className="w-10 h-10 text-gray-300" />
+            </div>
+            <p className="text-gray-500 font-medium">暂无简历</p>
+            <p className="text-gray-400 text-sm mt-1">上传您的第一份简历开始面试准备</p>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {resumes.map((resume) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {resumes.map((resume, index) => (
               <motion.div
                 key={resume.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer group"
+                transition={{ delay: index * 0.05 }}
+                className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 cursor-pointer"
                 onClick={() => setPreviewResume(resume)}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-red-500" />
+                {/* 顶部图标 */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-orange-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <FileText className="w-6 h-6 text-red-500" />
                   </div>
                   <button
                     onClick={(e) => handleDelete(resume.id, e)}
-                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                    className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-1 truncate">{resume.name}</h3>
-                <p className="text-xs text-gray-400">{formatDate(resume.uploadTime)}</p>
 
-                {/* 操作按钮 */}
-                <div className="flex items-center gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* 简历信息 */}
+                <h3 className="font-semibold text-gray-900 mb-2 truncate group-hover:text-blue-600 transition-colors">
+                  {resume.name}
+                </h3>
+                <div className="flex items-center gap-1 text-gray-400 text-sm">
+                  <Clock size={14} />
+                  {formatDate(resume.uploadTime)}
+                </div>
+
+                {/* 底部操作按钮 */}
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-50">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setPreviewResume(resume);
                     }}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
                   >
-                    <Eye size={14} />
-                    查看
+                    <Eye size={16} />
+                    预览
                   </button>
                   <a
                     href={resume.data}
                     download={`${resume.name}.pdf`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                   >
-                    <Download size={14} />
+                    <Download size={16} />
                     下载
                   </a>
                 </div>
@@ -153,38 +216,46 @@ export function ResumePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setPreviewResume(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-xl w-full max-w-3xl h-[85vh] flex flex-col overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 标题栏 */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                <h3 className="font-medium text-gray-900 truncate">{previewResume.name}</h3>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{previewResume.name}</h3>
+                    <p className="text-xs text-gray-400">PDF 文档</p>
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
                   <a
                     href={previewResume.data}
                     download={`${previewResume.name}.pdf`}
-                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="下载"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                   >
-                    <Download size={18} />
+                    <Download size={16} />
+                    下载
                   </a>
                   <button
                     onClick={() => setPreviewResume(null)}
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
                   >
-                    <X size={18} />
+                    <X size={20} />
                   </button>
                 </div>
               </div>
               {/* PDF 预览 */}
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 overflow-hidden bg-gray-100">
                 <iframe
                   src={previewResume.data}
                   className="w-full h-full"

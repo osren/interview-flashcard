@@ -36,29 +36,70 @@ R (结果)：
     module: 'projects',
     chapterId: 'didi',
     category: '配置驱动',
-    question: '硬编码转配置驱动，配置 Schema 如何设计？',
-    answer: `Schema 设计要点：
+    question: '硬编码转配置驱动，配置 Schema 如何设计？以及配置驱动机制是什么？',
+    answer: `一、项目中的配置驱动实践
+
+1. 枚举类配置（硬编码转为配置）：
+\`\`\`javascript
+// 硬编码（Before）
+<Select placeholder="请选择航线类型">
+  <Option value={1}>国内机票</Option>
+  <Option value={2}>国际机票</Option>
+</Select>
+
+// 配置化（After）- FlightBookingNotice.jsx
+const AIRLINE_TYPE_MAP = {
+  1: '国内',
+  2: '国际',
+};
+
+// 渲染时使用配置
+render: (value) => AIRLINE_TYPE_MAP[value] || '-'
+\`\`\`
+
+2. 字段级配置 + 联动逻辑：
+\`\`\`javascript
+// EditSpecialPolicy.jsx - 会员类型联动
+case "member_types":
+  const onlyNewMember = value.length === 1 && value.includes("1");
+  this.setState({ showOldMemberFields: !onlyNewMember });
+  break;
+
+// 配置化的联动规则
+const MEMBER_TYPE_LINKAGE = {
+  '1': { showFields: [] },           // 仅新会员
+  '2': { showFields: ['ticket_channels', 'history_booking_days'] },
+};
+\`\`\`
+
+3. 动态表单组件：
+\`\`\`javascript
+// DynamicForm.jsx - 读取配置生成表单
+const DynamicForm = ({ conf, handleSubmit }) => {
+  // conf.conf_data 是配置数组
+  const values = conf?.conf_data?.reduce((acc, item) => {
+    // 根据 conf_item_type 渲染不同组件
+  }, {});
+};
+\`\`\`
+
+二、Schema 设计要点
 
 interface ComponentConfig {
   type: 'input' | 'select' | 'date';
   name: string;
   label: string;
   rules?: ValidationRule[];
-  visible?: Condition;
+  visible?: Condition;    // 联动条件
   default?: any;
 }
 
-关键设计原则：
+三、关键设计原则
 1. 声明式而非命令式
 2. 支持嵌套和组合
-3. 有明确的类型定义（TypeScript）
+3. 有明确的类型定义
 4. 支持校验规则内联
-
-实战技巧：
-- 枚举类配置：提取为独立常量对象，配合类型定义
-- 字段级配置：JSON Schema 风格定义校验规则、默认值、显示条件
-- 联动逻辑配置：通过 condition 函数控制字段显示/隐藏
-- 服务端配置下发：接口返回配置 + 本地缓存`,
+5. 联动逻辑可配置`,
     tags: ['滴滴', '配置驱动', 'Schema'],
     status: 'unvisited',
     difficulty: 'medium',
