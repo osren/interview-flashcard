@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
-import { Heart, FileText } from 'lucide-react';
+import { Heart, FileText, MessageSquare } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: '首页' },
@@ -9,6 +9,7 @@ const navItems = [
   { path: '/projects', label: '项目复盘' },
   { path: '/algorithms', label: '刷题模块' },
   { path: '/resume', label: '简历', icon: FileText },
+  { path: '/interview', label: '面经', icon: MessageSquare },
   { path: '/favorites', label: '收藏', icon: Heart },
 ];
 

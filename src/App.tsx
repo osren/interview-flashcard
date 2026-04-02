@@ -8,6 +8,7 @@ import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
 import { CustomCardsPage } from '@/pages/Custom';
 import { ResumePage } from '@/pages/Resume/ResumePage';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
+import { InterviewIndex, InterviewDetail } from '@/pages/Interview';
 
 function App() {
   return (
@@ -38,6 +39,10 @@ function App() {
 
           {/* 简历 */}
           <Route path="/resume" element={<ResumePage />} />
+
+          {/* 面经记录 */}
+          <Route path="/interview" element={<InterviewIndex />} />
+          <Route path="/interview/:companyId/:departmentId/:sessionId" element={<InterviewDetail />} />
 
           {/* 404 */}
           <Route
