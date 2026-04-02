@@ -1,12 +1,27 @@
 import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
-import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles } from 'lucide-react';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+type TabType = 'resume' | 'intro';
+
 export function ResumePage() {
-  const { resumes, addResume, removeResume } = useResumeStore();
+  const { resumes, addResume, removeResume, introScript, setIntroScript } = useResumeStore();
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('resume');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(introScript);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSaveIntro = () => {
+    setIntroScript(editContent);
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(introScript);
+    setIsEditing(false);
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -73,27 +88,58 @@ export function ResumePage() {
           <p className="text-gray-500">上传、管理和预览您的 PDF 简历</p>
         </div>
 
-        {/* 统计信息 */}
-        {resumes.length > 0 && (
-          <div className="flex justify-center gap-8 mb-8">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{resumes.length}</div>
-              <div className="text-sm text-gray-500">简历数量</div>
-            </div>
-            <div className="w-px bg-gray-200" />
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600">
-                {(resumes.reduce((total, r) => {
-                  // base64 编码: 3字节 -> 4字符, 去掉 padding = 号
-                  const base64Length = r.data.length - r.data.split('=').length + 1;
-                  const byteSize = base64Length * 0.75;
-                  return total + byteSize;
-                }, 0) / 1024 / 1024).toFixed(2)}MB
-              </div>
-              <div className="text-sm text-gray-500">总大小</div>
-            </div>
+        {/* Tab 切换 */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex bg-white/80 backdrop-blur-sm rounded-xl p-1.5 shadow-sm border border-gray-100">
+            <button
+              onClick={() => setActiveTab('resume')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === 'resume'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FileText size={16} />
+              PDF 简历
+            </button>
+            <button
+              onClick={() => setActiveTab('intro')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === 'intro'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <MessageSquare size={16} />
+              面试口述稿
+            </button>
           </div>
-        )}
+        </div>
+
+        {/* 简历 Tab 内容 */}
+        {activeTab === 'resume' && (
+          <>
+            {/* 统计信息 */}
+            {resumes.length > 0 && (
+              <div className="flex justify-center gap-8 mb-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">{resumes.length}</div>
+                  <div className="text-sm text-gray-500">简历数量</div>
+                </div>
+                <div className="w-px bg-gray-200" />
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-indigo-600">
+                    {(resumes.reduce((total, r) => {
+                      // base64 编码: 3字节 -> 4字符, 去掉 padding = 号
+                      const base64Length = r.data.length - r.data.split('=').length + 1;
+                      const byteSize = base64Length * 0.75;
+                      return total + byteSize;
+                    }, 0) / 1024 / 1024).toFixed(2)}MB
+                  </div>
+                  <div className="text-sm text-gray-500">总大小</div>
+                </div>
+              </div>
+            )}
 
         {/* 上传区域 */}
         <motion.div
@@ -206,6 +252,90 @@ export function ResumePage() {
               </motion.div>
             ))}
           </div>
+        )}
+          </>
+        )}
+
+        {/* 口述稿 Tab 内容 */}
+        {activeTab === 'intro' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              {/* 口述稿头部 */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">面试自我介绍</h3>
+                    <p className="text-xs text-gray-400">约 5 分钟</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={handleSaveIntro}
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        <Save size={16} />
+                        保存
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        取消
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setEditContent(introScript);
+                        setIsEditing(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <Edit3 size={16} />
+                      编辑
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 口述稿内容 */}
+              <div className="p-6">
+                {isEditing ? (
+                  <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="w-full h-96 p-4 text-gray-700 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none resize-none font-medium leading-relaxed"
+                    placeholder="在这里编辑您的面试自我介绍稿..."
+                  />
+                ) : (
+                  <div
+                    className="prose prose-green max-w-none text-gray-700 whitespace-pre-wrap font-medium leading-loose"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    {introScript}
+                  </div>
+                )}
+              </div>
+
+              {/* 提示 */}
+              {!isEditing && (
+                <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
+                  <p className="text-sm text-gray-400 text-center">
+                    点击内容区域可编辑口述稿
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
         )}
       </div>
 

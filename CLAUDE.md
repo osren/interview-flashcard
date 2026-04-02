@@ -1,5 +1,8 @@
 # CLAUDE.md
 
+<!-- 候选人背景信息 - 每次会话自动加载 -->
+<!-- 请在对话开始时阅读 CANDIDATE.md 了解候选人背景 -->
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
