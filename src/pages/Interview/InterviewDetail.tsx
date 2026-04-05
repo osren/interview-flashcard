@@ -10,6 +10,9 @@ export function InterviewDetail() {
   const navigate = useNavigate();
   const { companyId, departmentId, sessionId } = useParams();
 
+  // 订阅 companies 状态变化以响应 store 更新
+  useInterviewStore((state) => state.companies);
+
   const {
     getCompany,
     getDepartment,

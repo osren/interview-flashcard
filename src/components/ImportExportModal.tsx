@@ -41,8 +41,8 @@ export function ImportExportModal({
   const { addCustomCard } = useCardStore();
   const { addQuestion } = useInterviewStore();
 
-  // 判断是否为面经模块
-  const isInterview = interviewQuestions.length > 0;
+  // 判断是否为面经模块 - 只要有 sessionId 就是面经模块
+  const isInterview = !!(companyId && departmentId && sessionId);
   const displayCards = isInterview ? interviewQuestions : cards;
 
   const handleExport = () => {

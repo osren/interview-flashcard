@@ -54,9 +54,10 @@ ${answer}`;
  * ## 答案
  * 答案内容
  *
- * 或
+ * 或（答案可为空）
  * ## 1. 问题内容
- * 答案内容（可为空）
+ * ## 答案
+ * （空）
  */
 export function importCardsFromMd(
   mdContent: string,
@@ -65,8 +66,13 @@ export function importCardsFromMd(
 ): { question: string; answer: string }[] {
   const cards: { question: string; answer: string }[] = [];
 
+  // 去掉首行的标题（如果有）
+  const lines = mdContent.split('\n');
+  const contentStartIndex = lines.findIndex(line => line.match(/^##\s*\d+\./));
+  const content = contentStartIndex > 0 ? lines.slice(contentStartIndex).join('\n') : mdContent;
+
   // 分割每个问答对（用 --- 分割）
-  const sections = mdContent.split(/\n---\n/);
+  const sections = content.split(/\n---\n/);
 
   for (const section of sections) {
     if (!section.trim()) continue;
@@ -75,19 +81,19 @@ export function importCardsFromMd(
     const trimmed = section.trim();
     if (!trimmed) continue;
 
-    // 匹配格式: ## 序号. 问题内容
-    const questionMatch = trimmed.match(/^##\s*\d+\.\s*(.+)$/);
+    // 匹配格式: ## 序号. 问题内容（问题可能跨行）
+    // 使用 [\s\S] 匹配任意字符包括换行，.+? 非贪婪匹配
+    const questionMatch = trimmed.match(/^##\s*\d+\.\s*([\s\S]+?)(?=\n##\s*答案|$)/);
     if (!questionMatch) continue;
 
     const question = questionMatch[1].trim();
 
     // 查找 ## 答案 之后的内容
-    const answerParts = trimmed.split(/^##\s*答案/m);
+    const answerMatch = trimmed.match(/\n##\s*答案\n([\s\S]*)$/);
     let answer = '';
 
-    if (answerParts.length > 1) {
-      // 去掉第一部分（问题和序号），剩下的就是答案
-      answer = answerParts.slice(1).join('## 答案').trim();
+    if (answerMatch) {
+      answer = answerMatch[1].trim();
     }
 
     // 如果答案部分是空的或者是（空），设为空字符串
