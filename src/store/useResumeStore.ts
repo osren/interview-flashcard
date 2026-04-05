@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import introScriptRaw from '@/data/resume/intro-script.md?raw';
 
 export interface Resume {
   id: string;
@@ -17,17 +18,8 @@ interface ResumeState {
   setIntroScript: (script: string) => void;
 }
 
-const defaultIntroScript = `面试官你好，我叫谭成，一名研二学生，就读于重庆邮电大学计算机专业，目前课程已修完，主要精力放在论文研究和实习上，求职方向是前端开发实习。
-
-在技能方面，我主要从事前端开发，熟练掌握 React、TypeScript、状态管理用过 Redux 和 Zustand，UI 组件库主要用 Ant Design 和 Tailwind CSS，工程化方面熟悉 Vite 和 Webpack，另外还接触过 Supabase 做后端服务，以及 Claude Code 进行 AI 辅助开发。
-
-实习经历方面，我从 2026 年初开始在滴滴企业商旅出行实习，主要参与商旅系统开发，工作产出围绕三个方面。
-第一块是遗留系统重构，机票政策模块是 55 个业务模块中最复杂的，一些单文件超过 2000 行代码，我参与将其从 jQuery 加硬编码转为配置驱动开发，通过 JSON Schema 动态表单大幅提升研发效率。
-第二块是弱网性能优化，使用 @loadable/component 实现路由分割和预加载，将 FCP 从 3.2 秒优化到 1.8 秒，首屏 JS 减少 45%。第三块是 AI 工程化转型，我参与了 OpenSpec 规范制定和 CLAUDE.md 维护工作，推动 Claude Code Agent 辅助开发工作流落地，帮助团队大需求开发周期缩短 30%。
-
-项目方面，我还独立开发了 GResume 智能简历平台。这是一个开源项目，采用离线优先架构，用 IndexedDB 做本地存储，用 CRDT 解决冲突，配合 Supabase 云端同步。同时集成了 DeepSeek LLM 做 AI ATS 评分，给出简历与岗位 JD 的匹配建议。
-
-以上就是我的基本情况,谢谢面试官。`;
+// 去除 Markdown 标题行
+const defaultIntroScript = introScriptRaw.replace(/^#.*$/m, '').trim();
 
 export const useResumeStore = create<ResumeState>()(
   persist(
