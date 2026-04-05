@@ -118,7 +118,7 @@ export const useCardStore = create<CardState>()(
 
       // 自定义卡片 Actions
       addCustomCard: (card) => set((state) => ({
-        customCards: [...state.customCards, { ...card, id: `custom-${Date.now()}` }],
+        customCards: [...state.customCards, { ...card, id: crypto.randomUUID() }],
       })),
 
       updateCustomCard: (cardId, updates) => set((state) => ({

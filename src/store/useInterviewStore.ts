@@ -68,7 +68,7 @@ export const useInterviewStore = create<InterviewState>()(
           companies: [
             ...state.companies,
             {
-              id: `company-${Date.now()}`,
+              id: crypto.randomUUID(),
               name,
               color,
               departments: [],
@@ -100,7 +100,7 @@ export const useInterviewStore = create<InterviewState>()(
                   departments: [
                     ...c.departments,
                     {
-                      id: `dept-${Date.now()}`,
+                      id: crypto.randomUUID(),
                       name,
                       sessions: [],
                     },
@@ -152,7 +152,7 @@ export const useInterviewStore = create<InterviewState>()(
                           sessions: [
                             ...d.sessions,
                             {
-                              id: `session-${Date.now()}`,
+                              id: crypto.randomUUID(),
                               name,
                               date,
                               status: 'waiting' as InterviewStatus,
@@ -271,7 +271,7 @@ export const useInterviewStore = create<InterviewState>()(
                                   questions: [
                                     ...s.questions,
                                     {
-                                      id: `q-${Date.now()}`,
+                                      id: crypto.randomUUID(),
                                       question,
                                       answer,
                                     },
