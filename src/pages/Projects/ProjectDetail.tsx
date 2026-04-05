@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { projectCards } from '@/data/projects';
 import { Badge } from '@/components/ui';
@@ -225,6 +226,14 @@ export function ProjectDetail() {
           <ChevronRight size={28} className="text-gray-600" />
         </button>
       </div>
+
+      {/* 导入导出弹窗 */}
+      <ImportExportModal
+        cards={cards}
+        module="projects"
+        chapterId={projectId || ''}
+        title={projectId === 'didi' ? '滴滴企业版' : 'GResume 智能简历'}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand } from 'lucide-react';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { FlashCard, ModuleType } from '@/types';
 import { Badge } from '@/components/ui';
@@ -26,6 +27,11 @@ export function Favorites() {
   const { favorites, toggleFavorite } = useCardStore();
   const [selectedGroup, setSelectedGroup] = useState<ChapterGroup | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+
+  // 计算导入导出用的卡片
+  const modalCards = selectedGroup ? selectedGroup.cards : favorites;
+  const modalModule = selectedGroup?.module || 'custom';
+  const modalChapterId = selectedGroup?.chapterId || 'favorites';
 
   // 按模块和章节分组
   const groupedFavorites = useMemo(() => {
@@ -278,6 +284,14 @@ export function Favorites() {
           })}
         </div>
       </div>
+
+      {/* 导入导出弹窗 */}
+      <ImportExportModal
+        cards={modalCards}
+        module={modalModule}
+        chapterId={modalChapterId}
+        title="我的收藏"
+      />
     </div>
   );
 }

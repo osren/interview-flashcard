@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { algorithmCards } from '@/data/algorithms';
 import { Badge } from '@/components/ui';
@@ -228,6 +229,14 @@ export function AlgorithmDetail() {
           <ChevronRight size={28} className="text-gray-600" />
         </button>
       </div>
+
+      {/* 导入导出弹窗 */}
+      <ImportExportModal
+        cards={cards}
+        module="algorithms"
+        chapterId={type || ''}
+        title={typeLabels[type || '']}
+      />
     </div>
   );
 }

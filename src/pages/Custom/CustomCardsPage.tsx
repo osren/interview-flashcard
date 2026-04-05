@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, ArrowLeft, Plus, Edit, Trash2, X, Save } from 'lucide-react';
@@ -517,6 +518,14 @@ export function CustomCardsPage() {
           )}
         </div>
       </div>
+
+      {/* 导入导出弹窗 - 自定义卡片使用 custom 作为 module */}
+      <ImportExportModal
+        cards={cards}
+        module="custom"
+        chapterId="custom"
+        title="自定义卡片"
+      />
     </div>
   );
 }

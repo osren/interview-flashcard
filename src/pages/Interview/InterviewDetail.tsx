@@ -4,6 +4,7 @@ import { useInterviewStore } from '@/store/useInterviewStore';
 import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MDEditor from '@uiw/react-md-editor';
+import { ImportExportModal } from '@/components/ImportExportModal';
 
 export function InterviewDetail() {
   const navigate = useNavigate();
@@ -422,6 +423,15 @@ export function InterviewDetail() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* 导入导出弹窗 */}
+      <ImportExportModal
+        interviewQuestions={questions}
+        companyId={companyId}
+        departmentId={departmentId}
+        sessionId={sessionId}
+        title={`${company?.name || ''} - ${department?.name || ''} - ${session?.name || ''}`}
+      />
     </div>
   );
 }

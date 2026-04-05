@@ -2,11 +2,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
+import { coreChapters } from '@/data/core';
 
 export function CoreChapter() {
   const { chapterId } = useParams<{ chapterId: string }>();
@@ -226,6 +228,14 @@ export function CoreChapter() {
           <ChevronRight size={28} className="text-gray-600" />
         </button>
       </div>
+
+      {/* 导入导出弹窗 */}
+      <ImportExportModal
+        cards={cards}
+        module="core"
+        chapterId={chapterId || ''}
+        title={coreChapters.find(c => c.id === chapterId)?.title || chapterId}
+      />
     </div>
   );
 }
