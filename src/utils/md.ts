@@ -56,7 +56,7 @@ ${answer}`;
  *
  * 或
  * ## 1. 问题内容
- * 答案内容
+ * 答案内容（可为空）
  */
 export function importCardsFromMd(
   mdContent: string,
@@ -71,25 +71,31 @@ export function importCardsFromMd(
   for (const section of sections) {
     if (!section.trim()) continue;
 
-    // 匹配格式1: ## 序号. 问题\n## 答案\n答案内容
-    // 匹配格式2: ## 序号. 问题\n答案内容（没有答案标题）
-    const qaMatch = section.match(/^##\s*\d+\.\s*(.+?)(?:\n##\s*答案\n|\n)([\s\S]*)$/);
+    // 去掉首尾空白
+    const trimmed = section.trim();
+    if (!trimmed) continue;
 
-    if (qaMatch) {
-      cards.push({
-        question: qaMatch[1].trim(),
-        answer: qaMatch[2].trim(),
-      });
-    } else {
-      // 尝试简化格式：只有问题，答案为空
-      const simpleMatch = section.match(/^##\s*\d+\.\s*(.+)$/);
-      if (simpleMatch) {
-        cards.push({
-          question: simpleMatch[1].trim(),
-          answer: '',
-        });
-      }
+    // 匹配格式: ## 序号. 问题内容
+    const questionMatch = trimmed.match(/^##\s*\d+\.\s*(.+)$/);
+    if (!questionMatch) continue;
+
+    const question = questionMatch[1].trim();
+
+    // 查找 ## 答案 之后的内容
+    const answerParts = trimmed.split(/^##\s*答案/m);
+    let answer = '';
+
+    if (answerParts.length > 1) {
+      // 去掉第一部分（问题和序号），剩下的就是答案
+      answer = answerParts.slice(1).join('## 答案').trim();
     }
+
+    // 如果答案部分是空的或者是（空），设为空字符串
+    if (answer === '' || answer === '（空）') {
+      answer = '';
+    }
+
+    cards.push({ question, answer });
   }
 
   return cards;
