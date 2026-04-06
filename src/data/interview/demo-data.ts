@@ -1,6 +1,8 @@
 import { Company } from '@/types/interview';
+import { MEITUAN_LOCAL_COMMERCE } from './meituan-local-commerce';
 
 export const DEMO_DATA: Company[] = [
+  MEITUAN_LOCAL_COMMERCE,
   {
     id: 'company-meituan',
     name: '美团',
