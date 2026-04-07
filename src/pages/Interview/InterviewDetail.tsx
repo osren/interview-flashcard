@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useInterviewStore } from '@/store/useInterviewStore';
-import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check } from 'lucide-react';
+import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MDEditor from '@uiw/react-md-editor';
 import { ImportExportModal } from '@/components/ImportExportModal';
@@ -33,6 +33,7 @@ export function InterviewDetail() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showQuestionList, setShowQuestionList] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
   const [editQuestion, setEditQuestion] = useState({ question: '', answer: '' });
 
@@ -43,6 +44,12 @@ export function InterviewDetail() {
     setIsFlipped(false);
     setIsEditing(false);
   }, [currentIndex]);
+
+  // 跳转到指定题号
+  const goToQuestion = (index: number) => {
+    setCurrentIndex(index);
+    setShowQuestionList(false);
+  };
 
   const handleFlip = () => {
     if (!isEditing) {
@@ -210,18 +217,6 @@ export function InterviewDetail() {
                         {currentIndex + 1} / {questions.length}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsEditing(true);
-                          setEditQuestion({ question: currentQuestion.question, answer: currentQuestion.answer });
-                        }}
-                        className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
-                      >
-                        <Edit3 size={16} />
-                      </button>
-                    </div>
                   </div>
 
                   <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">
@@ -339,6 +334,15 @@ export function InterviewDetail() {
                 新增问题
               </button>
               <button
+                onClick={() => setShowQuestionList(!showQuestionList)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors shadow-sm ${
+                  showQuestionList ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <List size={18} />
+                题号
+              </button>
+              <button
                 onClick={handleNext}
                 disabled={currentIndex === questions.length - 1}
                 className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
@@ -347,6 +351,35 @@ export function InterviewDetail() {
                 <ChevronRight size={18} />
               </button>
             </div>
+
+            {/* 题号列表弹窗 */}
+            <AnimatePresence>
+              {showQuestionList && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-10"
+                  style={{ maxHeight: '300px', overflowY: 'auto' }}
+                >
+                  <div className="grid grid-cols-5 gap-2">
+                    {questions.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToQuestion(index)}
+                        className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                          index === currentIndex
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ) : (
           /* 空状态 */
