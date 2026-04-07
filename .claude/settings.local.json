@@ -8,7 +8,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "WebFetch(domain:minimax-algeng-chat-tts.oss-cn-wulanchabu.aliyuncs.com)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(git checkout main -- src/pages/Interview src/components/ImportExportModal.tsx src/components/Resume/FloatingResumeButton.tsx src/components/Pomodoro.tsx src/store/useInterviewStore.ts src/data/interview src/App.tsx src/components/Layout/Header.tsx)",
+      "Bash(git checkout main -- src/store/useThemeStore.ts src/components/ThemeProvider.tsx src/components/ThemeSwitcher.tsx tailwind.config.js src/index.css)"
     ]
   }
 }
