@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { Heart, FileText, MessageSquare } from 'lucide-react';
 
 const navItems = [
@@ -49,7 +50,10 @@ export function Header() {
           </nav>
 
           {/* 番茄钟 */}
-          <Pomodoro />
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher />
+            <Pomodoro />
+          </div>
         </div>
       </div>
     </header>
