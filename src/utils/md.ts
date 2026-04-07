@@ -66,30 +66,25 @@ export function importCardsFromMd(
 ): { question: string; answer: string }[] {
   const cards: { question: string; answer: string }[] = [];
 
-  // 去掉首行的标题（如果有）
-  const lines = mdContent.split('\n');
-  const contentStartIndex = lines.findIndex(line => line.match(/^##\s*\d+\./));
-  const content = contentStartIndex > 0 ? lines.slice(contentStartIndex).join('\n') : mdContent;
+  // 标准化换行符（处理 Windows \r\n）
+  const content = mdContent.replace(/\r\n/g, '\n');
 
-  // 分割每个问答对（用 --- 分割）
-  const sections = content.split(/\n---\n/);
+  // 分割每个问答对（用 ## 序号. 分割，--- 不是可靠的分割符）
+  // 格式: ## 1. 问题\n\n## 答案\n\n答案内容
+  const sections = content.split(/\n(?=##\s*\d+\.)/);
 
   for (const section of sections) {
-    if (!section.trim()) continue;
-
-    // 去掉首尾空白
     const trimmed = section.trim();
     if (!trimmed) continue;
 
-    // 匹配格式: ## 序号. 问题内容（问题可能跨行）
-    // 使用 [\s\S] 匹配任意字符包括换行，.+? 非贪婪匹配
-    const questionMatch = trimmed.match(/^##\s*\d+\.\s*([\s\S]+?)(?=\n##\s*答案|$)/);
+    // 匹配格式: ## 序号. 问题内容
+    const questionMatch = trimmed.match(/^##\s*\d+\.\s*([\s\S]+?)(?=\n\n##\s*答案)/);
     if (!questionMatch) continue;
 
     const question = questionMatch[1].trim();
 
-    // 查找 ## 答案 之后的内容
-    const answerMatch = trimmed.match(/\n##\s*答案\n([\s\S]*)$/);
+    // 匹配答案内容（## 答案 之后到下一个 ## 序号. 之前，或文件末尾）
+    const answerMatch = trimmed.match(/\n\n##\s*答案\n\n([\s\S]*?)(?=\n\n##\s*\d+\.|$)/);
     let answer = '';
 
     if (answerMatch) {
