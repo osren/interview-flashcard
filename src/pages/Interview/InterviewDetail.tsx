@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check, List } from 'lucide-react';
