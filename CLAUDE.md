@@ -11,6 +11,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Core**: Frontend fundamentals (JavaScript, TypeScript, React, Browser, Engineering)
 - **Projects**: Deep-dive into candidate's projects (Didi internship, GResume)
 - **Algorithms**: Coding problems, concept explanations, and system design scenarios
+- **Interview**: Real interview questions and answers from companies
+
+## 面试文档导入规范
+
+当用户提交新的面试文档（docs 目录下的 .md 文件）时，应按以下规则处理：
+
+### 文件命名格式
+```
+{公司名} - {部门/方向} - {面试轮次}.md
+```
+
+### 内容格式规范
+- 题目：`## 1. 问题内容`
+- 答案：`## 答案` 开头
+- 分隔：题目间用 `---` 分隔
+
+### 导入流程
+1. 读取 docs 目录下的面试文档
+2. 解析题目和答案内容
+3. 转换为 FlashCard 格式
+4. 导入到 `src/data/interview/` 目录对应文件中
+5. 更新 `src/data/interview/index.ts` 导出
+
+详见 `INTERVIEW_IMPORT_GUIDE.md`
 
 ## Commands
 
