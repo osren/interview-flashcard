@@ -9,6 +9,7 @@ import { CustomCardsPage } from '@/pages/Custom';
 import { ResumePage } from '@/pages/Resume/ResumePage';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { InterviewIndex, InterviewDetail } from '@/pages/Interview';
+import { AIIndex, AIDetail } from '@/pages/AI';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 function App() {
@@ -45,6 +46,10 @@ function App() {
             {/* 面经记录 */}
             <Route path="/interview" element={<InterviewIndex />} />
             <Route path="/interview/:companyId/:departmentId/:sessionId" element={<InterviewDetail />} />
+
+            {/* AI 资讯 */}
+            <Route path="/ai" element={<AIIndex />} />
+            <Route path="/ai/:projectId" element={<AIDetail />} />
 
             {/* 404 */}
             <Route

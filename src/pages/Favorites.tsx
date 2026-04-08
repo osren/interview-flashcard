@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, Sparkles } from 'lucide-react';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
@@ -11,6 +11,7 @@ const moduleConfig: Record<ModuleType, { label: string; icon: typeof BookOpen; c
   projects: { label: '项目复盘', icon: Briefcase, color: 'bg-purple-500' },
   algorithms: { label: '刷题', icon: Code, color: 'bg-green-500' },
   custom: { label: '自定义', icon: Wand, color: 'bg-orange-500' },
+  ai: { label: 'AI资讯', icon: Sparkles, color: 'bg-pink-500' },
 };
 
 interface ChapterGroup {
@@ -59,6 +60,7 @@ export function Favorites() {
       projects: [],
       algorithms: [],
       custom: [],
+      ai: [],
     };
 
     groupedFavorites.forEach((group) => {

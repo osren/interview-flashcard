@@ -5,7 +5,7 @@ export type CardStatus = 'unvisited' | 'forgotten' | 'fuzzy' | 'mastered';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 // 模块类型
-export type ModuleType = 'core' | 'projects' | 'algorithms' | 'custom';
+export type ModuleType = 'core' | 'projects' | 'algorithms' | 'custom' | 'ai';
 
 // 卡片数据结构
 export interface FlashCard {
