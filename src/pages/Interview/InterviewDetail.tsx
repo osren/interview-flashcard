@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useInterviewStore } from '@/store/useInterviewStore';
-import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check, List } from 'lucide-react';
+import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check, List, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MDEditor from '@uiw/react-md-editor';
 import { ImportExportModal } from '@/components/ImportExportModal';
@@ -22,6 +22,8 @@ export function InterviewDetail() {
     updateSessionDate,
     updateSessionName,
     updateSessionStatus,
+    toggleFavorite,
+    isFavorited,
   } = useInterviewStore();
 
   const company = getCompany(companyId || '');
@@ -217,6 +219,19 @@ export function InterviewDetail() {
                         {currentIndex + 1} / {questions.length}
                       </span>
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(currentQuestion);
+                      }}
+                      className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+                      title={isFavorited(currentQuestion.id) ? '取消收藏' : '收藏'}
+                    >
+                      <Heart
+                        size={18}
+                        className={isFavorited(currentQuestion.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+                      />
+                    </button>
                   </div>
 
                   <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">

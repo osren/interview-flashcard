@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Company, Department, InterviewSession, InterviewStatus } from '@/types/interview';
+import { Company, Department, InterviewSession, InterviewStatus, InterviewQuestion } from '@/types/interview';
 import { DEMO_DATA } from '@/data/interview/demo-data';
 
 interface InterviewState {
   companies: Company[];
+  favoriteQuestions: InterviewQuestion[];
   lastVisitedCompany: string | null;
   lastVisitedDepartment: string | null;
   lastVisitedSession: string | null;
@@ -30,6 +31,10 @@ interface InterviewState {
   addQuestion: (companyId: string, departmentId: string, sessionId: string, question: string, answer: string) => void;
   updateQuestion: (companyId: string, departmentId: string, sessionId: string, questionId: string, question: string, answer: string) => void;
   removeQuestion: (companyId: string, departmentId: string, sessionId: string, questionId: string) => void;
+
+  // 收藏操作
+  toggleFavorite: (question: InterviewQuestion) => void;
+  isFavorited: (questionId: string) => boolean;
 
   // 访问记录
   setLastVisited: (companyId: string | null, departmentId: string | null, sessionId: string | null) => void;
@@ -59,6 +64,7 @@ export const useInterviewStore = create<InterviewState>()(
   persist(
     (set, get) => ({
       companies: [],
+      favoriteQuestions: [],
       lastVisitedCompany: null,
       lastVisitedDepartment: null,
       lastVisitedSession: null,
@@ -365,6 +371,25 @@ export const useInterviewStore = create<InterviewState>()(
         const company = get().companies.find((c) => c.id === companyId);
         const department = company?.departments.find((d) => d.id === departmentId);
         return department?.sessions.find((s) => s.id === sessionId);
+      },
+
+      toggleFavorite: (question) => {
+        set((state) => {
+          const exists = state.favoriteQuestions.find((q) => q.id === question.id);
+          if (exists) {
+            return {
+              favoriteQuestions: state.favoriteQuestions.filter((q) => q.id !== question.id),
+            };
+          } else {
+            return {
+              favoriteQuestions: [...state.favoriteQuestions, question],
+            };
+          }
+        });
+      },
+
+      isFavorited: (questionId) => {
+        return get().favoriteQuestions.some((q) => q.id === questionId);
       },
     }),
     {
