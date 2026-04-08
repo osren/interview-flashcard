@@ -291,7 +291,7 @@ export function InterviewDetail() {
                         />
                         <MDEditor
                           value={editQuestion.answer}
-                          onChange={(val) => setEditQuestion({ ...editQuestion, answer: val || '' })}
+                          onChange={(val: string | undefined) => setEditQuestion({ ...editQuestion, answer: val || '' })}
                           height={250}
                           preview="edit"
                         />
@@ -430,7 +430,7 @@ export function InterviewDetail() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">回答</label>
                     <MDEditor
                       value={newQuestion.answer}
-                      onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
+                      onChange={(val: string | undefined) => setNewQuestion({ ...newQuestion, answer: val || '' })}
                       height={200}
                       preview="edit"
                     />
