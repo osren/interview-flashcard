@@ -15,7 +15,14 @@
       "Bash(git reset --soft HEAD~1)",
       "Bash(ping -c 2 github.com)",
       "Bash(git remote set-url origin git@github.com:osren/interview-flashcard.git)",
-      "Bash(git remote set-url origin https://github.com/osren/interview-flashcard.git)"
+      "Bash(git remote set-url origin https://github.com/osren/interview-flashcard.git)",
+      "Bash(openspec new change \"fix-vercel-npm-ci-failure\")",
+      "Bash(openspec status --change \"fix-vercel-npm-ci-failure\" --json)",
+      "Bash(openspec instructions proposal --change \"fix-vercel-npm-ci-failure\" --json)",
+      "Bash(openspec instructions design --change \"fix-vercel-npm-ci-failure\" --json)",
+      "Bash(openspec instructions specs --change \"fix-vercel-npm-ci-failure\" --json)",
+      "Bash(openspec instructions tasks --change \"fix-vercel-npm-ci-failure\" --json)",
+      "Bash(openspec instructions apply --change \"fix-vercel-npm-ci-failure\" --json)"
     ]
   }
 }
