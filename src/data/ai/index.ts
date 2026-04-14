@@ -1,4 +1,5 @@
 import { FlashCard } from '@/types';
+import { githubTrendingCards } from './github-trending';
 
 // AI 资讯项目类型
 export interface AIProject {
@@ -15,6 +16,13 @@ export interface AIProject {
 
 // AI 资讯数据
 export const aiProjects: AIProject[] = [
+  {
+    id: 'github-trending',
+    name: 'GitHub Trending',
+    description: 'GitHub 热门项目追踪 - 每周/每月热门开源项目',
+    files: {},
+    cards: githubTrendingCards,
+  },
   {
     id: 'ai-progress',
     name: 'AI 进展',

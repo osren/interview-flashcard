@@ -10,6 +10,7 @@ import { ResumePage } from '@/pages/Resume/ResumePage';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { InterviewIndex, InterviewDetail } from '@/pages/Interview';
 import { AIIndex, AIDetail } from '@/pages/AI';
+import { GithubTrending } from '@/pages/AI/GithubTrending';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
 
             {/* AI 资讯 */}
             <Route path="/ai" element={<AIIndex />} />
+            <Route path="/ai/github-trending" element={<GithubTrending />} />
             <Route path="/ai/:projectId" element={<AIDetail />} />
 
             {/* 404 */}

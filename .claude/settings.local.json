@@ -22,7 +22,16 @@
       "Bash(openspec instructions design --change \"fix-vercel-npm-ci-failure\" --json)",
       "Bash(openspec instructions specs --change \"fix-vercel-npm-ci-failure\" --json)",
       "Bash(openspec instructions tasks --change \"fix-vercel-npm-ci-failure\" --json)",
-      "Bash(openspec instructions apply --change \"fix-vercel-npm-ci-failure\" --json)"
+      "Bash(openspec instructions apply --change \"fix-vercel-npm-ci-failure\" --json)",
+      "Bash(openspec new change \"add-github-trending-module\")",
+      "Bash(openspec status --change \"add-github-trending-module\" --json)",
+      "Bash(openspec instructions proposal --change \"add-github-trending-module\" --json)",
+      "Bash(openspec instructions design --change \"add-github-trending-module\" --json)",
+      "Bash(xxd)",
+      "WebSearch",
+      "Bash(curl -s \"https://gh-trending-repos.onrender.com/repos?since=weekly\")",
+      "Bash(curl -s \"https://gh-trending-api.cyclic.app/repos?since=weekly\")",
+      "Bash(curl:*)"
     ]
   }
 }
