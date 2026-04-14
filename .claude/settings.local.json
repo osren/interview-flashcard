@@ -31,7 +31,8 @@
       "WebSearch",
       "Bash(curl -s \"https://gh-trending-repos.onrender.com/repos?since=weekly\")",
       "Bash(curl -s \"https://gh-trending-api.cyclic.app/repos?since=weekly\")",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

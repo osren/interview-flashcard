@@ -63,6 +63,24 @@
 - 列表展示：项目名 | 描述 | star数 | fork数
 - 点击展开显示README摘要
 
+### D5: README摘要编辑
+
+**选择：** 用户可编辑保存摘要到 localStorage
+
+**功能：**
+- 自动从 README 提取工作流和解决的问题
+- 用户可手动编辑保存
+- 数据持久化到 localStorage
+
+### D6: PDF 附件
+
+**选择：** 支持为每个项目附加 PDF
+
+**功能：**
+- PDF 以 Base64 存储在 localStorage
+- 点击图标可附加/查看 PDF
+- 每个项目独立保存
+
 ## Risks / Trade-offs
 
 | 风险 | 缓解方案 |
@@ -71,3 +89,4 @@
 | CORS跨域 | 使用后端代理或第三方API |
 | 数据更新延迟 | 显示最后更新时间，支持手动刷新 |
 | README获取失败 | 降级显示基本项目信息 |
+| localStorage 大小限制 | Base64 PDF 有 5MB 限制 |

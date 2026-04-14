@@ -47,8 +47,6 @@ export function TrendingList({
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [readmeSummaries, setReadmeSummaries] = useState<Record<string, { workflow?: string; solveProblem?: string }>>({});
   const [loadingReadmes, setLoadingReadmes] = useState<Record<string, boolean>>({});
-
-  // 加载已保存的摘要
   const [savedSummaries, setSavedSummaries] = useState<Record<string, { workflow?: string; solveProblem?: string }>>({});
 
   // 初始化时加载保存的摘要
@@ -60,7 +58,6 @@ export function TrendingList({
   const handleSaveSummary = (projectId: string, summary: { workflow?: string; solveProblem?: string }) => {
     saveSummary(projectId, summary);
     setSavedSummaries(prev => ({ ...prev, [projectId]: summary }));
-    // 更新显示
     setReadmeSummaries(prev => ({
       ...prev,
       [projectId]: {
@@ -80,7 +77,6 @@ export function TrendingList({
   };
 
   const handleShowReadme = async (project: TrendingProject) => {
-    // 如果已经展开，则收起
     if (expandedProject === project.id) {
       setExpandedProject(null);
       return;
@@ -99,8 +95,8 @@ export function TrendingList({
           ...prev,
           [project.id]: summary,
         }));
-      } catch (error) {
-        console.error('Failed to fetch readme:', error);
+      } catch (err) {
+        console.error('Failed to fetch readme:', err);
         setReadmeSummaries(prev => ({
           ...prev,
           [project.id]: {},
@@ -124,10 +120,11 @@ export function TrendingList({
 
   return (
     <div>
-      {/* Tab切换和操作栏 */}
+      {/* Tab 切换 */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex bg-gray-100 rounded-lg p-1">
           <button
+            type="button"
             onClick={() => onPeriodChange('weekly')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               period === 'weekly'
@@ -138,6 +135,7 @@ export function TrendingList({
             每周
           </button>
           <button
+            type="button"
             onClick={() => onPeriodChange('monthly')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               period === 'monthly'
@@ -156,6 +154,7 @@ export function TrendingList({
             </span>
           )}
           <button
+            type="button"
             onClick={onRefresh}
             disabled={isLoading}
             className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
@@ -165,11 +164,12 @@ export function TrendingList({
         </div>
       </div>
 
-      {/* 项目列表 */}
+      {/* 项目列表 - 简洁列表风格 */}
       {error ? (
         <div className="text-center py-12 bg-red-50 rounded-lg border border-red-100">
           <p className="text-red-500">{error}</p>
           <button
+            type="button"
             onClick={onRefresh}
             className="mt-2 text-blue-600 hover:text-blue-700 font-medium"
           >
@@ -185,6 +185,7 @@ export function TrendingList({
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-500">暂无Trending数据</p>
           <button
+            type="button"
             onClick={onRefresh}
             className="mt-2 text-blue-600 hover:text-blue-700 font-medium"
           >
@@ -192,7 +193,7 @@ export function TrendingList({
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="divide-y divide-gray-100">
           {projects.map((project, index) => (
             <motion.div
               key={project.id}
