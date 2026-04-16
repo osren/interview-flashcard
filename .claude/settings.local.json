@@ -32,7 +32,9 @@
       "Bash(curl -s \"https://gh-trending-repos.onrender.com/repos?since=weekly\")",
       "Bash(curl -s \"https://gh-trending-api.cyclic.app/repos?since=weekly\")",
       "Bash(curl:*)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(openspec new change \"replicate-card-format-unified\")",
+      "Bash(npx openspec new change \"replicate-card-format-unified\")"
     ]
   }
 }
