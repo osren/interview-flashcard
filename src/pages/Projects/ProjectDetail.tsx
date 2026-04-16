@@ -9,10 +9,16 @@ import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, Home, X, Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import MDEditor from '@uiw/react-md-editor';
+import { useProjectStore } from '@/store/useProjectStore';
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const { getProject } = useProjectStore();
+
+  // 获取自定义项目信息
+  const customProject = projectId ? getProject(projectId) : undefined;
+  const isCustomProject = !!customProject;
 
   // 本地状态管理
   const [cards, setCards] = useState<FlashCard[]>([]);
@@ -138,10 +144,14 @@ export function ProjectDetail() {
       {/* 章节标题 */}
       <div className="py-1 text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-0.5">
-          {projectId === 'didi' ? '🚗 滴滴企业版' : '📝 GResume'}
+          {isCustomProject
+            ? `${customProject.icon} ${customProject.title}`
+            : projectId === 'didi'
+              ? '🚗 滴滴企业版'
+              : '📝 GResume'}
         </h1>
         <p className="text-sm text-gray-500 mb-1">
-          {currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
+          {isCustomProject ? '自定义项目' : currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
         </p>
         {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
         <div className="relative inline-flex" ref={indexPickerRef}>
