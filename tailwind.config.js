@@ -8,19 +8,50 @@ export default {
   theme: {
     extend: {
       colors: {
+        // MiniMax 品牌色
+        brand: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#1456f0',  // 品牌主色
+          700: '#17437d',  // 深蓝
+        },
+        // MiniMax 文本色
+        text: {
+          primary: '#222222',
+          secondary: '#18181b',
+          muted: '#45515e',
+          tertiary: '#8e8e93',
+        },
+        // MiniMax 表面色
+        surface: {
+          white: '#ffffff',
+          gray: '#f0f0f0',
+          border: '#e5e7eb',
+          divider: '#f2f3f5',
+        },
+        // MiniMax 品牌粉（点缀色）
+        accent: {
+          pink: '#ea5ec1',
+          sky: '#3daeff',
+        },
         primary: {
           50: 'var(--primary-50)',
           100: 'var(--primary-100)',
-          200: 'var(--primary-200)',
+          200: '#bfdbfe',
           300: 'var(--primary-300)',
+          light: '#60a5fa',
           400: 'var(--primary-400)',
-          500: 'var(--primary-500)',
-          600: 'var(--primary-600)',
-          700: 'var(--primary-700)',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
           800: 'var(--primary-800)',
           900: 'var(--primary-900)',
         },
-        // 玫红色
+        // 保留原有色彩系统
         rose: {
           50: '#fff1f2',
           100: '#ffe4e6',
@@ -33,7 +64,6 @@ export default {
           800: '#9f1239',
           900: '#881337',
         },
-        // 日落黄
         sunset: {
           50: '#fffbeb',
           100: '#fef3c7',
@@ -46,7 +76,6 @@ export default {
           800: '#92400e',
           900: '#78350f',
         },
-        // 宝石蓝
         sapphire: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -59,7 +88,6 @@ export default {
           800: '#075985',
           900: '#0c4a6e',
         },
-        // 翡翠绿
         emerald: {
           50: '#ecfdf5',
           100: '#d1fae5',
@@ -72,7 +100,6 @@ export default {
           800: '#065f46',
           900: '#064e3b',
         },
-        // 暗夜灰
         slate: {
           50: '#f8fafc',
           100: '#f1f5f9',
@@ -85,7 +112,6 @@ export default {
           800: '#1e293b',
           900: '#0f172a',
         },
-        // 紫罗兰紫
         violet: {
           50: '#f5f3ff',
           100: '#ede9fe',
@@ -98,6 +124,32 @@ export default {
           800: '#5b21b6',
           900: '#4c1d95',
         },
+      },
+      borderRadius: {
+        // MiniMax 圆角系统
+        none: '0',
+        sm: '4px',       // 微小标签
+        DEFAULT: '8px',  // 按钮、小卡片
+        md: '13px',      // 中等卡片
+        lg: '20px',      // 大产品卡片
+        xl: '24px',      // 更大卡片
+        '2xl': '30px',   // 圆角面板
+        full: '9999px',  // 导航/胶囊按钮
+      },
+      boxShadow: {
+        // MiniMax 阴影系统
+        'subtle': '0 4px 6px rgba(0, 0, 0, 0.08)',
+        'ambient': '0 0 22.576px rgba(0, 0, 0, 0.08)',
+        'brand-glow': '0 0 15px rgba(44, 30, 116, 0.16)',
+        'brand-offset': '6.5px 2px 17.5px rgba(44, 30, 116, 0.11)',
+        'elevated': '0 12px 16px -4px rgba(36, 36, 36, 0.08)',
+      },
+      fontFamily: {
+        // MiniMax 字体系统
+        sans: ['DM Sans', 'Helvetica Neue', 'Helvetica', 'Arial'],
+        display: ['Outfit', 'Helvetica Neue', 'Helvetica', 'Arial'],
+        mid: ['Poppins', 'sans-serif'],
+        mono: ['Roboto', 'Helvetica Neue', 'Helvetica', 'Arial'],
       },
       animation: {
         'flip': 'flip 0.6s ease-in-out',

@@ -19,38 +19,43 @@ export function Header() {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-surface-border">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-bold">IF</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center">
+              <span className="text-white text-sm font-semibold">IF</span>
             </div>
-            <span className="font-semibold text-gray-900">InterviewFlash</span>
+            <span className="font-semibold text-text-secondary">InterviewFlash</span>
           </Link>
 
-          {/* 导航 */}
+          {/* 导航 - MiniMax 胶囊按钮样式 */}
           <nav className="flex items-center gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5',
-                  location.pathname === item.path ||
-                    (item.path !== '/' && location.pathname.startsWith(item.path))
-                    ? 'bg-primary-100 text-primary-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                )}
-              >
-                {item.icon && <item.icon size={16} className={location.pathname === item.path ? 'text-primary-600' : ''} />}
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path ||
+                (item.path !== '/' && location.pathname.startsWith(item.path));
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    'px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5',
+                    isActive
+                      ? 'bg-black/5 text-text-secondary rounded-full'
+                      : 'text-text-muted hover:text-text-secondary hover:bg-black/5 rounded-full'
+                  )}
+                >
+                  {item.icon && (
+                    <item.icon size={16} className={isActive ? 'text-brand-600' : 'text-text-tertiary'} />
+                  )}
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* 番茄钟 */}
+          {/* 右侧功能 */}
           <div className="flex items-center gap-2">
             <ThemeSwitcher />
             <Pomodoro />
