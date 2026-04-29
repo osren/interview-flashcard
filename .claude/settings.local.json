@@ -34,7 +34,15 @@
       "Bash(curl:*)",
       "WebFetch(domain:www.npmjs.com)",
       "Bash(openspec new change \"replicate-card-format-unified\")",
-      "Bash(npx openspec new change \"replicate-card-format-unified\")"
+      "Bash(npx openspec new change \"replicate-card-format-unified\")",
+      "Bash(openspec new change \"navbar-colorful-style\")",
+      "Bash(openspec status --change \"navbar-colorful-style\" --json)",
+      "Bash(openspec instructions proposal:*)",
+      "Bash(openspec instructions design --change \"navbar-colorful-style\" --json)",
+      "Bash(openspec instructions specs --change \"navbar-colorful-style\" --json)",
+      "Bash(openspec status --change \"navbar-colorful-style\")",
+      "Bash(openspec instructions apply:*)",
+      "Bash(npx tsc --noEmit --skipLibCheck)"
     ]
   }
 }
