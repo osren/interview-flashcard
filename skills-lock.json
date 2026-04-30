@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "cc-showtime": {
+      "source": "cc-showtime",
+      "sourceType": "registry",
+      "computedHash": "7b6c089ca0492653ad791cda1901b78f42496e9c656b4f9940cc25639b4cb8c2"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
