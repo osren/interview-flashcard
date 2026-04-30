@@ -44,7 +44,10 @@
       "Bash(openspec instructions apply:*)",
       "Bash(npx tsc --noEmit --skipLibCheck)",
       "Bash(node /Users/didi/Desktop/interview-flashcard/.claude/skills/cc-showtime/scripts/cli.js --format console --top 10)",
-      "Bash(node /Users/didi/Desktop/interview-flashcard/.claude/skills/cc-showtime/scripts/cli.abc.md)"
+      "Bash(node /Users/didi/Desktop/interview-flashcard/.claude/skills/cc-showtime/scripts/cli.abc.md)",
+      "Bash(ls ~/.claude/stats*)",
+      "Bash(open /Users/didi/Desktop/interview-flashcard/claude-report.html)",
+      "Bash(ls /Users/didi/Desktop/interview-flashcard/claude-report*)"
     ]
   }
 }
