@@ -42,7 +42,9 @@
       "Bash(openspec instructions specs --change \"navbar-colorful-style\" --json)",
       "Bash(openspec status --change \"navbar-colorful-style\")",
       "Bash(openspec instructions apply:*)",
-      "Bash(npx tsc --noEmit --skipLibCheck)"
+      "Bash(npx tsc --noEmit --skipLibCheck)",
+      "Bash(node /Users/didi/Desktop/interview-flashcard/.claude/skills/cc-showtime/scripts/cli.js --format console --top 10)",
+      "Bash(node /Users/didi/Desktop/interview-flashcard/.claude/skills/cc-showtime/scripts/cli.abc.md)"
     ]
   }
 }

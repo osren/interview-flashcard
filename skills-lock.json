@@ -21,6 +21,11 @@
       "source": "openharness",
       "sourceType": "registry",
       "computedHash": "f25bedac0ee9891b6eb455f9c7c940a194c6367d7ece38ce48f4a942a971f1c5"
+    },
+    "skill-generator": {
+      "source": "skill-generator",
+      "sourceType": "registry",
+      "computedHash": "8efdb35453788cd251d0ee632f9d9236476191a3c41b3cc7a64662ebdb50da3a"
     }
   }
 }
