@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "markitdown": {
+      "source": "markitdown",
+      "sourceType": "registry",
+      "computedHash": "c23465726bbd5ce98ead3a0191368cf562945522c7f46f0f4905e740cbc5053f"
+    },
+    "openharness": {
+      "source": "openharness",
+      "sourceType": "registry",
+      "computedHash": "f25bedac0ee9891b6eb455f9c7c940a194c6367d7ece38ce48f4a942a971f1c5"
+    }
+  }
+}
