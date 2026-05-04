@@ -44,6 +44,15 @@ const modules = [
     color: 'from-orange-500 to-orange-600',
     isCustom: true,
   },
+  {
+    path: '/rjsf',
+    icon: '📝',
+    title: 'RJSF 表单演示',
+    description: 'JSON Schema + react-jsonschema-form + Ant Design',
+    cardCount: 0,
+    chapters: 0,
+    color: 'from-cyan-500 to-cyan-600',
+  },
 ];
 
 export function Home() {
@@ -122,6 +131,10 @@ export function Home() {
                           <span className="font-medium text-gray-700">{customCards.length}</span>
                           张卡片
                         </span>
+                      ) : module.path === '/rjsf' ? (
+                        <span className="flex items-center gap-1">
+                          <span className="font-medium text-gray-700">Demo</span>
+                        </span>
                       ) : (
                         <>
                           <span className="flex items-center gap-1">
@@ -136,7 +149,7 @@ export function Home() {
                       )}
                     </div>
                     <div className="mt-4 flex items-center text-primary-600 font-medium text-sm">
-                      {module.isCustom ? '管理卡片 →' : '开始学习 →'}
+                      {module.isCustom ? '管理卡片 →' : module.path === '/rjsf' ? '查看演示 →' : '开始学习 →'}
                     </div>
                   </div>
                 </Link>

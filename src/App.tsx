@@ -10,6 +10,7 @@ import { ResumePage } from '@/pages/Resume/ResumePage';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { InterviewIndex, InterviewDetail } from '@/pages/Interview';
 import { AIIndex, AIDetail } from '@/pages/AI';
+import { RJSFDemo } from '@/pages/RJSF';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 function App() {
@@ -50,6 +51,9 @@ function App() {
             {/* AI 资讯 */}
             <Route path="/ai" element={<AIIndex />} />
             <Route path="/ai/:projectId" element={<AIDetail />} />
+
+            {/* RJSF Demo */}
+            <Route path="/rjsf" element={<RJSFDemo />} />
 
             {/* 404 */}
             <Route

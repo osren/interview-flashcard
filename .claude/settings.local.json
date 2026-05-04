@@ -13,7 +13,13 @@
       "Bash(node -e \":*)",
       "Bash(npm install xlsx recharts)",
       "Bash(npm install:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Read(//c/Users/Tan/Desktop/**)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(/c/Users/Tan/AppData/Local/Microsoft/WindowsApps/python3.exe *)",
+      "Bash(node -e ' *)",
+      "Bash(pnpm build *)"
     ]
   }
 }
