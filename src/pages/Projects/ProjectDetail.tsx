@@ -6,19 +6,30 @@ import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { projectCards } from '@/data/projects';
 import { Badge } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, X, Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
+import MDEditor from '@uiw/react-md-editor';
+import { useProjectStore } from '@/store/useProjectStore';
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const { getProject } = useProjectStore();
+
+  // 获取自定义项目信息
+  const customProject = projectId ? getProject(projectId) : undefined;
+  const isCustomProject = !!customProject;
 
   // 本地状态管理
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
-  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
+
+  // 新增问题弹窗状态
+  const [isAdding, setIsAdding] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
   // 点击外部关闭序号选择器
   useEffect(() => {
@@ -63,6 +74,27 @@ export function ProjectDetail() {
   const handlePrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleAddQuestion = () => {
+    if (newQuestion.question.trim() && projectId) {
+      addCustomCard({
+        id: '',
+        module: 'projects',
+        chapterId: projectId,
+        question: newQuestion.question,
+        answer: newQuestion.answer,
+        tags: ['新增'],
+        status: 'unvisited',
+      });
+      setNewQuestion({ question: '', answer: '' });
+      setIsAdding(false);
+      // 刷新卡片列表
+      const projectCardsList = projectCards.filter((c) => c.chapterId === projectId);
+      const merged = getMergedCards('projects', projectId, projectCardsList);
+      setCards(merged);
+      setCurrentIndex(merged.length - 1);
     }
   };
 
@@ -112,10 +144,14 @@ export function ProjectDetail() {
       {/* 章节标题 */}
       <div className="py-1 text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-0.5">
-          {projectId === 'didi' ? '🚗 滴滴企业版' : '📝 GResume'}
+          {isCustomProject
+            ? `${customProject.icon} ${customProject.title}`
+            : projectId === 'didi'
+              ? '🚗 滴滴企业版'
+              : '📝 GResume'}
         </h1>
         <p className="text-sm text-gray-500 mb-1">
-          {currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
+          {isCustomProject ? '自定义项目' : currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
         </p>
         {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
         <div className="relative inline-flex" ref={indexPickerRef}>
@@ -226,6 +262,80 @@ export function ProjectDetail() {
           <ChevronRight size={28} className="text-gray-600" />
         </button>
       </div>
+
+      {/* 新增问题按钮 */}
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => setIsAdding(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
+        >
+          <Plus size={18} />
+          新增问题
+        </button>
+      </div>
+
+      {/* 新增问题弹窗 */}
+      <AnimatePresence>
+        {isAdding && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setIsAdding(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">新增问题</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">问题</label>
+                  <input
+                    type="text"
+                    value={newQuestion.question}
+                    onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 outline-none"
+                    placeholder="输入面试问题"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">回答</label>
+                  <MDEditor
+                    value={newQuestion.answer}
+                    onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
+                    height={200}
+                    preview="edit"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setIsAdding(false);
+                    setNewQuestion({ question: '', answer: '' });
+                  }}
+                  className="px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleAddQuestion}
+                  disabled={!newQuestion.question.trim()}
+                  className="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  保存
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 导入导出弹窗 */}
       <ImportExportModal

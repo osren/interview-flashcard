@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code 使用报告</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 10px; color: #00d4ff; }
+    .refresh-btn { display: block; margin: 0 auto 30px; padding: 8px 20px; background: #0f3460; color: #00d4ff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .refresh-btn:hover { background: #00d4ff; color: #1a1a2e; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: #16213e; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #0f3460; }
+    .stat-card .value { font-size: 32px; font-weight: bold; color: #00d4ff; }
+    .stat-card .label { color: #888; margin-top: 8px; font-size: 14px; }
+    .chart-container { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
+    .chart-container h2 { margin-bottom: 20px; color: #00d4ff; }
+    .projects { background: #16213e; border-radius: 12px; padding: 20px; border: 1px solid #0f3460; }
+    .projects h2 { margin-bottom: 20px; color: #00d4ff; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+    th { color: #00d4ff; }
+    tr:hover { background: #0f3460; }
+    .token-value { color: #00d4ff; font-weight: bold; }
+    .loading { text-align: center; color: #888; padding: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Claude Code 使用分析报告</h1>
+    <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+
+    <div id="stats">
+      <div class="loading">正在加载数据...</div>
+    </div>
+  </div>
+
+  <script>
+    let messageChart, tokenChart;
+
+    async function loadData() {
+      const statsDiv = document.getElementById('stats');
+      statsDiv.innerHTML = '<div class="loading">正在加载数据...</div>';
+
+      try {
+        // 从 Claude 本地读取 stats-cache.json
+        const response = await fetch('file:///Users/didi/.claude/stats-cache.json');
+        const data = await response.json();
+
+        const dailyActivity = data.dailyActivity || [];
+        const dailyModelTokens = data.dailyModelTokens || [];
+        const modelUsage = data.modelUsage?.['MiniMax-M2.5'] || {};
+        const totalSessions = data.totalSessions || 0;
+        const totalMessages = data.totalMessages || 0;
+        const firstSessionDate = data.firstSessionDate || '';
+
+        // 计算使用天数
+        const firstDate = firstSessionDate ? new Date(firstSessionDate) : new Date('2026-03-18');
+        const today = new Date();
+        const daysUsed = Math.ceil((today - firstDate) / (1000 * 60 * 60 * 24));
+
+        // Token 统计
+        const inputTokens = modelUsage.inputTokens || 0;
+        const outputTokens = modelUsage.outputTokens || 0;
+        const cacheRead = modelUsage.cacheReadInputTokens || 0;
+        const totalTokens = inputTokens + outputTokens + cacheRead;
+
+        // 格式化数字
+        const formatNum = n => n.toLocaleString();
+        const formatLarge = n => {
+          if (n >= 1e8) return (n / 1e8).toFixed(2) + '亿';
+          if (n >= 1e4) return (n / 1e4).toFixed(1) + '万';
+          return formatNum(n);
+        };
+
+        const html = `
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="value">${totalSessions}</div>
+              <div class="label">总会话数</div>
+            </div>
+            <div class="stat-card">
+              <div class="value">${formatNum(totalMessages)}</div>
+              <div class="label">总消息数</div>
+            </div>
+            <div class="stat-card">
+              <div class="value">${formatLarge(totalTokens)}</div>
+              <div class="label">总 Token (含缓存)</div>
+            </div>
+            <div class="stat-card">
+              <div class="value">${daysUsed}天</div>
+              <div class="label">使用天数</div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h2>每日消息数趋势</h2>
+            <canvas id="messageChart" height="80"></canvas>
+          </div>
+
+          <div class="projects" style="margin-bottom: 20px;">
+            <h2>每日工具调用统计</h2>
+            <table>
+              <thead>
+                <tr><th>日期</th><th>消息数</th><th>会话数</th><th>工具调用</th></tr>
+              </thead>
+              <tbody>
+                ${dailyActivity.slice(-10).reverse().map(d => `
+                  <tr>
+                    <td>${d.date}</td>
+                    <td class="token-value">${formatNum(d.messageCount)}</td>
+                    <td>${d.sessionCount}</td>
+                    <td class="token-value">${formatNum(d.toolCallCount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="chart-container">
+            <h2>每日 Token 消耗</h2>
+            <canvas id="tokenChart" height="80"></canvas>
+          </div>
+
+          <div class="projects">
+            <h2>Token 消耗详情</h2>
+            <table>
+              <thead>
+                <tr><th>类型</th><th>数量</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>输入 Token</td><td class="token-value">${formatLarge(inputTokens)}</td></tr>
+                <tr><td>输出 Token</td><td class="token-value">${formatLarge(outputTokens)}</td></tr>
+                <tr><td>缓存读取</td><td class="token-value">${formatLarge(cacheRead)}</td></tr>
+                <tr><td><strong>总计</strong></td><td class="token-value"><strong>${formatLarge(totalTokens)}</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        statsDiv.innerHTML = html;
+
+        // 渲染图表
+        const labels = dailyActivity.map(d => d.date.slice(5));
+        const messages = dailyActivity.map(d => d.messageCount);
+        const tokens = dailyModelTokens.map(d => d.tokensByModel['MiniMax-M2.5'] / 1000);
+
+        if (messageChart) messageChart.destroy();
+        if (tokenChart) tokenChart.destroy();
+
+        messageChart = new Chart(document.getElementById('messageChart'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '消息数',
+              data: messages,
+              borderColor: '#00d4ff',
+              backgroundColor: 'rgba(0, 212, 255, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: '#0f3460' }, ticks: { color: '#888' } },
+              y: { grid: { color: '#0f3460' }, ticks: { color: '#888' } }
+            }
+          }
+        });
+
+        tokenChart = new Chart(document.getElementById('tokenChart'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Token (K)',
+              data: tokens,
+              borderColor: '#ff6b6b',
+              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: '#0f3460' }, ticks: { color: '#888' } },
+              y: { grid: { color: '#0f3460' }, ticks: { color: '#888' } }
+            }
+          }
+        });
+
+      } catch (error) {
+        statsDiv.innerHTML = `<div class="loading" style="color: #ff6b6b;">加载失败: ${error.message}<br>请确认 ~/.claude/stats-cache.json 存在</div>`;
+      }
+    }
+
+    // 页面加载时获取数据
+    loadData();
+  </script>
+</body>
+</html>
