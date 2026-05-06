@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Star, GitFork, ExternalLink, FileText, Edit2, Save, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Star, GitFork, ExternalLink, FileText, Edit2, Save, X, Bold, Italic, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingProject } from '@/data/ai/github-trending';
 
@@ -7,8 +7,11 @@ interface TrendingCardProps {
   project: TrendingProject;
   onShowReadme: (project: TrendingProject) => void;
   isExpanded: boolean;
-  readmeSummary?: { workflow?: string; solveProblem?: string };
-  onSaveSummary?: (projectId: string, summary: { workflow?: string; solveProblem?: string }) => void;
+  readmeSummary?: { note?: string };
+  onSaveSummary?: (projectId: string, summary: { note?: string }) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (project: TrendingProject) => void;
+  showNote?: boolean;
 }
 
 const LANGUAGE_COLORS: Record<string, string> = {
@@ -23,29 +26,66 @@ const LANGUAGE_COLORS: Record<string, string> = {
   PHP: '#4F5D95',
 };
 
-export function TrendingCard({ project, onShowReadme, isExpanded, readmeSummary, onSaveSummary }: TrendingCardProps) {
+export function TrendingCard({
+  project,
+  onShowReadme,
+  isExpanded,
+  readmeSummary,
+  onSaveSummary,
+  isFavorite: initialIsFavorite,
+  onToggleFavorite,
+  showNote,
+}: TrendingCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editWorkflow, setEditWorkflow] = useState('');
-  const [editSolveProblem, setEditSolveProblem] = useState('');
+  const [editNote, setEditNote] = useState('');
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite || false);
+  const [isNoteExpanded, setIsNoteExpanded] = useState(showNote || false);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // 当 showNote 为 true 时使用独立状态控制
+  const shouldShowNote = showNote ? isNoteExpanded : isExpanded;
+
+  // showNote 模式下切换折叠状态
+  const handleToggleNote = () => {
+    if (showNote) {
+      setIsNoteExpanded(!isNoteExpanded);
+    } else {
+      onShowReadme(project);
+    }
+  };
 
   const handleEdit = () => {
-    setEditWorkflow(readmeSummary?.workflow || '');
-    setEditSolveProblem(readmeSummary?.solveProblem || '');
+    setEditNote(readmeSummary?.note || '');
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    if (onSaveSummary) {
-      onSaveSummary(project.id, {
-        workflow: editWorkflow || undefined,
-        solveProblem: editSolveProblem || undefined,
-      });
+    if (onSaveSummary && editorRef.current) {
+      const note = editorRef.current.innerHTML || undefined;
+      onSaveSummary(project.id, { note });
+      // 自动收藏
+      if (note && onToggleFavorite && !isFavorite) {
+        onToggleFavorite(project);
+        setIsFavorite(true);
+      }
     }
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+  };
+
+  const handleFavoriteToggle = () => {
+    if (onToggleFavorite) {
+      onToggleFavorite(project);
+      setIsFavorite(!isFavorite);
+    }
+  };
+
+  const execCommand = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    editorRef.current?.focus();
   };
 
   return (
@@ -93,20 +133,36 @@ export function TrendingCard({ project, onShowReadme, isExpanded, readmeSummary,
           </div>
         </div>
 
-        {/* README 按钮 */}
-        <button
-          type="button"
-          onClick={() => onShowReadme(project)}
-          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          title="查看README摘要"
-        >
-          <FileText size={18} />
-        </button>
+        {/* 操作按钮 */}
+        <div className="flex items-center gap-1">
+          {/* 收藏按钮 */}
+          <button
+            type="button"
+            onClick={handleFavoriteToggle}
+            className={`p-2 rounded-lg transition-colors ${
+              isFavorite
+                ? 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+            }`}
+            title={isFavorite ? '取消收藏' : '添加收藏'}
+          >
+            <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+          </button>
+          {/* README 按钮 */}
+          <button
+            type="button"
+            onClick={handleToggleNote}
+            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            title={showNote ? (isNoteExpanded ? '折叠笔记' : '展开笔记') : '查看README摘要'}
+          >
+            <FileText size={18} />
+          </button>
+        </div>
       </div>
 
       {/* README 摘要展开区域 */}
       <AnimatePresence>
-        {isExpanded && (
+        {shouldShowNote && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -115,27 +171,32 @@ export function TrendingCard({ project, onShowReadme, isExpanded, readmeSummary,
           >
             <div className="pl-3 pr-3 pt-2 border-l-2 border-gray-200 ml-4">
               {isEditing ? (
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs font-medium text-blue-600">工作流</label>
-                    <textarea
-                      value={editWorkflow}
-                      onChange={(e) => setEditWorkflow(e.target.value)}
-                      placeholder="输入工作流描述..."
-                      className="w-full mt-1 px-2 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                      rows={2}
-                    />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => execCommand('bold')}
+                      className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                      title="粗体"
+                    >
+                      <Bold size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => execCommand('italic')}
+                      className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                      title="斜体"
+                    >
+                      <Italic size={14} />
+                    </button>
                   </div>
-                  <div>
-                    <label className="text-xs font-medium text-green-600">解决的问题</label>
-                    <textarea
-                      value={editSolveProblem}
-                      onChange={(e) => setEditSolveProblem(e.target.value)}
-                      placeholder="输入解决的问题描述..."
-                      className="w-full mt-1 px-2 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                      rows={2}
-                    />
-                  </div>
+                  <div
+                    ref={editorRef}
+                    contentEditable
+                    className="min-h-[80px] p-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-500 overflow-auto bg-white"
+                    dangerouslySetInnerHTML={{ __html: editNote }}
+                    onBlur={(e) => setEditNote(e.currentTarget.innerHTML)}
+                  />
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -158,7 +219,7 @@ export function TrendingCard({ project, onShowReadme, isExpanded, readmeSummary,
               ) : (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-gray-400">README 摘要</span>
+                    <span className="text-xs text-gray-400">笔记</span>
                     <button
                       type="button"
                       onClick={handleEdit}
@@ -168,20 +229,13 @@ export function TrendingCard({ project, onShowReadme, isExpanded, readmeSummary,
                       编辑
                     </button>
                   </div>
-                  {readmeSummary?.workflow && (
-                    <div className="mb-2">
-                      <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">工作流</span>
-                      <p className="text-sm text-gray-600 mt-1">{readmeSummary.workflow}</p>
-                    </div>
-                  )}
-                  {readmeSummary?.solveProblem && (
-                    <div>
-                      <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">解决的问题</span>
-                      <p className="text-sm text-gray-600 mt-1">{readmeSummary.solveProblem}</p>
-                    </div>
-                  )}
-                  {!readmeSummary?.workflow && !readmeSummary?.solveProblem && (
-                    <p className="text-sm text-gray-500 italic">暂无摘要信息</p>
+                  {readmeSummary?.note ? (
+                    <div
+                      className="text-sm text-gray-600 prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: readmeSummary.note }}
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">暂无笔记</p>
                   )}
                 </div>
               )}

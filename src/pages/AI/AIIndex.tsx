@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { aiProjects } from '@/data/ai';
-import { ArrowRight, FileText, BarChart3, FileCode } from 'lucide-react';
+import { ArrowRight, FileText, BarChart3, FileCode, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getFavorites } from '@/utils/favorites';
 
 export function AIIndex() {
   const navigate = useNavigate();
+  const favoritesCount = Object.keys(getFavorites()).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-20 pb-8">
@@ -15,9 +17,20 @@ export function AIIndex() {
 
       <div className="relative max-w-4xl mx-auto px-4">
         {/* 标题 */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">AI 资讯</h1>
-          <p className="text-gray-500">AI 行业动态、技术进展与知识卡片</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">AI 资讯</h1>
+            <p className="text-gray-500">AI 行业动态、技术进展与知识卡片</p>
+          </div>
+          {favoritesCount > 0 && (
+            <button
+              onClick={() => navigate('/favorites')}
+              className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+            >
+              <Heart size={18} className="text-red-500 fill-red-500" />
+              <span className="text-sm font-medium text-red-600">收藏 ({favoritesCount})</span>
+            </button>
+          )}
         </div>
 
         {/* 项目列表 */}

@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react';
-import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, Sparkles, MessageSquare } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, Sparkles, MessageSquare, Github } from 'lucide-react';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { TrendingCard } from '@/components/AI/TrendingCard';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { FlashCard, ModuleType } from '@/types';
 import { Badge } from '@/components/ui';
+import { getFavorites, FavoriteItem } from '@/utils/favorites';
 import type { LucideIcon } from 'lucide-react';
 
 const moduleConfig: Record<ModuleType, { label: string; icon: LucideIcon; color: string }> = {
@@ -33,6 +35,28 @@ export function Favorites() {
   const [selectedGroup, setSelectedGroup] = useState<ChapterGroup | null>(null);
   const [selectedInterviewIndex, setSelectedInterviewIndex] = useState<number | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [trendingFavorites, setTrendingFavorites] = useState<FavoriteItem[]>([]);
+  const [trendingExpanded, setTrendingExpanded] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // 等待 store 数据从 localStorage 加载
+  useEffect(() => {
+    // favorites 有值或至少过了一定时间后才显示
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 加载 Trending 收藏
+  useEffect(() => {
+    setTrendingFavorites(Object.values(getFavorites()));
+  }, []);
+
+  // 刷新 Trending 收藏
+  const refreshTrendingFavorites = () => {
+    setTrendingFavorites(Object.values(getFavorites()));
+  };
 
   // 将面经收藏转换为 FlashCard 格式
   const interviewFavorites: FlashCard[] = useMemo(() => {
@@ -143,13 +167,23 @@ export function Favorites() {
   const modalModule = selectedGroup?.module || 'custom';
   const modalChapterId = selectedGroup?.chapterId || 'favorites';
 
-  // 空状态判断
-  if (allFavorites.length === 0) {
+  // 空状态判断 - 只有在加载完成后才能确定是否真的为空
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center pb-20">
+        <Heart size={64} className="text-gray-300 mb-4" />
+        <h2 className="text-xl font-medium text-gray-600 mb-2">加载中...</h2>
+        <p className="text-gray-400 text-sm">favorites: {favorites.length}, trending: {trendingFavorites.length}</p>
+      </div>
+    );
+  }
+
+  if (allFavorites.length === 0 && trendingFavorites.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center pb-20">
         <Heart size={64} className="text-gray-300 mb-4" />
         <h2 className="text-xl font-medium text-gray-600 mb-2">暂无收藏</h2>
-        <p className="text-gray-400 text-sm">点击卡片上的红心即可收藏</p>
+        <p className="text-gray-400 text-sm">在卡片或 GitHub Trending 页面点击红心即可收藏</p>
       </div>
     );
   }
@@ -348,6 +382,35 @@ export function Favorites() {
                 </div>
                 <span className="text-sm text-gray-400">{interviewFavorites.length}道</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* GitHub Trending 收藏 */}
+        {trendingFavorites.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Github size={18} className="text-gray-500" />
+              <h2 className="font-semibold text-gray-700">GitHub Trending</h2>
+              <span className="text-sm text-gray-400">({trendingFavorites.length}个)</span>
+            </div>
+            <div className="space-y-2">
+              {trendingFavorites.map((project) => (
+                <TrendingCard
+                  key={project.id}
+                  project={project}
+                  onShowReadme={(p) => setTrendingExpanded(trendingExpanded === p.id ? null : p.id)}
+                  isExpanded={trendingExpanded === project.id}
+                  readmeSummary={project.note ? { note: project.note } : undefined}
+                  onSaveSummary={refreshTrendingFavorites}
+                  isFavorite={true}
+                  onToggleFavorite={() => {
+                    refreshTrendingFavorites();
+                    setTrendingExpanded(null);
+                  }}
+                  showNote={true}
+                />
+              ))}
             </div>
           </div>
         )}
