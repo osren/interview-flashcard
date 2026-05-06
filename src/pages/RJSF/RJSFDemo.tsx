@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Form } from '@rjsf/antd';
 import { Card, Button, Typography, Space, Alert, Divider, ConfigProvider } from 'antd';
 import validator from '@rjsf/validator-ajv8';
@@ -9,11 +9,11 @@ const { Title, Text } = Typography;
 const registrationSchema = {
   title: '用户注册',
   description: '创建新账户',
-  type: 'object',
+  type: 'object' as const,
   required: ['username', 'email', 'password', 'confirmPassword', 'terms'],
   properties: {
     username: {
-      type: 'string',
+      type: 'string' as const,
       title: '用户名',
       minLength: 3,
       maxLength: 20,
@@ -21,25 +21,25 @@ const registrationSchema = {
       description: '3-20个字符，只能包含字母、数字和下划线',
     },
     email: {
-      type: 'string',
+      type: 'string' as const,
       title: '邮箱',
       format: 'email',
       description: '请输入有效的邮箱地址',
     },
     password: {
-      type: 'string',
+      type: 'string' as const,
       title: '密码',
       minLength: 6,
       description: '至少6个字符',
     },
     confirmPassword: {
-      type: 'string',
+      type: 'string' as const,
       title: '确认密码',
       minLength: 6,
       description: '请再次输入密码',
     },
     age: {
-      type: 'integer',
+      type: 'integer' as const,
       title: '年龄',
       minimum: 13,
       maximum: 100,
@@ -47,16 +47,16 @@ const registrationSchema = {
       description: '必须年满13岁',
     },
     bio: {
-      type: 'string',
+      type: 'string' as const,
       title: '个人简介',
       maxLength: 200,
       description: '简单介绍一下自己（可选）',
     },
     interests: {
-      type: 'array',
+      type: 'array' as const,
       title: '兴趣爱好',
       items: {
-        type: 'string',
+        type: 'string' as const,
         enum: ['technology', 'sports', 'music', 'reading', 'travel', 'cooking'],
         enumNames: ['技术', '运动', '音乐', '阅读', '旅行', '烹饪'],
       },
@@ -64,7 +64,7 @@ const registrationSchema = {
       description: '选择您的兴趣爱好（可多选）',
     },
     terms: {
-      type: 'boolean',
+      type: 'boolean' as const,
       title: '我已阅读并同意服务条款',
       default: false,
     },
@@ -137,7 +137,8 @@ export function RJSFDemo() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = ({ formData: submitted }: { formData: Record<string, unknown> }) => {
+  const handleSubmit = (data: any) => {
+    const submitted = data.formData;
     console.log('表单提交数据:', submitted);
 
     setSubmitError(null);
@@ -158,8 +159,8 @@ export function RJSFDemo() {
     }, 1000);
   };
 
-  const handleChange = ({ formData: newData }: { formData: Record<string, unknown> }) => {
-    setFormData(newData);
+  const handleChange = (data: any) => {
+    setFormData(data.formData || initialFormData);
     setSubmitSuccess(false);
     setSubmitError(null);
   };
@@ -293,8 +294,8 @@ export function RJSFDemo() {
                   { widget: 'data-url', schema: 'string', desc: '文件数据 URL' },
                   { widget: 'tel', schema: 'string', desc: '电话输入框' },
                 ].map(({ widget, schema, desc }) => (
-                  <div key={widget + schema} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="font-mono text-xs text-purple-600 mb-1">"{widget}"</div>
+                  <div key={widget + schema} className="bg-yellow-100 rounded-lg p-3 border border-gray-200">
+                    <div className="font-mono text-s text-purple-600 mb-1">"{widget}"</div>
                     <div className="text-xs text-gray-500 mb-1">{schema}</div>
                     <div className="text-sm text-gray-700">{desc}</div>
                   </div>
@@ -302,15 +303,18 @@ export function RJSFDemo() {
               </div>
               <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                 <Text strong className="text-yellow-700">💡 uiSchema 基本语法</Text>
-                <pre className="text-xs text-gray-700 mt-2">{`"ui:widget": "widgetName"              // 全局替换
-"ui:widget": "textarea"              // string → 多行文本
-
-"ui:options": {                     // 额外配置
-  "rows": 4,                        // textarea 行数
-  "allowClear": true,               // 显示清除按钮
-  "multiple": true,                 // select 多选
-  "inline": true,                   // radio 行内显示
-}`}</pre>
+                <pre className="text-s text-gray-700 mt-2">{
+`"ui:widget": "widgetName"             // 全局替换
+  "ui:widget": "textarea"              // string → 多行文本
+  "ui:options":                       // 额外配置
+  {                     
+    "rows": 4,                        // textarea 行数
+    "allowClear": true,               // 显示清除按钮
+    "multiple": true,                 // select 多选
+    "inline": true,                   // radio 行内显示
+  }`
+                  }
+                </pre>
               </div>
           </div>
           <Card
@@ -327,7 +331,6 @@ export function RJSFDemo() {
               validator={validator}
               onSubmit={handleSubmit}
               onChange={handleChange}
-              validate={validate}
               onError={(errors) => console.log('验证错误:', errors)}
               liveValidate
               noHtml5Validate
@@ -399,7 +402,7 @@ export function RJSFDemo() {
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 style={{ color: '#ff4d4f', marginBottom: 12 }}>传统方式 — 手动编写</h3>
-                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap">{`// 传统方式：每个表单都要重复写
+                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-s overflow-x-auto whitespace-pre-wrap">{`// 传统方式：每个表单都要重复写
                   const [formData, setFormData] = useState({});
                   const [errors, setErrors] = useState({});
 
@@ -445,7 +448,7 @@ export function RJSFDemo() {
 
               <div>
                 <h3 style={{ color: '#52c41a', marginBottom: 12 }}>JSON Schema 方式 — 声明式配置</h3>
-                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap">{`// 同样的表单，声明式配置
+                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-s overflow-x-auto whitespace-pre-wrap">{`// 同样的表单，声明式配置
                   const schema = {
                     type: 'object',
                     properties: {
