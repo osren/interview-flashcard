@@ -1570,7 +1570,7 @@ export const ITEMS = [
 ]
 ```
 
-**3.4 ���建模板组件**
+**3.4 创建模板组件**
 
 ```typescript
 // src/pages/template/components/basic/Basic.tsx
@@ -2057,7 +2057,7 @@ this.channel?.on('presence', { event: 'leave' }, ({ leftPresences }) => {
 | **协议** | WebSocket | HTTP + SSE |
 | **连接** | 长连接 | 短连接 |
 | **方向** | 双向 | 单向 |
-| **触发** | 任���操作事件 | 请求-响应 |
+| **触发** | 任意操作事件 | 请求-响应 |
 | **应用** | 多人实时协作 | AI 逐步返回 |
 | **库** | @supabase/supabase-js | openai/streaming |
 
