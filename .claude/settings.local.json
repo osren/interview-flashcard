@@ -12,7 +12,6 @@
       "mcp__ide__getDiagnostics",
       "Bash(node -e \":*)",
       "Bash(npm install xlsx recharts)",
-<<<<<<< HEAD
       "Bash(npm install:*)",
       "Bash(pnpm add:*)",
       "Read(//c/Users/Tan/Desktop/**)",
@@ -20,8 +19,6 @@
       "Bash(python -c ' *)",
       "Bash(/c/Users/Tan/AppData/Local/Microsoft/WindowsApps/python3.exe *)",
       "Bash(node -e ' *)",
-      "Bash(pnpm build *)"
-=======
       "Bash(git reset --soft HEAD~1)",
       "Bash(ping -c 2 github.com)",
       "Bash(git remote set-url origin git@github.com:osren/interview-flashcard.git)",
@@ -57,8 +54,9 @@
       "Bash(node /Users/didi/Desktop/interview-flashcard/.claude/skills/cc-showtime/scripts/cli.abc.md)",
       "Bash(ls ~/.claude/stats*)",
       "Bash(open /Users/didi/Desktop/interview-flashcard/claude-report.html)",
-      "Bash(ls /Users/didi/Desktop/interview-flashcard/claude-report*)"
->>>>>>> ee04b8628960b8e49fbe1ed25f2ef32bc4c0e213
+      "Bash(ls /Users/didi/Desktop/interview-flashcard/claude-report*)",
+      "Bash(ls -la /Users/didi/Desktop/interview-flashcard/*.json)",
+      "Bash(chmod +x /Users/didi/Desktop/interview-flashcard/docs/harness/linters/invariant-check.sh /Users/didi/Desktop/interview-flashcard/docs/harness/linters/spec-sync-check.sh)"
     ]
   }
 }

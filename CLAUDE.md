@@ -169,4 +169,42 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
+## OpenHarness 导航
+
+### 目录导航
+
+- `docs/harness/` - 约束规则（不变量、架构、基础设施）
+- `docs/knowledge/` - 知识库（技术栈、项目上下文、需求）
+- `docs/specs/` - 需求执行工作区
+- `docs/hooks/` - Hooks 机制
+
+### 关键约束速览
+
+> 完整约束见 docs/harness/index.md
+
+1. **TypeScript 禁止 any** - 必须使用具体类型
+2. **组件 Props** - 必须定义接口类型
+3. **useEffect 依赖** - 依赖数组必须完整
+
+### 常用命令
+
+```bash
+/oh:propose <feature-name>  # 新需求提案
+/oh:apply <feature>        # 执行需求
+/oh:verify                # 独立验收
+/oh:review                # 综合 review
+/oh:archive              # 归档需求
+/oh:status               # 项目状态
+```
+
+### Agent 工作规则
+
+1. **每次任务开始前读取本文件**，了解项目概况
+2. **harness 约束全量加载**：先读 `docs/harness/index.md`，再进入各子目录
+3. **knowledge 知识库按需加载**：先读 `docs/knowledge/index.md`
+4. **不确定的信息通过交互问答确认**，不捏造
+5. **新需求开发必须先生成 proposal + spec + design 并审批 design**，再进入执行阶段
+
+---
+
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
