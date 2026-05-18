@@ -11,13 +11,13 @@ export function AlgorithmsIndex() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             💻 刷题模块
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             手撕代码 / 概念解释 / 场景设计
           </p>
         </div>
@@ -39,7 +39,7 @@ export function AlgorithmsIndex() {
               >
                 <Link
                   to={`/algorithms/${cat.id}`}
-                  className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                  className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
                 >
                   <div className={`h-1 bg-gradient-to-r ${cat.color}`} />
                   <div className="p-5">
@@ -47,13 +47,13 @@ export function AlgorithmsIndex() {
                       <div className="text-3xl">{cat.icon}</div>
                       <Badge variant="default">{chapterCards.length} 题</Badge>
                     </div>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                       {cat.label}
                     </h2>
-                    <p className="text-sm text-gray-500 mb-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                       {percentage}% 已掌握
                     </p>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-green-500 rounded-full transition-all duration-500"
                         style={{ width: `${percentage}%` }}
@@ -67,13 +67,13 @@ export function AlgorithmsIndex() {
         </div>
 
         {/* 题目列表预览 */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">题目预览</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">题目预览</h2>
           <div className="space-y-3">
             {algorithmCards.slice(0, 5).map((card) => (
               <div
                 key={card.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">
@@ -82,10 +82,10 @@ export function AlgorithmsIndex() {
                     {card.category === '场景设计' && '🎯'}
                   </span>
                   <div>
-                    <p className="font-medium text-gray-800">
+                    <p className="font-medium text-gray-800 dark:text-gray-100">
                       {card.question.split('\n')[0]}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {card.tags.slice(0, 2).join(' / ')}
                     </p>
                   </div>

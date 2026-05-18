@@ -5,13 +5,13 @@ import { Badge, Progress } from '@/components/ui';
 
 export function CoreIndex() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             📚 前端基础核心考点
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             涵盖 JavaScript、TypeScript、React、浏览器等核心知识
           </p>
         </div>
@@ -31,16 +31,16 @@ export function CoreIndex() {
               >
                 <Link
                   to={`/core/${chapter.id}`}
-                  className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100"
+                  className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100 dark:border-gray-700"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
                       <div className="text-4xl">{chapter.icon}</div>
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                           {chapter.title}
                         </h2>
-                        <p className="text-sm text-gray-500 mb-3">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                           {chapter.description}
                         </p>
                         <div className="flex items-center gap-3">

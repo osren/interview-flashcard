@@ -14,7 +14,7 @@ const modules = [
     description: 'JavaScript/TypeScript/React/浏览器等核心知识',
     cardCount: coreCards.length,
     chapters: 10,
-    color: 'from-blue-500 to-blue-600',
+    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/projects',
@@ -23,7 +23,7 @@ const modules = [
     description: '滴滴实习 + GResume 项目深度复盘',
     cardCount: projectCards.length,
     chapters: projectChapters.length,
-    color: 'from-purple-500 to-purple-600',
+    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/algorithms',
@@ -32,7 +32,7 @@ const modules = [
     description: '手撕代码/概念解释/场景设计',
     cardCount: algorithmCards.length,
     chapters: algorithmChapters.length,
-    color: 'from-green-500 to-green-600',
+    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/custom',
@@ -41,7 +41,7 @@ const modules = [
     description: '添加你自己的面试问题和答案',
     cardCount: 0,
     chapters: 0,
-    color: 'from-orange-500 to-orange-600',
+    color: 'from-primary-500 to-primary-600',
     isCustom: true,
   },
   {
@@ -62,7 +62,7 @@ export function Home() {
   const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -78,7 +78,7 @@ export function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-text-muted mb-8"
+            className="text-xl text-text-muted dark:text-gray-400 mb-8"
             style={{ lineHeight: 1.5 }}
           >
             前端面试备考记忆卡片系统
@@ -89,7 +89,7 @@ export function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="max-w-md mx-auto bg-white rounded-2xl shadow-subtle p-6"
+            className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-subtle p-6"
           >
             <div className="flex justify-between items-center mb-3">
               <span className="text-text-muted font-medium">学习进度</span>
@@ -116,7 +116,7 @@ export function Home() {
               >
                 <Link
                   to={module.path}
-                  className="block bg-white rounded-xl shadow-subtle hover:shadow-elevated transition-all duration-300 overflow-hidden group"
+                  className="block bg-white dark:bg-gray-800 rounded-xl shadow-subtle hover:shadow-elevated transition-all duration-300 overflow-hidden group"
                   style={{ borderRadius: '20px' }}
                 >
                   <div className={`h-2 bg-gradient-to-r ${module.color}`} />
@@ -177,12 +177,12 @@ export function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="bg-white rounded-xl p-4 text-center shadow-subtle"
+                className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-subtle"
                 style={{ borderRadius: '13px' }}
               >
                 <div className="text-3xl mb-2">{feature.icon}</div>
-                <h3 className="font-medium text-text-primary">{feature.title}</h3>
-                <p className="text-sm text-text-tertiary">{feature.desc}</p>
+                <h3 className="font-medium text-text-primary dark:text-white">{feature.title}</h3>
+                <p className="text-sm text-text-tertiary dark:text-gray-400">{feature.desc}</p>
               </div>
             ))}
           </div>
