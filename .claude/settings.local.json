@@ -56,7 +56,15 @@
       "Bash(open /Users/didi/Desktop/interview-flashcard/claude-report.html)",
       "Bash(ls /Users/didi/Desktop/interview-flashcard/claude-report*)",
       "Bash(ls -la /Users/didi/Desktop/interview-flashcard/*.json)",
-      "Bash(chmod +x /Users/didi/Desktop/interview-flashcard/docs/harness/linters/invariant-check.sh /Users/didi/Desktop/interview-flashcard/docs/harness/linters/spec-sync-check.sh)"
+      "Bash(chmod +x /Users/didi/Desktop/interview-flashcard/docs/harness/linters/invariant-check.sh /Users/didi/Desktop/interview-flashcard/docs/harness/linters/spec-sync-check.sh)",
+      "Bash(mcporter list)",
+      "Bash(open https://mcphub.intra.xiaojukeji.com/)",
+      "Bash(mcporter:*)",
+      "Bash(openspec new change \"theme-toggle\")",
+      "Bash(openspec status:*)",
+      "Bash(openspec instructions design --change \"theme-toggle\" --json)",
+      "Bash(openspec:*)",
+      "Bash(ls /Users/didi/Desktop/interview-flashcard/docs/Transfer/mpx-starter*)"
     ]
   }
 }
