@@ -5,6 +5,7 @@ import { Home } from '@/pages/Home';
 import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
 import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
+import { MpxIndex, MpxChapter } from '@/pages/Mpx';
 import { CustomCardsPage } from '@/pages/Custom';
 import { ResumePage } from '@/pages/Resume/ResumePage';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
@@ -35,6 +36,10 @@ function App() {
             {/* 刷题模块 */}
             <Route path="/algorithms" element={<AlgorithmsIndex />} />
             <Route path="/algorithms/:type" element={<AlgorithmDetail />} />
+
+            {/* MPX 专项 */}
+            <Route path="/mpx" element={<MpxIndex />} />
+            <Route path="/mpx/:chapterId" element={<MpxChapter />} />
 
             {/* 自定义卡片 */}
             <Route path="/custom" element={<CustomCardsPage />} />

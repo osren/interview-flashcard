@@ -368,7 +368,7 @@ export function Favorites() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <MessageSquare size={18} className="text-gray-500 dark:text-gray-400" />
-              <h2 className="font-semibold text-gray-700 dark:text-gray-200">面经收藏</h2>
+              <h2 className="font-semibold text-gray-700 dark:text-white">面经收藏</h2>
               <span className="text-sm text-gray-400 dark:text-gray-500">({interviewFavorites.length}道)</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -391,7 +391,7 @@ export function Favorites() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Github size={18} className="text-gray-500 dark:text-gray-400" />
-              <h2 className="font-semibold text-gray-700 dark:text-gray-200">GitHub Trending</h2>
+              <h2 className="font-semibold text-gray-700 dark:text-white">GitHub Trending</h2>
               <span className="text-sm text-gray-400 dark:text-gray-500">({trendingFavorites.length}个)</span>
             </div>
             <div className="space-y-2">
@@ -433,7 +433,7 @@ export function Favorites() {
                   <div className="flex items-center gap-3">
                     <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
                     <Icon size={18} className="text-gray-500 dark:text-gray-400" />
-                    <span className="font-medium text-gray-800 dark:text-gray-100">{group.chapterId}</span>
+                    <span className="font-medium text-gray-800 dark:text-white">{group.chapterId}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-400 dark:text-gray-500">{group.cards.length}张</span>
@@ -459,7 +459,7 @@ export function Favorites() {
               <div key={module}>
                 <div className="flex items-center gap-2 mb-3">
                   <Icon size={18} className="text-gray-500 dark:text-gray-400" />
-                  <h2 className="font-semibold text-gray-700 dark:text-gray-200">{moduleInfo.label}</h2>
+                  <h2 className="font-semibold text-gray-700 dark:text-white">{moduleInfo.label}</h2>
                   <span className="text-sm text-gray-400 dark:text-gray-500">
                     ({groups.reduce((acc, g) => acc + g.cards.length, 0)}张)
                   </span>
@@ -473,7 +473,7 @@ export function Favorites() {
                     >
                       <div className="flex items-center gap-2">
                         <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                        <span className="font-medium text-gray-800 dark:text-gray-100">{group.chapterId}</span>
+                        <span className="font-medium text-gray-800 dark:text-white">{group.chapterId}</span>
                       </div>
                       <span className="text-sm text-gray-400 dark:text-gray-500">{group.cards.length}张</span>
                     </button>

@@ -1,0 +1,71 @@
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { mpxChapters } from '@/data/mpx/mpx';
+import { Badge, Progress } from '@/components/ui';
+
+export function MpxIndex() {
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            🚀 MPX 专项
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            滴滴小程序框架 MPX 语法、架构、工程化学习
+          </p>
+        </div>
+
+        <div className="grid gap-4">
+          {mpxChapters.map((chapter, index) => {
+            // 模拟进度（实际应从 store 读取）
+            const mastered = Math.floor(Math.random() * chapter.cardCount);
+            const percentage = Math.round((mastered / chapter.cardCount) * 100);
+
+            return (
+              <motion.div
+                key={chapter.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Link
+                  to={`/mpx/${chapter.id}`}
+                  className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100 dark:border-gray-700"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="text-4xl">🚀</div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                          {chapter.title}
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                          {chapter.description}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <Badge variant="primary">{chapter.cardCount} 张卡片</Badge>
+                          <Badge
+                            variant={percentage >= 80 ? 'success' : percentage >= 50 ? 'warning' : 'default'}
+                          >
+                            已掌握 {mastered} 张
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-primary-600 font-medium text-sm">
+                      开始 →
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <Progress value={percentage} size="sm" />
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

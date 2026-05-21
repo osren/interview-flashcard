@@ -1,3 +1,11 @@
+/*
+ * @Author: tancheng
+ * @Date: 2026-05-21 10:22:31
+ * @LastEditors: tancheng
+ * @LastEditTime: 2026-05-21 10:23:34
+ * @FilePath: /interview-flashcard/src/components/Layout/Header.tsx
+ * @Description: 
+ */
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
@@ -8,6 +16,7 @@ import { Heart, FileText, MessageSquare, Sparkles } from 'lucide-react';
 const navItems = [
   { path: '/', label: '首页' },
   { path: '/core', label: '核心考点' },
+  { path: '/mpx', label: 'MPX' },
   { path: '/projects', label: '项目复盘' },
   { path: '/algorithms', label: '刷题模块' },
   { path: '/ai', label: 'AI资讯', icon: Sparkles },

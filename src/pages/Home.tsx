@@ -5,6 +5,7 @@ import { useProgressStore, useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { algorithmChapters, algorithmCards } from '@/data/algorithms';
+import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
 
 const modules = [
   {
@@ -14,6 +15,15 @@ const modules = [
     description: 'JavaScript/TypeScript/React/浏览器等核心知识',
     cardCount: coreCards.length,
     chapters: 10,
+    color: 'from-primary-500 to-primary-600',
+  },
+  {
+    path: '/mpx',
+    icon: '🚀',
+    title: 'MPX 专项',
+    description: '滴滴小程序框架 MPX 语法、架构、工程化',
+    cardCount: mpxCards.length,
+    chapters: mpxChapters.length,
     color: 'from-primary-500 to-primary-600',
   },
   {
@@ -58,7 +68,7 @@ const modules = [
 export function Home() {
   const { totalMastered } = useProgressStore();
   const { customCards } = useCardStore();
-  const totalCards = coreCards.length + projectCards.length + algorithmCards.length + customCards.length;
+  const totalCards = coreCards.length + projectCards.length + algorithmCards.length + mpxCards.length + customCards.length;
   const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
 
   return (
@@ -69,7 +79,7 @@ export function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-display font-medium text-text-primary mb-4"
+            className="text-5xl font-display font-medium text-gray-900 dark:text-white mb-4"
             style={{ lineHeight: 1.1 }}
           >
             InterviewFlash
@@ -122,30 +132,30 @@ export function Home() {
                   <div className={`h-2 bg-gradient-to-r ${module.color}`} />
                   <div className="p-6">
                     <div className="text-5xl mb-4">{module.icon}</div>
-                    <h2 className="text-lg font-display font-medium text-text-primary mb-2 group-hover:text-brand-600 transition-colors">
+                    <h2 className="text-lg font-display font-medium text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 transition-colors">
                       {module.title}
                     </h2>
-                    <p className="text-text-muted text-sm mb-4" style={{ lineHeight: 1.5 }}>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4" style={{ lineHeight: 1.5 }}>
                       {module.description}
                     </p>
-                    <div className="flex items-center gap-4 text-sm text-text-tertiary">
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                       {module.isCustom ? (
                         <span className="flex items-center gap-1">
-                          <span className="font-medium text-text-secondary">{customCards.length}</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-200">{customCards.length}</span>
                           张卡片
                         </span>
                       ) : module.path === '/rjsf' ? (
                         <span className="flex items-center gap-1">
-                          <span className="font-medium text-gray-700">Demo</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-200">Demo</span>
                         </span>
                       ) : (
                         <>
                           <span className="flex items-center gap-1">
-                            <span className="font-medium text-text-secondary">{module.chapters}</span>
+                            <span className="font-medium text-gray-700 dark:text-gray-200">{module.chapters}</span>
                             个章节
                           </span>
                           <span className="flex items-center gap-1">
-                            <span className="font-medium text-text-secondary">{module.cardCount}</span>
+                            <span className="font-medium text-gray-700 dark:text-gray-200">{module.cardCount}</span>
                             张卡片
                           </span>
                         </>
@@ -165,7 +175,7 @@ export function Home() {
       {/* 特性介绍 */}
       <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-display font-semibold text-text-primary text-center mb-8">
+          <h2 className="text-2xl font-display font-semibold text-gray-900 dark:text-white text-center mb-8">
             功能特点
           </h2>
           <div className="grid md:grid-cols-4 gap-4">

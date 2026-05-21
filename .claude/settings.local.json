@@ -64,7 +64,8 @@
       "Bash(openspec status:*)",
       "Bash(openspec instructions design --change \"theme-toggle\" --json)",
       "Bash(openspec:*)",
-      "Bash(ls /Users/didi/Desktop/interview-flashcard/docs/Transfer/mpx-starter*)"
+      "Bash(ls /Users/didi/Desktop/interview-flashcard/docs/Transfer/mpx-starter*)",
+      "Bash(ls -la /Users/didi/Desktop/interview-flashcard/docs/Transfer/*.md)"
     ]
   }
 }
