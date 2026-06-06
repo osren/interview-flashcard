@@ -21,7 +21,7 @@ export function Progress({
     <div className={cn('w-full', className)}>
       <div
         className={cn(
-          'bg-gray-200 rounded-full overflow-hidden',
+          'bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700',
           {
             'h-1': size === 'sm',
             'h-2': size === 'md',
@@ -35,7 +35,7 @@ export function Progress({
         />
       </div>
       {showLabel && (
-        <div className="mt-1 text-xs text-gray-500 text-right">
+        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 text-right">
           {Math.round(percentage)}%
         </div>
       )}

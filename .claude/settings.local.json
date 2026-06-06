@@ -57,7 +57,19 @@
       "Bash(ls /Users/didi/Desktop/interview-flashcard/claude-report*)",
       "Bash(ls -la /Users/didi/Desktop/interview-flashcard/*.json)",
       "Bash(chmod +x /Users/didi/Desktop/interview-flashcard/docs/harness/linters/invariant-check.sh /Users/didi/Desktop/interview-flashcard/docs/harness/linters/spec-sync-check.sh)",
+<<<<<<< HEAD
       "WebFetch(domain:onefly.top)"
+=======
+      "Bash(mcporter list)",
+      "Bash(open https://mcphub.intra.xiaojukeji.com/)",
+      "Bash(mcporter:*)",
+      "Bash(openspec new change \"theme-toggle\")",
+      "Bash(openspec status:*)",
+      "Bash(openspec instructions design --change \"theme-toggle\" --json)",
+      "Bash(openspec:*)",
+      "Bash(ls /Users/didi/Desktop/interview-flashcard/docs/Transfer/mpx-starter*)",
+      "Bash(ls -la /Users/didi/Desktop/interview-flashcard/docs/Transfer/*.md)"
+>>>>>>> 958fcb453d8bc06a8a90ac509a916e1d23d15f39
     ]
   }
 }

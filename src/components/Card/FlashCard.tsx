@@ -91,11 +91,11 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
         >
           {/* 正面 */}
           <div
-            className="absolute inset-0 flex flex-col bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden"
+            className="absolute inset-0 flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
             {/* 顶部标签区 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 {currentIndex !== undefined && totalCards !== undefined && (
@@ -127,7 +127,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             {/* 问题内容区 */}
             <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">
               <div className="text-5xl mb-4">❓</div>
-              <h2 className="text-lg font-medium text-gray-800 text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto">
+              <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100 text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto">
                 {displayCard.question}
               </h2>
 
@@ -147,21 +147,21 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             </div>
 
             {/* 底部提示 */}
-            <div className="px-6 py-3 bg-gray-50 text-center text-sm text-gray-500">
+            <div className="px-6 py-3 bg-gray-50 dark:bg-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
               点击卡片查看答案
             </div>
           </div>
 
           {/* 背面 - 答案 */}
           <div
-            className="absolute inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-xl border border-indigo-200 overflow-hidden"
+            className="absolute inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl shadow-xl border border-indigo-200 dark:border-gray-600 overflow-hidden"
             style={{
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)',
             }}
           >
             {/* 顶部操作区 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-100 dark:border-gray-600">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 <Badge variant={statusConfig[displayCard.status].variant}>
@@ -238,7 +238,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             </div>
 
             {/* 底部提示 */}
-            <div className="px-6 py-3 bg-indigo-100/50 text-center text-sm text-gray-500 border-t border-indigo-200">
+            <div className="px-6 py-3 bg-indigo-100/50 dark:bg-gray-700 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-indigo-200 dark:border-gray-600">
               再次点击卡片可返回问题
             </div>
           </div>
@@ -249,21 +249,21 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
       <div className="flex justify-center gap-4 mt-6">
         <button
           onClick={() => onStatusChange('forgotten')}
-          className="px-5 py-2.5 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
+          className="px-5 py-2.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
         >
           <span>😵</span>
           <span>忘记</span>
         </button>
         <button
           onClick={() => onStatusChange('fuzzy')}
-          className="px-5 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl hover:bg-yellow-200 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
+          className="px-5 py-2.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-xl hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
         >
           <span>🤔</span>
           <span>模糊</span>
         </button>
         <button
           onClick={() => onStatusChange('mastered')}
-          className="px-5 py-2.5 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
+          className="px-5 py-2.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-xl hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
         >
           <span>✅</span>
           <span>掌握</span>

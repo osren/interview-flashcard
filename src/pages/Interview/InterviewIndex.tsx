@@ -236,24 +236,24 @@ export function InterviewIndex() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-20 pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20 pb-8">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl" />
-        <div className="absolute top-40 right-20 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 dark:bg-blue-900/20 rounded-full blur-3xl" />
+        <div className="absolute top-40 right-20 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/20 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4">
         {/* 标题 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">面经记录</h1>
-          <p className="text-gray-500">记录每一次面试，持续更新</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">面经记录</h1>
+          <p className="text-gray-500 dark:text-gray-400">记录每一次面试，持续更新</p>
         </div>
 
         {/* 新增公司按钮 */}
         <div className="mb-6">
           <button
             onClick={() => setIsAddingCompany(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
           >
             <Plus size={18} />
             新增公司
@@ -267,7 +267,7 @@ export function InterviewIndex() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-6 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm"
+              className="mb-6 p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
             >
               <div className="flex flex-col gap-3">
                 <input
@@ -275,11 +275,11 @@ export function InterviewIndex() {
                   value={newCompanyName}
                   onChange={(e) => setNewCompanyName(e.target.value)}
                   placeholder="输入公司名称"
-                  className="flex-1 px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none"
+                  className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none text-gray-900 dark:text-white"
                   autoFocus
                 />
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">选择色系:</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">选择色系:</span>
                   <div className="flex gap-2">
                     {COMPANY_COLOR_OPTIONS.map((color) => (
                       <button
@@ -308,7 +308,7 @@ export function InterviewIndex() {
                       setIsAddingCompany(false);
                       setNewCompanyName('');
                     }}
-                    className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                    className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
                     <X size={16} />
                     取消
@@ -321,9 +321,9 @@ export function InterviewIndex() {
 
         {/* 公司列表 */}
         {companies.length === 0 ? (
-          <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100">
-            <p className="text-gray-500 font-medium">暂无面经记录</p>
-            <p className="text-gray-400 text-sm mt-1">点击上方"新增公司"开始记录</p>
+          <div className="text-center py-16 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700">
+            <p className="text-gray-500 dark:text-gray-400 font-medium">暂无面经记录</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">点击上方"新增公司"开始记录</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -332,11 +332,11 @@ export function InterviewIndex() {
                 key={company.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden"
               >
                 {/* 公司行 */}
                 <div
-                  className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   onClick={() => toggleCompany(company.id)}
                 >
                   <div className="flex items-center gap-3">
@@ -347,7 +347,7 @@ export function InterviewIndex() {
                           type="text"
                           value={editCompanyName}
                           onChange={(e) => setEditCompanyName(e.target.value)}
-                          className="px-2 py-1 bg-white rounded border border-gray-200 text-sm outline-none"
+                          className="px-2 py-1 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 text-sm outline-none text-gray-900 dark:text-white"
                           autoFocus
                         />
                         <div className="flex gap-1">
@@ -369,8 +369,8 @@ export function InterviewIndex() {
                       </div>
                     ) : (
                       <>
-                        <span className="font-semibold text-gray-900">{company.name}</span>
-                        <span className="text-sm text-gray-400">({company.departments.length} 个部门)</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">{company.name}</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">({company.departments.length} 个部门)</span>
                       </>
                     )}
                   </div>
@@ -432,13 +432,13 @@ export function InterviewIndex() {
                       <div className="p-4 space-y-3">
                         {/* 新增部门 */}
                         {addingDeptToCompany === company.id && (
-                          <div className="flex items-center gap-2 mb-4 p-3 bg-gray-50 rounded-xl">
+                          <div className="flex items-center gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
                             <input
                               type="text"
                               value={newDepartmentName}
                               onChange={(e) => setNewDepartmentName(e.target.value)}
                               placeholder="输入部门名称"
-                              className="flex-1 px-3 py-2 bg-white rounded-lg border border-gray-200 text-sm outline-none"
+                              className="flex-1 px-3 py-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 text-sm outline-none text-gray-900 dark:text-white"
                               autoFocus
                               onKeyDown={(e) => e.key === 'Enter' && handleAddDepartment(company.id)}
                             />
@@ -466,7 +466,7 @@ export function InterviewIndex() {
                           <div key={dept.id} className="space-y-2">
                             {/* 部门行 */}
                             <div
-                              className="flex items-center justify-between px-4 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
+                              className="flex items-center justify-between px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors"
                               onClick={() => toggleDepartment(dept.id)}
                             >
                               <div className="flex items-center gap-2">
@@ -477,7 +477,7 @@ export function InterviewIndex() {
                                       type="text"
                                       value={editDepartmentName}
                                       onChange={(e) => setEditDepartmentName(e.target.value)}
-                                      className="px-2 py-1 bg-white rounded border border-gray-200 text-sm outline-none"
+                                      className="px-2 py-1 bg-white dark:bg-gray-600 rounded border border-gray-200 dark:border-gray-500 text-sm outline-none text-gray-900 dark:text-white"
                                       autoFocus
                                       onKeyDown={(e) => e.key === 'Enter' && handleSaveEditDepartment(company.id)}
                                     />
@@ -498,8 +498,8 @@ export function InterviewIndex() {
                                   </div>
                                 ) : (
                                   <>
-                                    <span className="font-medium text-gray-800">{dept.name}</span>
-                                    <span className="text-sm text-gray-400">({dept.sessions.length} 场)</span>
+                                    <span className="font-medium text-gray-800 dark:text-gray-100">{dept.name}</span>
+                                    <span className="text-sm text-gray-400 dark:text-gray-500">({dept.sessions.length} 场)</span>
                                   </>
                                 )}
                               </div>
@@ -553,7 +553,7 @@ export function InterviewIndex() {
                                     return (
                                       <div
                                         key={session.id}
-                                        className="flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-gray-100 hover:border-gray-200 cursor-pointer transition-all hover:shadow-sm"
+                                        className="flex items-center justify-between px-4 py-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 cursor-pointer transition-all hover:shadow-sm"
                                         onClick={() => !isEditing && handleSessionClick(company.id, dept.id, session.id)}
                                       >
                                         {isEditing ? (
@@ -562,14 +562,14 @@ export function InterviewIndex() {
                                               type="text"
                                               value={editSessionName}
                                               onChange={(e) => setEditSessionName(e.target.value)}
-                                              className="flex-1 px-2 py-1 bg-gray-50 rounded border border-gray-200 text-sm outline-none"
+                                              className="flex-1 px-2 py-1 bg-gray-50 dark:bg-gray-600 rounded border border-gray-200 dark:border-gray-500 text-sm outline-none text-gray-900 dark:text-white"
                                               autoFocus
                                             />
                                             <input
                                               type="date"
                                               value={editSessionDate}
                                               onChange={(e) => setEditSessionDate(e.target.value)}
-                                              className="px-2 py-1 bg-gray-50 rounded border border-gray-200 text-sm outline-none"
+                                              className="px-2 py-1 bg-gray-50 dark:bg-gray-600 rounded border border-gray-200 dark:border-gray-500 text-sm outline-none text-gray-900 dark:text-white"
                                             />
                                             <button
                                               type="button"
@@ -589,10 +589,10 @@ export function InterviewIndex() {
                                         ) : (
                                           <>
                                             <div className="flex items-center gap-3">
-                                              <span className="text-sm font-medium text-gray-700">{session.name}</span>
-                                              <span className="text-gray-300">|</span>
+                                              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{session.name}</span>
+                                              <span className="text-gray-300 dark:text-gray-500">|</span>
                                               <Calendar size={14} className="text-gray-400" />
-                                              <span className="text-sm text-gray-400">{session.date}</span>
+                                              <span className="text-sm text-gray-400 dark:text-gray-500">{session.date}</span>
                                             </div>
                                             <div className="flex items-center gap-1">
                                               <button
@@ -642,14 +642,14 @@ export function InterviewIndex() {
                                         value={newSessionName}
                                         onChange={(e) => setNewSessionName(e.target.value)}
                                         placeholder="场次名称(如一面)"
-                                        className="flex-1 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-sm outline-none"
+                                        className="flex-1 px-3 py-1.5 bg-gray-50 dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 text-sm outline-none text-gray-900 dark:text-white"
                                         onKeyDown={(e) => e.key === 'Enter' && handleAddSession(company.id, dept.id)}
                                       />
                                       <input
                                         type="date"
                                         value={newSessionDate}
                                         onChange={(e) => setNewSessionDate(e.target.value)}
-                                        className="px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-sm outline-none"
+                                        className="px-3 py-1.5 bg-gray-50 dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 text-sm outline-none text-gray-900 dark:text-white"
                                       />
                                       <button
                                         type="button"

@@ -16,13 +16,17 @@ const colorOptions: { key: ThemeColor; config: typeof THEME_CONFIGS[ThemeColor] 
 export function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { themeColor, customTheme, setThemeColor, setCustomTheme } = useThemeStore();
+  const { themeColor, themeMode, customTheme, setThemeColor, setThemeMode, setCustomTheme } = useThemeStore();
 
   const currentConfig = THEME_CONFIGS[themeColor];
 
   const handleColorSelect = (color: ThemeColor) => {
     setThemeColor(color);
     setIsOpen(false);
+  };
+
+  const handleModeToggle = () => {
+    setThemeMode(themeMode === 'light' ? 'dark' : 'light');
   };
 
   const handleCustomUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,9 +66,26 @@ export function ThemeSwitcher() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
+            className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 z-50"
           >
-            <div className="text-sm font-medium text-gray-700 mb-3">选择主题配色</div>
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">选择主题配色</div>
+
+            {/* 亮色/暗色模式切换 */}
+            <div className="flex items-center justify-between mb-4 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-gray-200">暗色模式</span>
+              <button
+                onClick={handleModeToggle}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  themeMode === 'dark' ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                    themeMode === 'dark' ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
 
             {/* 预设主题 */}
             <div className="grid grid-cols-4 gap-2 mb-4">

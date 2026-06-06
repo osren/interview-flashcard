@@ -170,20 +170,20 @@ export function Favorites() {
   // 空状态判断 - 只有在加载完成后才能确定是否真的为空
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center pb-20">
-        <Heart size={64} className="text-gray-300 mb-4" />
-        <h2 className="text-xl font-medium text-gray-600 mb-2">加载中...</h2>
-        <p className="text-gray-400 text-sm">favorites: {favorites.length}, trending: {trendingFavorites.length}</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center pb-20">
+        <Heart size={64} className="text-gray-300 dark:text-gray-600 mb-4" />
+        <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">加载中...</h2>
+        <p className="text-gray-400 dark:text-gray-500 text-sm">favorites: {favorites.length}, trending: {trendingFavorites.length}</p>
       </div>
     );
   }
 
   if (allFavorites.length === 0 && trendingFavorites.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center pb-20">
-        <Heart size={64} className="text-gray-300 mb-4" />
-        <h2 className="text-xl font-medium text-gray-600 mb-2">暂无收藏</h2>
-        <p className="text-gray-400 text-sm">在卡片或 GitHub Trending 页面点击红心即可收藏</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center pb-20">
+        <Heart size={64} className="text-gray-300 dark:text-gray-600 mb-4" />
+        <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">暂无收藏</h2>
+        <p className="text-gray-400 dark:text-gray-500 text-sm">在卡片或 GitHub Trending 页面点击红心即可收藏</p>
       </div>
     );
   }
@@ -213,21 +213,21 @@ export function Favorites() {
     };
 
     return (
-      <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 safe-area-top">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-20 md:pb-8">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 safe-area-top">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setSelectedInterviewIndex(null)}
-                className="flex items-center gap-1 text-gray-600 hover:text-gray-800"
+                className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
               >
                 <ChevronLeft size={20} />
                 <span className="text-sm">返回</span>
               </button>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-cyan-500" />
-                <span className="text-sm font-medium text-gray-700">面经收藏</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">面经收藏</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
                   {selectedInterviewIndex + 1}/{interviewFavorites.length}
                 </span>
               </div>
@@ -256,8 +256,8 @@ export function Favorites() {
             className={cn(
               'p-3 rounded-full transition-colors',
               selectedInterviewIndex === 0
-                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             )}
           >
             <ChevronLeft size={24} />
@@ -268,8 +268,8 @@ export function Favorites() {
             className={cn(
               'p-3 rounded-full transition-colors',
               selectedInterviewIndex === interviewFavorites.length - 1
-                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             )}
           >
             <ChevronRight size={24} />
@@ -285,21 +285,21 @@ export function Favorites() {
     const moduleInfo = moduleConfig[selectedGroup.module];
 
     return (
-      <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 safe-area-top">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-20 md:pb-8">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 safe-area-top">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
                 onClick={handleBack}
-                className="flex items-center gap-1 text-gray-600 hover:text-gray-800"
+                className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
               >
                 <ChevronLeft size={20} />
                 <span className="text-sm">返回</span>
               </button>
               <div className="flex items-center gap-2">
                 <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                <span className="text-sm font-medium text-gray-700">{selectedGroup.chapterId}</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{selectedGroup.chapterId}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
                   {currentCardIndex + 1}/{selectedGroup.cards.length}
                 </span>
               </div>
@@ -330,8 +330,8 @@ export function Favorites() {
             className={cn(
               'p-3 rounded-full transition-colors',
               currentCardIndex === 0
-                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             )}
           >
             <ChevronLeft size={24} />
@@ -342,8 +342,8 @@ export function Favorites() {
             className={cn(
               'p-3 rounded-full transition-colors',
               currentCardIndex === selectedGroup.cards.length - 1
-                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             )}
           >
             <ChevronRight size={24} />
@@ -355,11 +355,11 @@ export function Favorites() {
 
   // 显示分组列表
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-20 md:pb-8">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6">
           <Heart size={24} className="text-red-500 fill-red-500" />
-          <h1 className="text-xl font-bold text-gray-900">我的收藏</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">我的收藏</h1>
           <Badge variant="secondary">{allFavorites.length}</Badge>
         </div>
 
@@ -367,20 +367,20 @@ export function Favorites() {
         {interviewFavorites.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <MessageSquare size={18} className="text-gray-500" />
-              <h2 className="font-semibold text-gray-700">面经收藏</h2>
-              <span className="text-sm text-gray-400">({interviewFavorites.length}道)</span>
+              <MessageSquare size={18} className="text-gray-500 dark:text-gray-400" />
+              <h2 className="font-semibold text-gray-700 dark:text-white">面经收藏</h2>
+              <span className="text-sm text-gray-400 dark:text-gray-500">({interviewFavorites.length}道)</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setSelectedInterviewIndex(0)}
-                className="flex items-center justify-between px-4 py-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all text-left"
+                className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all text-left"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-cyan-500" />
-                  <span className="font-medium text-gray-800">面经收藏</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-100">面经收藏</span>
                 </div>
-                <span className="text-sm text-gray-400">{interviewFavorites.length}道</span>
+                <span className="text-sm text-gray-400 dark:text-gray-500">{interviewFavorites.length}道</span>
               </button>
             </div>
           </div>
@@ -390,9 +390,9 @@ export function Favorites() {
         {trendingFavorites.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <Github size={18} className="text-gray-500" />
-              <h2 className="font-semibold text-gray-700">GitHub Trending</h2>
-              <span className="text-sm text-gray-400">({trendingFavorites.length}个)</span>
+              <Github size={18} className="text-gray-500 dark:text-gray-400" />
+              <h2 className="font-semibold text-gray-700 dark:text-white">GitHub Trending</h2>
+              <span className="text-sm text-gray-400 dark:text-gray-500">({trendingFavorites.length}个)</span>
             </div>
             <div className="space-y-2">
               {trendingFavorites.map((project) => (
@@ -424,20 +424,20 @@ export function Favorites() {
             return (
               <div
                 key={`${group.module}-${group.chapterId}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
               >
                 <button
                   onClick={() => handleGroupClick(group)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                    <Icon size={18} className="text-gray-500" />
-                    <span className="font-medium text-gray-800">{group.chapterId}</span>
+                    <Icon size={18} className="text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium text-gray-800 dark:text-white">{group.chapterId}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-400">{group.cards.length}张</span>
-                    <ChevronRight size={18} className="text-gray-400" />
+                    <span className="text-sm text-gray-400 dark:text-gray-500">{group.cards.length}张</span>
+                    <ChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
                   </div>
                 </button>
               </div>
@@ -458,9 +458,9 @@ export function Favorites() {
             return (
               <div key={module}>
                 <div className="flex items-center gap-2 mb-3">
-                  <Icon size={18} className="text-gray-500" />
-                  <h2 className="font-semibold text-gray-700">{moduleInfo.label}</h2>
-                  <span className="text-sm text-gray-400">
+                  <Icon size={18} className="text-gray-500 dark:text-gray-400" />
+                  <h2 className="font-semibold text-gray-700 dark:text-white">{moduleInfo.label}</h2>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">
                     ({groups.reduce((acc, g) => acc + g.cards.length, 0)}张)
                   </span>
                 </div>
@@ -469,13 +469,13 @@ export function Favorites() {
                     <button
                       key={`${group.module}-${group.chapterId}`}
                       onClick={() => handleGroupClick(group)}
-                      className="flex items-center justify-between px-4 py-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all text-left"
+                      className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all text-left"
                     >
                       <div className="flex items-center gap-2">
                         <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                        <span className="font-medium text-gray-800">{group.chapterId}</span>
+                        <span className="font-medium text-gray-800 dark:text-white">{group.chapterId}</span>
                       </div>
-                      <span className="text-sm text-gray-400">{group.cards.length}张</span>
+                      <span className="text-sm text-gray-400 dark:text-gray-500">{group.cards.length}张</span>
                     </button>
                   ))}
                 </div>

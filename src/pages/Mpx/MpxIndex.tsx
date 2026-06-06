@@ -1,23 +1,23 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { coreChapters } from '@/data/core';
+import { mpxChapters } from '@/data/mpx/mpx';
 import { Badge, Progress } from '@/components/ui';
 
-export function CoreIndex() {
+export function MpxIndex() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-800 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            📚 前端基础核心考点
+            🚀 MPX 专项
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            涵盖 JavaScript、TypeScript、React、浏览器等核心知识
+            滴滴小程序框架 MPX 语法、架构、工程化学习
           </p>
         </div>
 
         <div className="grid gap-4">
-          {coreChapters.map((chapter, index) => {
+          {mpxChapters.map((chapter, index) => {
             // 模拟进度（实际应从 store 读取）
             const mastered = Math.floor(Math.random() * chapter.cardCount);
             const percentage = Math.round((mastered / chapter.cardCount) * 100);
@@ -30,12 +30,12 @@ export function CoreIndex() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Link
-                  to={`/core/${chapter.id}`}
+                  to={`/mpx/${chapter.id}`}
                   className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100 dark:border-gray-700"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="text-4xl">{chapter.icon}</div>
+                      <div className="text-4xl">🚀</div>
                       <div>
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                           {chapter.title}

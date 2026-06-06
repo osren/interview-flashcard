@@ -97,13 +97,13 @@ export function ProjectsIndex() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             💼 项目针对性复盘
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             针对滴滴实习和 GResume 项目进行深度复盘
           </p>
         </div>
@@ -117,7 +117,7 @@ export function ProjectsIndex() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="block bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden relative group">
+                <div className="block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden relative group">
                   {project.isCustom ? (
                     <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600" />
                   ) : (
@@ -134,7 +134,7 @@ export function ProjectsIndex() {
                                 type="text"
                                 value={editTitle}
                                 onChange={(e) => setEditTitle(e.target.value)}
-                                className="text-xl font-semibold text-gray-900 bg-gray-50 px-2 py-1 rounded border border-gray-200 outline-none focus:border-blue-400"
+                                className="text-xl font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 outline-none focus:border-blue-400"
                                 autoFocus
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') handleSaveEdit();
@@ -156,7 +156,7 @@ export function ProjectsIndex() {
                             </div>
                           ) : (
                             <>
-                              <h2 className="text-xl font-semibold text-gray-900">
+                              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                 {project.title}
                               </h2>
                               {project.isCustom && (
@@ -178,7 +178,7 @@ export function ProjectsIndex() {
                             </>
                           )}
                         </div>
-                        <p className="text-gray-600 text-sm mb-4">
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                           {project.description}
                         </p>
                         <div className="flex flex-wrap gap-2 mb-4">
@@ -236,57 +236,57 @@ export function ProjectsIndex() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"
+              className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">新增项目</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">新增项目</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     项目名称
                   </label>
                   <input
                     type="text"
                     value={newProject.title}
                     onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 outline-none"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none text-gray-900 dark:text-white"
                     placeholder="输入项目名称"
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     项目描述
                   </label>
                   <textarea
                     value={newProject.description}
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 outline-none resize-none"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none resize-none text-gray-900 dark:text-white"
                     placeholder="输入项目描述"
                     rows={2}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     图标
                   </label>
                   <input
                     type="text"
                     value={newProject.icon}
                     onChange={(e) => setNewProject({ ...newProject, icon: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 outline-none"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none text-gray-900 dark:text-white"
                     placeholder="输入 emoji 图标"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     标签（逗号分隔）
                   </label>
                   <input
                     type="text"
                     value={newProject.topics}
                     onChange={(e) => setNewProject({ ...newProject, topics: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 outline-none"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none text-gray-900 dark:text-white"
                     placeholder="React, TypeScript, 工程化"
                   />
                 </div>
@@ -294,7 +294,7 @@ export function ProjectsIndex() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="px-4 py-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
                 >
                   取消
                 </button>

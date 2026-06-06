@@ -8,16 +8,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        // MiniMax 品牌色
+        // MiniMax 品牌色 (使用 CSS 变量以支持主题切换)
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#1456f0',  // 品牌主色
-          700: '#17437d',  // 深蓝
+          50: 'var(--brand-50)',
+          100: 'var(--brand-100)',
+          200: 'var(--brand-200)',
+          300: 'var(--brand-300)',
+          400: 'var(--brand-400)',
+          500: 'var(--brand-500)',
+          600: 'var(--brand-600)',
+          700: 'var(--brand-700)',
         },
         // MiniMax 文本色
         text: {
@@ -41,13 +41,12 @@ export default {
         primary: {
           50: 'var(--primary-50)',
           100: 'var(--primary-100)',
-          200: '#bfdbfe',
+          200: 'var(--primary-200)',
           300: 'var(--primary-300)',
-          light: '#60a5fa',
           400: 'var(--primary-400)',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
+          500: 'var(--primary-500)',
+          600: 'var(--primary-600)',
+          700: 'var(--primary-700)',
           800: 'var(--primary-800)',
           900: 'var(--primary-900)',
         },
