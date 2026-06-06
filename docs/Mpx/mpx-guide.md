@@ -941,6 +941,105 @@ pageLifetimes: {
 }
 ```
 
+### 9.4 App 生命周期
+
+```javascript
+import { createApp } from '@didi/es-mpx-creator'
+
+createApp({
+  onLaunch(options) {
+    // 小程序初始化完成时触发，全局只触发一次
+    console.log('App launched', options)
+    this.checkLoginStatus()
+  },
+
+  onShow(options) {
+    // 小程序启动，或从后台进入前台显示时触发
+    console.log('App showed', options)
+  },
+
+  onHide() {
+    // 小程序从前台进入后台时触发
+    console.log('App hide')
+  },
+
+  onError(error) {
+    // 小程序发生脚本错误或 API 调用报错时触发
+    console.error('App error:', error)
+  },
+
+  onPageNotFound(object) {
+    // 小程序要打开的页面不存在时触发
+    console.log('Page not found:', object)
+  },
+
+  onUnhandledRejection(object) {
+    // 小程序有未处理的 Promise 拒绝时触发
+    console.error('Unhandled rejection:', object)
+  },
+
+  onThemeChange(object) {
+    // 系统切换主题时触发
+    console.log('Theme changed:', object)
+  }
+})
+```
+
+#### 生命周期流程图
+
+```
+                    ┌─────────────────┐
+                    │   onLaunch      │
+                    │  (首次初始化)    │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              │              │              │
+              ▼              ▼              ▼
+        ┌─────────┐   ┌─────────┐   ┌─────────┐
+        │ onShow  │   │onTheme  │   │onPage   │
+        │(前台显示)│   │Change  │   │NotFound │
+        └────┬────┘   └─────────┘   └─────────┘
+              │              │              │
+              │         系统主题切换      页面不存在
+              │              │              │
+              └──────────────┼──────────────┘
+                             │
+                    ┌────────┴────────┐
+                    │                 │
+                    ▼                 ▼
+              ┌─────────┐       ┌─────────┐
+              │ onHide  │       │ onError │
+              │(进入后台)│       │(错误上报)│
+              └────┬────┘       └─────────┘
+                   │                  ▲
+                   │    Promise拒绝   │
+                   │         ┌───────┴───────┐
+                   │         │ onUnhandled   │
+                   │         │  Rejection    │
+                   │         └───────────────┘
+                   │
+                   └──────────────┐
+                                  │
+                             再次进入前台
+                                  │
+                                  ▼
+                           ┌─────────┐
+                           │ onShow  │
+                           └─────────┘
+```
+
+#### 生命周期触发顺序
+
+| 阶段 | 触发钩子 | 说明 |
+|-----|---------|------|
+| 首次启动 | onLaunch → onShow | 应用初始化，然后显示 |
+| 前台切换 | onShow ↔ onHide | 在前台和后台之间切换 |
+| 错误监控 | onError | 脚本错误或 API 报错 |
+| 页面不存在 | onPageNotFound | 打开不存在的页面 |
+| Promise 拒绝 | onUnhandledRejection | 未处理的 Promise 拒绝 |
+| 主题切换 | onThemeChange | 系统主题变化 |
+
 ---
 
 ## 10. 状态管理 Store
