@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
-import { Edit, Save, X, Heart } from 'lucide-react';
+import { Edit, Save, X, Heart, HelpCircle } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { useCardStore } from '@/store';
+import { cn } from '@/utils/cn';
 
 interface FlashCardProps {
   card: FlashCardType;
@@ -14,22 +15,25 @@ interface FlashCardProps {
   showEdit?: boolean;
 }
 
+const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'primary' | 'success' | 'warning' | 'danger' }> = {
+  unvisited: { label: '未开始', variant: 'default' },
+  forgotten: { label: '忘记', variant: 'danger' },
+  fuzzy: { label: '模糊', variant: 'warning' },
+  mastered: { label: '掌握', variant: 'success' },
+};
+
 export function FlashCard({ card, onStatusChange, currentIndex, totalCards, showEdit = false }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(card.answer);
 
   const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
-
-  // 获取应用修改后的卡片
   const displayCard = getCardWithModifications(card);
   const hasModification = !!modifiedCards[card.id];
 
-  // 切换卡片时重置状态 - 同时更新编辑答案为当前显示的答案
   useEffect(() => {
     setIsFlipped(false);
     setIsEditing(false);
-    // 只有在不编辑时才同步答案，防止保存时触发翻转
     if (!isEditing) {
       setEditedAnswer(displayCard.answer);
     }
@@ -37,12 +41,9 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
 
   const handleFlip = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    
-    // 如果点击的是按钮等可交互元素，则不翻转
     if (e && (e.target as HTMLElement).closest('button, a, [data-stop-propagation]')) {
       return;
     }
-
     if (!isEditing) {
       setIsFlipped((prev) => !prev);
     }
@@ -63,18 +64,10 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
     setEditedAnswer(card.answer);
   };
 
-  const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' }> = {
-    unvisited: { label: '未开始', variant: 'default' },
-    forgotten: { label: '忘记', variant: 'danger' },
-    fuzzy: { label: '模糊', variant: 'warning' },
-    mastered: { label: '掌握', variant: 'success' },
-  };
-
   const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
     <div className="w-[768px] max-w-[768px] flex-shrink-0">
-      {/* 卡片容器 */}
       <div
         className="relative cursor-pointer"
         style={{ height: '480px', perspective: '1000px' }}
@@ -84,38 +77,31 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
           className="absolute inset-0 w-full h-full"
           initial={false}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
-          style={{
-            transformStyle: 'preserve-3d',
-          }}
+          transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+          style={{ transformStyle: 'preserve-3d' }}
         >
-          {/* 正面 */}
+          {/* 正面 - 问题 */}
           <div
-            className="absolute inset-0 flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="absolute inset-0 flex flex-col bg-white rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0] overflow-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            {/* 顶部标签区 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-2">
+            <div className="h-3 bg-[#58CC02]" />
+            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5]">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 {currentIndex !== undefined && totalCards !== undefined && (
                   <Badge variant="outline">{currentIndex + 1} / {totalCards}</Badge>
                 )}
-                {hasModification && (
-                  <Badge variant="warning" className="text-xs">已修改</Badge>
-                )}
+                {hasModification && <Badge variant="warning" className="text-xs">已修改</Badge>}
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(card);
-                  }}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(card); }}
+                  className="p-1.5 hover:bg-surface-muted rounded-lg transition-colors"
                 >
                   <Heart
                     size={18}
-                    className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+                    className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-ink-muted'}
                   />
                 </button>
                 <Badge variant={statusConfig[displayCard.status].variant}>
@@ -124,44 +110,34 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               </div>
             </div>
 
-            {/* 问题内容区 */}
             <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">
-              <div className="text-5xl mb-4">❓</div>
-              <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100 text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto">
+              <div className="w-20 h-20 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center mb-6">
+                <HelpCircle size={40} className="text-white" strokeWidth={2.5} />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#3c3c3c] text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto px-2">
                 {displayCard.question}
               </h2>
-
               {displayCard.difficulty && (
                 <div className="flex justify-center gap-2 mt-4">
-                  {displayCard.difficulty === 'easy' && (
-                    <Badge variant="success">简单</Badge>
-                  )}
-                  {displayCard.difficulty === 'medium' && (
-                    <Badge variant="warning">中等</Badge>
-                  )}
-                  {displayCard.difficulty === 'hard' && (
-                    <Badge variant="danger">困难</Badge>
-                  )}
+                  {displayCard.difficulty === 'easy' && <Badge variant="success">简单</Badge>}
+                  {displayCard.difficulty === 'medium' && <Badge variant="warning">中等</Badge>}
+                  {displayCard.difficulty === 'hard' && <Badge variant="danger">困难</Badge>}
                 </div>
               )}
             </div>
 
-            {/* 底部提示 */}
-            <div className="px-6 py-3 bg-gray-50 dark:bg-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-6 py-4 bg-[#f7f7f7] text-center text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5]">
               点击卡片查看答案
             </div>
           </div>
 
           {/* 背面 - 答案 */}
           <div
-            className="absolute inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl shadow-xl border border-indigo-200 dark:border-gray-600 overflow-hidden"
-            style={{
-              backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)',
-            }}
+            className="absolute inset-0 flex flex-col bg-white rounded-2xl border-2 border-[#1CB0F6] border-b-4 border-b-[#1899D6] overflow-hidden"
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            {/* 顶部操作区 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-100 dark:border-gray-600">
+            <div className="h-3 bg-[#1CB0F6]" />
+            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 <Badge variant={statusConfig[displayCard.status].variant}>
@@ -172,36 +148,20 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                 <div className="flex items-center gap-2" data-stop-propagation>
                   {isEditing ? (
                     <>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }}
-                        className="p-1.5 text-gray-600 hover:bg-green-100 hover:text-green-700 rounded transition-colors"
-                        title="保存"
-                      >
+                      <button onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }} className="p-1.5 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors" title="保存">
                         <Save size={16} />
                       </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }}
-                        className="p-1.5 text-gray-600 hover:bg-red-100 hover:text-red-700 rounded transition-colors"
-                        title="取消"
-                      >
+                      <button onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors" title="取消">
                         <X size={16} />
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-                      className="p-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded transition-colors"
-                      title="编辑答案"
-                    >
+                    <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-ink-secondary hover:bg-surface-muted rounded-lg transition-colors" title="编辑答案">
                       <Edit size={16} />
                     </button>
                   )}
                   {hasModification && !isEditing && (
-                     <button
-                      onClick={(e) => { e.stopPropagation(); handleReset(); }}
-                      className="p-1.5 text-xs text-gray-500 hover:text-blue-600"
-                      title="恢复原始答案"
-                    >
+                    <button onClick={(e) => { e.stopPropagation(); handleReset(); }} className="p-1.5 text-xs text-ink-muted hover:text-primary-600" title="恢复原始答案">
                       恢复默认
                     </button>
                   )}
@@ -209,7 +169,6 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            {/* 答案内容区 */}
             <div className="flex-1 px-6 py-4 overflow-y-auto" data-color-mode="light">
               {isEditing ? (
                 <MDEditor
@@ -217,18 +176,18 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                   onChange={(val) => setEditedAnswer(val || '')}
                   height="100%"
                   preview="edit"
-                  style={{ height: '100%', backgroundColor: '#f0f4ff' }}
+                  style={{ height: '100%', backgroundColor: 'var(--bg-muted)' }}
                 />
               ) : (
                 <>
                   <MDEditor.Markdown
                     source={formattedAnswer}
-                    style={{ backgroundColor: 'transparent', color: '#37352f' }}
+                    style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
                   />
                   {displayCard.codeExample && (
                     <div className="mt-6">
-                      <div className="text-sm font-medium text-gray-600 mb-2">代码示例：</div>
-                      <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+                      <div className="text-sm font-medium text-ink-secondary mb-2 font-mono">代码示例</div>
+                      <pre className="bg-[#1a1d26] text-gray-100 p-4 rounded-xl overflow-x-auto text-sm font-mono border border-surface-border">
                         <code>{displayCard.codeExample}</code>
                       </pre>
                     </div>
@@ -237,37 +196,33 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            {/* 底部提示 */}
-            <div className="px-6 py-3 bg-indigo-100/50 dark:bg-gray-700 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-indigo-200 dark:border-gray-600">
-              再次点击卡片可返回问题
+            <div className="px-6 py-3 bg-primary-50/80 dark:bg-primary-900/20 text-center text-sm text-ink-muted border-t border-surface-border">
+              再次点击返回问题
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* 底部状态控制按钮 */}
-      <div className="flex justify-center gap-4 mt-6">
-        <button
-          onClick={() => onStatusChange('forgotten')}
-          className="px-5 py-2.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
-        >
-          <span>😵</span>
-          <span>忘记</span>
-        </button>
-        <button
-          onClick={() => onStatusChange('fuzzy')}
-          className="px-5 py-2.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-xl hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
-        >
-          <span>🤔</span>
-          <span>模糊</span>
-        </button>
-        <button
-          onClick={() => onStatusChange('mastered')}
-          className="px-5 py-2.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-xl hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
-        >
-          <span>✅</span>
-          <span>掌握</span>
-        </button>
+      {/* 状态按钮 */}
+      <div className="flex justify-center gap-3 mt-6">
+        {([
+          { status: 'forgotten' as CardStatus, emoji: '😵', label: '忘记', cls: 'bg-[#FF4B4B] text-white border-b-[#EA2B2B]' },
+          { status: 'fuzzy' as CardStatus, emoji: '🤔', label: '模糊', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
+          { status: 'mastered' as CardStatus, emoji: '✅', label: '掌握', cls: 'bg-[#58CC02] text-white border-b-[#46A302]' },
+        ]).map((btn) => (
+          <button
+            key={btn.status}
+            onClick={() => onStatusChange(btn.status)}
+            className={cn(
+              'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
+              'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
+              btn.cls
+            )}
+          >
+            <span>{btn.emoji}</span>
+            <span>{btn.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );

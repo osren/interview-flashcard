@@ -170,7 +170,7 @@ export function Favorites() {
   // 空状态判断 - 只有在加载完成后才能确定是否真的为空
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center pb-20">
+      <div className="min-h-screen app-bg flex flex-col items-center justify-center pb-20">
         <Heart size={64} className="text-gray-300 dark:text-gray-600 mb-4" />
         <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">加载中...</h2>
         <p className="text-gray-400 dark:text-gray-500 text-sm">favorites: {favorites.length}, trending: {trendingFavorites.length}</p>
@@ -180,7 +180,7 @@ export function Favorites() {
 
   if (allFavorites.length === 0 && trendingFavorites.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center pb-20">
+      <div className="min-h-screen app-bg flex flex-col items-center justify-center pb-20">
         <Heart size={64} className="text-gray-300 dark:text-gray-600 mb-4" />
         <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">暂无收藏</h2>
         <p className="text-gray-400 dark:text-gray-500 text-sm">在卡片或 GitHub Trending 页面点击红心即可收藏</p>
@@ -213,8 +213,8 @@ export function Favorites() {
     };
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-20 md:pb-8">
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 safe-area-top">
+      <div className="min-h-screen app-bg pb-20 md:pb-8">
+        <div className="sticky top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
@@ -285,8 +285,8 @@ export function Favorites() {
     const moduleInfo = moduleConfig[selectedGroup.module];
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-20 md:pb-8">
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 safe-area-top">
+      <div className="min-h-screen app-bg pb-20 md:pb-8">
+        <div className="sticky top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
@@ -355,7 +355,7 @@ export function Favorites() {
 
   // 显示分组列表
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-20 md:pb-8">
+    <div className="min-h-screen app-bg pb-20 md:pb-8">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6">
           <Heart size={24} className="text-red-500 fill-red-500" />

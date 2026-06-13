@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { projectChapters } from '@/data/projects';
-import { Badge } from '@/components/ui';
+import { PageShell, SectionHeader, Badge } from '@/components/ui';
 import { useProjectStore } from '@/store/useProjectStore';
-import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Briefcase } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui';
 
 const moduleInfo = {
   didi: {
@@ -97,18 +98,14 @@ export function ProjectsIndex() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            💼 项目针对性复盘
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            针对滴滴实习和 GResume 项目进行深度复盘
-          </p>
-        </div>
+    <PageShell>
+      <SectionHeader
+        icon={<Briefcase size={24} className="text-white" strokeWidth={2.5} />}
+        title="项目针对性复盘"
+        description="针对滴滴实习和 GResume 项目进行深度复盘"
+      />
 
-        <div className="grid gap-6">
+      <div className="grid gap-5">
           {allProjects.map((project, index) => {
             return (
               <motion.div
@@ -117,12 +114,8 @@ export function ProjectsIndex() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden relative group">
-                  {project.isCustom ? (
-                    <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600" />
-                  ) : (
-                    <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600" />
-                  )}
+                <div className="surface-card overflow-hidden relative group">
+                  <div className={`h-1 bg-gradient-to-r ${project.isCustom ? 'from-primary-400 to-primary-600' : 'from-orange-400 to-rose-500'}`} />
                   <div className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="text-5xl">{project.icon}</div>
@@ -156,7 +149,7 @@ export function ProjectsIndex() {
                             </div>
                           ) : (
                             <>
-                              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                              <h2 className="text-xl font-display font-semibold text-ink">
                                 {project.title}
                               </h2>
                               {project.isCustom && (
@@ -178,7 +171,7 @@ export function ProjectsIndex() {
                             </>
                           )}
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                        <p className="text-ink-secondary text-sm mb-4">
                           {project.description}
                         </p>
                         <div className="flex flex-wrap gap-2 mb-4">
@@ -193,13 +186,9 @@ export function ProjectsIndex() {
                             {project.cardCount ? `${project.cardCount} 张卡片` : '暂无卡片'}
                           </Badge>
                           {project.isCustom ? (
-                            <span className="text-blue-600 font-medium text-sm">
-                              开始复盘 →
-                            </span>
+                            <span className="text-primary-600 font-medium text-sm">开始复盘 →</span>
                           ) : (
-                            <span className="text-purple-600 font-medium text-sm">
-                              开始复盘 →
-                            </span>
+                            <span className="text-primary-600 font-medium text-sm">开始复盘 →</span>
                           )}
                         </div>
                       </div>
@@ -222,94 +211,73 @@ export function ProjectsIndex() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowAddModal(true)}
-          className="fixed bottom-8 left-8 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+          className="fixed bottom-8 left-8 w-14 h-14 bg-primary-500 text-white rounded-full shadow-glow flex items-center justify-center hover:bg-primary-600 transition-colors z-40"
         >
-          <Plus size={28} />
+          <Plus size={24} />
         </motion.button>
 
-        {/* 新增项目弹窗 */}
         {showAddModal && (
           <div
-            className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setShowAddModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl"
+              className="surface-panel w-full max-w-md p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">新增项目</h3>
+              <h3 className="text-lg font-display font-semibold text-ink mb-4">新增项目</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    项目名称
-                  </label>
+                  <label className="block text-sm font-medium text-ink-secondary mb-1">项目名称</label>
                   <input
                     type="text"
                     value={newProject.title}
                     onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none text-gray-900 dark:text-white"
+                    className="input-field"
                     placeholder="输入项目名称"
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    项目描述
-                  </label>
+                  <label className="block text-sm font-medium text-ink-secondary mb-1">项目描述</label>
                   <textarea
                     value={newProject.description}
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none resize-none text-gray-900 dark:text-white"
+                    className="input-field resize-none"
                     placeholder="输入项目描述"
                     rows={2}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    图标
-                  </label>
+                  <label className="block text-sm font-medium text-ink-secondary mb-1">图标</label>
                   <input
                     type="text"
                     value={newProject.icon}
                     onChange={(e) => setNewProject({ ...newProject, icon: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none text-gray-900 dark:text-white"
+                    className="input-field"
                     placeholder="输入 emoji 图标"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    标签（逗号分隔）
-                  </label>
+                  <label className="block text-sm font-medium text-ink-secondary mb-1">标签（逗号分隔）</label>
                   <input
                     type="text"
                     value={newProject.topics}
                     onChange={(e) => setNewProject({ ...newProject, topics: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 outline-none text-gray-900 dark:text-white"
+                    className="input-field"
                     placeholder="React, TypeScript, 工程化"
                   />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleAddProject}
-                  disabled={!newProject.title.trim()}
-                  className="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
-                  创建
-                </button>
+                <Button variant="ghost" onClick={() => setShowAddModal(false)}>取消</Button>
+                <Button onClick={handleAddProject} disabled={!newProject.title.trim()}>创建</Button>
               </div>
             </motion.div>
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

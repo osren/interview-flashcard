@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useInterviewStore, COMPANY_COLOR_OPTIONS } from '@/store/useInterviewStore';
 import { InterviewStatus } from '@/types/interview';
-import { Plus, ChevronDown, ChevronRight, X, Check, Clock, Calendar, Pencil, Trash2 } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, X, Check, Clock, Calendar, Pencil, Trash2, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { PageShell, SectionHeader, Button } from '@/components/ui';
 
 const STATUS_CONFIG = {
   waiting: { label: '等待', color: 'text-blue-600 bg-blue-50 border-blue-200', icon: Clock },
@@ -236,29 +237,19 @@ export function InterviewIndex() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20 pb-8">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 dark:bg-blue-900/20 rounded-full blur-3xl" />
-        <div className="absolute top-40 right-20 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/20 rounded-full blur-3xl" />
+    <PageShell withDots={false}>
+      <SectionHeader
+        icon={<MessageSquare size={24} className="text-white" strokeWidth={2.5} />}
+        title="面经记录"
+        description="记录每一次面试，持续更新"
+      />
+
+      <div className="mb-6">
+        <Button onClick={() => setIsAddingCompany(true)} variant="outline" className="gap-2">
+          <Plus size={16} />
+          新增公司
+        </Button>
       </div>
-
-      <div className="relative max-w-4xl mx-auto px-4">
-        {/* 标题 */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">面经记录</h1>
-          <p className="text-gray-500 dark:text-gray-400">记录每一次面试，持续更新</p>
-        </div>
-
-        {/* 新增公司按钮 */}
-        <div className="mb-6">
-          <button
-            onClick={() => setIsAddingCompany(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-          >
-            <Plus size={18} />
-            新增公司
-          </button>
-        </div>
 
         {/* 新增公司表单 */}
         <AnimatePresence>
@@ -267,7 +258,7 @@ export function InterviewIndex() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-6 p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
+              className="mb-6 p-4 surface-panel"
             >
               <div className="flex flex-col gap-3">
                 <input
@@ -321,9 +312,9 @@ export function InterviewIndex() {
 
         {/* 公司列表 */}
         {companies.length === 0 ? (
-          <div className="text-center py-16 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700">
-            <p className="text-gray-500 dark:text-gray-400 font-medium">暂无面经记录</p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">点击上方"新增公司"开始记录</p>
+          <div className="text-center py-16 surface-panel">
+            <p className="text-ink-secondary font-medium">暂无面经记录</p>
+            <p className="text-ink-muted text-sm mt-1">点击上方「新增公司」开始记录</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -332,7 +323,7 @@ export function InterviewIndex() {
                 key={company.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden"
+                className="surface-card overflow-hidden"
               >
                 {/* 公司行 */}
                 <div
@@ -684,7 +675,6 @@ export function InterviewIndex() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

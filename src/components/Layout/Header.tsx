@@ -1,24 +1,19 @@
-/*
- * @Author: tancheng
- * @Date: 2026-05-21 10:22:31
- * @LastEditors: tancheng
- * @LastEditTime: 2026-05-21 10:23:34
- * @FilePath: /interview-flashcard/src/components/Layout/Header.tsx
- * @Description: 
- */
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
-import { useThemeStore, THEME_CONFIGS } from '@/store/useThemeStore';
-import { Heart, FileText, MessageSquare, Sparkles } from 'lucide-react';
+import { Logo } from '@/components/Layout/Logo';
+import {
+  Heart, FileText, MessageSquare, Sparkles, Menu, X,
+} from 'lucide-react';
 
 const navItems = [
   { path: '/', label: '首页' },
   { path: '/core', label: '核心考点' },
   { path: '/mpx', label: 'MPX' },
   { path: '/projects', label: '项目复盘' },
-  { path: '/algorithms', label: '刷题模块' },
+  { path: '/algorithms', label: '刷题' },
   { path: '/ai', label: 'AI资讯', icon: Sparkles },
   { path: '/resume', label: '简历', icon: FileText },
   { path: '/interview', label: '面经', icon: MessageSquare },
@@ -27,61 +22,120 @@ const navItems = [
 
 export function Header() {
   const location = useLocation();
-  const { themeColor } = useThemeStore();
-  const gradient = THEME_CONFIGS[themeColor].gradient;
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isActive = (path: string) =>
+    location.pathname === path ||
+    (path !== '/' && location.pathname.startsWith(path));
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            {/* 简约风格图标 - 主题色渐变 */}
-            <div className="relative w-8 h-8">
-              {/* 外层 - 主题色渐变 */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-lg`} />
-              {/* 内层 - 黑色填充 */}
-              <div className="absolute inset-[3px] bg-zinc-900 rounded-md flex items-center justify-center">
-                <span className={`absolute inset-[3px] bg-gradient-to-br ${gradient} bg-clip-text text-transparent text-xs font-bold flex items-center justify-center`}>IF</span>
-              </div>
-            </div>
-            <span className="font-display font-bold text-lg text-zinc-800 dark:text-zinc-100">
+    <header className="sticky top-0 z-50 bg-white border-b-2 border-[#e5e5e5]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-20">
+          <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
+            <Logo size={44} className="group-hover:scale-105 transition-transform" />
+            <span className="hidden sm:block font-extrabold text-2xl text-[#58CC02] tracking-tight">
               InterviewFlash
             </span>
           </Link>
 
-          {/* 导航 - 胶囊按钮样式 */}
-          <nav className="flex items-center gap-1">
+          <nav className="hidden xl:flex items-center gap-0.5">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path ||
-                (item.path !== '/' && location.pathname.startsWith(item.path));
+              const active = isActive(item.path);
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5 rounded-full',
-                    isActive
-                      ? `bg-gradient-to-r ${gradient} text-white font-semibold shadow-lg`
-                      : 'text-zinc-600 hover:text-zinc-900 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 dark:hover:text-white'
+                    'relative px-3.5 py-5 text-lg font-extrabold transition-colors flex items-center gap-1.5 whitespace-nowrap',
+                    active
+                      ? 'text-[#58CC02]'
+                      : 'text-[#777777] hover:text-[#4b4b4b]'
                   )}
                 >
-                  {item.icon && (
-                    <item.icon size={16} className={isActive ? 'text-white' : 'text-zinc-500'} />
-                  )}
+                  {item.icon && <item.icon size={18} strokeWidth={2.5} />}
                   {item.label}
+                  {active && (
+                    <motion.div
+                      layoutId="duo-nav-underline"
+                      className="absolute bottom-0 left-2 right-2 h-1 bg-[#58CC02] rounded-full"
+                    />
+                  )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* 右侧功能 */}
+          {/* 中等屏幕：精简导航 */}
+          <nav className="hidden lg:flex xl:hidden items-center gap-1">
+            {navItems.slice(0, 6).map((item) => {
+              const active = isActive(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    'relative px-2.5 py-5 text-base font-extrabold transition-colors whitespace-nowrap',
+                    active ? 'text-[#58CC02]' : 'text-[#777777] hover:text-[#4b4b4b]'
+                  )}
+                >
+                  {item.label}
+                  {active && (
+                    <motion.div
+                      layoutId="duo-nav-underline-md"
+                      className="absolute bottom-0 left-1 right-1 h-1 bg-[#58CC02] rounded-full"
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+
           <div className="flex items-center gap-2">
-            <ThemeSwitcher />
             <Pomodoro />
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden p-2.5 rounded-xl text-[#777777] hover:bg-[#f7f7f7]"
+              aria-label="菜单"
+            >
+              {mobileOpen ? <X size={26} /> : <Menu size={26} />}
+            </button>
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden border-t-2 border-[#e5e5e5] bg-white overflow-hidden"
+          >
+            <nav className="px-4 py-4 grid grid-cols-3 gap-2.5">
+              {navItems.map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-2xl text-sm font-extrabold transition-all border-2 border-b-4',
+                      active
+                        ? 'bg-[#58CC02] text-white border-[#58CC02] border-b-[#46A302]'
+                        : 'bg-white text-[#777777] border-[#e5e5e5] border-b-[#d0d0d0] hover:bg-[#f7f7f7]'
+                    )}
+                  >
+                    {item.icon && <item.icon size={18} strokeWidth={2.5} />}
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

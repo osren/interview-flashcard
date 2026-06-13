@@ -16,7 +16,7 @@ export function FloatingResumeButton() {
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed right-6 bottom-6 z-40 w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+        className="fixed right-6 bottom-6 z-40 w-14 h-14 bg-[#58CC02] rounded-full border-b-4 border-[#46A302] flex items-center justify-center hover:brightness-105 active:border-b-2 active:translate-y-[2px] transition-all"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? (

@@ -1,68 +1,67 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Progress } from '@/components/ui';
 import { useProgressStore, useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { algorithmChapters, algorithmCards } from '@/data/algorithms';
 import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
+import { motion } from 'framer-motion';
+import { Progress, ModuleTile } from '@/components/ui';
+import { Logo } from '@/components/Layout/Logo';
+import { BookOpen, Rocket, Briefcase, Code2, Sparkles, FileJson } from 'lucide-react';
 
 const modules = [
   {
     path: '/core',
-    icon: '📚',
+    icon: <BookOpen size={28} strokeWidth={2.5} />,
     title: '前端基础核心考点',
-    description: 'JavaScript/TypeScript/React/浏览器等核心知识',
+    description: 'JavaScript / TypeScript / React / 浏览器等核心知识',
     cardCount: coreCards.length,
     chapters: 10,
-    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/mpx',
-    icon: '🚀',
+    icon: <Rocket size={28} strokeWidth={2.5} />,
     title: 'MPX 专项',
     description: '滴滴小程序框架 MPX 语法、架构、工程化',
     cardCount: mpxCards.length,
     chapters: mpxChapters.length,
-    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/projects',
-    icon: '💼',
+    icon: <Briefcase size={28} strokeWidth={2.5} />,
     title: '项目针对性复盘',
     description: '滴滴实习 + GResume 项目深度复盘',
     cardCount: projectCards.length,
     chapters: projectChapters.length,
-    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/algorithms',
-    icon: '💻',
+    icon: <Code2 size={28} strokeWidth={2.5} />,
     title: '刷题模块',
-    description: '手撕代码/概念解释/场景设计',
+    description: '手撕代码 / 概念解释 / 场景设计',
     cardCount: algorithmCards.length,
     chapters: algorithmChapters.length,
-    color: 'from-primary-500 to-primary-600',
   },
   {
     path: '/custom',
-    icon: '✨',
+    icon: <Sparkles size={28} strokeWidth={2.5} />,
     title: '自定义卡片',
     description: '添加你自己的面试问题和答案',
-    cardCount: 0,
-    chapters: 0,
-    color: 'from-primary-500 to-primary-600',
     isCustom: true,
   },
   {
     path: '/rjsf',
-    icon: '📝',
+    icon: <FileJson size={28} strokeWidth={2.5} />,
     title: 'RJSF 表单演示',
     description: 'JSON Schema + react-jsonschema-form + Ant Design',
-    cardCount: 0,
-    chapters: 0,
-    color: 'from-cyan-500 to-cyan-600',
+    isDemo: true,
   },
+];
+
+const features = [
+  { icon: '🔄', title: '卡片翻转', desc: '点击翻转，即时查看答案', color: '#58CC02' },
+  { icon: '📊', title: '进度追踪', desc: '记录每张卡的掌握程度', color: '#1CB0F6' },
+  { icon: '🔍', title: '智能筛选', desc: '按章节 / 难度精准过滤', color: '#FFC800' },
+  { icon: '⭐', title: '收藏重点', desc: '标记高频考点随时复习', color: '#CE82FF' },
 ];
 
 export function Home() {
@@ -72,130 +71,109 @@ export function Home() {
   const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-display font-medium text-gray-900 dark:text-white mb-4"
-            style={{ lineHeight: 1.1 }}
-          >
-            InterviewFlash
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-xl text-text-muted dark:text-gray-400 mb-8"
-            style={{ lineHeight: 1.5 }}
-          >
-            前端面试备考记忆卡片系统
-          </motion.p>
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* Hero - 多邻国风格 */}
+      <section className="text-center mb-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex justify-center mb-6"
+        >
+          <Logo size={80} className="animate-float" />
+        </motion.div>
 
-          {/* 总体进度 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-subtle p-6"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-text-muted font-medium">学习进度</span>
-              <span className="text-2xl font-semibold text-brand-600">{percentage}%</span>
-            </div>
-            <Progress value={percentage} size="lg" />
-            <div className="mt-3 text-sm text-text-tertiary">
-              已掌握 {totalMastered} / {totalCards} 张卡片
-            </div>
-          </motion.div>
-        </div>
-      </section>
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-4xl sm:text-5xl font-extrabold text-[#3c3c3c] mb-4"
+        >
+          准备好面试了吗？
+        </motion.h1>
 
-      {/* 模块卡片 - MiniMax 大圆角卡片 */}
-      <section className="py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {modules.map((module, index) => (
-              <motion.div
-                key={module.path}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Link
-                  to={module.path}
-                  className="block bg-white dark:bg-gray-800 rounded-xl shadow-subtle hover:shadow-elevated transition-all duration-300 overflow-hidden group"
-                  style={{ borderRadius: '20px' }}
-                >
-                  <div className={`h-2 bg-gradient-to-r ${module.color}`} />
-                  <div className="p-6">
-                    <div className="text-5xl mb-4">{module.icon}</div>
-                    <h2 className="text-lg font-display font-medium text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 transition-colors">
-                      {module.title}
-                    </h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4" style={{ lineHeight: 1.5 }}>
-                      {module.description}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                      {module.isCustom ? (
-                        <span className="flex items-center gap-1">
-                          <span className="font-medium text-gray-700 dark:text-gray-200">{customCards.length}</span>
-                          张卡片
-                        </span>
-                      ) : module.path === '/rjsf' ? (
-                        <span className="flex items-center gap-1">
-                          <span className="font-medium text-gray-700 dark:text-gray-200">Demo</span>
-                        </span>
-                      ) : (
-                        <>
-                          <span className="flex items-center gap-1">
-                            <span className="font-medium text-gray-700 dark:text-gray-200">{module.chapters}</span>
-                            个章节
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="font-medium text-gray-700 dark:text-gray-200">{module.cardCount}</span>
-                            张卡片
-                          </span>
-                        </>
-                      )}
-                    </div>
-<div className="mt-4 flex items-center text-primary-600 font-medium text-sm">
-                      {module.isCustom ? '管理卡片 →' : module.path === '/rjsf' ? '查看演示 →' : '开始学习 →'}
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="text-lg sm:text-xl text-[#777777] font-semibold max-w-md mx-auto mb-8"
+        >
+          翻转卡片，追踪进度，每天进步一点点
+        </motion.p>
+
+        {/* 进度卡片 */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="surface-panel p-6 max-w-sm mx-auto text-left"
+        >
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-base font-extrabold text-[#3c3c3c]">学习进度</span>
+            <span className="text-3xl font-extrabold text-[#58CC02]">{percentage}%</span>
           </div>
+          <Progress value={percentage} size="md" />
+          <p className="text-sm text-[#afafaf] font-bold mt-2">
+            已掌握 {totalMastered} / {totalCards} 张卡片
+          </p>
+        </motion.div>
+      </section>
+
+      {/* 学习路径 - 多邻国单元卡片 */}
+      <section className="mb-10">
+        <h2 className="text-2xl font-extrabold text-[#3c3c3c] mb-5">
+          学习路径
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {modules.map((module, index) => (
+            <ModuleTile
+              key={module.path}
+              to={module.path}
+              icon={module.icon}
+              title={module.title}
+              description={module.description}
+              index={index}
+              actionLabel={
+                module.isCustom ? '管理卡片' :
+                module.isDemo ? '查看演示' : '开始学习'
+              }
+              stats={
+                module.isCustom ? (
+                  <span>{customCards.length} 张自定义卡片</span>
+                ) : module.isDemo ? (
+                  <span>交互式 Demo</span>
+                ) : (
+                  <span>{module.chapters} 章节 · {module.cardCount} 张卡片</span>
+                )
+              }
+            />
+          ))}
         </div>
       </section>
 
-      {/* 特性介绍 */}
-      <section className="py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-display font-semibold text-gray-900 dark:text-white text-center mb-8">
-            功能特点
-          </h2>
-          <div className="grid md:grid-cols-4 gap-4">
-            {[
-              { icon: '🔄', title: '卡片翻转', desc: '点击翻转查看答案' },
-              { icon: '📊', title: '进度追踪', desc: '记录掌握程度' },
-              { icon: '🔍', title: '智能筛选', desc: '按章节/难度筛选' },
-              { icon: '⭐', title: '收藏重点', desc: '标记重点卡片' },
-            ].map((feature) => (
+      {/* 功能介绍 */}
+      <section className="pb-12">
+        <h2 className="text-2xl font-extrabold text-[#3c3c3c] mb-5 text-center">
+          核心功能
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {features.map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.06 }}
+              className="surface-card p-5 text-center"
+            >
               <div
-                key={feature.title}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-subtle"
-                style={{ borderRadius: '13px' }}
+                className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl border-b-4"
+                style={{ backgroundColor: `${feature.color}20`, borderBottomColor: feature.color }}
               >
-                <div className="text-3xl mb-2">{feature.icon}</div>
-                <h3 className="font-medium text-text-primary dark:text-white">{feature.title}</h3>
-                <p className="text-sm text-text-tertiary dark:text-gray-400">{feature.desc}</p>
+                {feature.icon}
               </div>
-            ))}
-          </div>
+              <h3 className="font-extrabold text-[#3c3c3c] mb-1.5 text-base">{feature.title}</h3>
+              <p className="text-sm text-[#777777] font-semibold">{feature.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
     </div>

@@ -21,21 +21,21 @@ export function Progress({
     <div className={cn('w-full', className)}>
       <div
         className={cn(
-          'bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700',
+          'bg-[#e5e5e5] rounded-full overflow-hidden',
           {
-            'h-1': size === 'sm',
-            'h-2': size === 'md',
-            'h-3': size === 'lg',
+            'h-3': size === 'sm',
+            'h-4': size === 'md',
+            'h-5': size === 'lg',
           }
         )}
       >
         <div
-          className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
+          className="h-full rounded-full transition-all duration-700 ease-out bg-[#58CC02]"
           style={{ width: `${percentage}%` }}
         />
       </div>
       {showLabel && (
-        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 text-right">
+        <div className="mt-1 text-sm text-[#777777] font-bold text-right">
           {Math.round(percentage)}%
         </div>
       )}
