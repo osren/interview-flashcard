@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight, Home, X, Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import MDEditor from '@uiw/react-md-editor';
 import { useProjectStore } from '@/store/useProjectStore';
+import { cn } from '@/utils/cn';
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -219,54 +220,76 @@ export function ProjectDetail() {
         </div>
       </div>
 
-      {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
-      <div className="flex-1 flex items-center 2xl:items-start justify-center px-4 -mt-2 2xl:pt-2">
-        {/* 左侧按钮 */}
-        <button
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
-            flex items-center justify-center transition-all duration-200
-            ${currentIndex === 0
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-50 hover:scale-105 active:scale-95'}
-          `}
-        >
-          <ChevronLeft size={28} className="text-gray-600" />
-        </button>
+      {/* 卡片区域 */}
+      <div className="flex-1 flex flex-col items-center justify-center px-3 sm:px-4 -mt-2 2xl:pt-2 w-full min-w-0">
+        <div className="flex items-center justify-center w-full max-w-3xl gap-2 sm:gap-4 min-w-0">
+          <button
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className={cn(
+              'hidden sm:flex flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200',
+              'items-center justify-center transition-all duration-200',
+              currentIndex === 0
+                ? 'opacity-30 cursor-not-allowed'
+                : 'hover:bg-gray-50 hover:scale-105 active:scale-95'
+            )}
+          >
+            <ChevronLeft size={24} className="text-gray-600" />
+          </button>
 
-        {/* 卡片 */}
-        <motion.div
-          key={currentCard.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mx-6 flex-shrink-0"
-        >
-          <FlashCardComponent
-            card={currentCard}
-            onStatusChange={handleStatusChange}
-            currentIndex={currentIndex}
-            totalCards={cards.length}
-            showEdit={true}
-          />
-        </motion.div>
+          <motion.div
+            key={currentCard.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 min-w-0 w-full"
+          >
+            <FlashCardComponent
+              card={currentCard}
+              onStatusChange={handleStatusChange}
+              currentIndex={currentIndex}
+              totalCards={cards.length}
+              showEdit={true}
+            />
+          </motion.div>
 
-        {/* 右侧按钮 */}
-        <button
-          onClick={handleNext}
-          disabled={currentIndex === cards.length - 1}
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
-            flex items-center justify-center transition-all duration-200
-            ${currentIndex === cards.length - 1
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-50 hover:scale-105 active:scale-95'}
-          `}
-        >
-          <ChevronRight size={28} className="text-gray-600" />
-        </button>
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === cards.length - 1}
+            className={cn(
+              'hidden sm:flex flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200',
+              'items-center justify-center transition-all duration-200',
+              currentIndex === cards.length - 1
+                ? 'opacity-30 cursor-not-allowed'
+                : 'hover:bg-gray-50 hover:scale-105 active:scale-95'
+            )}
+          >
+            <ChevronRight size={24} className="text-gray-600" />
+          </button>
+        </div>
+
+        <div className="flex sm:hidden items-center justify-center gap-8 mt-4">
+          <button
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className={cn(
+              'w-11 h-11 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center',
+              currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'active:scale-95'
+            )}
+          >
+            <ChevronLeft size={22} className="text-gray-600" />
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === cards.length - 1}
+            className={cn(
+              'w-11 h-11 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center',
+              currentIndex === cards.length - 1 ? 'opacity-30 cursor-not-allowed' : 'active:scale-95'
+            )}
+          >
+            <ChevronRight size={22} className="text-gray-600" />
+          </button>
+        </div>
       </div>
 
       {/* 新增问题按钮 */}

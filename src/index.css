@@ -174,7 +174,38 @@ h1, h2, h3, h4, h5, h6 {
 .preserve-3d { transform-style: preserve-3d; }
 .backface-hidden { backface-visibility: hidden; }
 
-::-webkit-scrollbar { width: 8px; }
+/* 卡片内容区：支持上下左右拖动查看溢出内容 */
+.card-content-scroll {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+
+.card-content-scroll pre,
+.card-content-scroll table {
+  max-width: none;
+}
+
+.card-markdown-content .wmde-markdown pre,
+.card-content-scroll pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.card-markdown-content .wmde-markdown table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: max-content;
+  max-width: none;
+}
+
+.card-markdown-content .wmde-markdown img {
+  max-width: none;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #f7f7f7; }
 ::-webkit-scrollbar-thumb {
   background: var(--duo-green);

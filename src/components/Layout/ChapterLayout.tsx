@@ -44,7 +44,7 @@ export function ChapterLayout({
 
   return (
     <div className="min-h-screen app-bg flex flex-col">
-      <div className="sticky top-20 z-10 bg-white border-b-2 border-[#e5e5e5]">
+      <div className="sticky top-14 md:top-20 z-10 bg-white border-b-2 border-[#e5e5e5]">
         <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
@@ -116,32 +116,59 @@ export function ChapterLayout({
         </div>
       </div>
 
-      <div className="flex-1 flex items-center 2xl:items-start justify-center px-4 pb-8">
-        <button
-          onClick={onPrev}
-          disabled={!canPrev}
-          className={cn(
-            'flex-shrink-0 w-12 h-12 rounded-full bg-white border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0]',
-            'flex items-center justify-center transition-all',
-            canPrev ? 'hover:bg-[#f7f7f7] active:border-b-2 active:translate-y-[2px]' : 'opacity-30 cursor-not-allowed'
-          )}
-        >
-          <ChevronLeft size={24} className="text-[#777777]" />
-        </button>
+      <div className="flex-1 flex flex-col items-center justify-center px-3 sm:px-4 pb-6 sm:pb-8 w-full min-w-0">
+        <div className="flex items-center justify-center w-full max-w-3xl gap-2 sm:gap-4 min-w-0">
+          <button
+            onClick={onPrev}
+            disabled={!canPrev}
+            className={cn(
+              'hidden sm:flex flex-shrink-0 w-12 h-12 rounded-full bg-white border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0]',
+              'items-center justify-center transition-all',
+              canPrev ? 'hover:bg-[#f7f7f7] active:border-b-2 active:translate-y-[2px]' : 'opacity-30 cursor-not-allowed'
+            )}
+          >
+            <ChevronLeft size={24} className="text-[#777777]" />
+          </button>
 
-        <div className="mx-4 sm:mx-6 flex-shrink-0">{children}</div>
+          <div className="flex-1 min-w-0 w-full">{children}</div>
 
-        <button
-          onClick={onNext}
-          disabled={!canNext}
-          className={cn(
-            'flex-shrink-0 w-12 h-12 rounded-full bg-[#58CC02] border-b-4 border-[#46A302]',
-            'flex items-center justify-center transition-all',
-            canNext ? 'hover:brightness-105 active:border-b-2 active:translate-y-[2px]' : 'opacity-30 cursor-not-allowed'
-          )}
-        >
-          <ChevronRight size={24} className="text-white" />
-        </button>
+          <button
+            onClick={onNext}
+            disabled={!canNext}
+            className={cn(
+              'hidden sm:flex flex-shrink-0 w-12 h-12 rounded-full bg-[#58CC02] border-b-4 border-[#46A302]',
+              'items-center justify-center transition-all',
+              canNext ? 'hover:brightness-105 active:border-b-2 active:translate-y-[2px]' : 'opacity-30 cursor-not-allowed'
+            )}
+          >
+            <ChevronRight size={24} className="text-white" />
+          </button>
+        </div>
+
+        <div className="flex sm:hidden items-center justify-center gap-8 mt-4">
+          <button
+            onClick={onPrev}
+            disabled={!canPrev}
+            className={cn(
+              'w-11 h-11 rounded-full bg-white border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0]',
+              'flex items-center justify-center transition-all',
+              canPrev ? 'active:border-b-2 active:translate-y-[2px]' : 'opacity-30 cursor-not-allowed'
+            )}
+          >
+            <ChevronLeft size={22} className="text-[#777777]" />
+          </button>
+          <button
+            onClick={onNext}
+            disabled={!canNext}
+            className={cn(
+              'w-11 h-11 rounded-full bg-[#58CC02] border-b-4 border-[#46A302]',
+              'flex items-center justify-center transition-all',
+              canNext ? 'active:border-b-2 active:translate-y-[2px]' : 'opacity-30 cursor-not-allowed'
+            )}
+          >
+            <ChevronRight size={22} className="text-white" />
+          </button>
+        </div>
       </div>
 
       {footer && <div className="pb-6 flex justify-center">{footer}</div>}

@@ -286,7 +286,7 @@ export function Favorites() {
 
     return (
       <div className="min-h-screen app-bg pb-20 md:pb-8">
-        <div className="sticky top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
+        <div className="sticky top-14 md:top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
@@ -314,7 +314,7 @@ export function Favorites() {
           </div>
         </div>
 
-        <div className="flex justify-center px-4 pt-4">
+        <div className="w-full max-w-3xl mx-auto px-3 sm:px-4 pt-4">
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}

@@ -6,6 +6,7 @@ import { Edit, Save, X, Heart, HelpCircle } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
+import { CardScrollArea } from './CardScrollArea';
 
 interface FlashCardProps {
   card: FlashCardType;
@@ -67,10 +68,10 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
-    <div className="w-[768px] max-w-[768px] flex-shrink-0">
+    <div className="w-full max-w-3xl mx-auto min-w-0">
       <div
-        className="relative cursor-pointer"
-        style={{ height: '480px', perspective: '1000px' }}
+        className="relative cursor-pointer w-full h-[clamp(260px,calc(100dvh-18rem),480px)]"
+        style={{ perspective: '1000px' }}
         onClick={handleFlip}
       >
         <motion.div
@@ -86,7 +87,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             style={{ backfaceVisibility: 'hidden' }}
           >
             <div className="h-3 bg-[#58CC02]" />
-            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5]">
+            <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b-2 border-[#e5e5e5]">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 {currentIndex !== undefined && totalCards !== undefined && (
@@ -110,24 +111,27 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">
-              <div className="w-20 h-20 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center mb-6">
-                <HelpCircle size={40} className="text-white" strokeWidth={2.5} />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#3c3c3c] text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto px-2">
-                {displayCard.question}
-              </h2>
-              {displayCard.difficulty && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {displayCard.difficulty === 'easy' && <Badge variant="success">简单</Badge>}
-                  {displayCard.difficulty === 'medium' && <Badge variant="warning">中等</Badge>}
-                  {displayCard.difficulty === 'hard' && <Badge variant="danger">困难</Badge>}
+            <div className="flex-1 min-h-0 flex flex-col">
+              <CardScrollArea center className="px-4 py-4 sm:px-8 sm:py-6">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center mb-4 sm:mb-6 flex-shrink-0">
+                  <HelpCircle size={32} className="text-white sm:hidden" strokeWidth={2.5} />
+                  <HelpCircle size={40} className="text-white hidden sm:block" strokeWidth={2.5} />
                 </div>
-              )}
+                <h2 className="text-lg sm:text-2xl font-extrabold text-[#3c3c3c] text-center whitespace-pre-wrap leading-relaxed break-words px-1 sm:px-2">
+                  {displayCard.question}
+                </h2>
+                {displayCard.difficulty && (
+                  <div className="flex justify-center gap-2 mt-4 flex-shrink-0">
+                    {displayCard.difficulty === 'easy' && <Badge variant="success">简单</Badge>}
+                    {displayCard.difficulty === 'medium' && <Badge variant="warning">中等</Badge>}
+                    {displayCard.difficulty === 'hard' && <Badge variant="danger">困难</Badge>}
+                  </div>
+                )}
+              </CardScrollArea>
             </div>
 
-            <div className="px-6 py-4 bg-[#f7f7f7] text-center text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5]">
-              点击卡片查看答案
+            <div className="px-4 py-3 sm:px-6 sm:py-4 bg-[#f7f7f7] text-center text-xs sm:text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5] flex-shrink-0">
+              点击卡片查看答案 · 可拖动查看完整内容
             </div>
           </div>
 
@@ -137,7 +141,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <div className="h-3 bg-[#1CB0F6]" />
-            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
+            <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 <Badge variant={statusConfig[displayCard.status].variant}>
@@ -169,7 +173,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            <div className="flex-1 px-6 py-4 overflow-y-auto" data-color-mode="light">
+            <CardScrollArea className="px-4 py-3 sm:px-6 sm:py-4" data-color-mode="light">
               {isEditing ? (
                 <MDEditor
                   value={editedAnswer}
@@ -179,7 +183,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                   style={{ height: '100%', backgroundColor: 'var(--bg-muted)' }}
                 />
               ) : (
-                <>
+                <div className="card-markdown-content min-w-0">
                   <MDEditor.Markdown
                     source={formattedAnswer}
                     style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
@@ -192,19 +196,19 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                       </pre>
                     </div>
                   )}
-                </>
+                </div>
               )}
-            </div>
+            </CardScrollArea>
 
-            <div className="px-6 py-3 bg-primary-50/80 dark:bg-primary-900/20 text-center text-sm text-ink-muted border-t border-surface-border">
-              再次点击返回问题
+            <div className="px-4 py-2 sm:px-6 sm:py-3 bg-primary-50/80 dark:bg-primary-900/20 text-center text-xs sm:text-sm text-ink-muted border-t border-surface-border flex-shrink-0">
+              再次点击返回问题 · 可拖动查看完整内容
             </div>
           </div>
         </motion.div>
       </div>
 
       {/* 状态按钮 */}
-      <div className="flex justify-center gap-3 mt-6">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4 sm:mt-6 px-2">
         {([
           { status: 'forgotten' as CardStatus, emoji: '😵', label: '忘记', cls: 'bg-[#FF4B4B] text-white border-b-[#EA2B2B]' },
           { status: 'fuzzy' as CardStatus, emoji: '🤔', label: '模糊', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
@@ -214,7 +218,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             key={btn.status}
             onClick={() => onStatusChange(btn.status)}
             className={cn(
-              'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
+              'px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl transition-all text-xs sm:text-sm font-extrabold uppercase tracking-wide flex items-center gap-1.5 sm:gap-2 border-b-4',
               'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
               btn.cls
             )}

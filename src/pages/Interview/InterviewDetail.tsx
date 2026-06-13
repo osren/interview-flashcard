@@ -4,6 +4,7 @@ import { useInterviewStore } from '@/store/useInterviewStore';
 import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check, List, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MDEditor from '@uiw/react-md-editor';
+import { CardScrollArea } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
 
 export function InterviewDetail() {
@@ -194,8 +195,8 @@ export function InterviewDetail() {
           <div className="flex flex-col items-center">
             {/* 翻转卡片 */}
             <div
-              className="w-[768px] max-w-[768px] cursor-pointer"
-              style={{ height: '480px', perspective: '1000px' }}
+              className="relative w-full max-w-3xl mx-auto cursor-pointer h-[clamp(260px,calc(100dvh-18rem),480px)]"
+              style={{ perspective: '1000px' }}
               onClick={handleFlip}
             >
               <motion.div
@@ -234,15 +235,17 @@ export function InterviewDetail() {
                     </button>
                   </div>
 
-                  <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">
-                    <div className="text-5xl mb-4">❓</div>
-                    <h2 className="text-lg font-medium text-gray-800 text-center whitespace-pre-wrap leading-relaxed">
-                      {currentQuestion.question}
-                    </h2>
+                  <div className="flex-1 min-h-0 flex flex-col">
+                    <CardScrollArea center className="px-4 py-4 sm:px-8 sm:py-6">
+                      <div className="text-5xl mb-4 flex-shrink-0">❓</div>
+                      <h2 className="text-lg font-medium text-gray-800 text-center whitespace-pre-wrap leading-relaxed break-words">
+                        {currentQuestion.question}
+                      </h2>
+                    </CardScrollArea>
                   </div>
 
-                  <div className="px-6 py-3 bg-gray-50 text-center text-sm text-gray-500">
-                    点击卡片查看答案
+                  <div className="px-4 py-3 sm:px-6 bg-gray-50 text-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
+                    点击卡片查看答案 · 可拖动查看完整内容
                   </div>
                 </div>
 
@@ -294,7 +297,7 @@ export function InterviewDetail() {
                     </div>
                   </div>
 
-                  <div className="flex-1 px-6 py-4 overflow-y-auto" data-color-mode="light">
+                  <CardScrollArea className="px-4 py-3 sm:px-6 sm:py-4" data-color-mode="light">
                     {isEditing ? (
                       <div className="space-y-3">
                         <input
@@ -312,17 +315,17 @@ export function InterviewDetail() {
                         />
                       </div>
                     ) : (
-                      <div className="text-gray-700">
+                      <div className="card-markdown-content text-gray-700 min-w-0">
                         <MDEditor.Markdown
                           source={currentQuestion.answer || '暂无回答'}
                           style={{ backgroundColor: 'transparent' }}
                         />
                       </div>
                     )}
-                  </div>
+                  </CardScrollArea>
 
-                  <div className="px-6 py-3 bg-indigo-100/50 text-center text-sm text-gray-500 border-t border-indigo-200">
-                    再次点击卡片可返回问题
+                  <div className="px-4 py-3 sm:px-6 bg-indigo-100/50 text-center text-xs sm:text-sm text-gray-500 border-t border-indigo-200 flex-shrink-0">
+                    再次点击卡片可返回问题 · 可拖动查看完整内容
                   </div>
                 </div>
               </motion.div>
