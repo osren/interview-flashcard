@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
+import { Edit, Save, X, Heart, HelpCircle } from 'lucide-react';
+import MDEditor from '@uiw/react-md-editor';
 import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
 
@@ -11,215 +12,217 @@ interface FlashCardProps {
   onStatusChange: (status: CardStatus) => void;
   currentIndex?: number;
   totalCards?: number;
+  showEdit?: boolean;
 }
 
-export function FlashCard({ card, onStatusChange, currentIndex, totalCards }: FlashCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const { toggleFavorite, isFavorited } = useCardStore();
-  const favorited = isFavorited(card.id);
+const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'primary' | 'success' | 'warning' | 'danger' }> = {
+  unvisited: { label: '未开始', variant: 'default' },
+  forgotten: { label: '忘记', variant: 'danger' },
+  fuzzy: { label: '模糊', variant: 'warning' },
+  mastered: { label: '掌握', variant: 'success' },
+};
 
-  // 切换卡片时重置翻转状态
+export function FlashCard({ card, onStatusChange, currentIndex, totalCards, showEdit = false }: FlashCardProps) {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAnswer, setEditedAnswer] = useState(card.answer);
+
+  const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
+  const displayCard = getCardWithModifications(card);
+  const hasModification = !!modifiedCards[card.id];
+
   useEffect(() => {
     setIsFlipped(false);
+    setIsEditing(false);
+    if (!isEditing) {
+      setEditedAnswer(displayCard.answer);
+    }
   }, [card.id]);
 
-  const handleFlip = () => {
-    setIsFlipped((prev) => !prev);
+  const handleFlip = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (e && (e.target as HTMLElement).closest('button, a, [data-stop-propagation]')) {
+      return;
+    }
+    if (!isEditing) {
+      setIsFlipped((prev) => !prev);
+    }
   };
 
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleFavorite(card);
+  const handleSaveEdit = () => {
+    updateCardAnswer(card.id, { answer: editedAnswer });
+    setIsEditing(false);
   };
 
-  const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' }> = {
-    unvisited: { label: '未开始', variant: 'default' },
-    forgotten: { label: '忘记', variant: 'danger' },
-    fuzzy: { label: '模糊', variant: 'warning' },
-    mastered: { label: '掌握', variant: 'success' },
+  const handleCancelEdit = () => {
+    setEditedAnswer(displayCard.answer);
+    setIsEditing(false);
   };
+
+  const handleReset = () => {
+    resetCardAnswer(card.id);
+    setEditedAnswer(card.answer);
+  };
+
+  const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* 卡片容器 */}
+    <div className="w-[768px] max-w-[768px] flex-shrink-0">
       <div
-        className="relative cursor-pointer md:cursor-pointer"
-        style={{ minHeight: '420px', perspective: '1000px' }}
+        className="relative cursor-pointer"
+        style={{ height: '480px', perspective: '1000px' }}
         onClick={handleFlip}
       >
         <motion.div
-          className="absolute inset-0 w-full"
+          className="absolute inset-0 w-full h-full"
           initial={false}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
-          style={{
-            transformStyle: 'preserve-3d',
-            minHeight: '420px',
-          }}
+          transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+          style={{ transformStyle: 'preserve-3d' }}
         >
-          {/* 正面 */}
+          {/* 正面 - 问题 */}
           <div
-            className="absolute inset-0 flex flex-col bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden md:rounded-2xl"
-            style={{ backfaceVisibility: 'hidden', minHeight: '420px' }}
+            className="absolute inset-0 flex flex-col bg-white rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0] overflow-hidden"
+            style={{ backfaceVisibility: 'hidden' }}
           >
-            {/* 顶部标签区 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <Badge variant="primary" className="text-xs">{card.category || card.module}</Badge>
+            <div className="h-3 bg-[#58CC02]" />
+            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5]">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 {currentIndex !== undefined && totalCards !== undefined && (
-                  <Badge variant="secondary" className="text-xs">{currentIndex + 1}/{totalCards}</Badge>
+                  <Badge variant="outline">{currentIndex + 1} / {totalCards}</Badge>
                 )}
+                {hasModification && <Badge variant="warning" className="text-xs">已修改</Badge>}
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={handleFavorite}
-                  className={cn(
-                    'p-1.5 rounded-full transition-all active:scale-90',
-                    favorited ? 'text-red-500 hover:text-red-600' : 'text-gray-300 hover:text-red-400'
-                  )}
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(card); }}
+                  className="p-1.5 hover:bg-surface-muted rounded-lg transition-colors"
                 >
-                  <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
+                  <Heart
+                    size={18}
+                    className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-ink-muted'}
+                  />
                 </button>
-                <Badge variant={statusConfig[card.status].variant} className="text-xs">
-                  {statusConfig[card.status].label}
+                <Badge variant={statusConfig[displayCard.status].variant}>
+                  {statusConfig[displayCard.status].label}
                 </Badge>
               </div>
             </div>
 
-            {/* 问题内容区 */}
-            <div className="flex-1 flex flex-col items-center justify-center px-5 py-4 overflow-hidden">
-              <div className="text-4xl mb-3">❓</div>
-              <h2 className="text-base font-medium text-gray-800 text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto">
-                {card.question}
+            <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 overflow-hidden">
+              <div className="w-20 h-20 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center mb-6">
+                <HelpCircle size={40} className="text-white" strokeWidth={2.5} />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#3c3c3c] text-center whitespace-pre-wrap leading-relaxed max-h-full overflow-y-auto px-2">
+                {displayCard.question}
               </h2>
-
-              {card.difficulty && (
-                <div className="flex justify-center gap-2 mt-3">
-                  {card.difficulty === 'easy' && (
-                    <Badge variant="success" className="text-xs">简单</Badge>
-                  )}
-                  {card.difficulty === 'medium' && (
-                    <Badge variant="warning" className="text-xs">中等</Badge>
-                  )}
-                  {card.difficulty === 'hard' && (
-                    <Badge variant="danger" className="text-xs">困难</Badge>
-                  )}
+              {displayCard.difficulty && (
+                <div className="flex justify-center gap-2 mt-4">
+                  {displayCard.difficulty === 'easy' && <Badge variant="success">简单</Badge>}
+                  {displayCard.difficulty === 'medium' && <Badge variant="warning">中等</Badge>}
+                  {displayCard.difficulty === 'hard' && <Badge variant="danger">困难</Badge>}
                 </div>
               )}
             </div>
 
-            {/* 底部提示 */}
-            <div className="px-4 py-2.5 bg-gray-50 text-center text-xs text-gray-500">
+            <div className="px-6 py-4 bg-[#f7f7f7] text-center text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5]">
               点击卡片查看答案
             </div>
           </div>
 
           {/* 背面 - 答案 */}
           <div
-            className="absolute inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl shadow-xl border border-blue-200 overflow-hidden"
-            style={{
-              backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)',
-              minHeight: '420px',
-            }}
+            className="absolute inset-0 flex flex-col bg-white rounded-2xl border-2 border-[#1CB0F6] border-b-4 border-b-[#1899D6] overflow-hidden"
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            {/* 顶部标签区 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200">
-              <Badge variant="primary" className="text-xs">参考答案</Badge>
+            <div className="h-3 bg-[#1CB0F6]" />
+            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleFavorite}
-                  className={cn(
-                    'p-1.5 rounded-full transition-all active:scale-90',
-                    favorited ? 'text-red-500 hover:text-red-600' : 'text-gray-300 hover:text-red-400'
-                  )}
-                >
-                  <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
-                </button>
-                <span className="text-xs text-blue-600">点击收起</span>
+                <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
+                <Badge variant={statusConfig[displayCard.status].variant}>
+                  {statusConfig[displayCard.status].label}
+                </Badge>
               </div>
+              {showEdit && (
+                <div className="flex items-center gap-2" data-stop-propagation>
+                  {isEditing ? (
+                    <>
+                      <button onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }} className="p-1.5 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors" title="保存">
+                        <Save size={16} />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors" title="取消">
+                        <X size={16} />
+                      </button>
+                    </>
+                  ) : (
+                    <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-ink-secondary hover:bg-surface-muted rounded-lg transition-colors" title="编辑答案">
+                      <Edit size={16} />
+                    </button>
+                  )}
+                  {hasModification && !isEditing && (
+                    <button onClick={(e) => { e.stopPropagation(); handleReset(); }} className="p-1.5 text-xs text-ink-muted hover:text-primary-600" title="恢复原始答案">
+                      恢复默认
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* 答案内容区 - 可滚动 */}
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-              {/* 文字答案 */}
-              <div>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">
-                  {card.answer}
-                </div>
-              </div>
-
-              {/* 代码示例 - 如果有的话 */}
-              {card.codeExample && (
-                <div className="mt-3">
-                  <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
-                    <span>💻</span> 代码示例
-                  </h4>
-                  <pre className="bg-gray-900 text-gray-100 p-3 rounded-lg text-xs overflow-x-auto leading-relaxed">
-                    <code>{card.codeExample}</code>
-                  </pre>
-                </div>
+            <div className="flex-1 px-6 py-4 overflow-y-auto" data-color-mode="light">
+              {isEditing ? (
+                <MDEditor
+                  value={editedAnswer}
+                  onChange={(val) => setEditedAnswer(val || '')}
+                  height="100%"
+                  preview="edit"
+                  style={{ height: '100%', backgroundColor: 'var(--bg-muted)' }}
+                />
+              ) : (
+                <>
+                  <MDEditor.Markdown
+                    source={formattedAnswer}
+                    style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
+                  />
+                  {displayCard.codeExample && (
+                    <div className="mt-6">
+                      <div className="text-sm font-medium text-ink-secondary mb-2 font-mono">代码示例</div>
+                      <pre className="bg-[#1a1d26] text-gray-100 p-4 rounded-xl overflow-x-auto text-sm font-mono border border-surface-border">
+                        <code>{displayCard.codeExample}</code>
+                      </pre>
+                    </div>
+                  )}
+                </>
               )}
+            </div>
 
-              {/* 延伸追问 */}
-              {card.extendQuestion && (
-                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <h4 className="text-sm font-semibold text-yellow-800 mb-1 flex items-center gap-2">
-                    <span>💡</span> 延伸追问
-                  </h4>
-                  <p className="text-sm text-yellow-700">
-                    {card.extendQuestion}
-                  </p>
-                </div>
-              )}
+            <div className="px-6 py-3 bg-primary-50/80 dark:bg-primary-900/20 text-center text-sm text-ink-muted border-t border-surface-border">
+              再次点击返回问题
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* 底部操作区 */}
-      <div className="mt-4 flex flex-col items-center gap-3">
-        {/* 收起按钮 */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsFlipped(false);
-          }}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          收起答案
-        </button>
-
-        {/* 掌握程度按钮 */}
-        <div className="flex gap-2">
+      {/* 状态按钮 */}
+      <div className="flex justify-center gap-3 mt-6">
+        {([
+          { status: 'forgotten' as CardStatus, emoji: '😵', label: '忘记', cls: 'bg-[#FF4B4B] text-white border-b-[#EA2B2B]' },
+          { status: 'fuzzy' as CardStatus, emoji: '🤔', label: '模糊', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
+          { status: 'mastered' as CardStatus, emoji: '✅', label: '掌握', cls: 'bg-[#58CC02] text-white border-b-[#46A302]' },
+        ]).map((btn) => (
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onStatusChange('forgotten');
-            }}
-            className="px-4 py-2.5 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors text-sm font-medium shadow-sm active:scale-95"
+            key={btn.status}
+            onClick={() => onStatusChange(btn.status)}
+            className={cn(
+              'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
+              'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
+              btn.cls
+            )}
           >
-            😵
+            <span>{btn.emoji}</span>
+            <span>{btn.label}</span>
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onStatusChange('fuzzy');
-            }}
-            className="px-4 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl hover:bg-yellow-200 transition-colors text-sm font-medium shadow-sm active:scale-95"
-          >
-            🤔
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onStatusChange('mastered');
-            }}
-            className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors text-sm font-medium shadow-sm active:scale-95"
-          >
-            ✅
-          </button>
-        </div>
+        ))}
       </div>
     </div>
   );

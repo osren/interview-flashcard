@@ -1,4 +1,5 @@
-import { didiCards, didiChapter } from './didi';
+// import { didiCards, didiChapter } from './didi';
+import { didiCards, didiChapter } from './didi_new';
 import { gresumeCards, gresumeChapter } from './gresume';
 import { Chapter, FlashCard } from '@/types';
 

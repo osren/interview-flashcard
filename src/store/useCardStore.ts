@@ -3,47 +3,53 @@ import { persist } from 'zustand/middleware';
 import { CardStatus, FlashCard } from '@/types';
 
 interface CardState {
-  // 当前卡片状态
   isFlipped: boolean;
   currentIndex: number;
   cards: FlashCard[];
-  currentChapterId: string | null;
 
-  // 筛选状态
+  cardProgress: Record<string, number>;
+  customCards: FlashCard[];
+  modifiedCards: Record<string, Partial<FlashCard>>;
+
   filter: string;
   searchQuery: string;
 
-  // 所有章节的卡片进度（用于首页统计）
   allCardProgress: Record<string, CardStatus>;
-
-  // 每个章节的当前位置记忆
-  chapterPositions: Record<string, number>;
-
-  // 最后访问的章节（用于底部导航恢复）
   lastVisitedCoreChapter: string | null;
   lastVisitedProject: string | null;
   lastVisitedAlgorithm: string | null;
 
-  // 收藏的卡片
   favorites: FlashCard[];
 
-  // Actions
   setCards: (cards: FlashCard[]) => void;
-  setCurrentChapterId: (chapterId: string | null) => void;
   flip: () => void;
   resetFlip: () => void;
   setCurrentIndex: (index: number) => void;
-  saveChapterPosition: (chapterId: string, index: number) => void;
-  getChapterPosition: (chapterId: string) => number;
   next: () => void;
   prev: () => void;
+
+  saveCardProgress: (module: string, chapterId: string, index: number) => void;
+  getCardProgress: (module: string, chapterId: string) => number;
+
   setFilter: (filter: string) => void;
   setSearchQuery: (query: string) => void;
   updateCardStatus: (cardId: string, status: CardStatus) => void;
   getProgress: () => { mastered: number; total: number; percentage: number };
+
   setLastVisitedCoreChapter: (chapterId: string | null) => void;
   setLastVisitedProject: (projectId: string | null) => void;
   setLastVisitedAlgorithm: (type: string | null) => void;
+
+  addCustomCard: (card: FlashCard) => void;
+  updateCustomCard: (cardId: string, updates: Partial<FlashCard>) => void;
+  deleteCustomCard: (cardId: string) => void;
+
+  updateCardAnswer: (cardId: string, updates: Partial<FlashCard>) => void;
+  resetCardAnswer: (cardId: string) => void;
+  getCardWithModifications: (card: FlashCard) => FlashCard;
+
+  getMergedCards: (module: string, chapterId: string, staticCards: FlashCard[]) => FlashCard[];
+
   toggleFavorite: (card: FlashCard) => void;
   isFavorited: (cardId: string) => boolean;
 }
@@ -54,11 +60,12 @@ export const useCardStore = create<CardState>()(
       isFlipped: false,
       currentIndex: 0,
       cards: [],
-      currentChapterId: null,
+      cardProgress: {},
+      customCards: [],
+      modifiedCards: {},
       filter: 'all',
       searchQuery: '',
       allCardProgress: {},
-      chapterPositions: {},
       lastVisitedCoreChapter: null,
       lastVisitedProject: null,
       lastVisitedAlgorithm: null,
@@ -66,24 +73,11 @@ export const useCardStore = create<CardState>()(
 
       setCards: (cards) => set({ cards }),
 
-      setCurrentChapterId: (chapterId) => set({ currentChapterId: chapterId }),
-
       flip: () => set((state) => ({ isFlipped: !state.isFlipped })),
 
       resetFlip: () => set({ isFlipped: false }),
 
       setCurrentIndex: (index) => set({ currentIndex: index, isFlipped: false }),
-
-      saveChapterPosition: (chapterId, index) => set((state) => ({
-        chapterPositions: {
-          ...state.chapterPositions,
-          [chapterId]: index,
-        },
-      })),
-
-      getChapterPosition: (chapterId) => {
-        return get().chapterPositions[chapterId] || 0;
-      },
 
       next: () => set((state) => ({
         currentIndex: Math.min(state.currentIndex + 1, state.cards.length - 1),
@@ -95,25 +89,30 @@ export const useCardStore = create<CardState>()(
         isFlipped: false,
       })),
 
+      saveCardProgress: (module, chapterId, index) => set((state) => ({
+        cardProgress: {
+          ...state.cardProgress,
+          [`${module}-${chapterId}`]: index,
+        },
+      })),
+
+      getCardProgress: (module, chapterId) => {
+        return get().cardProgress[`${module}-${chapterId}`] || 0;
+      },
+
       setFilter: (filter) => set({ filter }),
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 
-      updateCardStatus: (cardId, status) => set((state) => {
-        // 更新当前章节的 cards
-        const updatedCards = state.cards.map((card) =>
+      updateCardStatus: (cardId, status) => set((state) => ({
+        cards: state.cards.map((card) =>
           card.id === cardId ? { ...card, status } : card
-        );
-        // 同时更新 allCardProgress（用于首页统计）
-        const updatedAllProgress = {
+        ),
+        allCardProgress: {
           ...state.allCardProgress,
           [cardId]: status,
-        };
-        return {
-          cards: updatedCards,
-          allCardProgress: updatedAllProgress,
-        };
-      }),
+        },
+      })),
 
       getProgress: () => {
         const { cards } = get();
@@ -127,13 +126,59 @@ export const useCardStore = create<CardState>()(
       setLastVisitedProject: (projectId) => set({ lastVisitedProject: projectId }),
       setLastVisitedAlgorithm: (type) => set({ lastVisitedAlgorithm: type }),
 
+      addCustomCard: (card) => set((state) => ({
+        customCards: [...state.customCards, { ...card, id: crypto.randomUUID() }],
+      })),
+
+      updateCustomCard: (cardId, updates) => set((state) => ({
+        customCards: state.customCards.map((card) =>
+          card.id === cardId ? { ...card, ...updates } : card
+        ),
+      })),
+
+      deleteCustomCard: (cardId) => set((state) => ({
+        customCards: state.customCards.filter((card) => card.id !== cardId),
+      })),
+
+      updateCardAnswer: (cardId, updates) => set((state) => ({
+        modifiedCards: {
+          ...state.modifiedCards,
+          [cardId]: { ...state.modifiedCards[cardId], ...updates },
+        },
+      })),
+
+      resetCardAnswer: (cardId) => set((state) => {
+        const { [cardId]: _, ...rest } = state.modifiedCards;
+        return { modifiedCards: rest };
+      }),
+
+      getCardWithModifications: (card) => {
+        const { modifiedCards } = get();
+        const modification = modifiedCards[card.id];
+        if (modification) {
+          return { ...card, ...modification };
+        }
+        return card;
+      },
+
+      getMergedCards: (module: string, chapterId: string, staticCards: FlashCard[]) => {
+        const { customCards, modifiedCards } = get();
+        const moduleCustomCards = customCards.filter(
+          (c) => c.module === module && c.chapterId === chapterId
+        );
+        const appliedCustomCards = moduleCustomCards.map((c) => {
+          const mod = modifiedCards[c.id];
+          return mod ? { ...c, ...mod } : c;
+        });
+        return [...staticCards, ...appliedCustomCards];
+      },
+
       toggleFavorite: (card) => set((state) => {
         const exists = state.favorites.some((f) => f.id === card.id);
         if (exists) {
           return { favorites: state.favorites.filter((f) => f.id !== card.id) };
-        } else {
-          return { favorites: [...state.favorites, card] };
         }
+        return { favorites: [...state.favorites, card] };
       }),
 
       isFavorited: (cardId) => {
@@ -144,12 +189,14 @@ export const useCardStore = create<CardState>()(
       name: 'card-storage',
       partialize: (state) => ({
         cards: state.cards.map((c) => ({ id: c.id, status: c.status })),
+        customCards: state.customCards,
+        modifiedCards: state.modifiedCards,
+        favorites: state.favorites,
+        cardProgress: state.cardProgress,
         allCardProgress: state.allCardProgress,
-        chapterPositions: state.chapterPositions,
         lastVisitedCoreChapter: state.lastVisitedCoreChapter,
         lastVisitedProject: state.lastVisitedProject,
         lastVisitedAlgorithm: state.lastVisitedAlgorithm,
-        favorites: state.favorites,
       }),
     }
   )

@@ -1,0 +1,15 @@
+name: save-trending-notes-to-favorites
+description: 将GitHub Trending中编辑过note的条目同步至收藏模块，使榜单刷新后笔记不丢失
+status: ready-to-apply
+createdAt: 2026-05-06T00:00:00.000Z
+owner: didi
+artifacts:
+  - id: proposal
+    type: proposal
+    status: done
+  - id: design
+    type: design
+    status: done
+  - id: tasks
+    type: tasks
+    status: done

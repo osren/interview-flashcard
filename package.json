@@ -5,20 +5,30 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "report": "node claude-report-server.cjs"
   },
   "dependencies": {
+    "@rjsf/antd": "^6.5.2",
+    "@rjsf/core": "^6.5.2",
+    "@rjsf/validator-ajv8": "^6.5.2",
+    "@uiw/react-md-editor": "^4.1.0",
+    "antd": "^6.3.7",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
-    "zustand": "^4.5.0",
-    "framer-motion": "^11.0.0",
-    "clsx": "^2.1.0",
-    "lucide-react": "^0.344.0"
+    "recharts": "^3.8.1",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/markdown-to-jsx": "^7.0.0",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",

@@ -2669,6 +2669,51 @@ Lerna：
     status: 'unvisited',
     difficulty: 'medium',
   },
+  {
+    id: 'eng-build-error-001',
+    module: 'core',
+    chapterId: 'engineering',
+    category: '构建与部署',
+    question: '分析一个构建错误：npm run build 报错 "Command exited with 2"，如何排查？',
+    answer: `## 排查思路
+
+### 1. 先看完整错误信息
+\`\`\`bash
+# 再次运行 build 查看详细错误
+npm run build 2>&1
+\`\`\`
+
+### 2. 常见原因分析
+
+| 退出码 | 常见原因 | 排查方法 |
+|--------|----------|----------|
+| 1 | 通用错误 | 查看错误信息 |
+| 2 | TypeScript 编译错误 | \`tsc --noEmit\` 检查 |
+| 127 | 命令未找到 | 检查 node_modules |
+| ENOENT | 文件不存在 | 检查路径 |
+
+### 3. 本案例分析
+
+**错误原因**: TypeScript 编译错误
+\`\`\`
+src/pages/Interview/InterviewDetail.tsx(1,31): error TS6133: 'useRef' is declared but its value is never read.
+\`\`\`
+
+**解决步骤**:
+1. 移除未使用的 \`useRef\` 导入
+2. 检查是否有其他 unused imports
+3. 重新构建验证
+
+### 4. 预防措施
+
+- 启用 \`noUnusedLocals\` 和 \`noUnusedParameters\` 在 tsconfig.json
+- 使用 ESLint 的 \`no-unused-vars\` 规则
+- CI 流水线中加入 TypeScript 类型检查
+- 提交前运行本地 build 检查`,
+    tags: ['构建', 'TypeScript', '排查'],
+    status: 'unvisited',
+    difficulty: 'medium',
+  },
 ];
 
 const engineeringChapter: Chapter = {

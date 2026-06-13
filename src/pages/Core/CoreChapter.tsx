@@ -1,26 +1,26 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { ImportExportModal } from '@/components/ImportExportModal';
+import { ChapterLayout } from '@/components/Layout/ChapterLayout';
 import { useCardStore } from '@/store';
-import { coreCards } from '@/data/core';
-import { Badge } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
+import { coreCards, coreChapters } from '@/data/core';
+import { Button } from '@/components/ui';
+import { Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
+import MDEditor from '@uiw/react-md-editor';
 
 export function CoreChapter() {
   const { chapterId } = useParams<{ chapterId: string }>();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  // 直接使用 useState 管理本地卡片状态
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
-  const { updateCardStatus, allCardProgress, saveChapterPosition, getChapterPosition, setLastVisitedCoreChapter } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard, setLastVisitedCoreChapter } = useCardStore();
+  const [isAdding, setIsAdding] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
-  // 点击外部关闭序号选择器
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
@@ -31,359 +31,168 @@ export function CoreChapter() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 加载章节卡片（带已保存的状态）
   useEffect(() => {
     const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
-    // 恢复每个卡片已保存的状态
-    const cardsWithStatus = chapterCards.map((card) => ({
-      ...card,
-      status: allCardProgress[card.id] || card.status,
-    }));
-    setCards(cardsWithStatus);
+    const mergedCards = getMergedCards('core', chapterId || '', chapterCards);
+    setCards(mergedCards);
+    const savedIndex = getCardProgress('core', chapterId || '');
+    setCurrentIndex(Math.min(savedIndex, mergedCards.length - 1));
+  }, [chapterId]);
 
-    // 如果 URL 有 cardIndex 参数，优先使用它
-    const cardIndexParam = searchParams.get('cardIndex');
-    if (cardIndexParam !== null) {
-      const index = parseInt(cardIndexParam, 10);
-      if (!isNaN(index) && index >= 0 && index < chapterCards.length) {
-        setCurrentIndex(index);
-      }
-    } else {
-      // 恢复保存的位置
-      const savedIndex = getChapterPosition(chapterId || '');
-      setCurrentIndex(savedIndex);
-    }
-
-    // 记录最后访问的章节
+  useEffect(() => {
     if (chapterId) {
       setLastVisitedCoreChapter(chapterId);
     }
-  }, [chapterId, allCardProgress, setLastVisitedCoreChapter, searchParams]);
+  }, [chapterId, setLastVisitedCoreChapter]);
 
-  // 保存当前位置
-  const handleIndexChange = useCallback((newIndex: number) => {
-    setCurrentIndex(newIndex);
-    if (chapterId) {
-      saveChapterPosition(chapterId, newIndex);
+  useEffect(() => {
+    if (cards.length > 0 && chapterId) {
+      saveCardProgress('core', chapterId, currentIndex);
     }
-  }, [chapterId, saveChapterPosition]);
+  }, [currentIndex, chapterId]);
 
   const currentCard = cards[currentIndex];
+  const chapterTitle = coreChapters.find(c => c.id === chapterId)?.title || chapterId || '';
 
   if (!currentCard) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">加载中...</p>
+      <div className="min-h-screen app-bg flex items-center justify-center">
+        <p className="text-ink-muted">加载中...</p>
       </div>
     );
   }
 
-  const handleStatusChange = (status: CardStatus) => {
-    updateCardStatus(currentCard.id, status);
-    // 自动下一题
-    if (currentIndex < cards.length - 1) {
-      setTimeout(() => {
-        handleIndexChange(currentIndex + 1);
-      }, 300);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < cards.length - 1) {
-      handleIndexChange(currentIndex + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      handleIndexChange(currentIndex - 1);
-    }
-  };
-
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {
-      handleIndexChange(idx);
+      setCurrentIndex(idx);
       setShowIndexPicker(false);
     }
   };
 
+  const handleStatusChange = (status: CardStatus) => {
+    updateCardStatus(currentCard.id, status);
+    if (currentIndex < cards.length - 1) {
+      setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
+    }
+  };
+
+  const handleAddQuestion = () => {
+    if (newQuestion.question.trim() && chapterId) {
+      addCustomCard({
+        id: '',
+        module: 'core',
+        chapterId,
+        question: newQuestion.question,
+        answer: newQuestion.answer,
+        tags: ['新增'],
+        status: 'unvisited',
+      });
+      setNewQuestion({ question: '', answer: '' });
+      setIsAdding(false);
+      const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
+      const mergedCards = getMergedCards('core', chapterId, chapterCards);
+      setCards(mergedCards);
+      setCurrentIndex(mergedCards.length - 1);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pb-20 md:pb-0">
-      {/* 顶部导航 */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200 safe-area-top">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/core')}
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-900 active:scale-95 transition-transform"
-            >
-              <ChevronLeft size={20} />
-              <span className="hidden sm:inline">返回</span>
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-1 text-gray-400 hover:text-gray-600"
-            >
-              <Home size={18} />
-            </button>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* 移动端：可点击的序号 */}
-            <div className="md:hidden relative" ref={indexPickerRef}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowIndexPicker(!showIndexPicker);
-                }}
-                className="flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
-              >
-                <span>{currentIndex + 1}</span>
-                <span className="text-orange-400">/</span>
-                <span>{cards.length}</span>
-              </button>
-              {/* 序号选择器弹窗 - 移动端 */}
-              <AnimatePresence>
-                {showIndexPicker && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-16"
-                    onClick={() => setShowIndexPicker(false)}
-                  >
-                    <div
-                      className="bg-white rounded-lg shadow-xl p-3 max-h-[60vh] overflow-y-auto w-[80%]"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                        <span className="text-sm font-medium text-gray-600">选择序号</span>
-                        <button
-                          onClick={() => setShowIndexPicker(false)}
-                          className="text-gray-400 hover:text-gray-600"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {cards.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleJumpTo(idx)}
-                            className={`
-                              py-2 text-xs rounded transition-colors
-                              ${idx === currentIndex
-                                ? 'bg-orange-500 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-600'}
-                            `}
-                          >
-                            {idx + 1}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            <Badge variant="primary" className="text-xs hidden md:inline">{currentIndex + 1} / {cards.length}</Badge>
-            <Badge variant="default" className="text-xs hidden sm:inline">{currentCard.category}</Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* 章节标题 */}
-      <div className="pt-16 pb-2 text-center">
-        <h1 className="text-lg font-bold text-gray-900 capitalize">
-          {chapterId}
-        </h1>
-        {/* 桌面端：序号选择器 */}
-        <div className="hidden md:block relative mt-2" ref={indexPickerRef}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowIndexPicker(!showIndexPicker);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors text-lg font-medium"
-          >
-            <span>{currentIndex + 1}</span>
-            <span className="text-orange-400">/</span>
-            <span>{cards.length}</span>
-          </button>
-          {/* 序号选择器弹窗 - 桌面端 */}
-          <AnimatePresence>
-            {showIndexPicker && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-h-80 overflow-y-auto z-50"
-                style={{ minWidth: '240px' }}
-              >
-                <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                  <span className="text-sm font-medium text-gray-600">选择序号</span>
-                  <button
-                    onClick={() => setShowIndexPicker(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-5 gap-1">
-                  {cards.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleJumpTo(idx)}
-                      className={`
-                        w-9 h-9 text-sm rounded transition-colors
-                        ${idx === currentIndex
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-600'}
-                      `}
-                    >
-                      {idx + 1}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* 桌面端：卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
-      <div className="hidden md:flex items-center justify-center min-h-[calc(100vh-180px)] px-4">
-        {/* 左侧按钮 */}
-        <button
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
-            flex items-center justify-center transition-all duration-200
-            ${currentIndex === 0
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-50 hover:scale-105 active:scale-95'}
-          `}
-        >
-          <ChevronLeft size={28} className="text-gray-600" />
-        </button>
-
-        {/* 卡片 */}
+    <>
+      <ChapterLayout
+        backPath="/core"
+        chapterTitle={chapterTitle}
+        category={currentCard.category}
+        currentIndex={currentIndex}
+        totalCards={cards.length}
+        showIndexPicker={showIndexPicker}
+        setShowIndexPicker={setShowIndexPicker}
+        indexPickerRef={indexPickerRef}
+        onJumpTo={handleJumpTo}
+        onPrev={() => currentIndex > 0 && setCurrentIndex((p) => p - 1)}
+        onNext={() => currentIndex < cards.length - 1 && setCurrentIndex((p) => p + 1)}
+        canPrev={currentIndex > 0}
+        canNext={currentIndex < cards.length - 1}
+        footer={
+          <Button onClick={() => setIsAdding(true)} className="gap-2">
+            <Plus size={18} />
+            新增问题
+          </Button>
+        }
+      >
         <motion.div
           key={currentCard.id}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="mx-6 flex-shrink-0"
         >
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
             currentIndex={currentIndex}
             totalCards={cards.length}
+            showEdit
           />
         </motion.div>
+      </ChapterLayout>
 
-        {/* 右侧按钮 */}
-        <button
-          onClick={handleNext}
-          disabled={currentIndex === cards.length - 1}
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
-            flex items-center justify-center transition-all duration-200
-            ${currentIndex === cards.length - 1
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-50 hover:scale-105 active:scale-95'}
-          `}
-        >
-          <ChevronRight size={28} className="text-gray-600" />
-        </button>
-      </div>
-
-      {/* 移动端：卡片 */}
-      <div className="md:hidden flex flex-col items-center px-4 pt-2">
-        <motion.div
-          key={currentCard.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="w-full"
-        >
-          <FlashCardComponent
-            card={currentCard}
-            onStatusChange={handleStatusChange}
-            currentIndex={currentIndex}
-            totalCards={cards.length}
-          />
-        </motion.div>
-
-        {/* 卡片下方导航按钮 */}
-        <div className="flex items-center justify-center gap-8 mt-4">
-          <button
-            onClick={handlePrev}
-            disabled={currentIndex === 0}
-            className={`
-              flex items-center gap-1 px-4 py-2 rounded-full transition-all duration-200
-              ${currentIndex === 0
-                ? 'opacity-40 cursor-not-allowed'
-                : 'bg-white shadow-md border border-gray-200 text-gray-700 active:scale-95'}
-            `}
+      <AnimatePresence>
+        {isAdding && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setIsAdding(false)}
           >
-            <ChevronLeft size={18} />
-            <span className="text-sm font-medium">上一题</span>
-          </button>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 16 }}
+              className="surface-panel w-full max-w-lg p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-display font-semibold text-ink mb-4">新增问题</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-ink-secondary mb-1">问题</label>
+                  <input
+                    type="text"
+                    value={newQuestion.question}
+                    onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
+                    className="input-field"
+                    placeholder="输入面试问题"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-ink-secondary mb-1">回答</label>
+                  <MDEditor
+                    value={newQuestion.answer}
+                    onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
+                    height={200}
+                    preview="edit"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <Button variant="ghost" onClick={() => { setIsAdding(false); setNewQuestion({ question: '', answer: '' }); }}>
+                  取消
+                </Button>
+                <Button onClick={handleAddQuestion} disabled={!newQuestion.question.trim()}>
+                  保存
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <button
-            onClick={handleNext}
-            disabled={currentIndex === cards.length - 1}
-            className={`
-              flex items-center gap-1 px-4 py-2 rounded-full transition-all duration-200
-              ${currentIndex === cards.length - 1
-                ? 'opacity-40 cursor-not-allowed'
-                : 'bg-blue-500 shadow-md text-white active:scale-95'}
-            `}
-          >
-            <span className="text-sm font-medium">下一题</span>
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* 移动端：底部导航栏 */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-sm border-t border-gray-200 safe-area-bottom">
-        <div className="flex items-center justify-between px-6 py-3">
-          <button
-            onClick={handlePrev}
-            disabled={currentIndex === 0}
-            className={`
-              flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
-              ${currentIndex === 0
-                ? 'opacity-40 cursor-not-allowed bg-gray-100 text-gray-400'
-                : 'bg-white shadow-md border border-gray-200 text-gray-700 active:scale-95'}
-            `}
-          >
-            <ChevronLeft size={20} />
-            <span className="text-sm font-medium">上一题</span>
-          </button>
-
-          <span className="text-sm text-gray-500 font-medium">
-            {currentIndex + 1} / {cards.length}
-          </span>
-
-          <button
-            onClick={handleNext}
-            disabled={currentIndex === cards.length - 1}
-            className={`
-              flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
-              ${currentIndex === cards.length - 1
-                ? 'opacity-40 cursor-not-allowed bg-gray-100 text-gray-400'
-                : 'bg-blue-500 shadow-md text-white active:scale-95'}
-            `}
-          >
-            <span className="text-sm font-medium">下一题</span>
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      </div>
-    </div>
+      <ImportExportModal
+        cards={cards}
+        module="core"
+        chapterId={chapterId || ''}
+        title={chapterTitle}
+      />
+    </>
   );
 }

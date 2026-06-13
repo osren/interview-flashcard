@@ -1,14 +1,22 @@
-import { useState, useMemo } from 'react';
-import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, Sparkles, MessageSquare, Github } from 'lucide-react';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
+import { TrendingCard } from '@/components/AI/TrendingCard';
+import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
+import { useInterviewStore } from '@/store/useInterviewStore';
 import { FlashCard, ModuleType } from '@/types';
 import { Badge } from '@/components/ui';
+import { getFavorites, FavoriteItem } from '@/utils/favorites';
+import type { LucideIcon } from 'lucide-react';
 
-const moduleConfig: Record<ModuleType, { label: string; icon: typeof BookOpen; color: string }> = {
+const moduleConfig: Record<ModuleType, { label: string; icon: LucideIcon; color: string }> = {
   core: { label: '核心考点', icon: BookOpen, color: 'bg-blue-500' },
   projects: { label: '项目复盘', icon: Briefcase, color: 'bg-purple-500' },
   algorithms: { label: '刷题', icon: Code, color: 'bg-green-500' },
+  custom: { label: '自定义', icon: Wand, color: 'bg-orange-500' },
+  ai: { label: 'AI资讯', icon: Sparkles, color: 'bg-pink-500' },
+  interview: { label: '面经', icon: MessageSquare, color: 'bg-cyan-500' },
 };
 
 interface ChapterGroup {
@@ -17,12 +25,58 @@ interface ChapterGroup {
   cards: FlashCard[];
 }
 
-export function Favorites() {
-  const { favorites, toggleFavorite } = useCardStore();
-  const [selectedGroup, setSelectedGroup] = useState<ChapterGroup | null>(null);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
-  // 按模块和章节分组
+export function Favorites() {
+  const { favorites } = useCardStore();
+  const { favoriteQuestions, toggleFavorite: toggleInterviewFavorite } = useInterviewStore();
+  const [selectedGroup, setSelectedGroup] = useState<ChapterGroup | null>(null);
+  const [selectedInterviewIndex, setSelectedInterviewIndex] = useState<number | null>(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [trendingFavorites, setTrendingFavorites] = useState<FavoriteItem[]>([]);
+  const [trendingExpanded, setTrendingExpanded] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // 等待 store 数据从 localStorage 加载
+  useEffect(() => {
+    // favorites 有值或至少过了一定时间后才显示
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 加载 Trending 收藏
+  useEffect(() => {
+    setTrendingFavorites(Object.values(getFavorites()));
+  }, []);
+
+  // 刷新 Trending 收藏
+  const refreshTrendingFavorites = () => {
+    setTrendingFavorites(Object.values(getFavorites()));
+  };
+
+  // 将面经收藏转换为 FlashCard 格式
+  const interviewFavorites: FlashCard[] = useMemo(() => {
+    return favoriteQuestions.map((q) => ({
+      id: q.id,
+      module: 'interview' as ModuleType,
+      chapterId: '面经收藏',
+      question: q.question,
+      answer: q.answer,
+      tags: [],
+      status: 'unvisited' as const,
+    }));
+  }, [favoriteQuestions]);
+
+  // 合并所有收藏
+  const allFavorites = useMemo(() => {
+    return [...favorites, ...interviewFavorites];
+  }, [favorites, interviewFavorites]);
+
+  // 按模块和章节分组（排除面经）
   const groupedFavorites = useMemo(() => {
     const groups: Record<string, ChapterGroup> = {};
 
@@ -47,6 +101,9 @@ export function Favorites() {
       core: [],
       projects: [],
       algorithms: [],
+      custom: [],
+      ai: [],
+      interview: [],
     };
 
     groupedFavorites.forEach((group) => {
@@ -81,7 +138,6 @@ export function Favorites() {
       const { updateCardStatus } = useCardStore.getState();
       updateCardStatus(card.id, status);
 
-      // 自动下一张
       if (currentCardIndex < selectedGroup.cards.length - 1) {
         setTimeout(() => {
           handleCardChange(currentCardIndex + 1);
@@ -93,13 +149,12 @@ export function Favorites() {
   const handleRemoveFavorite = () => {
     if (selectedGroup) {
       const card = selectedGroup.cards[currentCardIndex];
+      const { toggleFavorite } = useCardStore.getState();
       toggleFavorite(card);
 
-      // 如果当前组没有卡片了，返回列表
       if (selectedGroup.cards.length <= 1) {
         handleBack();
       } else {
-        // 否则切换到上一张（如果需要）
         if (currentCardIndex >= selectedGroup.cards.length - 1) {
           setCurrentCardIndex(Math.max(0, currentCardIndex - 1));
         }
@@ -107,12 +162,119 @@ export function Favorites() {
     }
   };
 
-  if (favorites.length === 0) {
+  // 计算导入导出用的卡片
+  const modalCards = selectedGroup ? selectedGroup.cards : allFavorites;
+  const modalModule = selectedGroup?.module || 'custom';
+  const modalChapterId = selectedGroup?.chapterId || 'favorites';
+
+  // 空状态判断 - 只有在加载完成后才能确定是否真的为空
+  if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center pb-20">
-        <Heart size={64} className="text-gray-300 mb-4" />
-        <h2 className="text-xl font-medium text-gray-600 mb-2">暂无收藏</h2>
-        <p className="text-gray-400 text-sm">点击卡片上的红心即可收藏</p>
+      <div className="min-h-screen app-bg flex flex-col items-center justify-center pb-20">
+        <Heart size={64} className="text-gray-300 dark:text-gray-600 mb-4" />
+        <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">加载中...</h2>
+        <p className="text-gray-400 dark:text-gray-500 text-sm">favorites: {favorites.length}, trending: {trendingFavorites.length}</p>
+      </div>
+    );
+  }
+
+  if (allFavorites.length === 0 && trendingFavorites.length === 0) {
+    return (
+      <div className="min-h-screen app-bg flex flex-col items-center justify-center pb-20">
+        <Heart size={64} className="text-gray-300 dark:text-gray-600 mb-4" />
+        <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">暂无收藏</h2>
+        <p className="text-gray-400 dark:text-gray-500 text-sm">在卡片或 GitHub Trending 页面点击红心即可收藏</p>
+      </div>
+    );
+  }
+
+  // 显示面经卡片详情
+  if (selectedInterviewIndex !== null) {
+    const currentCard = interviewFavorites[selectedInterviewIndex];
+    const handleInterviewStatusChange = (_status: 'unvisited' | 'forgotten' | 'fuzzy' | 'mastered') => {
+      if (selectedInterviewIndex < interviewFavorites.length - 1) {
+        setTimeout(() => {
+          setSelectedInterviewIndex((prev) => Math.min(interviewFavorites.length - 1, (prev ?? 0) + 1));
+        }, 300);
+      }
+    };
+
+    const handleInterviewRemove = () => {
+      const question = favoriteQuestions[selectedInterviewIndex];
+      toggleInterviewFavorite(question);
+      if (interviewFavorites.length <= 1) {
+        setSelectedInterviewIndex(null);
+        setCurrentCardIndex(0);
+      } else {
+        if (selectedInterviewIndex >= interviewFavorites.length - 1) {
+          setSelectedInterviewIndex(Math.max(0, selectedInterviewIndex - 1));
+        }
+      }
+    };
+
+    return (
+      <div className="min-h-screen app-bg pb-20 md:pb-8">
+        <div className="sticky top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
+          <div className="max-w-md mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setSelectedInterviewIndex(null)}
+                className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
+              >
+                <ChevronLeft size={20} />
+                <span className="text-sm">返回</span>
+              </button>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-cyan-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">面经收藏</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {selectedInterviewIndex + 1}/{interviewFavorites.length}
+                </span>
+              </div>
+              <button
+                onClick={handleInterviewRemove}
+                className="flex items-center gap-1 text-red-500 hover:text-red-600"
+              >
+                <X size={18} />
+                <span className="text-sm">取消</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center px-4 pt-4">
+          <FlashCardComponent
+            card={currentCard}
+            onStatusChange={handleInterviewStatusChange}
+            currentIndex={selectedInterviewIndex}
+            totalCards={interviewFavorites.length}
+          />
+        </div>
+        <div className="flex items-center justify-center gap-8 mt-4">
+          <button
+            onClick={() => setSelectedInterviewIndex(Math.max(0, selectedInterviewIndex - 1))}
+            disabled={selectedInterviewIndex === 0}
+            className={cn(
+              'p-3 rounded-full transition-colors',
+              selectedInterviewIndex === 0
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+            )}
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            onClick={() => setSelectedInterviewIndex(Math.min(interviewFavorites.length - 1, selectedInterviewIndex + 1))}
+            disabled={selectedInterviewIndex === interviewFavorites.length - 1}
+            className={cn(
+              'p-3 rounded-full transition-colors',
+              selectedInterviewIndex === interviewFavorites.length - 1
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+            )}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
       </div>
     );
   }
@@ -123,22 +285,21 @@ export function Favorites() {
     const moduleInfo = moduleConfig[selectedGroup.module];
 
     return (
-      <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
-        {/* 顶部导航栏 */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+      <div className="min-h-screen app-bg pb-20 md:pb-8">
+        <div className="sticky top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
                 onClick={handleBack}
-                className="flex items-center gap-1 text-gray-600 hover:text-gray-800"
+                className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
               >
                 <ChevronLeft size={20} />
                 <span className="text-sm">返回</span>
               </button>
               <div className="flex items-center gap-2">
                 <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                <span className="text-sm font-medium text-gray-700">{selectedGroup.chapterId}</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{selectedGroup.chapterId}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
                   {currentCardIndex + 1}/{selectedGroup.cards.length}
                 </span>
               </div>
@@ -153,8 +314,7 @@ export function Favorites() {
           </div>
         </div>
 
-        {/* 卡片区域 */}
-        <div className="px-4 pt-4">
+        <div className="flex justify-center px-4 pt-4">
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
@@ -163,7 +323,6 @@ export function Favorites() {
           />
         </div>
 
-        {/* 卡片切换按钮 */}
         <div className="flex items-center justify-center gap-8 mt-4">
           <button
             onClick={() => handleCardChange(currentCardIndex - 1)}
@@ -171,8 +330,8 @@ export function Favorites() {
             className={cn(
               'p-3 rounded-full transition-colors',
               currentCardIndex === 0
-                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             )}
           >
             <ChevronLeft size={24} />
@@ -183,8 +342,8 @@ export function Favorites() {
             className={cn(
               'p-3 rounded-full transition-colors',
               currentCardIndex === selectedGroup.cards.length - 1
-                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             )}
           >
             <ChevronRight size={24} />
@@ -196,13 +355,65 @@ export function Favorites() {
 
   // 显示分组列表
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
+    <div className="min-h-screen app-bg pb-20 md:pb-8">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6">
           <Heart size={24} className="text-red-500 fill-red-500" />
-          <h1 className="text-xl font-bold text-gray-900">我的收藏</h1>
-          <Badge variant="secondary">{favorites.length}</Badge>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">我的收藏</h1>
+          <Badge variant="secondary">{allFavorites.length}</Badge>
         </div>
+
+        {/* 面经收藏（如果有） */}
+        {interviewFavorites.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <MessageSquare size={18} className="text-gray-500 dark:text-gray-400" />
+              <h2 className="font-semibold text-gray-700 dark:text-white">面经收藏</h2>
+              <span className="text-sm text-gray-400 dark:text-gray-500">({interviewFavorites.length}道)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setSelectedInterviewIndex(0)}
+                className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-cyan-500" />
+                  <span className="font-medium text-gray-800 dark:text-gray-100">面经收藏</span>
+                </div>
+                <span className="text-sm text-gray-400 dark:text-gray-500">{interviewFavorites.length}道</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* GitHub Trending 收藏 */}
+        {trendingFavorites.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Github size={18} className="text-gray-500 dark:text-gray-400" />
+              <h2 className="font-semibold text-gray-700 dark:text-white">GitHub Trending</h2>
+              <span className="text-sm text-gray-400 dark:text-gray-500">({trendingFavorites.length}个)</span>
+            </div>
+            <div className="space-y-2">
+              {trendingFavorites.map((project) => (
+                <TrendingCard
+                  key={project.id}
+                  project={project}
+                  onShowReadme={(p) => setTrendingExpanded(trendingExpanded === p.id ? null : p.id)}
+                  isExpanded={trendingExpanded === project.id}
+                  readmeSummary={project.note ? { note: project.note } : undefined}
+                  onSaveSummary={refreshTrendingFavorites}
+                  isFavorite={true}
+                  onToggleFavorite={() => {
+                    refreshTrendingFavorites();
+                    setTrendingExpanded(null);
+                  }}
+                  showNote={true}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 移动端：按章节分组 */}
         <div className="md:hidden space-y-4">
@@ -213,20 +424,20 @@ export function Favorites() {
             return (
               <div
                 key={`${group.module}-${group.chapterId}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
               >
                 <button
                   onClick={() => handleGroupClick(group)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                    <Icon size={18} className="text-gray-500" />
-                    <span className="font-medium text-gray-800">{group.chapterId}</span>
+                    <Icon size={18} className="text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium text-gray-800 dark:text-white">{group.chapterId}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-400">{group.cards.length}张</span>
-                    <ChevronRight size={18} className="text-gray-400" />
+                    <span className="text-sm text-gray-400 dark:text-gray-500">{group.cards.length}张</span>
+                    <ChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
                   </div>
                 </button>
               </div>
@@ -237,6 +448,7 @@ export function Favorites() {
         {/* 桌面端：按模块分组 */}
         <div className="hidden md:block space-y-6">
           {(Object.keys(moduleConfig) as ModuleType[]).map((module) => {
+            if (module === 'interview') return null; // 面经已单独展示
             const groups = groupedByModule[module];
             if (groups.length === 0) return null;
 
@@ -246,9 +458,9 @@ export function Favorites() {
             return (
               <div key={module}>
                 <div className="flex items-center gap-2 mb-3">
-                  <Icon size={18} className="text-gray-500" />
-                  <h2 className="font-semibold text-gray-700">{moduleInfo.label}</h2>
-                  <span className="text-sm text-gray-400">
+                  <Icon size={18} className="text-gray-500 dark:text-gray-400" />
+                  <h2 className="font-semibold text-gray-700 dark:text-white">{moduleInfo.label}</h2>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">
                     ({groups.reduce((acc, g) => acc + g.cards.length, 0)}张)
                   </span>
                 </div>
@@ -257,13 +469,13 @@ export function Favorites() {
                     <button
                       key={`${group.module}-${group.chapterId}`}
                       onClick={() => handleGroupClick(group)}
-                      className="flex items-center justify-between px-4 py-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all text-left"
+                      className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all text-left"
                     >
                       <div className="flex items-center gap-2">
                         <div className={cn('w-2 h-2 rounded-full', moduleInfo.color)} />
-                        <span className="font-medium text-gray-800">{group.chapterId}</span>
+                        <span className="font-medium text-gray-800 dark:text-white">{group.chapterId}</span>
                       </div>
-                      <span className="text-sm text-gray-400">{group.cards.length}张</span>
+                      <span className="text-sm text-gray-400 dark:text-gray-500">{group.cards.length}张</span>
                     </button>
                   ))}
                 </div>
@@ -272,11 +484,13 @@ export function Favorites() {
           })}
         </div>
       </div>
+
+      <ImportExportModal
+        cards={modalCards}
+        module={modalModule}
+        chapterId={modalChapterId}
+        title="我的收藏"
+      />
     </div>
   );
-}
-
-// Helper function for cn
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }

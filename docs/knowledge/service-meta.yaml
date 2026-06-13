@@ -1,0 +1,25 @@
+# 服务元数据
+
+> 本项目为纯前端 SPA，无后端服务。此文件保留用于文档一致性。
+
+service: interviewflash-frontend
+display_name: InterviewFlash 前端应用
+domain: frontend-education
+role: frontend-spa
+repo: <!-- TODO: 补充仓库地址 -->
+owners:
+  - <!-- TODO: 补充负责人 -->
+upstreams: []
+downstreams: []
+owned_data:
+  - localStorage: card-storage (用户卡片进度)
+  - localStorage: theme (主题偏好)
+published_events: []
+consumed_events: []
+capabilities:
+  - 闪卡练习与复习
+  - 进度跟踪与统计
+  - 面试文档导入
+  - 主题切换（亮色/暗色）
+status_entities:
+  - FlashCard.status: unvisited | forgotten | fuzzy | mastered
