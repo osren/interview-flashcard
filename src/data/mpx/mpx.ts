@@ -6,7 +6,7 @@
  * @FilePath: /interview-flashcard/src/data/mpx/mpx.ts
  * @Description: MPX 闪卡数据
  */
-import { FlashCard, Chapter } from '@/types';
+import { FlashCard, Chapter, ModuleType } from '@/types';
 import mpxGuideRaw from '@/../docs/Mpx/mpx-guide.md?raw';
 import mpxArchitectureRaw from '@/../docs/Mpx/mpx-architecture.md?raw';
 import devGuideRaw from '@/../docs/Mpx/dev-guide.md?raw';
@@ -18,9 +18,10 @@ import devGuideRaw from '@/../docs/Mpx/dev-guide.md?raw';
 function parseTechDocCards(
   content: string,
   chapterId: string,
-  module: 'core' | 'projects' | 'algorithms' = 'core'
+  module: ModuleType = 'mpx'
 ): FlashCard[] {
-  const sections = content.split(/\n---\n/);
+  const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const sections = normalized.split(/\n---\n/);
 
   const cards: FlashCard[] = [];
 
@@ -31,7 +32,7 @@ function parseTechDocCards(
     if (trimmed.startsWith('# ')) continue;
 
     const lines = trimmed.split('\n');
-    const firstLine = lines[0];
+    const firstLine = lines[0].trim();
     const match = firstLine.match(/^## (\d+)\.\s+(.+)$/);
 
     if (match) {
@@ -58,8 +59,9 @@ function parseTechDocCards(
 }
 
 function getChapterTitle(content: string): string {
-  const match = content.match(/^#\s+(.+)$/m);
-  return match ? match[1] : '';
+  const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const match = normalized.match(/^#\s+(.+)$/m);
+  return match ? match[1].trim() : '';
 }
 
 // ============================================================
@@ -2556,9 +2558,9 @@ const mpxBasicChapters: Chapter[] = [
 // ============================================================
 
 export const mpxCards: FlashCard[] = [
-  ...parseTechDocCards(mpxGuideRaw, 'mpx-guide', 'core'),
-  ...parseTechDocCards(mpxArchitectureRaw, 'mpx-architecture', 'core'),
-  ...parseTechDocCards(devGuideRaw, 'dev-guide', 'core'),
+  ...parseTechDocCards(mpxGuideRaw, 'mpx-guide'),
+  ...parseTechDocCards(mpxArchitectureRaw, 'mpx-architecture'),
+  ...parseTechDocCards(devGuideRaw, 'dev-guide'),
   ...mpxBasicCards
 ];
 
