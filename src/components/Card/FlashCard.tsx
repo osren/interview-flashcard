@@ -68,9 +68,9 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
-    <div className="w-full max-w-3xl mx-auto min-w-0">
+    <div className="w-full max-w-4xl mx-auto min-w-0">
       <div
-        className="relative cursor-pointer w-full h-[clamp(260px,calc(100dvh-18rem),480px)]"
+        className="relative cursor-pointer w-full h-[clamp(280px,calc(100dvh-16rem),640px)] md:h-[clamp(420px,calc(100dvh-11rem),640px)]"
         style={{ perspective: '1000px' }}
         onClick={handleFlip}
       >
@@ -87,7 +87,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             style={{ backfaceVisibility: 'hidden' }}
           >
             <div className="h-3 bg-[#58CC02]" />
-            <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b-2 border-[#e5e5e5]">
+            <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5]">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 {currentIndex !== undefined && totalCards !== undefined && (
@@ -130,7 +130,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               </CardScrollArea>
             </div>
 
-            <div className="px-4 py-3 sm:px-6 sm:py-4 bg-[#f7f7f7] text-center text-xs sm:text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5] flex-shrink-0">
+            <div className="px-4 py-2 sm:px-5 bg-[#f7f7f7] text-center text-xs sm:text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5] flex-shrink-0">
               点击卡片查看答案 · 可拖动查看完整内容
             </div>
           </div>
@@ -141,7 +141,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <div className="h-3 bg-[#1CB0F6]" />
-            <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
+            <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 <Badge variant={statusConfig[displayCard.status].variant}>
@@ -173,7 +173,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            <CardScrollArea className="px-4 py-3 sm:px-6 sm:py-4" data-color-mode="light">
+            <CardScrollArea className="px-4 py-2.5 sm:px-5 sm:py-3" data-color-mode="light">
               {isEditing ? (
                 <MDEditor
                   value={editedAnswer}
@@ -200,7 +200,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </CardScrollArea>
 
-            <div className="px-4 py-2 sm:px-6 sm:py-3 bg-primary-50/80 dark:bg-primary-900/20 text-center text-xs sm:text-sm text-ink-muted border-t border-surface-border flex-shrink-0">
+            <div className="px-4 py-2 sm:px-5 bg-primary-50/80 dark:bg-primary-900/20 text-center text-xs sm:text-sm text-ink-muted border-t border-surface-border flex-shrink-0">
               再次点击返回问题 · 可拖动查看完整内容
             </div>
           </div>
