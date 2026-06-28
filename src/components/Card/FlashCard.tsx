@@ -67,10 +67,10 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
-    <div className="w-[768px] max-w-[768px] flex-shrink-0">
+    <div className="w-full max-w-4xl mx-auto min-w-0">
       <div
-        className="relative cursor-pointer"
-        style={{ height: '480px', perspective: '1000px' }}
+        className="relative cursor-pointer w-full h-[clamp(420px,calc(100dvh-11rem),640px)]"
+        style={{ perspective: '1000px' }}
         onClick={handleFlip}
       >
         <motion.div
@@ -86,7 +86,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             style={{ backfaceVisibility: 'hidden' }}
           >
             <div className="h-3 bg-[#58CC02]" />
-            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5]">
+            <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5]">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 {currentIndex !== undefined && totalCards !== undefined && (
@@ -126,7 +126,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            <div className="px-6 py-4 bg-[#f7f7f7] text-center text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5]">
+            <div className="px-4 py-2 sm:px-5 bg-[#f7f7f7] text-center text-xs sm:text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5]">
               点击卡片查看答案
             </div>
           </div>
@@ -137,7 +137,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <div className="h-3 bg-[#1CB0F6]" />
-            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
+            <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
                 <Badge variant={statusConfig[displayCard.status].variant}>
@@ -169,7 +169,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            <div className="flex-1 px-6 py-4 overflow-y-auto" data-color-mode="light">
+            <div className="flex-1 px-4 py-3 sm:px-5 overflow-y-auto" data-color-mode="light">
               {isEditing ? (
                 <MDEditor
                   value={editedAnswer}
@@ -196,7 +196,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            <div className="px-6 py-3 bg-primary-50/80 dark:bg-primary-900/20 text-center text-sm text-ink-muted border-t border-surface-border">
+            <div className="px-4 py-2 sm:px-5 bg-primary-50/80 dark:bg-primary-900/20 text-center text-xs sm:text-sm text-ink-muted border-t border-surface-border">
               再次点击返回问题
             </div>
           </div>
@@ -204,7 +204,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
       </div>
 
       {/* 状态按钮 */}
-      <div className="flex justify-center gap-3 mt-6">
+      <div className="flex justify-center gap-3 mt-4">
         {([
           { status: 'forgotten' as CardStatus, emoji: '😵', label: '忘记', cls: 'bg-[#FF4B4B] text-white border-b-[#EA2B2B]' },
           { status: 'fuzzy' as CardStatus, emoji: '🤔', label: '模糊', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
