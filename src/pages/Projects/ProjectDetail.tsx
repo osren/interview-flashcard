@@ -3,10 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
+import { ChapterLayout } from '@/components/Layout/ChapterLayout';
 import { useCardStore } from '@/store';
 import { projectCards } from '@/data/projects';
-import { Badge } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Home, X, Plus } from 'lucide-react';
+import { Button } from '@/components/ui';
+import { ChevronLeft, Home, Plus, FileText } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import MDEditor from '@uiw/react-md-editor';
 import { useProjectStore } from '@/store/useProjectStore';
@@ -16,22 +17,19 @@ export function ProjectDetail() {
   const navigate = useNavigate();
   const { getProject } = useProjectStore();
 
-  // 获取自定义项目信息
   const customProject = projectId ? getProject(projectId) : undefined;
   const isCustomProject = !!customProject;
 
-  // 本地状态管理
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
+  const customCards = useCardStore((state) => state.customCards);
   const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
 
-  // 新增问题弹窗状态
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
-  // 点击外部关闭序号选择器
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
@@ -42,38 +40,29 @@ export function ProjectDetail() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
+  const reloadCards = () => {
+    if (!projectId) return;
     const projectCardsList = projectCards.filter((c) => c.chapterId === projectId);
-    const merged = getMergedCards('projects', projectId || '', projectCardsList);
+    const merged = getMergedCards('projects', projectId, projectCardsList);
     setCards(merged);
-    // 恢复保存的进度
-    const savedIndex = getCardProgress('projects', projectId || '');
-    setCurrentIndex(Math.min(savedIndex, merged.length - 1));
-  }, [projectId]);
+    const savedIndex = getCardProgress('projects', projectId);
+    setCurrentIndex(merged.length > 0 ? Math.min(savedIndex, merged.length - 1) : 0);
+  };
 
-  // 保存进度
+  useEffect(() => {
+    reloadCards();
+  }, [projectId, customCards]);
+
   useEffect(() => {
     if (cards.length > 0 && projectId) {
       saveCardProgress('projects', projectId, currentIndex);
     }
-  }, [currentIndex, projectId]);
+  }, [currentIndex, projectId, cards.length]);
 
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {
       setCurrentIndex(idx);
       setShowIndexPicker(false);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < cards.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
     }
   };
 
@@ -88,262 +77,206 @@ export function ProjectDetail() {
         tags: ['新增'],
         status: 'unvisited',
       });
+      saveCardProgress('projects', projectId, cards.length);
       setNewQuestion({ question: '', answer: '' });
       setIsAdding(false);
-      // 刷新卡片列表
-      const projectCardsList = projectCards.filter((c) => c.chapterId === projectId);
-      const merged = getMergedCards('projects', projectId, projectCardsList);
-      setCards(merged);
-      setCurrentIndex(merged.length - 1);
     }
   };
 
   const currentCard = cards[currentIndex];
 
-  if (!currentCard) {
+  const projectTitle = isCustomProject
+    ? `${customProject.icon} ${customProject.title}`
+    : projectId === 'didi'
+      ? '🚗 滴滴企业版'
+      : '📝 GResume';
+
+  const exportTitle = isCustomProject
+    ? customProject.title
+    : projectId === 'didi'
+      ? '滴滴企业版'
+      : 'GResume 智能简历';
+
+  const projectSubtitle = isCustomProject
+    ? '自定义项目'
+    : projectId === 'didi'
+      ? '实习深挖'
+      : '技术攻坚';
+
+  if (projectId?.startsWith('custom-') && !customProject) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">加载中...</p>
+      <div className="min-h-screen app-bg flex flex-col items-center justify-center gap-4">
+        <p className="text-ink-muted">项目不存在或已被删除</p>
+        <button
+          onClick={() => navigate('/projects')}
+          className="px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-xl transition-colors"
+        >
+          返回项目列表
+        </button>
       </div>
     );
   }
 
   const handleStatusChange = (status: CardStatus) => {
+    if (!currentCard) return;
     updateCardStatus(currentCard.id, status);
     if (currentIndex < cards.length - 1) {
       setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 flex flex-col pt-20">
-      {/* 顶部导航 */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+  const addQuestionModal = (
+    <AnimatePresence>
+      {isAdding && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setIsAdding(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="surface-panel w-full max-w-lg p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-display font-semibold text-ink mb-4">新增问题</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-ink-secondary mb-1">问题</label>
+                <input
+                  type="text"
+                  value={newQuestion.question}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
+                  className="input-field"
+                  placeholder="输入面试问题"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink-secondary mb-1">回答</label>
+                <MDEditor
+                  value={newQuestion.answer}
+                  onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
+                  height={200}
+                  preview="edit"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <Button variant="ghost" onClick={() => { setIsAdding(false); setNewQuestion({ question: '', answer: '' }); }}>
+                取消
+              </Button>
+              <Button onClick={handleAddQuestion} disabled={!newQuestion.question.trim()}>
+                保存
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  if (cards.length === 0) {
+    return (
+      <div className="min-h-screen app-bg flex flex-col">
+        <div className="sticky top-20 z-10 bg-white/95 backdrop-blur-sm border-b border-[#e5e5e5]">
+          <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-3">
             <button
               onClick={() => navigate('/projects')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-1 px-2 py-1.5 text-sm font-bold text-[#1CB0F6] hover:bg-[#f7f7f7] rounded-lg transition-colors"
             >
-              <ChevronLeft size={20} />
-              <span>返回</span>
+              <ChevronLeft size={16} />
+              返回
             </button>
             <button
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-gray-400 hover:text-gray-600"
+              className="p-1.5 text-[#afafaf] hover:text-[#777777] hover:bg-[#f7f7f7] rounded-lg transition-colors"
             >
-              <Home size={18} />
+              <Home size={16} />
             </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="default">{currentCard.category}</Badge>
+            <h1 className="flex-1 text-center text-base font-extrabold text-[#3c3c3c] truncate">
+              {projectTitle}
+            </h1>
           </div>
         </div>
-      </div>
 
-      {/* 章节标题 */}
-      <div className="py-1 text-center">
-        <h1 className="text-xl font-bold text-gray-900 mb-0.5">
-          {isCustomProject
-            ? `${customProject.icon} ${customProject.title}`
-            : projectId === 'didi'
-              ? '🚗 滴滴企业版'
-              : '📝 GResume'}
-        </h1>
-        <p className="text-sm text-gray-500 mb-1">
-          {isCustomProject ? '自定义项目' : currentCard.chapterId === 'didi' ? '实习深挖' : '技术攻坚'}
-        </p>
-        {/* 可点击的序号显示 - 移到这里避免触发卡片翻转 */}
-        <div className="relative inline-flex" ref={indexPickerRef}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowIndexPicker(!showIndexPicker);
-            }}
-            className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors text-base font-medium"
-          >
-            <span>{currentIndex + 1}</span>
-            <span className="text-blue-400">/</span>
-            <span>{cards.length}</span>
-          </button>
-          {/* 序号选择器弹窗 */}
-          <AnimatePresence>
-            {showIndexPicker && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-h-80 overflow-y-auto z-50"
-                style={{ minWidth: '240px' }}
-              >
-                <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                  <span className="text-sm font-medium text-gray-600">选择序号</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowIndexPicker(false);
-                    }}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-5 gap-1">
-                  {cards.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleJumpTo(idx);
-                      }}
-                      className={`
-                        w-9 h-9 text-sm rounded transition-colors
-                        ${idx === currentIndex
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'}
-                      `}
-                    >
-                      {idx + 1}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
+          <p className="text-ink-secondary text-lg mb-2">暂无问答卡片</p>
+          <p className="text-ink-muted text-sm mb-8 text-center">
+            点击下方「新增问题」手动添加，或点击左侧
+            <span className="inline-flex items-center mx-1 px-1.5 py-0.5 bg-white border border-[#e5e5e5] rounded">
+              <FileText size={14} className="text-ink-muted" />
+            </span>
+            按钮导入 Markdown 问答
+          </p>
+          <Button onClick={() => setIsAdding(true)} className="gap-2">
+            <Plus size={18} />
+            新增问题
+          </Button>
         </div>
+
+        {addQuestionModal}
+
+        <ImportExportModal
+          cards={cards}
+          module="projects"
+          chapterId={projectId || ''}
+          title={exportTitle}
+        />
       </div>
+    );
+  }
 
-      {/* 卡片区域 - 左侧按钮 + 卡片 + 右侧按钮 */}
-      <div className="flex-1 flex items-center 2xl:items-start justify-center px-4 -mt-2 2xl:pt-2">
-        {/* 左侧按钮 */}
-        <button
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
-            flex items-center justify-center transition-all duration-200
-            ${currentIndex === 0
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-50 hover:scale-105 active:scale-95'}
-          `}
-        >
-          <ChevronLeft size={28} className="text-gray-600" />
-        </button>
-
-        {/* 卡片 */}
+  return (
+    <>
+      <ChapterLayout
+        backPath="/projects"
+        chapterTitle={projectTitle}
+        category={currentCard.category || projectSubtitle}
+        currentIndex={currentIndex}
+        totalCards={cards.length}
+        showIndexPicker={showIndexPicker}
+        setShowIndexPicker={setShowIndexPicker}
+        indexPickerRef={indexPickerRef}
+        onJumpTo={handleJumpTo}
+        onPrev={() => currentIndex > 0 && setCurrentIndex((p) => p - 1)}
+        onNext={() => currentIndex < cards.length - 1 && setCurrentIndex((p) => p + 1)}
+        canPrev={currentIndex > 0}
+        canNext={currentIndex < cards.length - 1}
+        footer={
+          <Button onClick={() => setIsAdding(true)} className="gap-2">
+            <Plus size={18} />
+            新增问题
+          </Button>
+        }
+      >
         <motion.div
           key={currentCard.id}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="mx-6 flex-shrink-0"
         >
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
             currentIndex={currentIndex}
             totalCards={cards.length}
-            showEdit={true}
+            showEdit
           />
         </motion.div>
+      </ChapterLayout>
 
-        {/* 右侧按钮 */}
-        <button
-          onClick={handleNext}
-          disabled={currentIndex === cards.length - 1}
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full bg-white shadow-lg border border-gray-200
-            flex items-center justify-center transition-all duration-200
-            ${currentIndex === cards.length - 1
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-50 hover:scale-105 active:scale-95'}
-          `}
-        >
-          <ChevronRight size={28} className="text-gray-600" />
-        </button>
-      </div>
+      {addQuestionModal}
 
-      {/* 新增问题按钮 */}
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <Plus size={18} />
-          新增问题
-        </button>
-      </div>
-
-      {/* 新增问题弹窗 */}
-      <AnimatePresence>
-        {isAdding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setIsAdding(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">新增问题</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">问题</label>
-                  <input
-                    type="text"
-                    value={newQuestion.question}
-                    onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 outline-none"
-                    placeholder="输入面试问题"
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">回答</label>
-                  <MDEditor
-                    value={newQuestion.answer}
-                    onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
-                    height={200}
-                    preview="edit"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => {
-                    setIsAdding(false);
-                    setNewQuestion({ question: '', answer: '' });
-                  }}
-                  className="px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleAddQuestion}
-                  disabled={!newQuestion.question.trim()}
-                  className="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
-                  保存
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 导入导出弹窗 */}
       <ImportExportModal
         cards={cards}
         module="projects"
         chapterId={projectId || ''}
-        title={projectId === 'didi' ? '滴滴企业版' : 'GResume 智能简历'}
+        title={exportTitle}
       />
-    </div>
+    </>
   );
 }

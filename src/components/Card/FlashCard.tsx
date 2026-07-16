@@ -69,7 +69,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   return (
     <div className="w-full max-w-4xl mx-auto min-w-0">
       <div
-        className="relative cursor-pointer w-full h-[clamp(420px,calc(100dvh-11rem),640px)]"
+        className="relative cursor-pointer w-full h-[clamp(420px,calc(100dvh-11rem),640px)] lg:h-[clamp(480px,calc(100dvh-10rem),720px)]"
         style={{ perspective: '1000px' }}
         onClick={handleFlip}
       >
