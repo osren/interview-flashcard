@@ -13,6 +13,11 @@ const moduleInfo = {
     title: '滴滴企业版 - 商旅体验',
     topics: ['遗留系统重构', 'AI工程化转型', '弱网性能优化'],
   },
+  'ai-monitor': {
+    icon: '📡',
+    title: 'AI 监控降噪工具',
+    topics: ['LLM 告警判定', '可插拔 Domain', '评测闭环'],
+  },
   gresume: {
     icon: '📝',
     title: 'GResume 智能简历平台',
@@ -102,7 +107,7 @@ export function ProjectsIndex() {
       <SectionHeader
         icon={<Briefcase size={24} className="text-white" strokeWidth={2.5} />}
         title="项目针对性复盘"
-        description="针对滴滴实习和 GResume 项目进行深度复盘"
+        description="针对滴滴实习、AI 监控降噪和 GResume 项目进行深度复盘"
       />
 
       <div className="grid gap-5">

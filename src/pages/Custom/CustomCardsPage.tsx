@@ -47,6 +47,7 @@ const moduleOptions: { module: ModuleType; label: string; chapters: { id: string
     label: '项目复盘',
     chapters: [
       { id: 'didi', label: '滴滴企业版' },
+      { id: 'ai-monitor', label: 'AI 监控降噪工具' },
       { id: 'gresume', label: 'GResume 智能简历' },
     ],
   },

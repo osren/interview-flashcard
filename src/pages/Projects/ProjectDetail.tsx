@@ -85,23 +85,24 @@ export function ProjectDetail() {
 
   const currentCard = cards[currentIndex];
 
+  const staticProjectMeta: Record<string, { title: string; exportTitle: string; subtitle: string }> = {
+    didi: { title: '🚗 滴滴企业版', exportTitle: '滴滴企业版', subtitle: '实习深挖' },
+    'ai-monitor': { title: '📡 AI 监控降噪工具', exportTitle: 'AI 监控降噪工具', subtitle: '告警智能判定' },
+    gresume: { title: '📝 GResume', exportTitle: 'GResume 智能简历', subtitle: '技术攻坚' },
+  };
+  const meta = projectId ? staticProjectMeta[projectId] : undefined;
+
   const projectTitle = isCustomProject
     ? `${customProject.icon} ${customProject.title}`
-    : projectId === 'didi'
-      ? '🚗 滴滴企业版'
-      : '📝 GResume';
+    : meta?.title ?? '项目复盘';
 
   const exportTitle = isCustomProject
     ? customProject.title
-    : projectId === 'didi'
-      ? '滴滴企业版'
-      : 'GResume 智能简历';
+    : meta?.exportTitle ?? '项目复盘';
 
   const projectSubtitle = isCustomProject
     ? '自定义项目'
-    : projectId === 'didi'
-      ? '实习深挖'
-      : '技术攻坚';
+    : meta?.subtitle ?? '技术攻坚';
 
   if (projectId?.startsWith('custom-') && !customProject) {
     return (
