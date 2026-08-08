@@ -1,14 +1,17 @@
 import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
-import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save } from 'lucide-react';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
-type TabType = 'resume' | 'intro';
+const ONLINE_RESUME_URL = 'https://506resume.vercel.app/';
+
+type TabType = 'online' | 'resume' | 'intro';
 
 export function ResumePage() {
   const { resumes, addResume, removeResume, introScript, setIntroScript } = useResumeStore();
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('resume');
+  const [activeTab, setActiveTab] = useState<TabType>('online');
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(introScript);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,28 +72,48 @@ export function ResumePage() {
     });
   };
 
+  const isOnlineTab = activeTab === 'online';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-20 pb-8">
+    <div
+      className={cn(
+        'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50',
+        isOnlineTab ? 'pt-4 pb-2' : 'pt-20 pb-8'
+      )}
+    >
       {/* 背景装饰 */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl" />
         <div className="absolute top-40 right-20 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative max-w-5xl mx-auto px-4">
+      <div className={cn('relative mx-auto px-2 sm:px-4', isOnlineTab ? 'max-w-[1600px]' : 'max-w-5xl')}>
         {/* 顶部标题区域 */}
+        {!isOnlineTab && (
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100/60 rounded-full mb-4">
             <Sparkles className="w-4 h-4 text-blue-600" />
             <span className="text-sm font-medium text-blue-700">简历管理</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">我的简历</h1>
-          <p className="text-gray-500">上传、管理和预览您的 PDF 简历</p>
+          <p className="text-gray-500">在线预览、上传管理和面试口述稿</p>
         </div>
+        )}
 
         {/* Tab 切换 */}
-        <div className="flex justify-center mb-8">
+        <div className={cn('flex justify-center', isOnlineTab ? 'mb-3' : 'mb-8')}>
           <div className="inline-flex bg-white/80 backdrop-blur-sm rounded-xl p-1.5 shadow-sm border border-gray-100">
+            <button
+              onClick={() => setActiveTab('online')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === 'online'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Globe size={16} />
+              在线简历
+            </button>
             <button
               onClick={() => setActiveTab('resume')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -115,6 +138,43 @@ export function ResumePage() {
             </button>
           </div>
         </div>
+
+        {/* 在线简历 Tab */}
+        {activeTab === 'online' && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col"
+            style={{ height: 'calc(100dvh - 6.5rem)' }}
+          >
+            <div className="flex items-center justify-between px-3 sm:px-5 py-2 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm text-gray-900">506 Resume</h3>
+                  <p className="text-xs text-gray-400 truncate">{ONLINE_RESUME_URL}</p>
+                </div>
+              </div>
+              <a
+                href={ONLINE_RESUME_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors flex-shrink-0"
+              >
+                <ExternalLink size={15} />
+                <span className="hidden sm:inline">新窗口打开</span>
+              </a>
+            </div>
+            <iframe
+              src={ONLINE_RESUME_URL}
+              className="w-full flex-1 min-h-0 border-0 bg-white"
+              title="506 Resume"
+              allow="clipboard-read; clipboard-write"
+            />
+          </motion.div>
+        )}
 
         {/* 简历 Tab 内容 */}
         {activeTab === 'resume' && (
