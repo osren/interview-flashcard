@@ -1,0 +1,66 @@
+{
+  "basic": {
+    "position": "前端开发",
+    "company": "腾讯",
+    "location": ""
+  },
+  "details": {
+    "job_url": "https://join.qq.com/post_detail.html?postid=1282707439695012865",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "负责 Web 页面、小程序、以及跨平台框架等前端相关技术的研发",
+      "通过优化技术方案，提升产品体验，实践 AI 辅助前端开发（如 AI 生成 UI 组件、智能代码重构等）提升效率",
+      "抽离通用组件进行复用，关注 AI 驱动的前端工具链和组件智能化趋势",
+      "探索 AI 在前端领域的前沿应用（AI 交互组件、智能表单、对话式 UI 等），力争为用户带来跨时代的产品体验",
+      "参与前端 AI 能力的集成与落地，如大模型对话界面、智能推荐前端等"
+    ],
+    "jd_requirements": [
+      "善于借助 AI 工具拆解复杂问题、探索解决方案，并能对 AI 的输出进行高质量判断，具备人机协同的工作意识和习惯",
+      "计算机相关专业本科及以上学历",
+      "热爱计算机编程，丰富的编码实战经验",
+      "熟悉 JS/TS/HTML/CSS 等前端开发语言",
+      "了解一门后台技术，如 Python/Node.js/Go 等",
+      "了解常见前端开发框架（React/Vue/Next.js 等）以及 devops 工具",
+      "了解常见的 web/app/小程序前后端系统架构",
+      "掌握常见的算法能力",
+      "掌握常见网络协议和相关底层网络协议的全面知识",
+      "加分：有 AI 前端开发工具项目经验，了解 WebLLM/Transformers.js，有对话式 UI 或 AI 交互组件开发经验，有 Next.js/Nuxt 项目经验"
+    ],
+    "jd_summary": "负责 Web/小程序/跨平台框架前端研发，实践 AI 辅助开发（AI 生成 UI、智能重构）并探索 AI 交互组件、对话式 UI、大模型对话界面等前端 AI 能力落地。面向 CSIG/IEG/PCG/TEG/WXG 招聘，远程面试。",
+    "requirements_summary": "本科及以上计算机相关专业，熟悉 JS/TS/HTML/CSS 及 React/Vue/Next.js，了解 Python/Node.js/Go 之一。强调 AI 工具人机协同能力；加分项含 WebLLM/Transformers.js、对话式 UI 与 Next.js/Nuxt 经验。",
+    "tech_stack": [
+      "JavaScript",
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "React",
+      "Vue",
+      "Next.js",
+      "Nuxt",
+      "Python",
+      "Node.js",
+      "Go",
+      "小程序",
+      "WebLLM",
+      "Transformers.js",
+      "对话式UI"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.96,
+    "reason": "标准前端开发岗（React/Vue/TS/小程序）且明确 AI 辅助开发与对话式 UI/大模型界面集成方向，匹配前端开发与 AI 应用交叉目标，无模型训练要求"
+  }
+}

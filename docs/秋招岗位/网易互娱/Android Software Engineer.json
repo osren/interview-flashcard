@@ -1,0 +1,59 @@
+{
+  "basic": {
+    "position": "Android Software Engineer",
+    "company": "网易互娱",
+    "location": "新加坡"
+  },
+  "details": {
+    "job_url": "https://campus.game.163.com/app/detail/index?id=4771&projectId=102",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "Develop and iterate on features for Android productivity applications, completing module-level development tasks under guidance from senior engineers",
+      "Learn and implement modern Android development tech stack including Kotlin, Jetpack components and Jetpack Compose",
+      "Gradually take full ownership of independent feature modules and deliver end-to-end feature implementation",
+      "Participate in code reviews, technical seminars and the implementation of team engineering best practices",
+      "Cooperate with product managers and UI/UX designers to sort out user requirements and convert business needs into feasible technical solutions",
+      "Monitor application runtime performance and stability, assist in troubleshooting and resolving online production failures",
+      "Write clean, maintainable and fully tested code complying with unified team coding specifications"
+    ],
+    "jd_requirements": [
+      "Bachelor's degree or higher, expected graduation in 2027",
+      "Solid computer science fundamentals, proficient in data structures, algorithms, operating systems and computer network principles",
+      "Skilled in at least one object-oriented programming language such as Java, Kotlin or C++",
+      "Basic Android development capabilities: familiar with Activity & Fragment lifecycle, Android core application components, mainstream UI components and basic event handling mechanisms",
+      "Hands-on project experience including academic course projects, open-source contribution or internship experience",
+      "Excellent problem-solving capability and self-directed learning skills",
+      "Clear logical expression, excellent cross-team collaboration awareness, strong work ownership",
+      "Able to conduct daily workplace communication in Mandarin, with basic English reading and writing proficiency",
+      "优先：Android 开发实习或独立 App 经验，熟悉 Kotlin 协程/Flow，了解 Android 性能优化，或算法竞赛/技术博客/GitHub 开源经历"
+    ],
+    "jd_summary": "负责网易互娱 Android 生产力应用（UU Booster、MuMu Player 等）功能迭代与模块开发，使用 Kotlin/Jetpack/Jetpack Compose 技术栈，参与代码评审、性能稳定性排查及与产品/设计协作。2027 届校招，工作地点新加坡。",
+    "requirements_summary": "2027 届本科及以上，计算机基础扎实，掌握 Java/Kotlin/C++ 之一及 Android 基础（生命周期/组件/UI）。需有项目经验，中英文沟通能力；Android 实习、Kotlin 协程与性能优化经验优先。",
+    "tech_stack": [
+      "Android",
+      "Kotlin",
+      "Java",
+      "C++",
+      "Jetpack",
+      "Jetpack Compose",
+      "Flow"
+    ],
+    "education": "本科及以上学历",
+    "major": ""
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.92,
+    "reason": "主职责为 Android 客户端开发（Kotlin/Jetpack Compose），非 Web 前端或 AI/Agent 工程岗；公司简介虽提及 AI Agent 探索，但岗位本身为移动端生产力应用开发，与目标方向不匹配"
+  }
+}

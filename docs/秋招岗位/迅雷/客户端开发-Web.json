@@ -1,0 +1,54 @@
+{
+  "basic": {
+    "position": "客户端开发-Web",
+    "company": "迅雷",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://app.mokahr.com/campus-recruitment/xunlei/26600?recommendCode=DSmwrMuK#/job/e03551aa-af5a-4d98-9ff9-20ec6a1b2393",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "负责迅雷集团核心产品跨平台客户端的前端架构设计与实现，核心功能组件重构与优化",
+      "保证服务在 iOS、Android、PC 等多平台上的稳定运行和性能表现",
+      "共建通用框架、组件、DevOps 等大前端工程化产品，持续提升团队交付效率，保障交付质量"
+    ],
+    "jd_requirements": [
+      "2027 届获得本科及以上学历，计算机相关专业",
+      "熟悉 JavaScript/TypeScript、React 及 VUE 的生态库，如 Redux/MobX 等状态管理库",
+      "熟练运用前端工程化技术，如 Node.js、Webpack/Vite 代码构建与优化、持续集成与部署，改善团队研发效率",
+      "对个人成长负责，持续学习并应用到项目中，有强烈的学习欲望，定期复盘和沉淀知识库"
+    ],
+    "jd_summary": "负责迅雷核心产品跨平台客户端（iOS/Android/PC）的 Web 前端架构与组件重构，共建通用框架、组件及 DevOps 大前端工程化体系，保障多端稳定运行与交付质量。迅雷云事业部，深圳。",
+    "requirements_summary": "2027 届本科及以上计算机相关专业，熟悉 JS/TS、React/Vue 及 Redux/MobX 状态管理。需掌握 Node.js、Webpack/Vite 及 CI/CD 等前端工程化能力，强调持续学习与知识沉淀。",
+    "tech_stack": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Vue",
+      "Redux",
+      "MobX",
+      "Node.js",
+      "Webpack",
+      "Vite",
+      "DevOps",
+      "CI/CD"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.92,
+    "reason": "岗位为跨平台客户端 Web 前端开发（React/Vue/TS/工程化），匹配前端开发目标；无 AI/Agent 方向但技术栈与背景高度契合"
+  }
+}

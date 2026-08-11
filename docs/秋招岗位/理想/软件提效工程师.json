@@ -1,0 +1,44 @@
+{
+  "basic": {
+    "position": "软件提效工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7672580944670935346/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "it_ops",
+    "jd_responsibilities": [
+      "推进办公软件信息梳理与软件中心上架，协同多部门落地软件合规使用规范",
+      "优化工单服务体系，提升软件管理咨询与使用问题拦截率，提升效率和用户体验",
+      "通过技术与数据持续运营软件管理中心，建设一站式解决能力"
+    ],
+    "jd_requirements": [
+      "统招本科以上学历，计算机相关专业",
+      "具有优秀的编码能力和出色的文档能力，语言包括但不限于 Go/Python/Java",
+      "思维活跃，有较强的创造力、高效工作方式、团队协作能力",
+      "熟悉计算机基础知识，能处理办公软件如 Office、Adobe 等常见问题",
+      "熟悉各类操作系统的安装以及故障排查，例如 Windows、macOS、Ubuntu 等",
+      "对 AI、大模型、自动化任务和提效工具有浓厚兴趣"
+    ],
+    "jd_summary": "负责办公软件信息梳理与软件中心上架，协同多部门推进软件合规使用。优化工单服务体系，提升软件管理咨询与问题拦截效率。通过技术与数据运营软件管理中心，建设一站式解决能力。",
+    "requirements_summary": "统招本科及以上，计算机相关专业，具备 Go/Python/Java 编码与文档能力。需熟悉 Office/Adobe 常见问题处理及 Windows/macOS/Ubuntu 安装与故障排查。对 AI、大模型与自动化提效工具有兴趣。",
+    "tech_stack": ["Go", "Python", "Java", "Office", "Adobe", "Windows", "macOS", "Ubuntu"],
+    "education": "统招本科以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "it_ops",
+    "batch_type": "official",
+    "confidence": 0.88,
+    "reason": "主职责为软件中心运营、工单体系与办公合规管理，虽要求 Go/Python/Java 编码能力，但核心工作是 IT 运维/软件管理/办公支持，非前端或 AI 应用开发岗；「对 AI 有兴趣」不构成 AI 开发匹配"
+  }
+}

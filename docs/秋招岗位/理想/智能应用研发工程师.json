@@ -1,0 +1,53 @@
+{
+  "basic": {
+    "position": "智能应用研发工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7671178722704460074/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "负责基于大语言模型的智能代码应用、应用框架的开发，赋能整个软件开发流程，包括代码生成、主动性 Agent、AIDevOps 等",
+      "按照软件开发流程，根据用户需求，完成应用的详细设计、开发、测试、上线等工作",
+      "持续优化智能应用的效果，包括 Harness 建设、测评建设、数据生产、建设评估能力、建设评估数据集等",
+      "与团队成员紧密合作，解决开发过程中遇到的技术问题"
+    ],
+    "jd_requirements": [
+      "熟练使用大模型，对大模型应用有强烈的兴趣，对前沿技术感兴趣",
+      "熟练掌握计算机基础知识，掌握一种主流编程语言（Java/Python/Go 等）",
+      "具备良好的理解问题和解决问题的能力，出色的学习能力以及良好的沟通能力",
+      "喜欢思考，自我驱动，愿意接受有挑战的事",
+      "有大模型应用开发经验者优先"
+    ],
+    "jd_summary": "负责基于 LLM 的智能代码应用与框架开发，覆盖代码生成、主动性 Agent、AIDevOps 等软件开发流程赋能能力。按完整 SDLC 交付应用，并持续建设 Harness、测评体系、评估数据集以优化智能应用效果。",
+    "requirements_summary": "要求熟悉大模型应用，掌握 Java/Python/Go 之一及计算机基础，具备问题分析与学习能力；有大模型应用开发经验者优先，强调自我驱动与前沿技术探索。",
+    "tech_stack": [
+      "LLM",
+      "Agent",
+      "代码生成",
+      "AIDevOps",
+      "Harness",
+      "Java",
+      "Python",
+      "Go"
+    ],
+    "education": "",
+    "major": ""
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.91,
+    "reason": "主职责为大模型智能代码应用与主动性 Agent/AIDevOps 框架开发，含 Harness 与测评体系建设，属于 Agent 应用开发方向，与 AI软件工程师高度同类，非模型训练或算法研究"
+  }
+}

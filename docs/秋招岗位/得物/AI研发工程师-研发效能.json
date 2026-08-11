@@ -1,0 +1,61 @@
+{
+  "basic": {
+    "position": "AI研发工程师（研发效能）",
+    "company": "得物",
+    "location": "上海"
+  },
+  "details": {
+    "job_url": "https://poizon.jobs.feishu.cn/578078/position/7672237020638546185/detail?share_token=MzsxNzg2MzU3MjQ2ODU1Ozc0Nzc1NTgyMTY5NjUwNDg2MDI7MDsxLzI",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "核心 AI 产品开发与迭代：参与 DewuClaw、AI Studio（智能体搭建平台）等核心产品的功能开发，负责模块设计、代码实现等，修复版本 bug 保障工具稳定运行",
+      "AI 编码与测试工具落地：开发 AI 编码插件，提升代码生成占比与准确率；协助构建 AI Coding 和 AI Testing 相关全流程 AI Agent，提升 AI 渗透率和研发效率",
+      "RAG 知识库与智能诊断：参与研发知识库（RAG）的搭建与优化，将架构规范、接口文档、故障案例等内容入库并优化检索效果；协助开发智能诊断 Agent，覆盖流水线任务场景以降低答疑问题数",
+      "AI 效能度量与技术调研：参与 AI 效能数据的收集与分析，协助建立度量看板，量化 AI 在代码生成、测试用例产出等场景的提效价值；跟踪国内外大模型、AI Agent 等前沿技术动态，开展技术调研、竞品分析并输出优化建议"
+    ],
+    "jd_requirements": [
+      "2027 届毕业生，本科及以上学历，计算机、软件工程、人工智能相关专业在读，具备扎实的编程与算法基础",
+      "必须具备扎实的 Python/JAVA/Go 编程能力，能独立完成脚本编写、接口调试与项目开发",
+      "熟悉 RAG（检索增强生成）、Prompt 工程、Agent 工作流等关键技术；对 LangChain、Dify、Ragflow 等工具链有了解或实践经验者优先；对 OpenClaw、AIAgent 有了解或关注最新进展者优先",
+      "了解 Docker 等容器化技术，熟悉 MySQL、MongoDB 或 Milvus、Chroma 等向量数据库者加分",
+      "有开源项目贡献或 AI 应用开发经验者优先",
+      "具备优秀的问题分析、逻辑推理与文档输出能力；学习能力强、自驱力高、沟通高效，能快速融入团队并解决实际问题"
+    ],
+    "jd_summary": "参与 DewuClaw 与 AI Studio 智能体搭建平台的功能开发，落地 AI 编码插件及 AI Coding/Testing 全流程 Agent。负责 RAG 研发知识库与智能诊断 Agent 建设，并参与 AI 效能度量看板与前沿技术调研。",
+    "requirements_summary": "2027 届本科及以上，计算机/软件/AI 相关专业，Python/Java/Go 扎实。需熟悉 RAG、Prompt、Agent 工作流，LangChain/Dify/Ragflow 经验优先；Docker 与向量数据库（Milvus/Chroma）加分，有 AI 应用开发经验者优先。",
+    "tech_stack": [
+      "Python",
+      "Java",
+      "Go",
+      "RAG",
+      "Prompt工程",
+      "Agent",
+      "LangChain",
+      "Dify",
+      "Ragflow",
+      "AI Coding",
+      "Docker",
+      "MySQL",
+      "MongoDB",
+      "Milvus",
+      "Chroma"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件工程、人工智能相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.95,
+    "reason": "主职责为智能体搭建平台、AI Coding/Testing Agent、RAG 知识库与智能诊断 Agent 开发，核心技术栈（RAG/Prompt/Agent/LangChain）与目标高度匹配，属 AI 应用/Agent 工程而非模型训练"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "basic": {
+    "position": "AI Agent技术开发岗",
+    "company": "4399",
+    "location": "广州"
+  },
+  "details": {
+    "job_url": "https://hr.4399om.com/weixin/?r=job/view&id=JO20260730001&type=agent&jobTableType=1",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "参与公司内部 AI 中台建设，基于大语言模型和 Agent 技术，将 AI 能力接入审批、即时通讯、项目管理、数据查询、报表分析等内部系统，让 AI 真正融入员工日常工作，提升公司整体协作与业务效率",
+      "参与 Agent 平台核心能力研发，包括任务规划、工具与 Skill 调用、上下文和记忆管理、工作流编排、人机确认、异常恢复、效果评测及运行监控等，与团队一起把「可以演示的 AI Demo」建设成稳定、可靠、可复用的企业级能力",
+      "与产品、业务及各信息系统研发团队深入沟通，理解真实业务流程，将复杂需求拆解为 Agent 能够理解、执行和评测的任务，让研发成果接受多部门用户和真实业务场景的检验"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、人工智能、软件工程、数学、统计等相关专业优先",
+      "编程基础扎实，熟练使用 Python，掌握常用算法和数据结构，能够编写结构清晰、可测试、可维护的工程代码",
+      "理解机器学习、深度学习和大语言模型基本原理，了解主流模型的能力边界、调用方式和应用场景",
+      "了解 RAG、Embedding、向量检索、Rerank、引用溯源等基本流程",
+      "理解 Agent 的基本工作机制，能够设计或实现包含任务规划、工具调用、状态与上下文管理、异常重试、降级处理和人工确认的多步骤工作流",
+      "具备基本的 Agent 评测意识，了解如何构造测试用例或评测集，并从任务成功率、工具调用准确率、结果正确性与一致性、事实有据性、响应延迟、Token 成本及人工接管情况等维度分析效果"
+    ],
+    "jd_summary": "参与 4399 内部 AI 中台与 Agent 平台研发，覆盖任务规划、Skill 调用、记忆/工作流编排、人机确认、异常恢复及效果评测。将 AI 接入审批/IM/项目管理/数据查询等内部系统，把 Demo 建设为企业级可复用能力。2027 届校招，广州。",
+    "requirements_summary": "本科及以上，计算机/AI/软件/数学/统计相关专业。Python 扎实，了解 LLM 原理与 RAG/Embedding/向量检索/Rerank 流程；需能设计多步骤 Agent 工作流（规划/工具调用/重试/降级/人工确认），并具备 Agent 评测意识（成功率/准确率/Token 成本等维度）。",
+    "tech_stack": [
+      "Python",
+      "LLM",
+      "Agent",
+      "Skill",
+      "RAG",
+      "Embedding",
+      "向量检索",
+      "Rerank",
+      "工作流编排",
+      "效果评测"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、人工智能、软件工程、数学、统计等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.99,
+    "reason": "专精 Agent 平台研发（Skill 调用/工作流编排/人机确认/效果评测），与 OpenHarness 实践高度吻合；要求 RAG 与 Agent 工作流工程化落地，非模型训练，为当前最匹配 JD 之一"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "basic": {
+    "position": "软件工程师（Agent开发方向）",
+    "company": "vivo",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://hr-campus.vivo.com/campus/detail?jobAdId=538a0899-26ca-4599-acfc-feda47aaa399&shareId=ac02e18c-c178-4501-8330-ca2627d16558&shareSource=2&qr=1",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "负责端侧 AI Agent 架构研发设计与预研算法落地，包括视觉感知、自动化技能、GUI Agent 等方向",
+      "根据项目任务计划完成软件高质量编码工作，并对难点进行攻关",
+      "持续预研优化高效安全的 AI 智能体技术，提升服务性能、稳定性和安全可靠性",
+      "建设和优化端侧 AI 能力开放体系，赋能系统智能化"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、软件工程、人工智能等相关专业优先，具备扎实的算法基础和开发经验",
+      "具备 AI Agent 相关领域经验，具有一定规模和影响力的项目或论文者优先",
+      "熟悉大模型相关算法和技术，有大模型训练/推理/加速、SFT、RL 经验者优先",
+      "精通一门基础编程语言如 Python/C++/Java，具备 Java/Kotlin 等 Android 开发语言基础优先",
+      "具有出色的问题分析和解决能力，能够深入解决大模型训练和应用存在的问题"
+    ],
+    "jd_summary": "负责端侧 AI Agent 架构研发与预研算法落地，覆盖视觉感知、自动化技能、GUI Agent 等方向。持续预研优化智能体技术，建设端侧 AI 能力开放体系，赋能系统智能化。",
+    "requirements_summary": "本科及以上，计算机/软件/AI 相关专业，要求算法基础与 AI Agent 项目经验（论文/影响力项目优先）。熟悉大模型算法，SFT/RL/训练推理加速经验优先；精通 Python/C++/Java，Android 开发基础优先。",
+    "tech_stack": [
+      "AI Agent",
+      "GUI Agent",
+      "Python",
+      "C++",
+      "Java",
+      "Kotlin",
+      "Android",
+      "SFT",
+      "RL",
+      "大模型训练",
+      "大模型推理",
+      "视觉感知"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件工程、人工智能等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.89,
+    "reason": "虽为 Agent 方向，但主职责含预研算法落地与端侧架构研发，明确要求算法基础及 SFT/RL/大模型训练推理加速优先，命中排除项；偏端侧算法/客户端研发，非 Web 前端或 AI 应用工程"
+  }
+}

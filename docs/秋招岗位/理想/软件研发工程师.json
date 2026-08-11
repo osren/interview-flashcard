@@ -1,0 +1,64 @@
+{
+  "basic": {
+    "position": "软件研发工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7672226373226907954/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "研究并落地多模态输入（视觉、音频、自然语言、传感器信号）的特征提取与融合方法，对特定信号进行垂域分析，如音频节拍/能量/旋律结构提取、视频场景语义理解等",
+      "针对低照度、遮挡、噪声等复杂环境条件，设计鲁棒的感知优化策略",
+      "负责 VLA/序列生成模型在具体执行任务上的算法研究与工程落地，设计多模态条件驱动的动作编排系统，将感知信号映射为结构化的原子动作序列",
+      "构建 SFT/RLHF 训练流程，基于真实反馈持续迭代模型质量，跟踪前沿进展（VLA、Diffusion Policy、世界模型等）并评估引入",
+      "参与 Real2Sim 管线建设，开发模块化场景生成系统，设计强化学习训练环境，优化 Sim2Real 迁移策略",
+      "建立数据飞轮：采集、清洗、标注、扩充，形成持续改进的训练数据体系",
+      "与工程团队协作完成算法到硬件平台的落地调优，对接 ROS2 或车载中间件，保障算法在实时系统中的可靠运行"
+    ],
+    "jd_requirements": [
+      "扎实的深度学习基础，熟悉 Transformer、扩散模型、序列到序列建模等主流架构",
+      "有多模态模型（VLM/VLA/音视频理解）训练或微调经验，能独立完成从数据到上线的完整链路",
+      "熟悉至少一个方向的垂域知识：机器人操作 / 音频信号处理 / 视频理解 / 物理仿真",
+      "Python 能力扎实，熟悉 PyTorch；具备基本的后端接口联调能力，能完成算法服务的接口封装与调试",
+      "有机械臂/移动机器人真机实验经验、或音视频特征分析经验、或 Isaac Sim/MuJoCo 等仿真平台经验、或 ROS2 开发经验者优先"
+    ],
+    "jd_summary": "负责多模态感知（视觉/音频/传感器）特征提取与融合，以及 VLA/序列生成模型的算法研究与落地。涵盖 SFT/RLHF 训练、Real2Sim/Sim2Real、强化学习仿真环境建设，并与 ROS2/车载中间件对接完成硬件平台部署。",
+    "requirements_summary": "要求深度学习与 Transformer/扩散模型基础，具备 VLM/VLA/音视频多模态模型训练或微调经验。需熟悉机器人、音频、视频或物理仿真等至少一个垂域，Python/PyTorch 扎实；有真机实验、Isaac Sim/MuJoCo 或 ROS2 经验者优先。",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Transformer",
+      "扩散模型",
+      "VLM",
+      "VLA",
+      "SFT",
+      "RLHF",
+      "Diffusion Policy",
+      "世界模型",
+      "ROS2",
+      "Isaac Sim",
+      "MuJoCo",
+      "Real2Sim",
+      "Sim2Real",
+      "强化学习"
+    ],
+    "education": "",
+    "major": ""
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.96,
+    "reason": "主职责为多模态/VLA 模型算法研究与 SFT/RLHF 训练流程建设，属于模型训练与算法研究方向，命中排除项（预训练/SFT/RLHF、纯算法研究），非前端或 AI 应用/Agent 开发岗"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "basic": {
+    "position": "AI交互前沿研究工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7672209914463324443/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "AI认知交互理论研究：围绕智能空间开展 AI 认知交互理论研究，探索面向未来的人机协同模式、主动交互、记忆驱动交互等核心机制，构建下一代 AI 交互理论框架与设计方法，支撑智能空间产品创新",
+      "用户分析与交互行为研究：围绕智能空间中的用户需求、认知特征及交互行为开展研究，洞察用户需求与使用规律，形成面向 AI 交互产品的用户分析框架，为产品设计和交互策略优化提供理论依据",
+      "前沿交互技术研究与创新设计：持续跟踪 LLMs、多模态大模型、Agent、人机交互等前沿技术，结合业务需求开展交互创新研究，完成交互方案设计、原型验证及创新能力探索，推动研究成果向产品落地"
+    ],
+    "jd_requirements": [
+      "学术背景与研究能力：博士学历优先，特别优秀的硕士亦可，具备扎实的科研能力与理论分析能力",
+      "AI交互与用户研究基础：熟悉 LLMs、多模态模型、Agent 等 AI 技术，对人机交互、用户研究、认知科学、用户体验、主动交互等领域具有研究基础或实践经验",
+      "AI交互理论与体验设计能力：具备 AI 交互理论建模、交互体验分析及评价体系构建能力，能够将用户需求、交互理论与 AI 能力相结合，形成可落地的交互设计方法、体验模型及评价框架",
+      "创新研究能力：关注 AI 交互领域前沿发展，对未来人机协同、主动交互、智能空间等方向保持持续探索热情，具备从 0 到 1 开展创新研究并推动成果落地的能力"
+    ],
+    "jd_summary": "围绕智能空间开展 AI 认知交互理论研究，探索人机协同、主动交互、记忆驱动交互等机制，构建下一代 AI 交互理论框架。同步开展用户需求与交互行为研究，跟踪 LLM/多模态/Agent 前沿技术，完成交互创新方案设计与原型验证。",
+    "requirements_summary": "博士优先（优秀硕士可），强调科研与理论分析能力。需熟悉 LLM/多模态/Agent 及人机交互、用户研究、认知科学等领域，具备 AI 交互理论建模、体验分析与评价体系构建能力，能从 0 到 1 开展创新研究。",
+    "tech_stack": [
+      "LLM",
+      "多模态大模型",
+      "Agent",
+      "人机交互",
+      "用户研究",
+      "认知科学",
+      "交互设计"
+    ],
+    "education": "博士学历优先，特别优秀的硕士亦可",
+    "major": ""
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.91,
+    "reason": "主职责为 AI 认知交互理论研究、用户行为研究与交互创新探索，博士优先，属于科研/HCI 研究岗而非工程开发；虽涉及 LLM/Agent 但侧重理论框架与体验设计，非前端或 AI 应用/Agent 工程落地方向"
+  }
+}

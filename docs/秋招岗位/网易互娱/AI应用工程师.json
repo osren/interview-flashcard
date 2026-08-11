@@ -1,0 +1,61 @@
+{
+  "basic": {
+    "position": "AI应用工程师",
+    "company": "网易互娱",
+    "location": "广州"
+  },
+  "details": {
+    "job_url": "https://campus.game.163.com/app/detail/index?id=4756&projectId=102",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_fullstack",
+    "jd_responsibilities": [
+      "参与游戏研发管线 AI 应用的全栈开发，将大模型能力转化为极致的用户体验，如 AI 绘图、AI 代码、ChatBI、LLMs 应用等",
+      "构建高并发、低延迟的 AI 服务架构，优化推理性能与成本",
+      "设计并实现 AI Native 的产品交互，探索人机协作的新范式",
+      "开发 AI 应用的基础设施，包括 Agent 套件、模型测评、模型路由等"
+    ],
+    "jd_requirements": [
+      "计算机或相关专业，本科及以上学历",
+      "扎实的计算机专业基础，熟悉常用的数据结构与算法",
+      "熟练掌握 Java/Go/C/C++/Python 等一门或多门主流编程语言",
+      "熟悉 Linux 环境，能在 Linux 环境下完成开发、测试、上线运维以及问题排查等日常工作",
+      "深入使用过主流大语言模型，熟悉 LLM 应用架构，有 Prompt Engineering、RAG、Function Calling、Agent 开发实战经验",
+      "热爱 AIGC 相关技术，关注最新的 AIGC 产品动态，熟练使用 1-2 个 AI Coding 工具，有良好的学习能力和动手能力",
+      "良好的代码风格和编程习惯",
+      "自主学习能力强，善于沟通，有团队合作精神，乐于分享"
+    ],
+    "jd_summary": "参与游戏研发管线 AI 应用全栈开发（AI 绘图/AI 代码/ChatBI/LLM 应用），构建高并发低延迟 AI 服务架构，设计 AI Native 交互，并开发 Agent 套件、模型测评、模型路由等基础设施。2027 届校招，工作地点广州。",
+    "requirements_summary": "本科及以上计算机相关专业，掌握 Java/Go/C/C++/Python 之一及 Linux 开发运维。需有 LLM 应用架构及 Prompt/RAG/Function Calling/Agent 实战经验，熟悉 AI Coding 工具，关注 AIGC 前沿。",
+    "tech_stack": [
+      "Python",
+      "Java",
+      "Go",
+      "C/C++",
+      "Linux",
+      "LLM",
+      "Prompt Engineering",
+      "RAG",
+      "Function Calling",
+      "Agent",
+      "AIGC",
+      "ChatBI",
+      "AI Coding"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机或相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_fullstack",
+    "batch_type": "official",
+    "confidence": 0.93,
+    "reason": "主职责为游戏研发管线 AI 应用全栈开发及 Agent 套件/RAG/Function Calling 落地，要求 LLM 应用架构实战经验，属于 AI 全栈/Agent 应用方向；推理性能优化属服务架构非模型训练，与目标高度匹配"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "basic": {
+    "position": "AI应用工程师",
+    "company": "腾讯",
+    "location": ""
+  },
+  "details": {
+    "job_url": "https://join.qq.com/post_detail.html?postid=1282707395466077185",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_app",
+    "jd_responsibilities": [
+      "负责 AI 应用产品的开发与交付，将大模型能力转化为面向用户的产品功能，参与需求分析、方案设计、开发实现与持续迭代",
+      "构建基于大模型的业务应用，包括智能对话、内容生成、智能推荐、知识问答等场景，通过 AI 技术创造业务价值",
+      "关注用户体验与产品质量，建立 AI 应用的效果评估与反馈优化闭环，持续提升应用表现"
+    ],
+    "jd_requirements": [
+      "熟练掌握主流开发技术栈，具备良好的软件工程能力，能完成应用系统的开发与交付",
+      "熟练使用 AI 编程工具，能通过 AI 提升开发效率与代码质量",
+      "了解大模型基本原理，熟悉主流模型 API 的使用，有调用与集成经验",
+      "了解 RAG 技术原理，包括文档解析、分块策略、向量化、检索排序等关键环节",
+      "具备产品思维，能从用户视角思考问题，平衡技术方案与用户体验",
+      "具备良好的沟通协作能力和学习能力，对 AI 应用方向有热情，愿意持续探索新技术",
+      "加分：有 AI 应用项目经验、RAG 系统建设与向量数据库调优经验、独立产品/作品上线经验，或竞赛/开源/技术内容输出"
+    ],
+    "jd_summary": "负责 AI 应用产品开发与交付，将大模型能力转化为智能对话、内容生成、智能推荐、知识问答等面向用户的功能，并建立效果评估与反馈优化闭环。面向 CDG/CSIG/IEG/PCG/TEG/WXG 多事业群招聘，远程面试。",
+    "requirements_summary": "要求主流开发技术栈与软件工程能力，熟悉 AI 编程工具及大模型 API 集成。需了解 RAG 全流程（文档解析/分块/向量化/检索排序），具备产品思维；RAG 建设、向量数据库与独立产品经验为加分项。",
+    "tech_stack": [
+      "RAG",
+      "LLM API",
+      "向量数据库",
+      "智能对话",
+      "内容生成",
+      "智能推荐",
+      "知识问答",
+      "AI编程工具"
+    ],
+    "education": "",
+    "major": ""
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_app",
+    "batch_type": "official",
+    "confidence": 0.94,
+    "reason": "主职责为 AI 应用产品开发与交付（智能对话/知识问答/RAG 等），要求大模型 API 集成与 RAG 技术，属于 AI 应用开发方向，与目标匹配；Agent 架构非核心但 RAG 与产品落地高度相关"
+  }
+}
