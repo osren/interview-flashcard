@@ -1,0 +1,74 @@
+{
+  "paragraphStartsWith": [
+    {
+      "match": "双端交付：参与商旅",
+      "text": "双端交付：参与 C 端预订端（小程序/H5）与 B 端配置中台开发，累计交付 20+ 项需求，随 15 次 release 上线\r"
+    },
+    {
+      "match": "性能与体验优化：",
+      "text": "业务覆盖：C 端含分享转化、超标管控、代订选号；B 端含机票政策、用车、供应商等配置模块\r"
+    },
+    {
+      "match": "组件与质量保障：",
+      "text": "AI 协同开发：按团队 AI Coding Spec，用 Cooper / 工作流 Skill / 页面脚手架辅助需求分析与编码\r"
+    },
+    {
+      "match": "AI 辅助研发流程：",
+      "text": "质量保障：沉淀表单、列表等通用组件；参与 CR 与发版流程，把关样式兼容与上线质量\r"
+    },
+    {
+      "match": "业务背景：",
+      "text": "实习产出\r"
+    },
+    {
+      "match": "方案落地：",
+      "text": "架构实现：Node.js 引擎 + 可插拔 Domain；火车业务已接入，异常场景保守上报\r"
+    },
+    {
+      "match": "质量保障：配套 Agent Skills 降低",
+      "text": "质量闭环：配套 Agent Skills 接入与 Eval 回归，以漏报率为首要指标\r"
+    },
+    {
+      "match": "技术实现：Node.js 告警引擎",
+      "text": "\r"
+    },
+    {
+      "match": "实时协作：基于 Automerge CRDT",
+      "text": "实时协作：基于 Automerge CRDT + Supabase Realtime，支持分享链接、远程光标与离线合并\r"
+    },
+    {
+      "match": "全链路产品：",
+      "text": "项目经历\r"
+    },
+    {
+      "match": "Github:",
+      "text": "GResume · 智能简历创作与求职管理平台 | React19 / TipTap / CRDT / LLM | 个人项目 | 2025.10 — 2026.06    Github:\r"
+    },
+    {
+      "match": "GResume · 智能简历创作",
+      "text": "\r"
+    },
+    {
+      "match": "商旅接口错误告警智能降噪",
+      "text": "性能监控与体验优化 | PerfMonitor / Omega / Agent Skill | 实习产出\r"
+    }
+  ],
+  "simpleReplace": [
+    ["实习经验 & 产出", "实习经历"],
+    ["Claude Code / Agent Skills", "Agent Skills"],
+    ["北京嘀嘀无限科技发展有限公司", "滴滴出行 · 企业版商旅 | 前端开发实习生"],
+    ["企业级事业部-商旅体验-前端开发", ""],
+    ["2026.1.27-至今", "2026.01 — 2026.07"],
+    ["2026.01-2026.07", "2026.01 — 2026.07"]
+  ],
+  "insertAfter": [
+    {
+      "after": "实习产出\r",
+      "text": "监控体系：搭建跨页链路与 Web Vitals 统一监控，覆盖 H5/星河双端\r体验优化：优化首页与列表首屏，列表 LCP 1400→1160ms（↓17%），菜单切换卡顿约 ↓27%\r分析闭环：沉淀 page-performance-analysis Skill，形成「定位 → 改造 → 验收」闭环\r业务目标：针对机酒火告警噪音高，落地 LLM 派发前降噪判定（是否上报 + 等级 + 依据）\r商旅接口错误告警智能降噪（error-triage） | Node.js / LLM / Prompt 工程 | 实习产出\r"
+    },
+    {
+      "after": "项目经历\r",
+      "text": "全链路产品：独立设计并实现「编辑 → 模板 → AI 优化 → 协作 → 投递追踪 → 导出」一站式平台，离线优先、登录后云同步\r"
+    }
+  ]
+}
