@@ -1,0 +1,62 @@
+{
+  "basic": {
+    "position": "AI Agent研发工程师（研发效能方向）",
+    "company": "OPPO",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1850?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "参与软件工程场景中 Coding Agent/测试类 Agent 的架构设计与开发，探索任务规划、多智能体协同",
+      "设计并实现基于 MCP/CLI 的工具链，丰富 Agent 的 Skill 生态，优化上下文提取与注入方案",
+      "参与平台前后端开发，包括人机协同交互界面、任务编排引擎以及相关平台服务建设",
+      "参与构建 Agent 自动化评测体系，设计回归评测集，追踪并分析 Agent 执行 Trace 链路，调优执行效率与稳定性"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、软件工程、人工智能等相关专业，计算机基础知识扎实",
+      "熟练掌握 TypeScript、Python、Go、Java 等至少两种语言，具备全栈工程开发经验",
+      "必须熟练且高频使用 Claude Code、Codex、Cursor 等至少一种 AI Coding 工具",
+      "具备优秀的快速学习能力与极客精神，能够流畅阅读英文技术文档与前沿 AI 论文",
+      "理解 Harness Engineering，对研发流程治理有一定认知",
+      "深度参与过 AI Agent 相关项目的开发，有个人开源贡献，熟练使用 GitHub",
+      "AI 能力要求：掌握 AI 功能的工程化实现，了解 AI 基本原理，具备编程与 API 调用能力，可完成算法复现与功能落地（不涉及模型训练）"
+    ],
+    "jd_summary": "负责 Coding Agent/测试 Agent 架构与多智能体协同，建设 MCP/CLI 工具链与 Skill 生态，开发人机协同平台（任务编排引擎/前后端）及 Agent 自动化评测与 Trace 分析体系。要求 Cursor 高频使用与 Harness Engineering 认知。2027 届校招，深圳。",
+    "requirements_summary": "本科及以上计算机/软件/AI 相关专业，TypeScript/Python/Go/Java 至少两种及全栈经验。必须高频使用 Cursor/Claude Code/Codex，理解 Harness Engineering，有 Agent 项目开发与 GitHub 开源贡献。",
+    "tech_stack": [
+      "TypeScript",
+      "Python",
+      "Go",
+      "Java",
+      "Agent",
+      "Coding Agent",
+      "MCP",
+      "CLI",
+      "Skill",
+      "Cursor",
+      "Claude Code",
+      "Codex",
+      "Harness Engineering",
+      "Trace",
+      "多智能体协同"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件工程、人工智能等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.99,
+    "reason": "专精 Coding Agent、MCP/Skill 生态、Harness Engineering 与 Agent 评测/Trace 分析，明确要求 Cursor 高频使用，与 OpenHarness/InterviewFlash 实践几乎完全对齐，为当前最匹配 JD 之一"
+  }
+}

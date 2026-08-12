@@ -1,0 +1,52 @@
+{
+  "basic": {
+    "position": "AI工程师（AI Agent方向）",
+    "company": "OPPO",
+    "location": "深圳/成都"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1821?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "负责系统级 AI Agent 产品的研发落地和实施",
+      "构建高并发/高性能/高可用服务端架构和系统，支撑海量级用户产品的迭代和体验优化"
+    ],
+    "jd_requirements": [
+      "具备 AI 深度应用能力，有不错的产品 sense，日常高频深度使用 AI 工具和应用",
+      "具备自驱、好奇心与学习能力，对新技术有激情、愿意分享，不设限地解决问题，良好的结果导向和抗压能力",
+      "熟悉 Java/C/C++/Golang/Python 等一种或多种编程语言，语言基础扎实",
+      "了解 Linux 操作系统常用操作，Shell 开发，能熟练使用各种研发工具",
+      "专注于技术，精益求精，并对业界的最新技术发展动态有比较密切的关注",
+      "AI 能力要求：掌握 AI 功能的工程化实现，了解 AI 基本原理，具备编程与 API 调用能力，可完成算法复现与功能落地（不涉及模型训练）"
+    ],
+    "jd_summary": "负责 OPPO 系统级 AI Agent 产品研发与服务端高并发/高可用架构建设，支撑海量用户产品迭代。要求 Java/C++/Go/Python 及 Linux/Shell，强调 AI 工具深度使用与产品 sense。2027 届校招，深圳/成都。",
+    "requirements_summary": "计算机/软件相关专业背景，熟悉 Java/C++/Go/Python 之一及 Linux/Shell。需高频使用 AI 工具、具备产品 sense 与自驱力；JD 未明确 Agent 框架/RAG/MCP 等具体工程技能，偏系统级 Agent 产品与后端架构。",
+    "tech_stack": [
+      "Java",
+      "C/C++",
+      "Golang",
+      "Python",
+      "Linux",
+      "Shell",
+      "Agent",
+      "服务端架构"
+    ],
+    "education": "",
+    "major": ""
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.76,
+    "reason": "标题为 AI Agent 方向且负责系统级 Agent 产品研发，但 JD 偏泛，核心强调高并发服务端架构与 AI 工具使用，未明确 RAG/MCP/Agent 框架等要求；与研发效能 Agent 岗相比匹配度中等偏低"
+  }
+}

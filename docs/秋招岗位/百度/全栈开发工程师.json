@@ -1,0 +1,64 @@
+{
+  "basic": {
+    "position": "全栈开发工程师",
+    "company": "百度",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://talent.baidu.com/jobs/detail/GRADUATE/8ded98ee-9ddf-486c-96e9-75d4941d943b?recommendCode=IZS1JH&s=2",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_fullstack",
+    "jd_responsibilities": [
+      "负责前端和服务端的业务开发工作，覆盖业务全链路，按业务需求统筹各端开发优先级，打破端侧壁垒，实现业务功能高效落地",
+      "深度运用 AI Coding 工具，开发并维护基于 MCP、CLI、Skills 等的各类工具，参与 AI 研发基础设施与 Agent 工作流建设，对接公司内部系统与模型，打造一体化 AI 研发体验",
+      "立足全栈发展趋势，推动并沉淀 Vibe Coding、SpecCoding 等新型 AI 研发范式在团队内的落地与最佳实践，参与业务全流程开发，推动业务从需求到上线的闭环落地",
+      "负责前沿技术探索与范式推广，持续跟进 AI/LLM（包含底层大模型）的最新进展，提供创新的交互解决方案，并推动技术的迭代和升级",
+      "配合团队完成技术方案讨论、架构优化、代码评审等工作，助力团队形成「按业务分工、AI+全栈协同」的开发模式，适配未来 1~2 年全栈发展导向"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、通信和电子信息科学、数学等相关专业",
+      "具备良好的计算机基础（数据结构、算法、计算机网络、操作系统等），并熟练使用至少一门编程语言",
+      "熟练使用 HTML5/CSS3/JavaScript/TypeScript/Vue/React 等前端技术完成页面布局和交互开发，有全栈开发经验者优先",
+      "熟练使用 TRAE、Claude Code、Codex、Cursor 等任一 AI Coding 工具，维护过 Rules、MCP、Skills 并了解底层机制与技术细节的同学优先",
+      "认可 AI Coder 定位，明确自身长期全栈发展规划，具备较强的学习能力和适应能力，能快速上手新领域技术，适配业务驱动的开发模式",
+      "积极乐观，责任心强，具备良好的沟通协作能力、逻辑思维能力以及服务意识"
+    ],
+    "jd_summary": "百度校招全栈岗，覆盖前端/服务端业务全链路开发，深度参与 MCP/CLI/Skills 工具与 Agent 工作流及 AI 研发基础设施建设，推动 Vibe Coding/SpecCoding 范式落地。要求 Vue/React/TS 全栈及 Cursor 等 AI Coding 工具，维护 Rules/MCP/Skills 者优先。",
+    "requirements_summary": "本科及以上计算机/通信/数学相关专业，熟悉 Vue/React/TS 前端及全栈开发。必须熟练使用 Cursor/Claude Code 等 AI Coding 工具；维护过 Rules/MCP/Skills 并了解底层机制者优先，认可 AI Coder 定位。",
+    "tech_stack": [
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "TypeScript",
+      "Vue",
+      "React",
+      "MCP",
+      "CLI",
+      "Skills",
+      "Agent",
+      "Cursor",
+      "Claude Code",
+      "Codex",
+      "TRAE",
+      "Vibe Coding",
+      "SpecCoding",
+      "LLM"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、通信和电子信息科学、数学等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_fullstack",
+    "batch_type": "official",
+    "confidence": 0.99,
+    "reason": "要求全栈（Vue/React/TS）+ MCP/CLI/Skills + Agent 工作流 + SpecCoding/Vibe Coding，维护 Rules/MCP/Skills 优先，与 OpenHarness/InterviewFlash 实践几乎完全对齐，为当前最匹配 JD 之一"
+  }
+}

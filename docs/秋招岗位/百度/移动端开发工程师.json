@@ -1,0 +1,55 @@
+{
+  "basic": {
+    "position": "移动端开发工程师",
+    "company": "百度",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://talent.baidu.com/jobs/detail/GRADUATE/84d7dc47-f8a9-48df-9274-6d68c6ebef30?recommendCode=IZS1JH&s=2",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "开发移动互联网应用产品或框架",
+      "移动应用核心技术研发",
+      "学习和研究移动客户端新技术",
+      "根据开发过程中的体验对产品提出改进建议",
+      "配合市场等其他部门，提供产品相关技术支持",
+      "集成 AI 大模型能力，探索 AI 驱动的移动端创新"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、软件工程等相关专业优先",
+      "热爱移动互联网，对移动软件开发有浓厚的兴趣",
+      "优秀的分析问题和解决问题的能力，对解决具有挑战性问题充满激情",
+      "熟悉一门常用编程语言（C/C++/Java/Objective C 等）",
+      "对数据结构和算法设计有较为深刻的理解",
+      "学习能力强，具有良好的沟通能力和良好的团队合作精神",
+      "有上线 App 或移动端相关实习经历者优先"
+    ],
+    "jd_summary": "负责百度移动互联网应用/框架开发及移动客户端核心技术研发，集成 AI 大模型能力探索移动端创新。要求 C/C++/Java/Objective C 之一及 App 上线/实习经验优先。深圳校招。",
+    "requirements_summary": "本科及以上计算机/软件相关专业，熟悉 C/C++/Java/Objective C 之一及算法数据结构。需对移动开发有兴趣，App 上线或移动端实习经验优先；AI 为大模型集成探索非 Agent 工程核心。",
+    "tech_stack": [
+      "C/C++",
+      "Java",
+      "Objective C",
+      "Android",
+      "iOS",
+      "LLM"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件工程等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.91,
+    "reason": "主职责为移动端原生应用开发（C/Java/Objective C），AI 仅为大模型能力集成探索，非 Web 前端或 Agent/Harness 工程方向，与目标不匹配"
+  }
+}

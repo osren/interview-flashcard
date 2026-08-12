@@ -1,0 +1,65 @@
+{
+  "basic": {
+    "position": "应用工程师",
+    "company": "OPPO",
+    "location": "深圳/成都"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1847?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "方向一：负责相机 App 需求开发、性能优化、交互优化",
+      "方向二：负责 ColorOS 系统应用或独立应用的开发与优化（如 systemUI、UI 动效、相册、通信、桌面、办公应用、泛在服务等）",
+      "方向三：负责移动互联网应用开发与优化",
+      "方向四：负责 IoT 客户端产品开发与优化",
+      "方向五：负责新业务的架构设计与开发",
+      "方向六：负责研究手机移动端新技术",
+      "方向七：负责 IoT 业务前端产品开发",
+      "方向八：负责基础软件平台前端开发",
+      "方向九：负责大模型应用的客户端技术方案设计、开发与优化",
+      "方向十：负责小布建议功能迭代、基础体验优化，参与端侧架构优化及演进",
+      "方向十一：负责小布记忆应用的开发与优化，确保高质量交付，持续提升个性化产品的体验与竞争力"
+    ],
+    "jd_requirements": [
+      "计算机、通信、电子信息、通信工程、软件工程等相关专业",
+      "熟悉 Java/Kotlin 语言",
+      "热爱互联网，对互联网产品和技术有浓厚的兴趣",
+      "具备优秀的分析问题和解决问题的能力，对解决具有挑战性的问题充满激情",
+      "深刻理解算法和数据结构相关知识，并熟练掌握 Java 编程语言",
+      "熟悉 TCP/IP、HTTP、HTTPS 等网络协议",
+      "学习能力强，具有良好的沟通能力和良好的团队合作精神",
+      "优先：有 Android 编程语言使用经验",
+      "优先：参与过实际项目开发，熟悉软件工程开发流程",
+      "优先：有计算机领域相关的编程大赛获奖经历",
+      "AI 能力要求：掌握 AI 功能的工程化实现，了解 AI 基本原理，具备编程与 API 调用能力，可完成算法复现与功能落地（不涉及模型训练）"
+    ],
+    "jd_summary": "OPPO 应用工程师为多方向岗位，涵盖 ColorOS 系统应用、IoT 客户端、基础软件平台前端、大模型客户端（小布建议/小布记忆）等。核心要求 Java/Kotlin 及 Android 开发能力，AI 能力为工程化实现与 API 调用（不涉及模型训练）。2027 届校招，深圳/成都。",
+    "requirements_summary": "计算机/软件/通信等相关专业，熟悉 Java/Kotlin 及算法数据结构，Android 经验优先。AI 要求为功能工程化与 API 调用；方向八为平台前端，方向九/十/十一为大模型/小布端侧应用，但整体以 Android 客户端为主。",
+    "tech_stack": [
+      "Java",
+      "Kotlin",
+      "Android",
+      "ColorOS",
+      "HTTP/HTTPS",
+      "LLM",
+      "端侧 AI"
+    ],
+    "education": "",
+    "major": "计算机、通信、电子信息、通信工程、软件工程等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.86,
+    "reason": "岗位为多方向 Android/客户端应用工程（Java/Kotlin 为核心），虽含平台前端（方向八）及大模型客户端（方向九）子方向，但整体要求 Android 原生开发；与 Web 前端/React/Agent 工程背景不匹配"
+  }
+}

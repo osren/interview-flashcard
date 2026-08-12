@@ -1,0 +1,62 @@
+{
+  "basic": {
+    "position": "AI系统工程师（AI工程化方向）",
+    "company": "OPPO",
+    "location": "南京/深圳"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1843?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "方向一：负责跨端 AI 决策和服务推荐算法研发与优化，包括数据采集、模型选择、训练和优化",
+      "方向一：负责算法成果工程化落地，包括多平台适配、性能优化、工具链开发等",
+      "方向一：参与技术创新与落地，洞察前沿技术、输出专利、参与技术方案讨论与创新",
+      "方向二：跟踪大模型端侧部署、多模态交互、类 Claw 等行业前沿技术，参与 AIOS 领域技术预研、原型验证与创新方案设计",
+      "方向二：参与 AIOS 系统级智能体的需求分析、方案设计及开发实现，将 AI 能力融入系统框架，提升终端设备智能化体验",
+      "方向二：参与 AI 应用场景下的系统性能、功耗及内存优化，探索 AI 与多媒体、互联互通等子系统融合，推动新技术在量产项目中落地"
+    ],
+    "jd_requirements": [
+      "计算机、软件工程、人工智能、电子信息、通信工程等相关专业，本科及以上学历",
+      "精通 Python/Java/C/C++/Kotlin 中的任何一种，超强算法及实现能力；熟悉 NumPy、Pandas 等数据处理工具",
+      "熟悉或使用常用神经网络架构开发过项目，如 CNN/RNN/Transformer 等",
+      "扎实的深度学习基础，了解移动端推理框架，熟练掌握 TensorFlow/PyTorch 等主流框架",
+      "了解模型量化、剪枝、部署等工程化技术，有相关经验优先"
+    ],
+    "jd_summary": "涵盖跨端推荐算法研发（含模型训练优化）及算法工程化落地，以及 AIOS 端侧大模型部署、系统级智能体与性能/功耗优化。要求 PyTorch/TensorFlow、CNN/RNN/Transformer 及模型量化部署经验。2027 届校招，南京/深圳。",
+    "requirements_summary": "本科及以上 AI/计算机/电子信息相关专业。需 Python/Java/C++/Kotlin 之一、NumPy/Pandas，及 CNN/RNN/Transformer 项目经验与 PyTorch/TensorFlow 深度学习基础；模型量化/剪枝/部署经验优先。",
+    "tech_stack": [
+      "Python",
+      "Java",
+      "C/C++",
+      "Kotlin",
+      "PyTorch",
+      "TensorFlow",
+      "CNN",
+      "RNN",
+      "Transformer",
+      "NumPy",
+      "Pandas",
+      "模型量化",
+      "模型剪枝",
+      "端侧部署",
+      "AIOS"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件工程、人工智能、电子信息、通信工程等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.96,
+    "reason": "主职责含推荐算法训练优化、CNN/RNN/Transformer 深度学习及模型量化/端侧部署，属算法/端侧 ML 工程化方向，命中排除项；虽含 AIOS 智能体但核心是端侧算法与系统优化，非 Agent/RAG 应用工程"
+  }
+}

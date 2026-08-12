@@ -1,0 +1,54 @@
+{
+  "basic": {
+    "position": "AI工程师（AI Infra方向）",
+    "company": "OPPO",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1824?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "方向一：负责机器学习平台的整体架构设计和核心模块开发，性能优化和稳定性保障，如模型训练平台、推理部署平台、资源调度管理平台等，跟进 AI Infra 前沿技术并落地实践",
+      "方向二：负责大模型推理框架的设计与开发，支持 LLM、多模态模型训练与推理业务，深度优化大模型推理引擎性能，支撑大模型相关业务落地"
+    ],
+    "jd_requirements": [
+      "计算机、通信、电子信息、通信工程、软件工程等相关专业",
+      "熟悉 Java/C/C++/Golang/Python 等一种或多种编程语言，语言基础扎实",
+      "了解 Linux 操作系统常用操作，Shell 开发，能熟练使用各种研发工具",
+      "对 AI 基础设施、大模型工程化、后端开发有浓厚兴趣，主动关注行业前沿技术趋势",
+      "有激情、愿意分享，自驱能力强，良好的结果导向和抗压能力",
+      "AI 能力要求：掌握 AI 功能的工程化实现，了解 AI 基本原理，具备编程与 API 调用能力，可完成算法复现与功能落地（不涉及模型训练）"
+    ],
+    "jd_summary": "负责 OPPO AI Infra 方向研发，涵盖机器学习平台（模型训练平台、推理部署平台、资源调度）及大模型推理框架设计与性能优化，支撑 LLM/多模态模型训练与推理业务。2027 届校招，深圳。",
+    "requirements_summary": "计算机/软件/通信等相关专业，熟悉 Java/C/C++/Go/Python 之一及 Linux/Shell。需对 AI 基础设施与大模型工程化有兴趣；岗位要求后端/Infra 能力，方向二明确涉及模型训练与推理引擎优化。",
+    "tech_stack": [
+      "Java",
+      "C/C++",
+      "Golang",
+      "Python",
+      "Linux",
+      "Shell",
+      "模型训练平台",
+      "推理部署",
+      "LLM推理引擎",
+      "AI Infra"
+    ],
+    "education": "",
+    "major": "计算机、通信、电子信息、通信工程、软件工程等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.95,
+    "reason": "AI Infra 方向，主职责为模型训练平台/推理部署平台/大模型推理引擎开发，涉及训练与推理基础设施，命中排除项（分布式训练/推理基础设施），非前端或 AI 应用/Agent 工程"
+  }
+}
