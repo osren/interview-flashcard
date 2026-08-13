@@ -10,6 +10,7 @@ import { CustomCardsPage } from '@/pages/Custom';
 import { ResumePage } from '@/pages/Resume/ResumePage';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { InterviewIndex, InterviewDetail } from '@/pages/Interview';
+import { CampusIndex } from '@/pages/Campus';
 import { AIIndex, AIDetail } from '@/pages/AI';
 import { RJSFDemo } from '@/pages/RJSF';
 import { GithubTrending } from '@/pages/AI/GithubTrending';
@@ -45,6 +46,8 @@ function App() {
 
             <Route path="/interview" element={<InterviewIndex />} />
             <Route path="/interview/:companyId/:departmentId/:sessionId" element={<InterviewDetail />} />
+
+            <Route path="/campus" element={<CampusIndex />} />
 
             <Route path="/ai" element={<AIIndex />} />
             <Route path="/ai/github-trending" element={<GithubTrending />} />

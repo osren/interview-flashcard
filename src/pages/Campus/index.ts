@@ -1,0 +1,1 @@
+export { CampusIndex } from './CampusIndex';

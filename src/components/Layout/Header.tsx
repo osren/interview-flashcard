@@ -5,7 +5,7 @@ import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
 import { Logo } from '@/components/Layout/Logo';
 import {
-  Heart, FileText, MessageSquare, Sparkles, Menu, X,
+  Heart, FileText, MessageSquare, Sparkles, Menu, X, Send,
 } from 'lucide-react';
 
 const navItems = [
@@ -16,6 +16,7 @@ const navItems = [
   { path: '/algorithms', label: '刷题' },
   { path: '/ai', label: 'AI资讯', icon: Sparkles },
   { path: '/resume', label: '简历', icon: FileText },
+  { path: '/campus', label: '秋招投递', icon: Send },
   { path: '/interview', label: '面经', icon: MessageSquare },
   { path: '/favorites', label: '收藏', icon: Heart },
 ];
