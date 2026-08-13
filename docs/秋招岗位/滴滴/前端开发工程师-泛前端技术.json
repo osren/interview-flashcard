@@ -1,0 +1,58 @@
+{
+  "basic": {
+    "position": "前端开发工程师（泛前端技术）",
+    "company": "滴滴",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://app.mokahr.com/campus_apply/didiglobal/96064?recommendCode=DSxT6zRN#/job/04e5f0a2-d45c-41cd-89ce-bd3875b12fd5",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "使用跨端技术和 AICoding 开发司乘多端应用，涵盖客户端（iOS/Android/鸿蒙）、小程序（微信/支付宝）和 Web 应用",
+      "使用 Web 技术和 AICoding 开发小程序/H5 运营工具、司乘 Web 应用和内部 MIS 系统",
+      "打造通用技术解决方案：多端组件库、跨平台工程化体系、性能优化与稳定性保障",
+      "参与 AICoding 研发基建建设与智能开发工具落地",
+      "参与全栈式业务研发，涵盖产品设计、技术方案制定及服务端协作"
+    ],
+    "jd_requirements": [
+      "2027届毕业生，本科及以上学历，计算机相关专业优先",
+      "了解 Vue/React 框架，有一定的 TypeScript 开发知识，了解 CSS 样式布局，对跨端框架（ReactNative）和小程序开发有所了解者优先",
+      "熟悉主流设计模式，掌握相关数据结构与算法",
+      "加分项：有多端项目开发经验、跨平台性能优化经验或客户端原生开发知识储备",
+      "对 AICoding、智能体协作等新型研发方式有兴趣，愿意在实践中探索并提升工程效率与代码质量"
+    ],
+    "jd_summary": "网约车平台公司核心研发团队，负责滴滴网约车与花小猪多端业务（App/小程序/Web/运营/内部系统）。团队主导 cube-ui、MPX 等开源项目，深度实践 AICoding 与 Agent 协作。北京。2027 届秋招允许投递 3 次。",
+    "requirements_summary": "2027 届本科及以上计算机相关专业，了解 Vue/React/TS 及小程序或跨端框架。加分项含多端开发与性能优化经验；强调对 AICoding、智能体协作的兴趣与实践意愿。",
+    "tech_stack": [
+      "JavaScript",
+      "TypeScript",
+      "Vue",
+      "React",
+      "MPX",
+      "cube-ui",
+      "React Native",
+      "小程序",
+      "Node.js",
+      "AICoding",
+      "Agent协作",
+      "跨端工程化"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.96,
+    "reason": "泛前端+MPX/AICoding/Agent 协作，团队主导 mpx 开源；与滴滴实习 MPX 商旅及 OpenHarness 智能研发方向高度对口"
+  }
+}
