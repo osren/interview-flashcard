@@ -38,7 +38,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
         height={chartHeight}
         className="min-w-[720px]"
         role="img"
-        aria-label="\u6c42\u804c\u8fdb\u5ea6\u7ade\u8d5b\u56fe"
+        aria-label={'\u6c42\u804c\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}
       >
         {STATUS_COLUMNS.map((status, i) => {
           const x = LEFT_LABEL_WIDTH + i * colWidth + colWidth / 2;

@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { campusStrings } from '../strings';
 
 interface JobsTabProps {
   jobs: CampusJobData[];
@@ -132,7 +133,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
               type="button"
               onClick={() => setIsAddingCompany(true)}
               className="p-1.5 rounded-lg hover:bg-[#f7f7f7] text-[#58CC02]"
-              title="\u6dfb\u52a0\u516c\u53f8"
+              title={campusStrings.addCompanyTitle}
             >
               <Plus size={18} />
             </button>
@@ -161,7 +162,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
             <input
               value={newCompanyName}
               onChange={(e) => setNewCompanyName(e.target.value)}
-              placeholder="\u516c\u53f8\u540d\u79f0"
+              placeholder={campusStrings.companyNamePlaceholder}
               className="w-full px-3 py-2 rounded-xl border-2 border-[#e5e5e5] text-sm"
             />
             <div className="flex flex-wrap gap-1">
@@ -310,19 +311,19 @@ export function JobsTab({ jobs }: JobsTabProps) {
                         <input
                           value={newJobPosition}
                           onChange={(e) => setNewJobPosition(e.target.value)}
-                          placeholder="\u5c97\u4f4d\u540d\u79f0 *"
+                          placeholder={campusStrings.jobNamePlaceholder}
                           className="w-full px-2 py-1.5 text-xs rounded-lg border border-[#e5e5e5]"
                         />
                         <input
                           value={newJobLocation}
                           onChange={(e) => setNewJobLocation(e.target.value)}
-                          placeholder="\u5730\u70b9 *"
+                          placeholder={campusStrings.locationPlaceholder}
                           className="w-full px-2 py-1.5 text-xs rounded-lg border border-[#e5e5e5]"
                         />
                         <input
                           value={newJobUrl}
                           onChange={(e) => setNewJobUrl(e.target.value)}
-                          placeholder="\u5c97\u4f4d\u94fe\u63a5"
+                          placeholder={campusStrings.jobUrlPlaceholder}
                           className="w-full px-2 py-1.5 text-xs rounded-lg border border-[#e5e5e5]"
                         />
                         <div className="flex gap-1">

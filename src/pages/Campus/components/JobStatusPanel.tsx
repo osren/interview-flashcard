@@ -9,6 +9,7 @@ import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { formatDateTime, isSameCalendarDay } from '../utils';
 import { X, Clock, ChevronRight, RotateCcw, Trash2 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { campusStrings } from '../strings';
 
 interface JobStatusPanelProps {
   job: CampusJobData;
@@ -55,7 +56,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
             type="button"
             onClick={onClose}
             className="p-2 rounded-xl hover:bg-[#f7f7f7] text-ink-secondary"
-            aria-label="\u5173\u95ed"
+            aria-label={'\u5173\u95ed'}
           >
             <X size={20} />
           </button>
@@ -106,7 +107,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="\u5907\u6ce8\u8bf4\u660e / HR \u53cd\u9988"
+              placeholder={campusStrings.notePlaceholder}
               className="w-full px-3 py-2 rounded-xl border-2 border-[#e5e5e5] text-sm focus:outline-none focus:border-[#58CC02]"
             />
           </div>
@@ -160,7 +161,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
                           type="button"
                           onClick={() => setJobStatus(job.id, entry.status)}
                           className="flex items-center gap-0.5 text-[10px] font-bold text-ink-secondary hover:text-red-500 flex-shrink-0 px-1.5 py-1 rounded-lg hover:bg-red-50"
-                          title="\u64a4\u9500\u6b64\u8bb0\u5f55"
+                          title={'\u64a4\u9500\u6b64\u8bb0\u5f55'}
                         >
                           <RotateCcw size={12} />
                           {'\u64a4\u9500'}
