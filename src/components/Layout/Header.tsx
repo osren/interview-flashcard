@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
 import { Logo } from '@/components/Layout/Logo';
+import { useAuth, LoginModal } from '@/components/Auth';
 import {
-  Heart, FileText, MessageSquare, Sparkles, Menu, X, Send,
+  Heart, FileText, MessageSquare, Sparkles, Menu, X, Send, LogIn, LogOut,
 } from 'lucide-react';
 
 const navItems = [
@@ -23,7 +24,9 @@ const navItems = [
 
 export function Header() {
   const location = useLocation();
+  const { user, loading, configured, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   const isActive = (path: string) =>
     location.pathname === path ||
@@ -93,6 +96,33 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
+            {!loading && configured && (
+              user ? (
+                <div className="hidden sm:flex items-center gap-2">
+                  <span className="max-w-[140px] truncate text-xs font-bold text-[#777777]">
+                    {user.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-extrabold text-[#777777] hover:bg-[#f7f7f7]"
+                    title="退出登录"
+                  >
+                    <LogOut size={16} />
+                    退出
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setLoginOpen(true)}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-extrabold text-[#1CB0F6] hover:bg-[#f0f9ff]"
+                >
+                  <LogIn size={16} />
+                  登录
+                </button>
+              )
+            )}
             <Pomodoro />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -137,6 +167,8 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </header>
   );
 }

@@ -1,0 +1,133 @@
+import { FormEvent, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { LogIn, UserPlus, X } from 'lucide-react';
+import { Button } from '@/components/ui';
+import { useAuth } from './AuthProvider';
+
+interface LoginModalProps {
+  open: boolean;
+  onClose: () => void;
+  initialMode?: 'signin' | 'signup';
+}
+
+export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModalProps) {
+  const { configured, signIn, signUp } = useAuth();
+  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    const action = mode === 'signin' ? signIn : signUp;
+    const result = await action(email.trim(), password);
+    setSubmitting(false);
+
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    onClose();
+  };
+
+  if (!open) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: 12 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 12 }}
+          className="w-full max-w-md bg-white rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0] shadow-xl overflow-hidden"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-5 py-4 border-b-2 border-[#e5e5e5] bg-[#f7f7f7]">
+            <div>
+              <h2 className="text-lg font-extrabold text-[#3c3c3c]">
+                {mode === 'signin' ? '登录 InterviewFlash' : '注册账号'}
+              </h2>
+              <p className="text-xs text-[#777777] mt-0.5">登录后可使用 AI 解释、JD 解析等功能</p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 rounded-lg text-[#777777] hover:bg-white"
+              aria-label="关闭"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            {!configured && (
+              <div className="rounded-xl border-2 border-[#FFC800] bg-[#fff8dc] px-4 py-3 text-sm text-[#7a5c00]">
+                未检测到 Supabase 环境变量，请在项目根目录配置 <code className="font-mono">.env</code>。
+              </div>
+            )}
+
+            <label className="block space-y-1.5">
+              <span className="text-sm font-bold text-[#4b4b4b]">邮箱</span>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="w-full rounded-xl border-2 border-[#e5e5e5] px-4 py-3 text-[#3c3c3c] outline-none focus:border-[#1CB0F6]"
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </label>
+
+            <label className="block space-y-1.5">
+              <span className="text-sm font-bold text-[#4b4b4b]">密码</span>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full rounded-xl border-2 border-[#e5e5e5] px-4 py-3 text-[#3c3c3c] outline-none focus:border-[#1CB0F6]"
+                placeholder="至少 6 位"
+                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+              />
+            </label>
+
+            {error && (
+              <div className="rounded-xl border-2 border-[#FF4B4B] bg-[#fff0f0] px-4 py-3 text-sm text-[#b42318]">
+                {error}
+              </div>
+            )}
+
+            <Button type="submit" className="w-full" disabled={submitting || !configured}>
+              {mode === 'signin' ? <LogIn size={18} /> : <UserPlus size={18} />}
+              {submitting ? '处理中...' : mode === 'signin' ? '登录' : '注册'}
+            </Button>
+
+            <button
+              type="button"
+              className="w-full text-sm font-bold text-[#1CB0F6] hover:underline"
+              onClick={() => {
+                setMode((current) => (current === 'signin' ? 'signup' : 'signin'));
+                setError(null);
+              }}
+            >
+              {mode === 'signin' ? '没有账号？去注册' : '已有账号？去登录'}
+            </button>
+          </form>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
