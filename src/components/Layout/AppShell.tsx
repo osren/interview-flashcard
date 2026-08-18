@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -108,6 +108,10 @@ export function AppShell({ children }: AppShellProps) {
     } catch {
       // ignore
     }
+  }, [collapsed]);
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.sidebarCollapsed = collapsed ? 'true' : 'false';
   }, [collapsed]);
 
   const isActive = (path: string) =>

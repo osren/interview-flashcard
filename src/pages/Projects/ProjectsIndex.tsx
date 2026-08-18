@@ -216,7 +216,7 @@ export function ProjectsIndex() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowAddModal(true)}
-          className="fixed bottom-8 left-8 w-14 h-14 bg-primary-500 text-white rounded-full shadow-glow flex items-center justify-center hover:bg-primary-600 transition-colors z-40"
+          className="fixed bottom-8 left-8 lg:left-[calc(var(--if-sidebar-width)+2rem)] w-14 h-14 bg-primary-500 text-white rounded-full shadow-glow flex items-center justify-center hover:bg-primary-600 transition-[left,background-color] duration-200 z-30"
         >
           <Plus size={24} />
         </motion.button>
