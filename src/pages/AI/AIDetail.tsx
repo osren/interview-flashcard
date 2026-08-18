@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { CardStatus } from '@/types';
+import { useCardStore } from '@/store';
 
 export function AIDetail() {
   const { projectId } = useParams();
@@ -67,8 +68,10 @@ export function AIDetail() {
 
   const currentCard = cards[currentCardIndex];
 
-  const handleStatusChange = (_status: CardStatus) => {
-    // AI模块暂时不需要状态管理，自动下一张
+  const handleStatusChange = (status: CardStatus) => {
+    if (currentCard) {
+      useCardStore.getState().updateCardStatus(currentCard.id, status);
+    }
     if (currentCardIndex < cards.length - 1) {
       setTimeout(() => {
         setCurrentCardIndex(prev => Math.min(cards.length - 1, prev + 1));

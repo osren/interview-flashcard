@@ -5,6 +5,7 @@ import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { algorithmCards } from '@/data/algorithms';
+import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, Home, X, Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
@@ -20,6 +21,7 @@ export function AlgorithmDetail() {
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
   const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
+  const hydrated = useCardStoreHydrated();
 
   // 新增问题弹窗状态
   const [isAdding, setIsAdding] = useState(false);
@@ -37,13 +39,13 @@ export function AlgorithmDetail() {
   }, []);
 
   useEffect(() => {
+    if (!hydrated || !type) return;
     const typeCards = algorithmCards.filter((c) => c.chapterId === type);
-    const merged = getMergedCards('algorithms', type || '', typeCards);
+    const merged = getMergedCards('algorithms', type, typeCards);
     setCards(merged);
-    // 恢复保存的进度
-    const savedIndex = getCardProgress('algorithms', type || '');
-    setCurrentIndex(Math.min(savedIndex, merged.length - 1));
-  }, [type]);
+    const savedIndex = getCardProgress('algorithms', type);
+    setCurrentIndex(Math.min(savedIndex, Math.max(merged.length - 1, 0)));
+  }, [type, hydrated, getMergedCards, getCardProgress]);
 
   // 保存进度
   useEffect(() => {
@@ -104,6 +106,9 @@ export function AlgorithmDetail() {
 
   const handleStatusChange = (status: CardStatus) => {
     updateCardStatus(currentCard.id, status);
+    setCards((prev) =>
+      prev.map((card) => (card.id === currentCard.id ? { ...card, status } : card))
+    );
     if (currentIndex < cards.length - 1) {
       setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
     }

@@ -34,7 +34,9 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const { user } = useAuth();
 
   const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
+  const savedStatus = useCardStore((state) => state.cardStatuses[card.id]);
   const displayCard = getCardWithModifications(card);
+  const currentStatus = savedStatus ?? displayCard.status;
   const hasModification = !!modifiedCards[card.id];
 
   useEffect(() => {
@@ -120,8 +122,8 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                     className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-ink-muted'}
                   />
                 </button>
-                <Badge variant={statusConfig[displayCard.status].variant}>
-                  {statusConfig[displayCard.status].label}
+                <Badge variant={statusConfig[currentStatus].variant}>
+                  {statusConfig[currentStatus].label}
                 </Badge>
               </div>
             </div>
@@ -156,8 +158,8 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
-                <Badge variant={statusConfig[displayCard.status].variant}>
-                  {statusConfig[displayCard.status].label}
+                <Badge variant={statusConfig[currentStatus].variant}>
+                  {statusConfig[currentStatus].label}
                 </Badge>
               </div>
               {showEdit && (
@@ -253,7 +255,8 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             className={cn(
               'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
               'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
-              btn.cls
+              btn.cls,
+              currentStatus === btn.status && 'ring-2 ring-offset-2 ring-[#3c3c3c]'
             )}
           >
             <span>{btn.emoji}</span>

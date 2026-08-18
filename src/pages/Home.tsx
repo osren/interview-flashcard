@@ -1,4 +1,4 @@
-import { useProgressStore, useCardStore } from '@/store';
+import { useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { algorithmChapters, algorithmCards } from '@/data/algorithms';
@@ -65,10 +65,18 @@ const features = [
 ];
 
 export function Home() {
-  const { totalMastered } = useProgressStore();
-  const { customCards } = useCardStore();
-  const totalCards = coreCards.length + projectCards.length + algorithmCards.length + mpxCards.length + customCards.length;
-  const percentage = Math.round((totalMastered / totalCards) * 100) || 0;
+  const customCards = useCardStore((state) => state.customCards);
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
+  const allCardIds = [
+    ...coreCards,
+    ...projectCards,
+    ...algorithmCards,
+    ...mpxCards,
+    ...customCards,
+  ].map((card) => card.id);
+  const totalCards = allCardIds.length;
+  const totalMastered = allCardIds.filter((id) => cardStatuses[id] === 'mastered').length;
+  const percentage = totalCards > 0 ? Math.round((totalMastered / totalCards) * 100) : 0;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">

@@ -65,6 +65,7 @@ const moduleOptions: { module: ModuleType; label: string; chapters: { id: string
 export function CustomCardsPage() {
   const navigate = useNavigate();
   const { customCards, addCustomCard, updateCustomCard, deleteCustomCard } = useCardStore();
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingCard, setEditingCard] = useState<EditingCard>(defaultCard);
@@ -73,16 +74,15 @@ export function CustomCardsPage() {
 
   // 练习模式状态
   const [cards, setCards] = useState<FlashCard[]>([]);
-  const [cardStates, setCardStates] = useState<Record<string, CardStatus>>({});
 
   useEffect(() => {
     // 合并自定义卡片
     const mergedCards = customCards.map((card) => ({
       ...card,
-      status: cardStates[card.id] || card.status,
+      status: cardStatuses[card.id] || card.status,
     }));
     setCards(mergedCards);
-  }, [customCards, cardStates]);
+  }, [customCards, cardStatuses]);
 
   const handleSave = () => {
     if (!editingCard.question.trim() || !editingCard.answer.trim()) {
@@ -135,7 +135,6 @@ export function CustomCardsPage() {
   const handleStatusChange = (status: CardStatus) => {
     const currentCard = cards[currentIndex];
     if (currentCard) {
-      setCardStates((prev) => ({ ...prev, [currentCard.id]: status }));
       useCardStore.getState().updateCardStatus(currentCard.id, status);
       if (currentIndex < cards.length - 1) {
         setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);

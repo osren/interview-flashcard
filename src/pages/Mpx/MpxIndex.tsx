@@ -1,8 +1,12 @@
-import { mpxChapters } from '@/data/mpx/mpx';
+import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
 import { PageShell, SectionHeader, ChapterCard } from '@/components/ui';
 import { Rocket } from 'lucide-react';
+import { useCardStore } from '@/store';
 
 export function MpxIndex() {
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
+  const customCards = useCardStore((state) => state.customCards);
+
   return (
     <PageShell>
       <SectionHeader
@@ -13,7 +17,11 @@ export function MpxIndex() {
 
       <div className="grid gap-4">
         {mpxChapters.map((chapter, index) => {
-          const mastered = Math.floor(Math.random() * chapter.cardCount);
+          const chapterCards = [
+            ...mpxCards.filter((card) => card.chapterId === chapter.id),
+            ...customCards.filter((card) => card.module === 'mpx' && card.chapterId === chapter.id),
+          ];
+          const mastered = chapterCards.filter((card) => cardStatuses[card.id] === 'mastered').length;
           return (
             <ChapterCard
               key={chapter.id}
@@ -21,7 +29,7 @@ export function MpxIndex() {
               title={chapter.title}
               description={chapter.description}
               icon={<span>{chapter.icon ?? ['🚀', '🏗️', '📘', '📗'][index] ?? '🚀'}</span>}
-              cardCount={chapter.cardCount}
+              cardCount={chapterCards.length}
               masteredCount={mastered}
               index={index}
             />

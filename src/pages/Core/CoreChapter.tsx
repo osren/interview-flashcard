@@ -6,6 +6,7 @@ import { ImportExportModal } from '@/components/ImportExportModal';
 import { ChapterLayout } from '@/components/Layout/ChapterLayout';
 import { useCardStore } from '@/store';
 import { coreCards, coreChapters } from '@/data/core';
+import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 import { Button } from '@/components/ui';
 import { Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
@@ -18,6 +19,7 @@ export function CoreChapter() {
   const [showIndexPicker, setShowIndexPicker] = useState(false);
   const indexPickerRef = useRef<HTMLDivElement>(null);
   const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
+  const hydrated = useCardStoreHydrated();
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
@@ -32,12 +34,13 @@ export function CoreChapter() {
   }, []);
 
   useEffect(() => {
+    if (!hydrated || !chapterId) return;
     const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
-    const mergedCards = getMergedCards('core', chapterId || '', chapterCards);
+    const mergedCards = getMergedCards('core', chapterId, chapterCards);
     setCards(mergedCards);
-    const savedIndex = getCardProgress('core', chapterId || '');
-    setCurrentIndex(Math.min(savedIndex, mergedCards.length - 1));
-  }, [chapterId]);
+    const savedIndex = getCardProgress('core', chapterId);
+    setCurrentIndex(Math.min(savedIndex, Math.max(mergedCards.length - 1, 0)));
+  }, [chapterId, hydrated, getMergedCards, getCardProgress]);
 
   useEffect(() => {
     if (cards.length > 0 && chapterId) {
@@ -65,6 +68,9 @@ export function CoreChapter() {
 
   const handleStatusChange = (status: CardStatus) => {
     updateCardStatus(currentCard.id, status);
+    setCards((prev) =>
+      prev.map((card) => (card.id === currentCard.id ? { ...card, status } : card))
+    );
     if (currentIndex < cards.length - 1) {
       setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
     }

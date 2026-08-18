@@ -1,12 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CardStatus, FlashCard } from '@/types';
+import { migratePersistedCardStatuses } from './migrateCardStatuses';
 
 interface CardState {
   // 当前卡片状态
   isFlipped: boolean;
   currentIndex: number;
   cards: FlashCard[];
+
+  // 各卡片掌握状态 (cardId -> status)，与当前章节列表解耦
+  cardStatuses: Record<string, CardStatus>;
 
   // 各模块/章节的浏览进度 (module-chapterId -> currentIndex)
   cardProgress: Record<string, number>;
@@ -63,6 +67,7 @@ export const useCardStore = create<CardState>()(
       isFlipped: false,
       currentIndex: 0,
       cards: [],
+      cardStatuses: {},
       cardProgress: {},
       customCards: [],
       modifiedCards: {},
@@ -103,14 +108,20 @@ export const useCardStore = create<CardState>()(
       setSearchQuery: (query) => set({ searchQuery: query }),
 
       updateCardStatus: (cardId, status) => set((state) => ({
+        cardStatuses: { ...state.cardStatuses, [cardId]: status },
         cards: state.cards.map((card) =>
+          card.id === cardId ? { ...card, status } : card
+        ),
+        customCards: state.customCards.map((card) =>
           card.id === cardId ? { ...card, status } : card
         ),
       })),
 
       getProgress: () => {
-        const { cards } = get();
-        const mastered = cards.filter((c) => c.status === 'mastered').length;
+        const { cards, cardStatuses } = get();
+        const mastered = cards.filter(
+          (c) => (cardStatuses[c.id] ?? c.status) === 'mastered'
+        ).length;
         const total = cards.length;
         const percentage = total > 0 ? Math.round((mastered / total) * 100) : 0;
         return { mastered, total, percentage };
@@ -145,27 +156,32 @@ export const useCardStore = create<CardState>()(
       }),
 
       getCardWithModifications: (card) => {
-        const { modifiedCards } = get();
+        const { modifiedCards, cardStatuses } = get();
         const modification = modifiedCards[card.id];
-        if (modification) {
-          return { ...card, ...modification };
-        }
-        return card;
+        const status = cardStatuses[card.id];
+        return {
+          ...card,
+          ...modification,
+          ...(status ? { status } : {}),
+        };
       },
 
-      // 获取合并后的卡片列表（静态数据 + 自定义卡片）
+      // 获取合并后的卡片列表（静态数据 + 自定义卡片 + 已保存掌握状态）
       getMergedCards: (module: string, chapterId: string, staticCards: FlashCard[]) => {
-        const { customCards, modifiedCards } = get();
-        // 筛选出属于该模块/章节的自定义卡片
+        const { customCards, modifiedCards, cardStatuses } = get();
+        const apply = (c: FlashCard): FlashCard => {
+          const mod = modifiedCards[c.id];
+          const status = cardStatuses[c.id];
+          return {
+            ...c,
+            ...mod,
+            ...(status ? { status } : {}),
+          };
+        };
         const moduleCustomCards = customCards.filter(
           (c) => c.module === module && c.chapterId === chapterId
         );
-        // 应用修改后的自定义卡片
-        const appliedCustomCards = moduleCustomCards.map((c) => {
-          const mod = modifiedCards[c.id];
-          return mod ? { ...c, ...mod } : c;
-        });
-        return [...staticCards, ...appliedCustomCards];
+        return [...staticCards.map(apply), ...moduleCustomCards.map(apply)];
       },
 
       // 收藏卡片
@@ -187,12 +203,28 @@ export const useCardStore = create<CardState>()(
     {
       name: 'card-storage',
       partialize: (state) => ({
-        cards: state.cards.map((c) => ({ id: c.id, status: c.status })),
+        cardStatuses: state.cardStatuses,
         customCards: state.customCards,
         modifiedCards: state.modifiedCards,
         favorites: state.favorites,
         cardProgress: state.cardProgress,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState ?? {}) as Partial<CardState> & {
+          cards?: Array<{ id?: string; status?: CardStatus }>;
+        };
+        const { cards: legacyCards, ...rest } = persisted;
+        return {
+          ...currentState,
+          ...rest,
+          cards: currentState.cards,
+          cardStatuses: migratePersistedCardStatuses({
+            cardStatuses: rest.cardStatuses,
+            cards: legacyCards,
+            customCards: rest.customCards,
+          }),
+        };
+      },
     }
   )
 );

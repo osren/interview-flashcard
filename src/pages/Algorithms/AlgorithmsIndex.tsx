@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { algorithmCards } from '@/data/algorithms';
 import { PageShell, SectionHeader, Badge } from '@/components/ui';
 import { Code2 } from 'lucide-react';
+import { useCardStore } from '@/store';
+import { CardStatus } from '@/types';
 
 const categories = [
   { id: 'coding', label: '手撕代码', icon: '💻', color: 'from-emerald-400 to-teal-600' },
@@ -11,6 +13,12 @@ const categories = [
 ];
 
 export function AlgorithmsIndex() {
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
+  const customCards = useCardStore((state) => state.customCards);
+
+  const resolveStatus = (cardId: string, fallback: CardStatus): CardStatus =>
+    cardStatuses[cardId] ?? fallback;
+
   return (
     <PageShell maxWidth="lg">
       <SectionHeader
@@ -21,8 +29,11 @@ export function AlgorithmsIndex() {
 
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         {categories.map((cat, index) => {
-          const chapterCards = algorithmCards.filter((c) => c.chapterId === cat.id);
-          const mastered = chapterCards.filter((c) => c.status === 'mastered').length;
+          const chapterCards = [
+            ...algorithmCards.filter((c) => c.chapterId === cat.id),
+            ...customCards.filter((c) => c.module === 'algorithms' && c.chapterId === cat.id),
+          ];
+          const mastered = chapterCards.filter((c) => resolveStatus(c.id, c.status) === 'mastered').length;
           const percentage = chapterCards.length > 0
             ? Math.round((mastered / chapterCards.length) * 100)
             : 0;
@@ -63,7 +74,9 @@ export function AlgorithmsIndex() {
       <div className="surface-panel p-6">
         <h2 className="text-lg font-display font-semibold text-ink mb-4">题目预览</h2>
         <div className="space-y-2">
-          {algorithmCards.slice(0, 5).map((card) => (
+          {algorithmCards.slice(0, 5).map((card) => {
+            const status = resolveStatus(card.id, card.status);
+            return (
             <div
               key={card.id}
               className="flex items-center justify-between p-3 bg-surface-muted rounded-xl hover:bg-surface-border/50 transition-colors"
@@ -85,15 +98,16 @@ export function AlgorithmsIndex() {
               </div>
               <Badge
                 variant={
-                  card.status === 'mastered' ? 'success' :
-                  card.status === 'fuzzy' ? 'warning' : 'default'
+                  status === 'mastered' ? 'success' :
+                  status === 'fuzzy' ? 'warning' : 'default'
                 }
               >
-                {card.status === 'mastered' ? '已掌握' :
-                 card.status === 'fuzzy' ? '模糊' : '未开始'}
+                {status === 'mastered' ? '已掌握' :
+                 status === 'fuzzy' ? '模糊' : '未开始'}
               </Badge>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </PageShell>

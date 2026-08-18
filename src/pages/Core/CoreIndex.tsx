@@ -1,8 +1,12 @@
-import { coreChapters } from '@/data/core';
+import { coreCards, coreChapters } from '@/data/core';
 import { PageShell, SectionHeader, ChapterCard } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
+import { useCardStore } from '@/store';
 
 export function CoreIndex() {
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
+  const customCards = useCardStore((state) => state.customCards);
+
   return (
     <PageShell>
       <SectionHeader
@@ -13,7 +17,11 @@ export function CoreIndex() {
 
       <div className="grid gap-4">
         {coreChapters.map((chapter, index) => {
-          const mastered = Math.floor(Math.random() * chapter.cardCount);
+          const chapterCards = [
+            ...coreCards.filter((card) => card.chapterId === chapter.id),
+            ...customCards.filter((card) => card.module === 'core' && card.chapterId === chapter.id),
+          ];
+          const mastered = chapterCards.filter((card) => cardStatuses[card.id] === 'mastered').length;
           return (
             <ChapterCard
               key={chapter.id}
@@ -21,7 +29,7 @@ export function CoreIndex() {
               title={chapter.title}
               description={chapter.description}
               icon={<span>{chapter.icon}</span>}
-              cardCount={chapter.cardCount}
+              cardCount={chapterCards.length}
               masteredCount={mastered}
               index={index}
             />

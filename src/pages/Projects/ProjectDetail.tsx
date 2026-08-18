@@ -11,6 +11,7 @@ import { ChevronLeft, Home, Plus, FileText } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import MDEditor from '@uiw/react-md-editor';
 import { useProjectStore } from '@/store/useProjectStore';
+import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -26,6 +27,7 @@ export function ProjectDetail() {
   const indexPickerRef = useRef<HTMLDivElement>(null);
   const customCards = useCardStore((state) => state.customCards);
   const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
+  const hydrated = useCardStoreHydrated();
 
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
@@ -50,8 +52,9 @@ export function ProjectDetail() {
   };
 
   useEffect(() => {
+    if (!hydrated) return;
     reloadCards();
-  }, [projectId, customCards]);
+  }, [projectId, customCards, hydrated]);
 
   useEffect(() => {
     if (cards.length > 0 && projectId) {
@@ -121,6 +124,9 @@ export function ProjectDetail() {
   const handleStatusChange = (status: CardStatus) => {
     if (!currentCard) return;
     updateCardStatus(currentCard.id, status);
+    setCards((prev) =>
+      prev.map((card) => (card.id === currentCard.id ? { ...card, status } : card))
+    );
     if (currentIndex < cards.length - 1) {
       setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
     }
