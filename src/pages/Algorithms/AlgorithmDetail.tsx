@@ -116,7 +116,7 @@ export function AlgorithmDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-gray-100 flex flex-col pt-20">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-gray-100 flex flex-col pt-6">
       {/* 顶部导航 */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">

@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { usePomodoroStore } from '@/store';
+import { cn } from '@/utils/cn';
 
-export function Pomodoro() {
+interface PomodoroProps {
+  compact?: boolean;
+}
+
+export function Pomodoro({ compact = false }: PomodoroProps) {
   const {
     timeLeft,
     isRunning,
@@ -29,7 +34,7 @@ export function Pomodoro() {
     : 1 - timeLeft / workDuration;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn('flex items-center gap-2', compact && 'justify-center')}>
       {/* 番茄钟主体 - 番茄形状 */}
       <button
         onClick={toggle}
@@ -107,41 +112,43 @@ export function Pomodoro() {
         </div>
       </button>
 
-      {/* 状态标签 */}
-      <div className="flex flex-col">
-        <span
-          className={`text-xs font-medium ${
-            isBreak ? 'text-emerald-600' : 'text-red-500'
-          }`}
-        >
-          {isBreak ? '休息' : '专注'}
-        </span>
-        {/* 重置按钮 */}
-        <button
-          onClick={reset}
-          className="text-xs text-gray-400 hover:text-gray-600 transition-colors text-left"
-          title="重置"
-        >
-          重置
-        </button>
-      </div>
-
-      {/* 完成次数 */}
-      {completedCount > 0 && (
-        <div className="flex items-center gap-0.5 ml-1">
-          {Array.from({ length: Math.min(completedCount, 5) }).map((_, i) => (
+      {!compact && (
+        <>
+          {/* 状态标签 */}
+          <div className="flex flex-col">
             <span
-              key={i}
-              className="text-sm leading-none"
-              style={{ animationDelay: `${i * 0.1}s` }}
+              className={`text-xs font-medium ${
+                isBreak ? 'text-emerald-600' : 'text-red-500'
+              }`}
             >
-              🍅
+              {isBreak ? '休息' : '专注'}
             </span>
-          ))}
-          {completedCount > 5 && (
-            <span className="text-xs text-gray-500 ml-0.5">+{completedCount - 5}</span>
+            <button
+              onClick={reset}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors text-left"
+              title="重置"
+            >
+              重置
+            </button>
+          </div>
+
+          {completedCount > 0 && (
+            <div className="flex items-center gap-0.5 ml-1">
+              {Array.from({ length: Math.min(completedCount, 5) }).map((_, i) => (
+                <span
+                  key={i}
+                  className="text-sm leading-none"
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                >
+                  🍅
+                </span>
+              ))}
+              {completedCount > 5 && (
+                <span className="text-xs text-gray-500 ml-0.5">+{completedCount - 5}</span>
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

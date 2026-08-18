@@ -78,7 +78,7 @@ export function ResumePage() {
     <div
       className={cn(
         'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50',
-        isOnlineTab ? 'pt-4 pb-2' : 'pt-20 pb-8'
+        isOnlineTab ? 'pt-4 pb-2' : 'pt-6 pb-8'
       )}
     >
       {/* 背景装饰 */}

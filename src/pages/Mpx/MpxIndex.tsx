@@ -20,10 +20,9 @@ export function MpxIndex() {
               to={`/mpx/${chapter.id}`}
               title={chapter.title}
               description={chapter.description}
-              icon="🚀"
+              icon={<span>{chapter.icon ?? ['🚀', '🏗️', '📘', '📗'][index] ?? '🚀'}</span>}
               cardCount={chapter.cardCount}
               masteredCount={mastered}
-              accentColor="from-[#58CC02] to-[#46A302]"
               index={index}
             />
           );

@@ -45,7 +45,7 @@ export function ChapterLayout({
   return (
     <div className="min-h-screen app-bg flex flex-col">
       {/* 紧凑顶栏：导航 + 标题 + 页码 + 分类，合并为一行 */}
-      <div className="sticky top-20 z-10 bg-white/95 backdrop-blur-sm border-b border-[#e5e5e5]">
+      <div className="sticky top-14 lg:top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-[#e5e5e5]">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-1.5 flex items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-0.5 flex-shrink-0">
             <button
