@@ -77,6 +77,10 @@ export interface CustomJobInput {
   jd_summary?: string;
   requirements_summary?: string;
   tech_stack?: string[];
+  jd_responsibilities?: string[];
+  jd_requirements?: string[];
+  education?: string;
+  major?: string;
   qualified?: boolean;
   confidence?: number;
   reason?: string;

@@ -23,11 +23,14 @@ supabase secrets set DEEPSEEK_API_KEY=sk-你的新密钥
 
 或在 Dashboard → **Edge Functions → Secrets** 添加 `DEEPSEEK_API_KEY`。
 
-## 3. 部署 llm-proxy
+## 3. 部署 Edge Functions
 
 ```powershell
 cd F:\InterviewFlash
 supabase functions deploy llm-proxy --no-verify-jwt
+supabase functions deploy fetch-jd-url --no-verify-jwt
+supabase functions deploy parse-jd --no-verify-jwt
+supabase functions deploy optimize-resume --no-verify-jwt
 ```
 
 ## 4. 启动前端

@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
-import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe } from 'lucide-react';
+import { ResumeOptimizeTab } from './ResumeOptimizeTab';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
 const ONLINE_RESUME_URL = 'https://506resume.vercel.app/';
 
-type TabType = 'online' | 'resume' | 'intro';
+type TabType = 'online' | 'resume' | 'intro' | 'optimize';
 
 export function ResumePage() {
   const { resumes, addResume, removeResume, introScript, setIntroScript } = useResumeStore();
@@ -96,7 +97,7 @@ export function ResumePage() {
             <span className="text-sm font-medium text-blue-700">简历管理</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">我的简历</h1>
-          <p className="text-gray-500">在线预览、上传管理和面试口述稿</p>
+          <p className="text-gray-500">在线预览、PDF 管理、口述稿与 JD 优化</p>
         </div>
         )}
 
@@ -135,6 +136,17 @@ export function ResumePage() {
             >
               <MessageSquare size={16} />
               面试口述稿
+            </button>
+            <button
+              onClick={() => setActiveTab('optimize')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === 'optimize'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Wand2 size={16} />
+              JD 优化
             </button>
           </div>
         </div>
@@ -394,6 +406,14 @@ export function ResumePage() {
                   </p>
                 </div>
               )}
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'optimize' && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm p-5">
+              <ResumeOptimizeTab />
             </div>
           </motion.div>
         )}

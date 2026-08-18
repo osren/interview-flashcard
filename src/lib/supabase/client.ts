@@ -12,6 +12,13 @@ export function getSupabaseUrl(): string {
   return supabaseUrl;
 }
 
+export function getSupabaseAnonKey(): string {
+  if (!supabaseAnonKey) {
+    throw new Error('VITE_SUPABASE_ANON_KEY 未配置，请复制 .env.example 为 .env 并填写');
+  }
+  return supabaseAnonKey;
+}
+
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-anon-key',

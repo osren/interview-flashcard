@@ -9,6 +9,7 @@ import {
 } from '@/data/campus-jobs';
 import { useCampusJobStore, COMPANY_COLORS } from '@/store/useCampusJobStore';
 import { JobStatusPanel } from './JobStatusPanel';
+import { JdParseModal } from '@/components/AI/JdParseModal';
 import {
   Plus,
   ChevronDown,
@@ -19,6 +20,7 @@ import {
   Pencil,
   Check,
   X,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { campusStrings } from '../strings';
@@ -55,6 +57,8 @@ export function JobsTab({ jobs }: JobsTabProps) {
 
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   const [editCompanyName, setEditCompanyName] = useState('');
+  const [parseOpen, setParseOpen] = useState(false);
+  const [parseCompany, setParseCompany] = useState('');
 
   const filteredJobs = useMemo(
     () => (filterTier === 'qualified' ? jobs.filter((j) => j.match.qualified) : jobs),
@@ -129,14 +133,27 @@ export function JobsTab({ jobs }: JobsTabProps) {
         <div className="p-3 border-b border-[#e5e5e5] space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-ink-primary">{'\u516c\u53f8 / \u804c\u4f4d'}</h3>
-            <button
-              type="button"
-              onClick={() => setIsAddingCompany(true)}
-              className="p-1.5 rounded-lg hover:bg-[#f7f7f7] text-[#58CC02]"
-              title={campusStrings.addCompanyTitle}
-            >
-              <Plus size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setParseCompany('');
+                  setParseOpen(true);
+                }}
+                className="p-1.5 rounded-lg hover:bg-[#f0f9ff] text-[#1CB0F6]"
+                title="智能添加岗位"
+              >
+                <Sparkles size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAddingCompany(true)}
+                className="p-1.5 rounded-lg hover:bg-[#f7f7f7] text-[#58CC02]"
+                title={campusStrings.addCompanyTitle}
+              >
+                <Plus size={18} />
+              </button>
+            </div>
           </div>
           <div className="flex gap-1">
             {(['qualified', 'all'] as const).map((f) => (
@@ -344,14 +361,27 @@ export function JobsTab({ jobs }: JobsTabProps) {
                         </div>
                       </div>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => setAddingJobToCompany(companyName)}
-                        className="w-full flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-[#58CC02] hover:bg-[#eefbf0] rounded-xl"
-                      >
-                        <Plus size={12} />
-                        {'\u6dfb\u52a0\u5c97\u4f4d'}
-                      </button>
+                      <div className="space-y-0.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setParseCompany(companyName);
+                            setParseOpen(true);
+                          }}
+                          className="w-full flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-[#1CB0F6] hover:bg-[#f0f9ff] rounded-xl"
+                        >
+                          <Sparkles size={12} />
+                          AI 解析 JD
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAddingJobToCompany(companyName)}
+                          className="w-full flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-[#58CC02] hover:bg-[#eefbf0] rounded-xl"
+                        >
+                          <Plus size={12} />
+                          {'\u6dfb\u52a0\u5c97\u4f4d'}
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -468,6 +498,29 @@ export function JobsTab({ jobs }: JobsTabProps) {
             {selectedJob.extended.requirements_summary && (
               <div>
                 <h4 className="font-bold text-sm text-ink-primary mb-1">{'\u4efb\u804c\u8981\u6c42'}</h4>
+                <p className="text-sm text-ink-secondary leading-relaxed">{selectedJob.extended.requirements_summary}</p>
+              </div>
+            )}
+
+            {selectedJob.extended.jd_responsibilities.length > 0 && (
+              <div>
+                <h4 className="font-bold text-sm text-ink-primary mb-1">岗位职责</h4>
+                <ul className="list-disc pl-5 space-y-1 text-sm text-ink-secondary">
+                  {selectedJob.extended.jd_responsibilities.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {selectedJob.extended.jd_requirements.length > 0 && (
+              <div>
+                <h4 className="font-bold text-sm text-ink-primary mb-1">任职要求</h4>
+                <ul className="list-disc pl-5 space-y-1 text-sm text-ink-secondary">
+                  {selectedJob.extended.jd_requirements.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
@@ -477,6 +530,20 @@ export function JobsTab({ jobs }: JobsTabProps) {
       {statusPanelJob && (
         <JobStatusPanel job={statusPanelJob} onClose={() => setStatusPanelJob(null)} />
       )}
+
+      <JdParseModal
+        open={parseOpen}
+        defaultCompany={parseCompany}
+        onClose={() => setParseOpen(false)}
+        onAdded={(id) => {
+          setSelectedJobId(id);
+          setLastSelectedJobId(id);
+          const job = useCampusJobStore.getState().getJobById(id);
+          if (job) {
+            setExpandedCompanies((prev) => new Set(prev).add(job.basic.company));
+          }
+        }}
+      />
     </div>
   );
 }

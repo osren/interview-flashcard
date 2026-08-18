@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
-import { Edit, Save, X, Heart, HelpCircle } from 'lucide-react';
+import { Edit, Save, X, Heart, HelpCircle, Sparkles, MessageCircleQuestion } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
+import { useAuth, LoginModal } from '@/components/Auth';
+import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
 
 interface FlashCardProps {
   card: FlashCardType;
@@ -26,6 +28,10 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(card.answer);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMode, setAiMode] = useState<CardAIMode>('explain');
+  const { user } = useAuth();
 
   const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
   const displayCard = getCardWithModifications(card);
@@ -34,6 +40,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   useEffect(() => {
     setIsFlipped(false);
     setIsEditing(false);
+    setAiOpen(false);
     if (!isEditing) {
       setEditedAnswer(displayCard.answer);
     }
@@ -62,6 +69,15 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const handleReset = () => {
     resetCardAnswer(card.id);
     setEditedAnswer(card.answer);
+  };
+
+  const handleOpenAI = (mode: CardAIMode) => {
+    if (!user) {
+      setLoginOpen(true);
+      return;
+    }
+    setAiMode(mode);
+    setAiOpen(true);
   };
 
   const formattedAnswer = displayCard.answer.replace(/•/g, '-');
@@ -192,12 +208,33 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                       </pre>
                     </div>
                   )}
+                  {displayCard.extendQuestion && (
+                    <div className="mt-5 rounded-xl border-2 border-[#FFC800] bg-[#fff8dc] px-4 py-3">
+                      <div className="text-xs font-extrabold text-[#7a5c00] mb-1">延伸追问</div>
+                      <p className="text-sm font-semibold text-[#3c3c3c]">{displayCard.extendQuestion}</p>
+                    </div>
+                  )}
                 </>
               )}
             </div>
 
-            <div className="px-4 py-2 sm:px-5 bg-primary-50/80 dark:bg-primary-900/20 text-center text-xs sm:text-sm text-ink-muted border-t border-surface-border">
-              再次点击返回问题
+            <div className="px-4 py-2 sm:px-5 border-t-2 border-[#e5e5e5] bg-[#f7f7f7] flex items-center justify-center gap-2" data-stop-propagation>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleOpenAI('explain'); }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#1CB0F6] bg-white border-2 border-[#e5e5e5] border-b-[#d0d0d0] hover:bg-[#f0f9ff]"
+              >
+                <Sparkles size={14} />
+                AI 解释
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleOpenAI('followup'); }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#58CC02] bg-white border-2 border-[#e5e5e5] border-b-[#d0d0d0] hover:bg-[#f0fff0]"
+              >
+                <MessageCircleQuestion size={14} />
+                AI 追问
+              </button>
             </div>
           </div>
         </motion.div>
@@ -224,6 +261,14 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
           </button>
         ))}
       </div>
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <CardAIPanel
+        open={aiOpen}
+        card={displayCard}
+        mode={aiMode}
+        onClose={() => setAiOpen(false)}
+      />
     </div>
   );
 }

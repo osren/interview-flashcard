@@ -1,4 +1,4 @@
-import { getSupabaseUrl, supabase } from '@/lib/supabase/client';
+import { getSupabaseAnonKey, getSupabaseUrl, supabase } from '@/lib/supabase/client';
 import type { ChatMessage, LlmCallOptions, LlmProxyErrorBody } from './types';
 
 export type { ChatMessage, LlmCallOptions };
@@ -28,6 +28,7 @@ export async function callLlm(options: LlmCallOptions): Promise<Response> {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
+      apikey: getSupabaseAnonKey(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
