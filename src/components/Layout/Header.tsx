@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { Pomodoro } from '@/components/Pomodoro';
 import { Logo } from '@/components/Layout/Logo';
-import { useAuth, LoginModal } from '@/components/Auth';
+import { useAuth, LoginModal, ProfileModal, UserAvatar } from '@/components/Auth';
 import {
-  Heart, FileText, MessageSquare, Sparkles, Menu, X, Send, LogIn, LogOut,
+  Heart, FileText, MessageSquare, Sparkles, Menu, X, Send, LogIn, LogOut, UserRound,
 } from 'lucide-react';
 
 const navItems = [
@@ -24,13 +24,55 @@ const navItems = [
 
 export function Header() {
   const location = useLocation();
-  const { user, loading, configured, signOut } = useAuth();
+  const {
+    user,
+    loading,
+    configured,
+    signOut,
+    displayName,
+    profile,
+    needsProfileSetup,
+  } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (needsProfileSetup) {
+      setProfileOpen(true);
+    }
+  }, [needsProfileSetup]);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
 
   const isActive = (path: string) =>
     location.pathname === path ||
     (path !== '/' && location.pathname.startsWith(path));
+
+  const handleOpenProfile = () => {
+    setUserMenuOpen(false);
+    setMobileOpen(false);
+    setProfileOpen(true);
+  };
+
+  const handleSignOut = async () => {
+    setUserMenuOpen(false);
+    setMobileOpen(false);
+    await signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b-2 border-[#e5e5e5]">
@@ -70,7 +112,6 @@ export function Header() {
             })}
           </nav>
 
-          {/* 中等屏幕：精简导航 */}
           <nav className="hidden lg:flex xl:hidden items-center gap-1">
             {navItems.slice(0, 6).map((item) => {
               const active = isActive(item.path);
@@ -98,19 +139,60 @@ export function Header() {
           <div className="flex items-center gap-2">
             {!loading && configured && (
               user ? (
-                <div className="hidden sm:flex items-center gap-2">
-                  <span className="max-w-[140px] truncate text-xs font-bold text-[#777777]">
-                    {user.email}
-                  </span>
+                <div className="relative hidden sm:block" ref={userMenuRef}>
                   <button
                     type="button"
-                    onClick={() => signOut()}
-                    className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-extrabold text-[#777777] hover:bg-[#f7f7f7]"
-                    title="退出登录"
+                    onClick={() => setUserMenuOpen((open) => !open)}
+                    className="inline-flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-[#f7f7f7] transition-colors"
+                    title="账号菜单"
+                    aria-expanded={userMenuOpen}
+                    aria-haspopup="menu"
                   >
-                    <LogOut size={16} />
-                    退出
+                    <UserAvatar
+                      name={displayName}
+                      avatarUrl={profile.avatar_url}
+                      size="sm"
+                    />
+                    <span className="max-w-[100px] truncate text-sm font-extrabold text-[#4b4b4b]">
+                      {displayName}
+                    </span>
                   </button>
+
+                  <AnimatePresence>
+                    {userMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-full mt-2 w-48 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d0d0d0] bg-white shadow-lg overflow-hidden z-50"
+                        role="menu"
+                      >
+                        <div className="px-3 py-2.5 border-b border-[#e5e5e5]">
+                          <div className="text-sm font-extrabold text-[#3c3c3c] truncate">{displayName}</div>
+                          <div className="text-xs text-[#999999] truncate">{user.email}</div>
+                        </div>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={handleOpenProfile}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-[#4b4b4b] hover:bg-[#f7f7f7]"
+                        >
+                          <UserRound size={16} />
+                          编辑资料
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={handleSignOut}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-[#FF4B4B] hover:bg-[#fff0f0]"
+                        >
+                          <LogOut size={16} />
+                          退出登录
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : (
                 <button
@@ -143,6 +225,39 @@ export function Header() {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden border-t-2 border-[#e5e5e5] bg-white overflow-hidden"
           >
+            {user && (
+              <div className="px-4 pt-4 space-y-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <UserAvatar
+                    name={displayName}
+                    avatarUrl={profile.avatar_url}
+                    size="md"
+                  />
+                  <div className="min-w-0 text-left">
+                    <div className="font-extrabold text-[#3c3c3c] truncate">{displayName}</div>
+                    <div className="text-xs text-[#999999] truncate">{user.email}</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleOpenProfile}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold text-[#4b4b4b] bg-[#f7f7f7]"
+                  >
+                    <UserRound size={16} />
+                    编辑资料
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold text-[#FF4B4B] bg-[#fff0f0]"
+                  >
+                    <LogOut size={16} />
+                    退出登录
+                  </button>
+                </div>
+              </div>
+            )}
             <nav className="px-4 py-4 grid grid-cols-3 gap-2.5">
               {navItems.map((item) => {
                 const active = isActive(item.path);
@@ -169,6 +284,11 @@ export function Header() {
       </AnimatePresence>
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <ProfileModal
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        required={needsProfileSetup}
+      />
     </header>
   );
 }

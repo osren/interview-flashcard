@@ -66,6 +66,21 @@ curl -N -X POST "https://<project-ref>.supabase.co/functions/v1/llm-proxy" `
 
 修改后需 Redeploy。
 
+## 7. 头像 Storage（用户名 / 头像功能）
+
+在 Supabase Dashboard → **SQL Editor** 执行：
+
+`supabase/migrations/20260818000000_avatars_storage.sql`
+
+或在 Storage 页面手动创建 **public** bucket：`avatars`（2MB，允许 image/*）。
+
+用户资料保存在 Auth `user_metadata`：
+
+- `username` — 显示名（必填，2-16 字符）
+- `avatar_url` — 头像 URL（上传后自动生成，或手动填外链）
+
+首次登录若未设置用户名，会自动弹出「完善个人资料」。
+
 ## 文件清单
 
 | 路径 | 说明 |

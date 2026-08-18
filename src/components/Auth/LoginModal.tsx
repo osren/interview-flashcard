@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LogIn, UserPlus, X } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { validateUsername } from '@/types/user-profile';
 import { useAuth } from './AuthProvider';
 
 interface LoginModalProps {
@@ -14,21 +15,44 @@ export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModal
   const { configured, signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+    setSuccessMessage(null);
     setSubmitting(true);
 
-    const action = mode === 'signin' ? signIn : signUp;
-    const result = await action(email.trim(), password);
+    const trimmedEmail = email.trim();
+
+    if (mode === 'signup') {
+      const usernameError = validateUsername(username);
+      if (usernameError) {
+        setSubmitting(false);
+        setError(usernameError);
+        return;
+      }
+    }
+
+    const result = mode === 'signin'
+      ? await signIn(trimmedEmail, password)
+      : await signUp(trimmedEmail, password, username.trim());
     setSubmitting(false);
 
     if (result.error) {
       setError(result.error);
+      return;
+    }
+
+    if (result.needsEmailConfirmation) {
+      setSuccessMessage(
+        `注册成功！请前往 ${trimmedEmail} 查收 Supabase 确认邮件，点击链接后再登录。`
+      );
+      setMode('signin');
       return;
     }
 
@@ -90,6 +114,22 @@ export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModal
               />
             </label>
 
+            {mode === 'signup' && (
+              <label className="block space-y-1.5">
+                <span className="text-sm font-bold text-[#4b4b4b]">用户名</span>
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  className="w-full rounded-xl border-2 border-[#e5e5e5] px-4 py-3 text-[#3c3c3c] outline-none focus:border-[#1CB0F6]"
+                  placeholder="2-16 位，中文/字母/数字/下划线"
+                  maxLength={16}
+                  autoComplete="username"
+                />
+              </label>
+            )}
+
             <label className="block space-y-1.5">
               <span className="text-sm font-bold text-[#4b4b4b]">密码</span>
               <input
@@ -103,6 +143,12 @@ export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModal
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               />
             </label>
+
+            {successMessage && (
+              <div className="rounded-xl border-2 border-[#58CC02] bg-[#f0fff0] px-4 py-3 text-sm text-[#2d6a1e]">
+                {successMessage}
+              </div>
+            )}
 
             {error && (
               <div className="rounded-xl border-2 border-[#FF4B4B] bg-[#fff0f0] px-4 py-3 text-sm text-[#b42318]">
@@ -121,6 +167,7 @@ export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModal
               onClick={() => {
                 setMode((current) => (current === 'signin' ? 'signup' : 'signin'));
                 setError(null);
+                setSuccessMessage(null);
               }}
             >
               {mode === 'signin' ? '没有账号？去注册' : '已有账号？去登录'}
