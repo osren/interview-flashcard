@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PageShell, SectionHeader } from '@/components/ui';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
+import { builtinCampusJobs } from '@/data/campus-jobs';
 import type { CampusTab } from '@/types/campus-job';
 import { DashboardTab } from './components/DashboardTab';
 import { JobsTab } from './components/JobsTab';
@@ -16,8 +17,11 @@ const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
 
 export function CampusIndex() {
   const [activeTab, setActiveTab] = useState<CampusTab>('dashboard');
-  const getAllJobs = useCampusJobStore((s) => s.getAllJobs);
-  const jobs = getAllJobs();
+  const customJobs = useCampusJobStore((state) => state.customJobs);
+  const jobs = useMemo(
+    () => [...builtinCampusJobs, ...customJobs],
+    [customJobs]
+  );
 
   return (
     <PageShell maxWidth="2xl">

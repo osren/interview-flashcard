@@ -83,7 +83,9 @@ export function JobsTab({ jobs }: JobsTabProps) {
     return Array.from(names).sort((a, b) => a.localeCompare(b, 'zh-CN'));
   }, [jobsByCompany, customCompanies]);
 
-  const selectedJob = selectedJobId ? jobs.find((j) => j.id === selectedJobId) : null;
+  const selectedJob = useCampusJobStore((state) =>
+    selectedJobId ? state.getJobById(selectedJobId) : undefined
+  );
 
   const toggleCompany = (name: string) => {
     setExpandedCompanies((prev) => {
