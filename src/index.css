@@ -202,3 +202,18 @@ h1, h2, h3, h4, h5, h6 {
     --if-sidebar-width: 76px;
   }
 }
+
+/* 秋招投递：字号整体抬高一档（text-* 工具类映射） */
+.campus-typo .text-\[10px\] { font-size: 0.75rem; line-height: 1rem; }
+.campus-typo .text-\[11px\] { font-size: 0.8125rem; line-height: 1.125rem; }
+.campus-typo .text-xs { font-size: 0.875rem; line-height: 1.25rem; }
+.campus-typo .text-sm { font-size: 1rem; line-height: 1.5rem; }
+.campus-typo .text-base { font-size: 1.125rem; line-height: 1.75rem; }
+.campus-typo .text-lg { font-size: 1.25rem; line-height: 1.75rem; }
+.campus-typo .text-xl { font-size: 1.5rem; line-height: 2rem; }
+.campus-typo .text-2xl { font-size: 1.875rem; line-height: 2.25rem; }
+.campus-typo .text-3xl { font-size: 2.25rem; line-height: 2.5rem; }
+.campus-typo .text-4xl { font-size: 2.5rem; line-height: 1; }
+@media (min-width: 640px) {
+  .campus-typo .sm\:text-4xl { font-size: 3rem; line-height: 1; }
+}

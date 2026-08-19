@@ -12,16 +12,16 @@ interface ProgressRaceChartProps {
 }
 
 const STATUS_COLUMNS = [...APPLICATION_STATUS_ORDER, 'rejected' as ApplicationStatus];
-const ROW_HEIGHT = 36;
-const LEFT_LABEL_WIDTH = 220;
+const ROW_HEIGHT = 40;
+const LEFT_LABEL_WIDTH = 240;
 const RIGHT_PADDING = 24;
-const TOP_PADDING = 48;
+const TOP_PADDING = 52;
 const BOTTOM_PADDING = 32;
 
 export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps) {
   if (jobs.length === 0) {
     return (
-      <div className="surface-panel p-12 text-center text-ink-secondary">
+      <div className="surface-panel p-12 text-center text-ink-secondary text-base">
         {'\u6682\u65e0\u5df2\u8bb0\u5f55\u8fdb\u5ea6\u7684\u5c97\u4f4d\uff0c\u8bf7\u5728\u300c\u79cb\u62db\u804c\u4f4d\u300d\u4e2d\u6807\u8bb0\u72b6\u6001'}
       </div>
     );
@@ -48,7 +48,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
                 x={x}
                 y={28}
                 textAnchor="middle"
-                className="fill-ink-secondary text-[11px] font-bold"
+                className="fill-ink-secondary text-xs font-bold"
               >
                 {APPLICATION_STATUS_LABELS[status]}
               </text>
@@ -83,10 +83,10 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
 
           const label = (
             <>
-              <text x={8} y={y + 4} className="fill-ink-primary text-[11px] font-semibold">
+              <text x={8} y={y + 4} className="fill-ink-primary text-xs font-semibold">
                 {job.basic.company}
               </text>
-              <text x={8} y={y + 16} className="fill-ink-secondary text-[10px]">
+              <text x={8} y={y + 18} className="fill-ink-secondary text-[11px]">
                 {job.basic.position.length > 14
                   ? `${job.basic.position.slice(0, 14)}…`
                   : job.basic.position}
@@ -172,7 +172,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
         })}
       </svg>
 
-      <div className="flex flex-wrap gap-3 mt-2 px-2 text-xs text-ink-secondary">
+      <div className="flex flex-wrap gap-3 mt-2 px-2 text-sm text-ink-secondary">
         {STATUS_COLUMNS.map((s) => (
           <span key={s} className="flex items-center gap-1.5">
             <span
