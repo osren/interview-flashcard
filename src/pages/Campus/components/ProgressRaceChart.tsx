@@ -81,16 +81,41 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
               ? APPLICATION_STATUS_COLORS.rejected
               : APPLICATION_STATUS_COLORS[status];
 
-          return (
-            <g key={job.id}>
+          const label = (
+            <>
               <text x={8} y={y + 4} className="fill-ink-primary text-[11px] font-semibold">
                 {job.basic.company}
               </text>
               <text x={8} y={y + 16} className="fill-ink-secondary text-[10px]">
                 {job.basic.position.length > 14
-                  ? `${job.basic.position.slice(0, 14)}?`
+                  ? `${job.basic.position.slice(0, 14)}…`
                   : job.basic.position}
               </text>
+            </>
+          );
+
+          return (
+            <g key={job.id}>
+              {job.details.job_url ? (
+                <a
+                  href={job.details.job_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cursor-pointer hover:opacity-80"
+                >
+                  <title>{`打开招聘页：${job.basic.company} · ${job.basic.position}`}</title>
+                  <rect
+                    x={0}
+                    y={y - ROW_HEIGHT / 2 + 2}
+                    width={LEFT_LABEL_WIDTH - 8}
+                    height={ROW_HEIGHT - 4}
+                    fill="transparent"
+                  />
+                  {label}
+                </a>
+              ) : (
+                label
+              )}
 
               <line
                 x1={startX}

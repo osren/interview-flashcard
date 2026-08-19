@@ -9,6 +9,8 @@ import {
 } from '@/data/campus-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ProgressRaceChart } from './ProgressRaceChart';
+import { ExternalLink } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 interface ProgressTabProps {
   jobs: CampusJobData[];
@@ -97,13 +99,29 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
                   {catJobs.map((job) => {
                     const status = getProgress(job.id)?.status;
                     if (!status) return null;
+                    const jobUrl = job.details.job_url;
+                    const title = `${job.basic.company} · ${job.basic.position}`;
                     return (
-                      <li key={job.id} className="flex items-center justify-between text-xs">
-                        <span className="truncate flex-1">
-                          {job.basic.company} ? {job.basic.position}
-                        </span>
+                      <li key={job.id} className="flex items-center justify-between text-xs gap-2">
+                        {jobUrl ? (
+                          <a
+                            href={jobUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`打开招聘页：${title}`}
+                            className={cn(
+                              'truncate flex-1 inline-flex items-center gap-1 font-semibold',
+                              'text-[#1CB0F6] hover:underline'
+                            )}
+                          >
+                            <span className="truncate">{title}</span>
+                            <ExternalLink size={11} className="flex-shrink-0" />
+                          </a>
+                        ) : (
+                          <span className="truncate flex-1">{title}</span>
+                        )}
                         <span
-                          className="font-bold ml-2 flex-shrink-0"
+                          className="font-bold flex-shrink-0"
                           style={{ color: APPLICATION_STATUS_COLORS[status] }}
                         >
                           {APPLICATION_STATUS_LABELS[status]}
