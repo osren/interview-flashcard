@@ -6,11 +6,15 @@ import {
   APPLICATION_STATUS_ALL,
   JOB_CATEGORY_LABELS,
   JOB_CATEGORY_ORDER,
+  REJECT_REASON_LABELS,
+  REJECT_REASON_ORDER,
+  formatApplicationStatusLabel,
 } from '@/data/campus-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ProgressRaceChart } from './ProgressRaceChart';
 import { ExternalLink } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import type { RejectReason } from '@/types/campus-job';
 
 interface ProgressTabProps {
   jobs: CampusJobData[];
@@ -35,6 +39,25 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
       if (p) counts[p.status]++;
     }
     return counts;
+  }, [trackedJobs, getProgress]);
+
+  const rejectReasonStats = useMemo(() => {
+    const counts = Object.fromEntries(
+      REJECT_REASON_ORDER.map((reason) => [reason, 0])
+    ) as Record<RejectReason, number>;
+    let unspecified = 0;
+
+    for (const job of trackedJobs) {
+      const p = getProgress(job.id);
+      if (!p || p.status !== 'rejected') continue;
+      if (p.rejectReason && counts[p.rejectReason] !== undefined) {
+        counts[p.rejectReason]++;
+      } else {
+        unspecified++;
+      }
+    }
+
+    return { counts, unspecified };
   }, [trackedJobs, getProgress]);
 
   const byCategory = useMemo(() => {
@@ -78,6 +101,41 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
         ))}
       </div>
 
+      {stats.rejected > 0 && (
+        <section className="surface-panel p-4">
+          <h3 className="font-extrabold text-base text-ink-primary mb-1">终止原因分布</h3>
+          <p className="text-xs text-ink-secondary mb-3">
+            统计「已终止」岗位的细分原因，方便复盘被刷阶段
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {REJECT_REASON_ORDER.map((reason) => (
+              <div
+                key={reason}
+                className="rounded-xl border-2 border-[#e5e5e5] px-3 py-2.5 flex items-center justify-between gap-2"
+              >
+                <span className="text-xs font-bold text-ink-primary truncate">
+                  {REJECT_REASON_LABELS[reason]}
+                </span>
+                <span
+                  className="text-base font-extrabold tabular-nums flex-shrink-0"
+                  style={{ color: APPLICATION_STATUS_COLORS.rejected }}
+                >
+                  {rejectReasonStats.counts[reason]}
+                </span>
+              </div>
+            ))}
+            {rejectReasonStats.unspecified > 0 && (
+              <div className="rounded-xl border-2 border-dashed border-[#e5e5e5] px-3 py-2.5 flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-ink-secondary truncate">未注明原因</span>
+                <span className="text-base font-extrabold tabular-nums text-ink-secondary">
+                  {rejectReasonStats.unspecified}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       <section>
         <h3 className="font-extrabold text-lg text-ink-primary mb-2">{'\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}</h3>
         <p className="text-sm text-ink-secondary mb-4">
@@ -100,6 +158,7 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
                     const status = getProgress(job.id)?.status;
                     if (!status) return null;
                     const jobUrl = job.details.job_url;
+                    const progress = getProgress(job.id);
                     const title = `${job.basic.company} · ${job.basic.position}`;
                     return (
                       <li key={job.id} className="flex items-center justify-between text-xs gap-2">
@@ -124,7 +183,7 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
                           className="font-bold flex-shrink-0"
                           style={{ color: APPLICATION_STATUS_COLORS[status] }}
                         >
-                          {APPLICATION_STATUS_LABELS[status]}
+                          {formatApplicationStatusLabel(status, progress?.rejectReason)}
                         </span>
                       </li>
                     );

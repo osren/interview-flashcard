@@ -1,4 +1,4 @@
-import type { ApplicationStatus, JobCategory, JobTier } from '@/types/campus-job';
+import type { ApplicationStatus, JobCategory, JobTier, RejectReason } from '@/types/campus-job';
 
 export const APPLICATION_STATUS_ORDER: ApplicationStatus[] = [
   'applied',
@@ -27,6 +27,41 @@ export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
   offer: '#58CC02',
   rejected: '#FF4B4B',
 };
+
+export const REJECT_REASON_ORDER: RejectReason[] = [
+  'screen_fail',
+  'interview_1',
+  'interview_2',
+  'interview_3',
+  'hr_fail',
+  'lateral',
+];
+
+export const REJECT_REASON_LABELS: Record<RejectReason, string> = {
+  screen_fail: '未通过筛选',
+  interview_1: '一面挂',
+  interview_2: '二面挂',
+  interview_3: '三面挂',
+  hr_fail: 'HR面挂',
+  lateral: '被横向',
+};
+
+export function formatApplicationStatusLabel(
+  status: ApplicationStatus,
+  rejectReason?: RejectReason | null
+): string {
+  if (status === 'rejected') {
+    if (rejectReason && REJECT_REASON_LABELS[rejectReason]) {
+      return `已终止 · ${REJECT_REASON_LABELS[rejectReason]}`;
+    }
+    return '已终止';
+  }
+  return APPLICATION_STATUS_LABELS[status];
+}
+
+export function isRejectReason(value: unknown): value is RejectReason {
+  return typeof value === 'string' && REJECT_REASON_ORDER.includes(value as RejectReason);
+}
 
 export const JOB_CATEGORY_LABELS: Record<JobCategory, string> = {
   frontend: '前端开发',

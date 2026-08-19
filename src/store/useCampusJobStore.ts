@@ -6,14 +6,17 @@ import type {
   CustomCompany,
   CustomJobInput,
   JobProgress,
+  RejectReason,
 } from '@/types/campus-job';
 import {
   builtinCampusJobs,
   buildJobId,
   getTierFromMatch,
+  isRejectReason,
 } from '@/data/campus-jobs';
 import {
   deriveCurrentStatus,
+  deriveCurrentRejectReason,
   createStatusEntry,
   isSameCalendarDay,
 } from '@/utils/campus-job-status';
@@ -36,7 +39,12 @@ interface CampusJobState {
   addCustomJob: (input: CustomJobInput) => string;
   removeCustomJob: (jobId: string) => void;
 
-  setJobStatus: (jobId: string, status: ApplicationStatus, note?: string) => void;
+  setJobStatus: (
+    jobId: string,
+    status: ApplicationStatus,
+    note?: string,
+    rejectReason?: RejectReason
+  ) => void;
   clearJobStatus: (jobId: string) => void;
   setLastSelectedJobId: (jobId: string | null) => void;
 }
@@ -48,14 +56,28 @@ function normalizeStatus(status: string): ApplicationStatus {
 }
 
 function normalizeJobProgress(progress: JobProgress): JobProgress {
+  const statusHistory = progress.statusHistory.map((entry) => ({
+    ...entry,
+    id: entry.id ?? crypto.randomUUID(),
+    status: normalizeStatus(entry.status),
+    rejectReason:
+      entry.status === 'rejected' || normalizeStatus(entry.status) === 'rejected'
+        ? (isRejectReason(entry.rejectReason) ? entry.rejectReason : undefined)
+        : undefined,
+  }));
+  const status = normalizeStatus(progress.status);
+  const rejectReason =
+    status === 'rejected'
+      ? (isRejectReason(progress.rejectReason)
+          ? progress.rejectReason
+          : deriveCurrentRejectReason(statusHistory))
+      : undefined;
+
   return {
     ...progress,
-    status: normalizeStatus(progress.status),
-    statusHistory: progress.statusHistory.map((entry) => ({
-      ...entry,
-      id: entry.id ?? crypto.randomUUID(),
-      status: normalizeStatus(entry.status),
-    })),
+    status,
+    statusHistory,
+    rejectReason,
   };
 }
 
@@ -172,15 +194,25 @@ export const useCampusJobStore = create<CampusJobState>()(
         });
       },
 
-      setJobStatus: (jobId, status, note) => {
+      setJobStatus: (jobId, status, note, rejectReason) => {
         const now = new Date().toISOString();
+        const normalizedReason =
+          status === 'rejected' && isRejectReason(rejectReason) ? rejectReason : undefined;
+
         set((state) => {
           const existing = state.jobProgress[jobId];
           const history = existing?.statusHistory ?? [];
           const currentStatus = deriveCurrentStatus(history);
+          const currentReason = deriveCurrentRejectReason(history);
 
-          // 再次点击当前状态：撤销当天最近一次同状态记录（误触取消）
-          if (currentStatus === status) {
+          // 再次点击相同状态（含相同终止原因）：撤销当天最近一次记录
+          const sameRejected =
+            status === 'rejected' &&
+            currentStatus === 'rejected' &&
+            currentReason === normalizedReason;
+          const sameNonRejected = status !== 'rejected' && currentStatus === status;
+
+          if (sameRejected || sameNonRejected) {
             const last = history[history.length - 1];
             if (last?.status === status && isSameCalendarDay(last.at, now)) {
               const newHistory = history.slice(0, -1);
@@ -188,23 +220,30 @@ export const useCampusJobStore = create<CampusJobState>()(
                 const { [jobId]: _removed, ...restProgress } = state.jobProgress;
                 return { jobProgress: restProgress };
               }
+              const nextStatus = deriveCurrentStatus(newHistory)!;
               return {
                 jobProgress: {
                   ...state.jobProgress,
                   [jobId]: {
                     jobId,
-                    status: deriveCurrentStatus(newHistory)!,
+                    status: nextStatus,
                     statusHistory: newHistory,
                     updatedAt: now,
+                    rejectReason: deriveCurrentRejectReason(newHistory),
                   },
                 },
               };
             }
-            // 已是该状态且非当天误触：同天同状态不重复保存
+            // 已是该状态且非当天误触：不重复保存
             return state;
           }
 
-          const entry = createStatusEntry(status, now, note?.trim() || undefined);
+          const entry = createStatusEntry(
+            status,
+            now,
+            note?.trim() || undefined,
+            normalizedReason
+          );
           const statusHistory = [...history, entry];
 
           return {
@@ -215,6 +254,7 @@ export const useCampusJobStore = create<CampusJobState>()(
                 status,
                 statusHistory,
                 updatedAt: now,
+                rejectReason: status === 'rejected' ? normalizedReason : undefined,
               },
             },
           };
@@ -236,8 +276,8 @@ export const useCampusJobStore = create<CampusJobState>()(
     }),
     {
       name: 'campus-job-storage',
-      version: 2,
-      migrate: (persisted) => {
+      version: 3,
+      migrate: (persisted, fromVersion) => {
         const state = persisted as {
           jobProgress?: Record<string, JobProgress>;
         };
@@ -246,7 +286,8 @@ export const useCampusJobStore = create<CampusJobState>()(
             state.jobProgress[key] = normalizeJobProgress(state.jobProgress[key]);
           }
         }
-        return persisted;
+        void fromVersion;
+        return persisted as CampusJobState;
       },
     }
   )

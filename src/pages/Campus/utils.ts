@@ -23,6 +23,7 @@ export function getFurthestProgressIndex(
 export {
   isSameCalendarDay,
   deriveCurrentStatus,
+  deriveCurrentRejectReason,
   createStatusEntry,
   formatDateTime,
   formatDate,

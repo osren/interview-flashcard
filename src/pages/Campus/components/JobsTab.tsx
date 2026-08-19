@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 import type { CampusJobData } from '@/types/campus-job';
 import {
   APPLICATION_STATUS_COLORS,
-  APPLICATION_STATUS_LABELS,
   JOB_CATEGORY_LABELS,
   TIER_CONFIG,
   COMPANY_COLOR_GRADIENT,
+  formatApplicationStatusLabel,
 } from '@/data/campus-jobs';
 import { useCampusJobStore, COMPANY_COLORS } from '@/store/useCampusJobStore';
 import { JobStatusPanel } from './JobStatusPanel';
@@ -232,34 +232,44 @@ export function JobsTab({ jobs }: JobsTabProps) {
                   <button
                     type="button"
                     onClick={() => toggleCompany(companyName)}
-                    className="flex-1 flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-[#f7f7f7] text-left"
+                    className="min-w-0 flex-1 flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-[#f7f7f7] text-left"
                   >
                     <span className={cn('w-2 h-2 rounded-full flex-shrink-0 bg-gradient-to-br', COMPANY_COLOR_GRADIENT[color])} />
-                    {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    <span className="font-bold text-sm truncate">{companyName}</span>
-                    <span className="text-xs text-ink-secondary ml-auto">{companyJobs.length}</span>
+                    {expanded ? <ChevronDown size={14} className="flex-shrink-0" /> : <ChevronRight size={14} className="flex-shrink-0" />}
+                    <span className="font-bold text-sm truncate min-w-0 flex-1">{companyName}</span>
+                    <span className="text-xs text-ink-secondary tabular-nums w-5 text-right flex-shrink-0">
+                      {companyJobs.length}
+                    </span>
                   </button>
-                  {customCo && (
-                    <div className="opacity-0 group-hover:opacity-100 flex gap-0.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingCompanyId(customCo.id);
-                          setEditCompanyName(customCo.name);
-                        }}
-                        className="p-1 rounded hover:bg-[#f7f7f7]"
-                      >
-                        <Pencil size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeCustomCompany(customCo.id)}
-                        className="p-1 rounded hover:bg-red-50 text-red-500"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  )}
+                  {/* 固定占位，避免自定义公司的操作按钮把数量挤偏 */}
+                  <div
+                    className={cn(
+                      'w-12 flex-shrink-0 flex items-center justify-end gap-0.5',
+                      customCo ? 'opacity-0 group-hover:opacity-100' : 'invisible'
+                    )}
+                  >
+                    {customCo && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingCompanyId(customCo.id);
+                            setEditCompanyName(customCo.name);
+                          }}
+                          className="p-1 rounded hover:bg-[#f7f7f7]"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeCustomCompany(customCo.id)}
+                          className="p-1 rounded hover:bg-red-50 text-red-500"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {editingCompanyId === customCo?.id && (
@@ -315,7 +325,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
                                   backgroundColor: `${APPLICATION_STATUS_COLORS[status]}18`,
                                 }}
                               >
-                                {APPLICATION_STATUS_LABELS[status]}
+                                {formatApplicationStatusLabel(status, progress?.rejectReason)}
                               </span>
                             ) : (
                               <span className="text-[10px] text-ink-secondary">{'\u672a\u8bb0\u5f55'}</span>
@@ -464,8 +474,11 @@ export function JobsTab({ jobs }: JobsTabProps) {
                 }
               >
                 {getProgress(selectedJob.id)?.status
-                  ? `${APPLICATION_STATUS_LABELS[getProgress(selectedJob.id)!.status]} \u00b7 \u70b9\u51fb\u66f4\u65b0`
-                  : '\u672a\u8bb0\u5f55 \u00b7 \u70b9\u51fb\u6807\u8bb0'}
+                  ? `${formatApplicationStatusLabel(
+                      getProgress(selectedJob.id)!.status,
+                      getProgress(selectedJob.id)!.rejectReason
+                    )} · 点击更新`
+                  : '未记录 · 点击标记'}
               </button>
             </div>
 

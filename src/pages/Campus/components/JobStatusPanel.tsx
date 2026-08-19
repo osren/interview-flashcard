@@ -1,13 +1,16 @@
-import { useState } from 'react';
-import type { ApplicationStatus, CampusJobData } from '@/types/campus-job';
+import { useEffect, useRef, useState } from 'react';
+import type { ApplicationStatus, CampusJobData, RejectReason } from '@/types/campus-job';
 import {
   APPLICATION_STATUS_COLORS,
   APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_ORDER,
+  REJECT_REASON_LABELS,
+  REJECT_REASON_ORDER,
+  formatApplicationStatusLabel,
 } from '@/data/campus-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { formatDateTime, isSameCalendarDay } from '../utils';
-import { X, Clock, ChevronRight, RotateCcw, Trash2 } from 'lucide-react';
+import { X, Clock, ChevronRight, RotateCcw, Trash2, ChevronDown } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { campusStrings } from '../strings';
 
@@ -20,15 +23,34 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
   const { getProgress, setJobStatus, clearJobStatus } = useCampusJobStore();
   const progress = getProgress(job.id);
   const currentStatus = progress?.status;
+  const currentRejectReason = progress?.rejectReason;
   const [note, setNote] = useState('');
+  const [rejectMenuOpen, setRejectMenuOpen] = useState(false);
+  const rejectMenuRef = useRef<HTMLDivElement>(null);
 
-  const handleSelect = (status: ApplicationStatus) => {
-    setJobStatus(job.id, status, note.trim() || undefined);
+  useEffect(() => {
+    if (!rejectMenuOpen) return;
+    const handleClick = (event: MouseEvent) => {
+      if (rejectMenuRef.current && !rejectMenuRef.current.contains(event.target as Node)) {
+        setRejectMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [rejectMenuOpen]);
+
+  const handleSelect = (status: ApplicationStatus, rejectReason?: RejectReason) => {
+    if (status === 'rejected' && !rejectReason) {
+      setRejectMenuOpen((open) => !open);
+      return;
+    }
+    setJobStatus(job.id, status, note.trim() || undefined, rejectReason);
     setNote('');
+    setRejectMenuOpen(false);
   };
 
   const handleClearAll = () => {
-    if (confirm('\u786e\u5b9a\u6e05\u9664\u8be5\u5c97\u4f4d\u7684\u5168\u90e8\u8fdb\u5ea6\u8bb0\u5f55\u5417\uff1f')) {
+    if (confirm('确定清除该岗位的全部进度记录吗？')) {
       clearJobStatus(job.id);
       onClose();
     }
@@ -56,7 +78,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
             type="button"
             onClick={onClose}
             className="p-2 rounded-xl hover:bg-[#f7f7f7] text-ink-secondary"
-            aria-label={'\u5173\u95ed'}
+            aria-label="关闭"
           >
             <X size={20} />
           </button>
@@ -64,12 +86,12 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
 
         <div className="p-4 overflow-y-auto flex-1 space-y-4">
           <div>
-            <p className="text-sm font-bold text-ink-primary mb-1">{'\u66f4\u65b0\u72b6\u6001'}</p>
+            <p className="text-sm font-bold text-ink-primary mb-1">更新状态</p>
             <p className="text-xs text-ink-secondary mb-2">
-              {'\u518d\u6b21\u70b9\u51fb\u5f53\u524d\u72b6\u6001\u53ef\u64a4\u9500\uff08\u540c\u4e00\u5929\u5185\uff09\uff1b\u5207\u6362\u72b6\u6001\u4f1a\u65b0\u589e\u8bb0\u5f55'}
+              再次点击当前状态可撤销（同一天内）；「已终止」需选择具体原因，便于后续统计
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {[...APPLICATION_STATUS_ORDER, 'rejected' as ApplicationStatus].map((status) => (
+              {APPLICATION_STATUS_ORDER.map((status) => (
                 <button
                   key={status}
                   type="button"
@@ -92,17 +114,81 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
                   {APPLICATION_STATUS_LABELS[status]}
                   {currentStatus === status && canUndoCurrent && (
                     <span className="block text-[10px] font-normal opacity-90 mt-0.5">
-                      {'\u518d\u6b21\u70b9\u51fb\u64a4\u9500'}
+                      再次点击撤销
                     </span>
                   )}
                 </button>
               ))}
+
+              <div className="relative col-span-1" ref={rejectMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => handleSelect('rejected')}
+                  className={cn(
+                    'w-full px-3 py-2.5 rounded-xl text-sm font-bold border-2 transition-all text-left flex items-center justify-between gap-1',
+                    currentStatus === 'rejected'
+                      ? 'border-current text-white'
+                      : 'border-[#e5e5e5] hover:border-current/30 text-ink-primary',
+                    rejectMenuOpen && currentStatus !== 'rejected' && 'border-[#FF4B4B]'
+                  )}
+                  style={
+                    currentStatus === 'rejected'
+                      ? {
+                          backgroundColor: APPLICATION_STATUS_COLORS.rejected,
+                          borderColor: APPLICATION_STATUS_COLORS.rejected,
+                        }
+                      : undefined
+                  }
+                >
+                  <span className="min-w-0 truncate">
+                    {currentStatus === 'rejected'
+                      ? formatApplicationStatusLabel('rejected', currentRejectReason)
+                      : '已终止'}
+                  </span>
+                  <ChevronDown
+                    size={14}
+                    className={cn('flex-shrink-0 transition-transform', rejectMenuOpen && 'rotate-180')}
+                  />
+                </button>
+
+                {rejectMenuOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-xl border-2 border-[#e5e5e5] bg-white shadow-lg overflow-hidden">
+                    <div className="px-3 py-1.5 text-[10px] font-bold text-ink-secondary bg-[#fafafa] border-b border-[#e5e5e5]">
+                      选择终止原因
+                    </div>
+                    {REJECT_REASON_ORDER.map((reason) => {
+                      const selected =
+                        currentStatus === 'rejected' && currentRejectReason === reason;
+                      return (
+                        <button
+                          key={reason}
+                          type="button"
+                          onClick={() => handleSelect('rejected', reason)}
+                          className={cn(
+                            'w-full text-left px-3 py-2.5 text-sm font-bold transition-colors',
+                            selected
+                              ? 'bg-[#FF4B4B] text-white'
+                              : 'text-ink-primary hover:bg-[#fff0f0]'
+                          )}
+                        >
+                          {REJECT_REASON_LABELS[reason]}
+                          {selected && canUndoCurrent && (
+                            <span className="block text-[10px] font-normal opacity-90 mt-0.5">
+                              再次点击撤销
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <div>
             <label className="text-sm font-bold text-ink-primary block mb-1.5">
-              {'\u5907\u6ce8\uff08\u53ef\u9009\uff09'}
+              备注（可选）
             </label>
             <input
               value={note}
@@ -117,7 +203,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-bold text-ink-primary flex items-center gap-1.5">
                   <Clock size={14} />
-                  {'\u72b6\u6001\u65f6\u95f4\u7ebf'}
+                  状态时间线
                 </p>
                 <button
                   type="button"
@@ -125,7 +211,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
                   className="flex items-center gap-1 text-xs font-bold text-red-500 hover:underline"
                 >
                   <Trash2 size={12} />
-                  {'\u6e05\u9664\u5168\u90e8'}
+                  清除全部
                 </button>
               </div>
               <div className="space-y-2">
@@ -149,7 +235,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
                           className="font-bold"
                           style={{ color: APPLICATION_STATUS_COLORS[entry.status] }}
                         >
-                          {APPLICATION_STATUS_LABELS[entry.status]}
+                          {formatApplicationStatusLabel(entry.status, entry.rejectReason)}
                         </span>
                         <span className="text-ink-secondary ml-2">{formatDateTime(entry.at)}</span>
                         {entry.note && (
@@ -159,12 +245,12 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
                       {canUndoEntry && (
                         <button
                           type="button"
-                          onClick={() => setJobStatus(job.id, entry.status)}
+                          onClick={() => setJobStatus(job.id, entry.status, undefined, entry.rejectReason)}
                           className="flex items-center gap-0.5 text-[10px] font-bold text-ink-secondary hover:text-red-500 flex-shrink-0 px-1.5 py-1 rounded-lg hover:bg-red-50"
-                          title={'\u64a4\u9500\u6b64\u8bb0\u5f55'}
+                          title="撤销此记录"
                         >
                           <RotateCcw size={12} />
-                          {'\u64a4\u9500'}
+                          撤销
                         </button>
                       )}
                     </div>

@@ -12,11 +12,15 @@ interface ProgressRaceChartProps {
 }
 
 const STATUS_COLUMNS = [...APPLICATION_STATUS_ORDER, 'rejected' as ApplicationStatus];
-const ROW_HEIGHT = 40;
-const LEFT_LABEL_WIDTH = 240;
+const ROW_HEIGHT = 68;
+const LEFT_LABEL_WIDTH = 290;
 const RIGHT_PADDING = 24;
-const TOP_PADDING = 52;
+const TOP_PADDING = 60;
 const BOTTOM_PADDING = 32;
+
+function truncateLabel(value: string, maxChars: number): string {
+  return value.length > maxChars ? `${value.slice(0, maxChars)}…` : value;
+}
 
 export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps) {
   if (jobs.length === 0) {
@@ -27,7 +31,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
     );
   }
 
-  const chartWidth = 720;
+  const chartWidth = 760;
   const colWidth = (chartWidth - LEFT_LABEL_WIDTH - RIGHT_PADDING) / STATUS_COLUMNS.length;
   const chartHeight = TOP_PADDING + jobs.length * ROW_HEIGHT + BOTTOM_PADDING;
 
@@ -36,7 +40,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
       <svg
         width={chartWidth}
         height={chartHeight}
-        className="min-w-[720px]"
+        className="min-w-[760px]"
         role="img"
         aria-label={'\u6c42\u804c\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}
       >
@@ -46,9 +50,10 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
             <g key={status}>
               <text
                 x={x}
-                y={28}
+                y={32}
                 textAnchor="middle"
-                className="fill-ink-secondary text-xs font-bold"
+                className="fill-ink-secondary font-bold"
+                style={{ fontSize: 16 }}
               >
                 {APPLICATION_STATUS_LABELS[status]}
               </text>
@@ -83,13 +88,23 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
 
           const label = (
             <>
-              <text x={8} y={y + 4} className="fill-ink-primary text-xs font-semibold">
-                {job.basic.company}
+              <text
+                x={8}
+                y={y - 11}
+                dominantBaseline="middle"
+                className="fill-ink-primary font-semibold"
+                style={{ fontSize: 17 }}
+              >
+                {truncateLabel(job.basic.company, 12)}
               </text>
-              <text x={8} y={y + 18} className="fill-ink-secondary text-[11px]">
-                {job.basic.position.length > 14
-                  ? `${job.basic.position.slice(0, 14)}…`
-                  : job.basic.position}
+              <text
+                x={8}
+                y={y + 12}
+                dominantBaseline="middle"
+                className="fill-ink-secondary"
+                style={{ fontSize: 16 }}
+              >
+                {truncateLabel(job.basic.position, 14)}
               </text>
             </>
           );
@@ -172,7 +187,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
         })}
       </svg>
 
-      <div className="flex flex-wrap gap-3 mt-2 px-2 text-sm text-ink-secondary">
+      <div className="flex flex-wrap gap-3 mt-2 px-2 text-base text-ink-secondary">
         {STATUS_COLUMNS.map((s) => (
           <span key={s} className="flex items-center gap-1.5">
             <span

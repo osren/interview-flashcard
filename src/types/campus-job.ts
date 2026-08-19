@@ -5,6 +5,15 @@ export type ApplicationStatus =
   | 'offer'
   | 'rejected';
 
+/** 已终止的细分原因，便于后续统计被刷原因 */
+export type RejectReason =
+  | 'screen_fail'
+  | 'interview_1'
+  | 'interview_2'
+  | 'interview_3'
+  | 'hr_fail'
+  | 'lateral';
+
 export type JobCategory = 'frontend' | 'agent_dev' | 'ai_fullstack' | 'ai_app' | 'other';
 
 export type JobTier = 'S' | 'A' | 'B' | 'edge' | 'skip';
@@ -53,6 +62,8 @@ export interface StatusHistoryEntry {
   status: ApplicationStatus;
   at: string;
   note?: string;
+  /** 仅 status === 'rejected' 时有值 */
+  rejectReason?: RejectReason;
 }
 
 export interface JobProgress {
@@ -60,6 +71,8 @@ export interface JobProgress {
   status: ApplicationStatus;
   statusHistory: StatusHistoryEntry[];
   updatedAt: string;
+  /** 当前为已终止时的细分原因 */
+  rejectReason?: RejectReason;
 }
 
 export interface CustomCompany {
