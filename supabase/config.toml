@@ -415,6 +415,9 @@ verify_jwt = false
 [functions.fetch-jd-url]
 verify_jwt = false
 
+[functions.parse-jd]
+verify_jwt = false
+
 [functions.optimize-resume]
 verify_jwt = false
 

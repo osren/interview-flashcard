@@ -24,21 +24,28 @@ export async function callLlm(options: LlmCallOptions): Promise<Response> {
     throw new Error('请先登录后再使用 AI 功能');
   }
 
-  const response = await fetch(`${getSupabaseUrl()}/functions/v1/llm-proxy`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      apikey: getSupabaseAnonKey(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: options.model ?? 'deepseek-chat',
-      messages: options.messages,
-      temperature: options.temperature ?? 0.7,
-      stream: options.stream ?? false,
-      max_tokens: options.max_tokens,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getSupabaseUrl()}/functions/v1/llm-proxy`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: getSupabaseAnonKey(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: options.model ?? 'deepseek-chat',
+        messages: options.messages,
+        temperature: options.temperature ?? 0.7,
+        stream: options.stream ?? false,
+        max_tokens: options.max_tokens,
+        response_format: options.response_format,
+      }),
+    });
+  } catch (error) {
+    const hint = error instanceof Error ? error.message : '网络请求失败';
+    throw new Error(`AI 请求失败（${hint}）。请检查网络或 Supabase 配置`);
+  }
 
   return response;
 }

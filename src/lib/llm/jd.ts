@@ -1,42 +1,10 @@
 import type { CustomJobInput, JobCategory } from '@/types/campus-job';
+import { callLlmJson } from './call';
 import { invokeEdgeFunction } from './invoke';
+import { buildParseJdMessages, extractJsonFromLlm } from './prompts/parse-jd';
+import type { FetchJdResult, ParsedJobPayload } from './parse-jd-types';
 
-export interface FetchJdResult {
-  ok: boolean;
-  text?: string;
-  error?: string;
-  fallback?: 'paste';
-}
-
-export interface ParsedJobPayload {
-  basic?: {
-    position?: string;
-    company?: string;
-    location?: string;
-  };
-  details?: {
-    job_url?: string | null;
-  };
-  extended?: {
-    job_category?: JobCategory | string;
-    jd_responsibilities?: string[];
-    jd_requirements?: string[];
-    jd_summary?: string;
-    requirements_summary?: string;
-    tech_stack?: string[];
-    education?: string;
-    major?: string;
-    graduation_year?: string;
-    recruitment_batch?: string;
-    employment_type?: string;
-  };
-  match?: {
-    qualified?: boolean;
-    category?: JobCategory | string;
-    confidence?: number;
-    reason?: string;
-  };
-}
+export type { FetchJdResult, ParsedJobPayload } from './parse-jd-types';
 
 const CATEGORIES: JobCategory[] = ['frontend', 'agent_dev', 'ai_fullstack', 'ai_app', 'other'];
 
@@ -45,7 +13,19 @@ function asCategory(value: string | undefined): JobCategory {
 }
 
 export async function fetchJdFromUrl(url: string): Promise<FetchJdResult> {
-  return invokeEdgeFunction<FetchJdResult>('fetch-jd-url', { url });
+  try {
+    return await invokeEdgeFunction<FetchJdResult>('fetch-jd-url', { url });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '抓取失败';
+    if (message.includes('未部署') || message.includes('NOT_FOUND') || message.includes('Failed to fetch')) {
+      return {
+        ok: false,
+        error: 'URL 抓取服务未部署，请直接粘贴 JD 文本',
+        fallback: 'paste',
+      };
+    }
+    throw error;
+  }
 }
 
 export async function parseJdText(input: {
@@ -53,8 +33,22 @@ export async function parseJdText(input: {
   jd_text: string;
   job_url?: string;
 }): Promise<ParsedJobPayload> {
-  const result = await invokeEdgeFunction<{ ok: boolean; job: ParsedJobPayload }>('parse-jd', input);
-  return result.job;
+  const jdText = input.jd_text.trim();
+  if (!jdText) {
+    throw new Error('jd_text 不能为空');
+  }
+
+  const data = await callLlmJson<{
+    choices?: Array<{ message?: { content?: string } }>;
+  }>({
+    model: 'deepseek-chat',
+    temperature: 0.2,
+    response_format: { type: 'json_object' },
+    messages: buildParseJdMessages({ ...input, jd_text: jdText }),
+  });
+
+  const content = data.choices?.[0]?.message?.content ?? '';
+  return extractJsonFromLlm(content) as ParsedJobPayload;
 }
 
 export function parsedJobToInput(

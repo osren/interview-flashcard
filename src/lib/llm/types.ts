@@ -11,6 +11,7 @@ export interface LlmCallOptions {
   temperature?: number;
   stream?: boolean;
   max_tokens?: number;
+  response_format?: { type: string };
 }
 
 export interface LlmProxyErrorBody {
