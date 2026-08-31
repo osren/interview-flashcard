@@ -20,6 +20,7 @@ import {
   createStatusEntry,
   isSameCalendarDay,
 } from '@/utils/campus-job-status';
+import type { CampusJobSyncPayload } from '@/lib/supabase/campus-job-sync';
 
 interface CampusJobState {
   customCompanies: CustomCompany[];
@@ -47,6 +48,8 @@ interface CampusJobState {
   ) => void;
   clearJobStatus: (jobId: string) => void;
   setLastSelectedJobId: (jobId: string | null) => void;
+  getSyncPayload: () => CampusJobSyncPayload;
+  importSyncedState: (payload: CampusJobSyncPayload) => void;
 }
 
 function normalizeStatus(status: string): ApplicationStatus {
@@ -273,6 +276,32 @@ export const useCampusJobStore = create<CampusJobState>()(
       },
 
       setLastSelectedJobId: (jobId) => set({ lastSelectedJobId: jobId }),
+
+      getSyncPayload: () => {
+        const state = get();
+        return {
+          customCompanies: state.customCompanies,
+          customJobs: state.customJobs,
+          jobProgress: state.jobProgress,
+          lastSelectedJobId: state.lastSelectedJobId,
+        };
+      },
+
+      importSyncedState: (payload) => {
+        const normalizedProgress = Object.fromEntries(
+          Object.entries(payload.jobProgress).map(([jobId, progress]) => [
+            jobId,
+            normalizeJobProgress(progress),
+          ])
+        );
+
+        set({
+          customCompanies: payload.customCompanies,
+          customJobs: payload.customJobs,
+          jobProgress: normalizedProgress,
+          lastSelectedJobId: payload.lastSelectedJobId,
+        });
+      },
     }),
     {
       name: 'campus-job-storage',

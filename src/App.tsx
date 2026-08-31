@@ -15,12 +15,14 @@ import { AIIndex, AIDetail } from '@/pages/AI';
 import { RJSFDemo } from '@/pages/RJSF';
 import { GithubTrending } from '@/pages/AI/GithubTrending';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { Button } from '@/components/ui';
 
 function App() {
   return (
     <ThemeProvider>
-      <AppShell>
+      <CampusJobSyncProvider>
+        <AppShell>
         <FloatingResumeButton />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -69,6 +71,7 @@ function App() {
         </Routes>
         <Footer />
       </AppShell>
+      </CampusJobSyncProvider>
     </ThemeProvider>
   );
 }

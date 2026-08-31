@@ -84,6 +84,20 @@ curl -N -X POST "https://<project-ref>.supabase.co/functions/v1/llm-proxy" `
 
 首次登录若未设置用户名，会自动弹出「完善个人资料」。
 
+## 8. 秋招投递云端同步
+
+在 Supabase Dashboard → **SQL Editor** 执行：
+
+`supabase/migrations/20260831000000_campus_job_sync.sql`
+
+登录后会自动：
+
+1. 拉取云端投递记录（自定义岗位、投递进度、自定义公司）
+2. 与本地 localStorage 合并（按岗位进度 `updatedAt` 取较新）
+3. 写回云端；之后本地变更会 debounce 自动上传
+
+未登录时仍使用本地存储；登录后记录会跟着账号走。
+
 ## 文件清单
 
 | 路径 | 说明 |
@@ -91,4 +105,7 @@ curl -N -X POST "https://<project-ref>.supabase.co/functions/v1/llm-proxy" `
 | `src/lib/supabase/client.ts` | Supabase 客户端 |
 | `src/lib/llm/call.ts` | LLM 调用封装 |
 | `src/components/Auth/*` | 登录注册 |
+| `src/lib/supabase/campus-job-sync.ts` | 秋招投递云端同步 |
+| `src/hooks/useCampusJobSync.ts` | 登录后自动同步 hook |
+| `supabase/migrations/20260831000000_campus_job_sync.sql` | 投递记录表 + RLS |
 | `supabase/functions/llm-proxy/index.ts` | Edge Function 代理 |

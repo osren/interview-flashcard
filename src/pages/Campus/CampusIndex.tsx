@@ -6,6 +6,8 @@ import type { CampusTab } from '@/types/campus-job';
 import { DashboardTab } from './components/DashboardTab';
 import { JobsTab } from './components/JobsTab';
 import { ProgressTab } from './components/ProgressTab';
+import { CampusJobSyncBadge } from './components/CampusJobSyncBadge';
+import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
 import { LayoutDashboard, Briefcase, TrendingUp } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -17,6 +19,7 @@ const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
 
 export function CampusIndex() {
   const [activeTab, setActiveTab] = useState<CampusTab>('dashboard');
+  const sync = useCampusJobSyncContext();
   const customJobs = useCampusJobStore((state) => state.customJobs);
   const jobs = useMemo(
     () => [...builtinCampusJobs, ...customJobs],
@@ -30,6 +33,15 @@ export function CampusIndex() {
           title={'\u79cb\u62db\u6295\u9012'}
           description={`${jobs.length} \u4e2a\u5c97\u4f4d \u00b7 \u7b5b\u9009\u3001\u6295\u9012\u4e0e\u8fdb\u5ea6\u8ffd\u8e2a`}
         />
+
+        <div className="mb-4">
+          <CampusJobSyncBadge
+            status={sync.status}
+            error={sync.error}
+            isLoggedIn={sync.isLoggedIn}
+            isConfigured={sync.isConfigured}
+          />
+        </div>
 
         <div className="flex gap-1 p-1 mb-6 surface-panel rounded-2xl">
           {TABS.map(({ id, label, icon: Icon }) => (
