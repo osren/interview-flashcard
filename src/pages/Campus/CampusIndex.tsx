@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { PageShell, SectionHeader } from '@/components/ui';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
-import { builtinCampusJobs } from '@/data/campus-jobs';
 import type { CampusTab } from '@/types/campus-job';
 import { DashboardTab } from './components/DashboardTab';
 import { JobsTab } from './components/JobsTab';
@@ -21,9 +20,11 @@ export function CampusIndex() {
   const [activeTab, setActiveTab] = useState<CampusTab>('dashboard');
   const sync = useCampusJobSyncContext();
   const customJobs = useCampusJobStore((state) => state.customJobs);
+  const catalogJobs = useCampusJobStore((state) => state.catalogJobs);
+  const catalogSource = useCampusJobStore((state) => state.catalogSource);
   const jobs = useMemo(
-    () => [...builtinCampusJobs, ...customJobs],
-    [customJobs]
+    () => [...catalogJobs, ...customJobs],
+    [catalogJobs, customJobs]
   );
 
   return (
@@ -31,7 +32,9 @@ export function CampusIndex() {
       <div className="campus-typo">
         <SectionHeader
           title={'\u79cb\u62db\u6295\u9012'}
-          description={`${jobs.length} \u4e2a\u5c97\u4f4d \u00b7 \u7b5b\u9009\u3001\u6295\u9012\u4e0e\u8fdb\u5ea6\u8ffd\u8e2a`}
+          description={`${jobs.length} \u4e2a\u5c97\u4f4d \u00b7 \u7b5b\u9009\u3001\u6295\u9012\u4e0e\u8fdb\u5ea6\u8ffd\u8e2a${
+            catalogSource === 'remote' ? ' \u00b7 \u4e91\u7aef\u5c97\u4f4d\u5e93' : ''
+          }`}
         />
 
         <div className="mb-4">

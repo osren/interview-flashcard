@@ -90,11 +90,28 @@ curl -N -X POST "https://<project-ref>.supabase.co/functions/v1/llm-proxy" `
 
 `supabase/migrations/20260831000000_campus_job_sync.sql`
 
+自定义岗位表（手动新增 / AI 解析，一行一岗）：
+
+`supabase/migrations/20260831100000_campus_user_jobs.sql`
+
+内置岗位目录（51 岗，全员可读）：
+
+`supabase/migrations/20260831120000_campus_job_catalog.sql`
+`supabase/migrations/20260831120001_seed_campus_job_catalog.sql`
+
+更新内置岗位 JSON 后重新生成种子：
+
+```bash
+node scripts/generate-campus-catalog-seed.mjs
+supabase db push
+```
+
 登录后会自动：
 
 1. 拉取云端投递记录（自定义岗位、投递进度、自定义公司）
 2. 与本地 localStorage 合并（按岗位进度 `updatedAt` 取较新）
-3. 写回云端；之后本地变更会 debounce 自动上传
+3. 自定义岗位写入 `campus_user_jobs` 表（一行一岗，换设备可恢复）
+4. 写回云端；之后本地变更会 debounce 自动上传（新增岗位立即上传）
 
 未登录时仍使用本地存储；登录后记录会跟着账号走。
 
@@ -105,7 +122,12 @@ curl -N -X POST "https://<project-ref>.supabase.co/functions/v1/llm-proxy" `
 | `src/lib/supabase/client.ts` | Supabase 客户端 |
 | `src/lib/llm/call.ts` | LLM 调用封装 |
 | `src/components/Auth/*` | 登录注册 |
-| `src/lib/supabase/campus-job-sync.ts` | 秋招投递云端同步 |
-| `src/hooks/useCampusJobSync.ts` | 登录后自动同步 hook |
+| `src/lib/supabase/campus-job-sync.ts` | 秋招投递进度云端同步 |
+| `src/lib/supabase/campus-user-jobs.ts` | 自定义岗位云端同步（独立表） |
+| `src/lib/supabase/campus-job-catalog.ts` | 内置岗位目录拉取 |
+| `src/hooks/useCampusJobSync.tsx` | 登录后自动同步 hook |
 | `supabase/migrations/20260831000000_campus_job_sync.sql` | 投递记录表 + RLS |
+| `supabase/migrations/20260831100000_campus_user_jobs.sql` | 自定义岗位表 + RLS |
+| `supabase/migrations/20260831120000_campus_job_catalog.sql` | 内置岗位目录表 + RLS |
+| `supabase/migrations/20260831120001_seed_campus_job_catalog.sql` | 内置 51 岗种子数据 |
 | `supabase/functions/llm-proxy/index.ts` | Edge Function 代理 |

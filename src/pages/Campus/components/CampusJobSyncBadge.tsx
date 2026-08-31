@@ -10,10 +10,10 @@ interface CampusJobSyncBadgeProps {
 }
 
 const STATUS_LABEL: Record<CampusJobSyncStatus, string> = {
-  idle: '登录后云端同步投递记录',
+  idle: '登录后同步自定义岗位与投递记录',
   loading: '正在同步…',
   syncing: '保存中…',
-  synced: '已同步到云端',
+  synced: '岗位与投递记录已同步',
   error: '同步失败',
 };
 

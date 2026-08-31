@@ -10,6 +10,7 @@ import {
 import { useCampusJobStore, COMPANY_COLORS } from '@/store/useCampusJobStore';
 import { JobStatusPanel } from './JobStatusPanel';
 import { JdParseModal } from '@/components/AI/JdParseModal';
+import { useAuth } from '@/components/Auth';
 import {
   Plus,
   ChevronDown,
@@ -30,6 +31,7 @@ interface JobsTabProps {
 }
 
 export function JobsTab({ jobs }: JobsTabProps) {
+  const { user, configured } = useAuth();
   const {
     customCompanies,
     addCustomCompany,
@@ -157,6 +159,11 @@ export function JobsTab({ jobs }: JobsTabProps) {
               </button>
             </div>
           </div>
+          {configured && !user && (
+            <p className="text-[11px] font-bold text-[#1CB0F6] leading-relaxed">
+              登录后，手动新增与 AI 解析的岗位会同步到云端，换设备不会丢失
+            </p>
+          )}
           <div className="flex gap-1">
             {(['qualified', 'all'] as const).map((f) => (
               <button

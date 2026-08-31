@@ -44,8 +44,12 @@ function slugify(value: string): string {
   return value.replace(/[^\w\u4e00-\u9fff-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 }
 
-function buildJobId(company: string, position: string, location: string): string {
-  return `${slugify(company)}__${slugify(position)}__${slugify(location)}`;
+function buildJobId(company: string, position: string, location: string, disambiguator?: string): string {
+  const base = `${slugify(company)}__${slugify(position)}__${slugify(location)}`;
+  if (!disambiguator) {
+    return base;
+  }
+  return `${base}__${slugify(disambiguator)}`;
 }
 
 function normalizeCategory(category: string): JobCategory {
@@ -54,8 +58,15 @@ function normalizeCategory(category: string): JobCategory {
 }
 
 function loadBuiltinJobs(): CampusJobData[] {
+  const usedIds = new Set<string>();
+
   return Object.entries(jobModules).map(([filePath, raw]) => {
-    const id = buildJobId(raw.basic.company, raw.basic.position, raw.basic.location);
+    const fileStem = filePath.split(/[/\\]/).pop()?.replace(/\.json$/i, '') ?? '';
+    const baseId = buildJobId(raw.basic.company, raw.basic.position, raw.basic.location);
+    const id = usedIds.has(baseId)
+      ? buildJobId(raw.basic.company, raw.basic.position, raw.basic.location, fileStem)
+      : baseId;
+    usedIds.add(id);
     const category = normalizeCategory(raw.match.category || raw.extended.job_category);
     const tier = getTierFromMatch(raw.match.qualified, raw.match.confidence);
 
@@ -77,7 +88,10 @@ function loadBuiltinJobs(): CampusJobData[] {
   });
 }
 
-export const builtinCampusJobs = loadBuiltinJobs();
+export const localBuiltinCampusJobs = loadBuiltinJobs();
+
+/** @deprecated Use store catalogJobs or getAllJobs(); kept for offline fallback init */
+export const builtinCampusJobs = localBuiltinCampusJobs;
 
 export function getJobsByCompany(jobs: CampusJobData[]): Map<string, CampusJobData[]> {
   const map = new Map<string, CampusJobData[]>();

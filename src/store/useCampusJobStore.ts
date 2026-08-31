@@ -9,7 +9,7 @@ import type {
   RejectReason,
 } from '@/types/campus-job';
 import {
-  builtinCampusJobs,
+  localBuiltinCampusJobs,
   buildJobId,
   getTierFromMatch,
   isRejectReason,
@@ -23,6 +23,9 @@ import {
 import type { CampusJobSyncPayload } from '@/lib/supabase/campus-job-sync';
 
 interface CampusJobState {
+  catalogJobs: CampusJobData[];
+  catalogSource: 'local' | 'remote';
+  catalogLoading: boolean;
   customCompanies: CustomCompany[];
   customJobs: CampusJobData[];
   jobProgress: Record<string, JobProgress>;
@@ -48,6 +51,8 @@ interface CampusJobState {
   ) => void;
   clearJobStatus: (jobId: string) => void;
   setLastSelectedJobId: (jobId: string | null) => void;
+  setCatalogJobs: (jobs: CampusJobData[], source: 'local' | 'remote') => void;
+  setCatalogLoading: (loading: boolean) => void;
   getSyncPayload: () => CampusJobSyncPayload;
   importSyncedState: (payload: CampusJobSyncPayload) => void;
 }
@@ -130,12 +135,15 @@ function buildCustomJob(input: CustomJobInput): CampusJobData {
 export const useCampusJobStore = create<CampusJobState>()(
   persist(
     (set, get) => ({
+      catalogJobs: localBuiltinCampusJobs,
+      catalogSource: 'local',
+      catalogLoading: false,
       customCompanies: [],
       customJobs: [],
       jobProgress: {},
       lastSelectedJobId: null,
 
-      getAllJobs: () => [...builtinCampusJobs, ...get().customJobs],
+      getAllJobs: () => [...get().catalogJobs, ...get().customJobs],
 
       getJobById: (jobId) => get().getAllJobs().find((j) => j.id === jobId),
 
@@ -277,6 +285,13 @@ export const useCampusJobStore = create<CampusJobState>()(
 
       setLastSelectedJobId: (jobId) => set({ lastSelectedJobId: jobId }),
 
+      setCatalogJobs: (jobs, source) => {
+        if (jobs.length === 0) return;
+        set({ catalogJobs: jobs, catalogSource: source, catalogLoading: false });
+      },
+
+      setCatalogLoading: (loading) => set({ catalogLoading: loading }),
+
       getSyncPayload: () => {
         const state = get();
         return {
@@ -306,6 +321,12 @@ export const useCampusJobStore = create<CampusJobState>()(
     {
       name: 'campus-job-storage',
       version: 3,
+      partialize: (state) => ({
+        customCompanies: state.customCompanies,
+        customJobs: state.customJobs,
+        jobProgress: state.jobProgress,
+        lastSelectedJobId: state.lastSelectedJobId,
+      }),
       migrate: (persisted, fromVersion) => {
         const state = persisted as {
           jobProgress?: Record<string, JobProgress>;

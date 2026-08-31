@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useRef, useState, createContext, useContext, type ReactNode } from 'react';
 import { useAuth } from '@/components/Auth';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
+import { fetchCampusJobCatalog } from '@/lib/supabase/campus-job-catalog';
 import {
   fetchCampusJobSync,
   mergeCampusJobPayload,
   saveCampusJobSync,
 } from '@/lib/supabase/campus-job-sync';
+import {
+  fetchUserCampusJobs,
+  mergeCustomJobs,
+  syncUserCampusJobsToCloud,
+} from '@/lib/supabase/campus-user-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 
 export type CampusJobSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'error';
@@ -58,6 +65,30 @@ function useCampusJobSync(): CampusJobSyncContextValue {
     });
   }, []);
 
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
+    let cancelled = false;
+    useCampusJobStore.getState().setCatalogLoading(true);
+
+    void fetchCampusJobCatalog()
+      .then((jobs) => {
+        if (cancelled || jobs.length === 0) return;
+        useCampusJobStore.getState().setCatalogJobs(jobs, 'remote');
+      })
+      .catch(() => {
+        if (!cancelled) {
+          useCampusJobStore.getState().setCatalogLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const pullAndMerge = useCallback(async (userId: string) => {
     const generation = syncGenerationRef.current + 1;
     syncGenerationRef.current = generation;
@@ -66,14 +97,24 @@ function useCampusJobSync(): CampusJobSyncContextValue {
 
     try {
       const localPayload = useCampusJobStore.getState().getSyncPayload();
-      const remotePayload = await fetchCampusJobSync(userId);
+      const [remotePayload, remoteJobs] = await Promise.all([
+        fetchCampusJobSync(userId),
+        fetchUserCampusJobs(userId),
+      ]);
       if (syncGenerationRef.current !== generation) return;
 
-      const merged = mergeCampusJobPayload(localPayload, remotePayload);
-      applyingRemoteRef.current = true;
-      useCampusJobStore.getState().importSyncedState(merged);
+      const mergedPayload = mergeCampusJobPayload(localPayload, remotePayload);
+      mergedPayload.customJobs = mergeCustomJobs(
+        localPayload.customJobs,
+        remoteJobs,
+        remotePayload?.customJobs ?? []
+      );
 
-      const updatedAt = await saveCampusJobSync(userId, merged);
+      applyingRemoteRef.current = true;
+      useCampusJobStore.getState().importSyncedState(mergedPayload);
+
+      await syncUserCampusJobsToCloud(userId, mergedPayload.customJobs);
+      const updatedAt = await saveCampusJobSync(userId, mergedPayload);
       applyingRemoteRef.current = false;
       if (syncGenerationRef.current !== generation) return;
 
@@ -94,6 +135,7 @@ function useCampusJobSync(): CampusJobSyncContextValue {
 
     try {
       const payload = useCampusJobStore.getState().getSyncPayload();
+      await syncUserCampusJobsToCloud(userId, payload.customJobs);
       const updatedAt = await saveCampusJobSync(userId, payload);
       if (syncGenerationRef.current !== generation) return;
 
@@ -107,7 +149,16 @@ function useCampusJobSync(): CampusJobSyncContextValue {
   }, []);
 
   const schedulePush = useCallback(
-    (userId: string) => {
+    (userId: string, immediate = false) => {
+      if (immediate) {
+        if (pushTimerRef.current) {
+          clearTimeout(pushTimerRef.current);
+          pushTimerRef.current = null;
+        }
+        void pushToCloud(userId);
+        return;
+      }
+
       if (pushTimerRef.current) {
         clearTimeout(pushTimerRef.current);
       }
@@ -149,16 +200,17 @@ function useCampusJobSync(): CampusJobSyncContextValue {
         return;
       }
 
-      if (
-        state.customCompanies === prevState.customCompanies &&
-        state.customJobs === prevState.customJobs &&
-        state.jobProgress === prevState.jobProgress &&
-        state.lastSelectedJobId === prevState.lastSelectedJobId
-      ) {
+      const jobsChanged = state.customJobs !== prevState.customJobs;
+      const companiesChanged = state.customCompanies !== prevState.customCompanies;
+      const progressChanged =
+        state.jobProgress !== prevState.jobProgress ||
+        state.lastSelectedJobId !== prevState.lastSelectedJobId;
+
+      if (!jobsChanged && !companiesChanged && !progressChanged) {
         return;
       }
 
-      schedulePush(user.id);
+      schedulePush(user.id, jobsChanged);
     });
 
     return () => {

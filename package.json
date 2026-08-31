@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "report": "node claude-report-server.cjs"
+    "report": "node claude-report-server.cjs",
+    "seed:campus-catalog": "node scripts/generate-campus-catalog-seed.mjs"
   },
   "dependencies": {
     "@rjsf/antd": "^6.5.2",
