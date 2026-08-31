@@ -21,6 +21,7 @@ import {
   isSameCalendarDay,
 } from '@/utils/campus-job-status';
 import type { CampusJobSyncPayload } from '@/lib/supabase/campus-job-sync';
+import { ensureCustomCompaniesForJobs } from '@/utils/campus-job-filters';
 
 interface CampusJobState {
   catalogJobs: CampusJobData[];
@@ -59,7 +60,7 @@ interface CampusJobState {
 
 function normalizeStatus(status: string): ApplicationStatus {
   if (status === 'saved') return 'applied';
-  const allowed: ApplicationStatus[] = ['applied', 'screen', 'interview', 'offer', 'rejected'];
+  const allowed: ApplicationStatus[] = ['applied', 'screen', 'written_exam', 'interview', 'offer', 'rejected'];
   return allowed.includes(status as ApplicationStatus) ? (status as ApplicationStatus) : 'applied';
 }
 
@@ -187,9 +188,13 @@ export const useCampusJobStore = create<CampusJobState>()(
 
       addCustomJob: (input) => {
         const job = buildCustomJob(input);
-        set((state) => ({
-          customJobs: [...state.customJobs.filter((j) => j.id !== job.id), job],
-        }));
+        set((state) => {
+          const customJobs = [...state.customJobs.filter((j) => j.id !== job.id), job];
+          return {
+            customJobs,
+            customCompanies: ensureCustomCompaniesForJobs(state.customCompanies, customJobs),
+          };
+        });
         return job.id;
       },
 
@@ -309,10 +314,15 @@ export const useCampusJobStore = create<CampusJobState>()(
             normalizeJobProgress(progress),
           ])
         );
+        const customJobs = payload.customJobs;
+        const customCompanies = ensureCustomCompaniesForJobs(
+          payload.customCompanies,
+          customJobs
+        );
 
         set({
-          customCompanies: payload.customCompanies,
-          customJobs: payload.customJobs,
+          customCompanies,
+          customJobs,
           jobProgress: normalizedProgress,
           lastSelectedJobId: payload.lastSelectedJobId,
         });

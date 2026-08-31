@@ -3,6 +3,7 @@ import type { ApplicationStatus, JobCategory, JobTier, RejectReason } from '@/ty
 export const APPLICATION_STATUS_ORDER: ApplicationStatus[] = [
   'applied',
   'screen',
+  'written_exam',
   'interview',
   'offer',
 ];
@@ -15,6 +16,7 @@ export const APPLICATION_STATUS_ALL: ApplicationStatus[] = [
 export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   applied: '已投递',
   screen: '筛选中',
+  written_exam: '笔试中',
   interview: '面试中',
   offer: '已录用',
   rejected: '已终止',
@@ -23,6 +25,7 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
 export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
   applied: '#1CB0F6',
   screen: '#FFC800',
+  written_exam: '#FF9600',
   interview: '#CE82FF',
   offer: '#58CC02',
   rejected: '#FF4B4B',
@@ -30,6 +33,7 @@ export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
 
 export const REJECT_REASON_ORDER: RejectReason[] = [
   'screen_fail',
+  'written_fail',
   'interview_1',
   'interview_2',
   'interview_3',
@@ -39,6 +43,7 @@ export const REJECT_REASON_ORDER: RejectReason[] = [
 
 export const REJECT_REASON_LABELS: Record<RejectReason, string> = {
   screen_fail: '未通过筛选',
+  written_fail: '笔试挂',
   interview_1: '一面挂',
   interview_2: '二面挂',
   interview_3: '三面挂',

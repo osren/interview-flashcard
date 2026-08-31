@@ -1,6 +1,7 @@
 export type ApplicationStatus =
   | 'applied'
   | 'screen'
+  | 'written_exam'
   | 'interview'
   | 'offer'
   | 'rejected';
@@ -8,6 +9,7 @@ export type ApplicationStatus =
 /** 已终止的细分原因，便于后续统计被刷原因 */
 export type RejectReason =
   | 'screen_fail'
+  | 'written_fail'
   | 'interview_1'
   | 'interview_2'
   | 'interview_3'

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { campusStrings } from '../strings';
+import { shouldShowCampusJob } from '@/utils/campus-job-filters';
 
 interface JobsTabProps {
   jobs: CampusJobData[];
@@ -42,6 +43,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
     getProgress,
     setLastSelectedJobId,
   } = useCampusJobStore();
+  const customJobs = useCampusJobStore((state) => state.customJobs);
 
   const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(() => new Set());
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
   const [parseCompany, setParseCompany] = useState('');
 
   const filteredJobs = useMemo(
-    () => (filterTier === 'qualified' ? jobs.filter((j) => j.match.qualified) : jobs),
+    () => jobs.filter((job) => shouldShowCampusJob(job, filterTier)),
     [jobs, filterTier]
   );
 
@@ -81,9 +83,13 @@ export function JobsTab({ jobs }: JobsTabProps) {
   }, [filteredJobs]);
 
   const companyNames = useMemo(() => {
-    const names = new Set([...jobsByCompany.keys(), ...customCompanies.map((c) => c.name)]);
+    const names = new Set([
+      ...jobsByCompany.keys(),
+      ...customCompanies.map((c) => c.name),
+      ...customJobs.map((job) => job.basic.company),
+    ]);
     return Array.from(names).sort((a, b) => a.localeCompare(b, 'zh-CN'));
-  }, [jobsByCompany, customCompanies]);
+  }, [jobsByCompany, customCompanies, customJobs]);
 
   const selectedJob = useCampusJobStore((state) =>
     selectedJobId ? state.getJobById(selectedJobId) : undefined
@@ -162,6 +168,11 @@ export function JobsTab({ jobs }: JobsTabProps) {
           {configured && !user && (
             <p className="text-[11px] font-bold text-[#1CB0F6] leading-relaxed">
               登录后，手动新增与 AI 解析的岗位会同步到云端，换设备不会丢失
+            </p>
+          )}
+          {filterTier === 'qualified' && customJobs.length > 0 && (
+            <p className="text-[11px] font-bold text-ink-secondary leading-relaxed">
+              自定义岗位在「仅推荐」下也会显示；内置不推荐岗位请切到「全部」
             </p>
           )}
           <div className="flex gap-1">

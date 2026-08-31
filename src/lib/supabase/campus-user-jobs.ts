@@ -38,9 +38,10 @@ export async function fetchUserCampusJobs(userId: string): Promise<CampusJobData
 
   const jobs: CampusJobData[] = [];
   for (const row of data ?? []) {
-    const job = normalizeJobData((row as Pick<CampusUserJobRow, 'job_data'>).job_data);
+    const record = row as Pick<CampusUserJobRow, 'job_id' | 'job_data'>;
+    const job = normalizeJobData(record.job_data);
     if (job) {
-      jobs.push(job);
+      jobs.push({ ...job, id: record.job_id });
     }
   }
 
