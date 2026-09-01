@@ -15,6 +15,10 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
+
+          // Only split self-contained heavy deps.
+          // Do NOT force-split react / antd / rjsf — that can load React as
+          // undefined when circular chunk edges evaluate (React.Component crash).
           if (id.includes('framer-motion')) return 'vendor-motion';
           if (id.includes('@uiw/react-md-editor') || id.includes('@uiw/react-markdown-preview')) {
             return 'vendor-mdeditor';
@@ -22,12 +26,6 @@ export default defineConfig({
           if (id.includes('xlsx')) return 'vendor-xlsx';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (id.includes('recharts')) return 'vendor-recharts';
-          if (id.includes('antd') || id.includes('@ant-design') || id.includes('@rjsf')) {
-            return 'vendor-antd-rjsf';
-          }
-          if (id.includes('react-dom') || id.includes('react-router') || id.includes('/react/')) {
-            return 'vendor-react';
-          }
         },
       },
     },
