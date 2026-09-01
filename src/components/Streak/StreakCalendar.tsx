@@ -151,7 +151,7 @@ export function StreakCalendar({ className }: StreakCalendarProps) {
           <div className="min-w-0">
             <h2 className="text-base font-extrabold text-[#3c3c3c]">学习连胜</h2>
             <p className="text-xs font-semibold text-[#777777] mt-0.5 truncate">
-              {hasCheckedInToday ? '今日已打卡' : '标记掌握程度即可打卡'}
+              {hasCheckedInToday ? '今日已打卡' : '标记学习状态即可打卡'}
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { coreCards, coreChapters } from '@/data/core';
 import { PageShell, SectionHeader, ChapterCard } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
 import { useCardStore } from '@/store';
+import { isRemembered, resolveCardStatus } from '@/utils/cardStatus';
 
 export function CoreIndex() {
   const cardStatuses = useCardStore((state) => state.cardStatuses);
@@ -21,7 +22,9 @@ export function CoreIndex() {
             ...coreCards.filter((card) => card.chapterId === chapter.id),
             ...customCards.filter((card) => card.module === 'core' && card.chapterId === chapter.id),
           ];
-          const mastered = chapterCards.filter((card) => cardStatuses[card.id] === 'mastered').length;
+          const remembered = chapterCards.filter((card) =>
+            isRemembered(resolveCardStatus(card.id, cardStatuses, card.status))
+          ).length;
           return (
             <ChapterCard
               key={chapter.id}
@@ -30,7 +33,7 @@ export function CoreIndex() {
               description={chapter.description}
               icon={<span>{chapter.icon}</span>}
               cardCount={chapterCards.length}
-              masteredCount={mastered}
+              rememberedCount={remembered}
               index={index}
             />
           );

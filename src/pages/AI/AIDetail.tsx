@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { CardStatus } from '@/types';
 import { useCardStore } from '@/store';
+import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
 
 export function AIDetail() {
   const { projectId } = useParams();
@@ -18,7 +19,6 @@ export function AIDetail() {
   const [showHtmlModal, setShowHtmlModal] = useState(false);
   const [showXlsxModal, setShowXlsxModal] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [jumpInput, setJumpInput] = useState('');
   const [xlsxData, setXlsxData] = useState<any[]>([]);
   const [xlsxHeaders, setXlsxHeaders] = useState<string[]>([]);
 
@@ -29,17 +29,12 @@ export function AIDetail() {
     }
   }, [project]);
 
-  // 防抖题号跳转
+  // Jump to first card not marked as remembered
   useEffect(() => {
-    if (!jumpInput) return;
-    const timer = setTimeout(() => {
-      const num = parseInt(jumpInput);
-      if (num >= 1 && num <= cards.length) {
-        handleCardChange(num - 1);
-      }
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [jumpInput]);
+    if (cards.length === 0) return;
+    const { cardStatuses } = useCardStore.getState();
+    setCurrentCardIndex(findFirstUnrememberedIndex(cards, cardStatuses));
+  }, [projectId, cards.length]);
 
   const loadXlsxData = async () => {
     try {
@@ -158,36 +153,15 @@ export function AIDetail() {
           <div className="flex flex-col items-center">
             <div className="flex items-center justify-between w-[768px] max-w-full mb-4">
               <h3 className="text-lg font-semibold text-gray-900">知识卡片</h3>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={1}
-                  max={cards.length}
-                  value={jumpInput || currentCardIndex + 1}
-                  onChange={(e) => {
-                    setJumpInput(e.target.value);
-                  }}
-                  onBlur={() => {
-                    if (jumpInput) {
-                      const num = parseInt(jumpInput);
-                      if (num >= 1 && num <= cards.length) {
-                        handleCardChange(num - 1);
-                      }
-                    }
-                    setJumpInput('');
-                  }}
-                  className="w-14 px-2 py-1 text-center border border-gray-300 rounded-lg text-sm"
-                />
-                <span className="text-gray-400 text-sm">/ {cards.length}</span>
-              </div>
             </div>
 
-            {/* 使用统一的 FlashCard 组件 */}
             <FlashCardComponent
               card={currentCard}
               onStatusChange={handleStatusChange}
               currentIndex={currentCardIndex}
               totalCards={cards.length}
+              onJumpTo={handleCardChange}
+              chapterCards={cards}
               showEdit={true}
             />
 

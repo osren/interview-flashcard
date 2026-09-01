@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
@@ -12,6 +12,7 @@ import { CardStatus, FlashCard } from '@/types';
 import MDEditor from '@uiw/react-md-editor';
 import { useProjectStore } from '@/store/useProjectStore';
 import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
+import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -23,32 +24,20 @@ export function ProjectDetail() {
 
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showIndexPicker, setShowIndexPicker] = useState(false);
-  const indexPickerRef = useRef<HTMLDivElement>(null);
   const customCards = useCardStore((state) => state.customCards);
-  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard, cardStatuses } = useCardStore();
   const hydrated = useCardStoreHydrated();
 
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
-        setShowIndexPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const reloadCards = () => {
     if (!projectId) return;
     const projectCardsList = projectCards.filter((c) => c.chapterId === projectId);
     const merged = getMergedCards('projects', projectId, projectCardsList);
     setCards(merged);
-    const savedIndex = getCardProgress('projects', projectId);
-    setCurrentIndex(merged.length > 0 ? Math.min(savedIndex, merged.length - 1) : 0);
+    const initialIndex = findFirstUnrememberedIndex(merged, cardStatuses);
+    setCurrentIndex(merged.length > 0 ? Math.min(initialIndex, merged.length - 1) : 0);
   };
 
   useEffect(() => {
@@ -65,7 +54,6 @@ export function ProjectDetail() {
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {
       setCurrentIndex(idx);
-      setShowIndexPicker(false);
     }
   };
 
@@ -243,12 +231,6 @@ export function ProjectDetail() {
         backPath="/projects"
         chapterTitle={projectTitle}
         category={currentCard.category || projectSubtitle}
-        currentIndex={currentIndex}
-        totalCards={cards.length}
-        showIndexPicker={showIndexPicker}
-        setShowIndexPicker={setShowIndexPicker}
-        indexPickerRef={indexPickerRef}
-        onJumpTo={handleJumpTo}
         onPrev={() => currentIndex > 0 && setCurrentIndex((p) => p - 1)}
         onNext={() => currentIndex < cards.length - 1 && setCurrentIndex((p) => p + 1)}
         canPrev={currentIndex > 0}
@@ -271,6 +253,8 @@ export function ProjectDetail() {
             onStatusChange={handleStatusChange}
             currentIndex={currentIndex}
             totalCards={cards.length}
+            onJumpTo={handleJumpTo}
+            chapterCards={cards}
             showEdit
           />
         </motion.div>

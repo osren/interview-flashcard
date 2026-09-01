@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { CardStatus, FlashCard } from '@/types';
 import { migratePersistedCardStatuses } from './migrateCardStatuses';
 import { recordLearningCheckIn } from './useStreakStore';
+import { isRemembered, resolveCardStatus, normalizeCardStatus } from '@/utils/cardStatus';
 
 interface CardState {
   // 当前卡片状态
@@ -41,7 +42,7 @@ interface CardState {
   setFilter: (filter: string) => void;
   setSearchQuery: (query: string) => void;
   updateCardStatus: (cardId: string, status: CardStatus) => void;
-  getProgress: () => { mastered: number; total: number; percentage: number };
+  getProgress: () => { remembered: number; total: number; percentage: number };
 
   // 自定义卡片 Actions
   addCustomCard: (card: FlashCard) => void;
@@ -117,28 +118,29 @@ export const useCardStore = create<CardState>()(
       setSearchQuery: (query) => set({ searchQuery: query }),
 
       updateCardStatus: (cardId, status) => {
-        if (status !== 'unvisited') {
+        const normalizedStatus = normalizeCardStatus(status);
+        if (normalizedStatus !== 'unvisited') {
           recordLearningCheckIn();
         }
         set((state) => ({
-          cardStatuses: { ...state.cardStatuses, [cardId]: status },
+          cardStatuses: { ...state.cardStatuses, [cardId]: normalizedStatus },
           cards: state.cards.map((card) =>
-            card.id === cardId ? { ...card, status } : card
+            card.id === cardId ? { ...card, status: normalizedStatus } : card
           ),
           customCards: state.customCards.map((card) =>
-            card.id === cardId ? { ...card, status } : card
+            card.id === cardId ? { ...card, status: normalizedStatus } : card
           ),
         }));
       },
 
       getProgress: () => {
         const { cards, cardStatuses } = get();
-        const mastered = cards.filter(
-          (c) => (cardStatuses[c.id] ?? c.status) === 'mastered'
+        const remembered = cards.filter((c) =>
+          isRemembered(resolveCardStatus(c.id, cardStatuses, c.status))
         ).length;
         const total = cards.length;
-        const percentage = total > 0 ? Math.round((mastered / total) * 100) : 0;
-        return { mastered, total, percentage };
+        const percentage = total > 0 ? Math.round((remembered / total) * 100) : 0;
+        return { remembered, total, percentage };
       },
 
       // 自定义卡片 Actions

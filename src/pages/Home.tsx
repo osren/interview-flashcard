@@ -3,6 +3,7 @@ import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
 import { handbookGroups, handbookItems } from '@/data/llm-handbook';
+import { isRemembered, resolveCardStatus } from '@/utils/cardStatus';
 import { motion } from 'framer-motion';
 import { Progress, ModuleTile } from '@/components/ui';
 import { StreakCalendar } from '@/components/Streak';
@@ -61,7 +62,7 @@ const modules = [
 
 const features = [
   { icon: '🔄', title: '卡片翻转', desc: '点击翻转，即时查看答案', color: '#58CC02' },
-  { icon: '📊', title: '进度追踪', desc: '记录每张卡的掌握程度', color: '#1CB0F6' },
+  { icon: '📊', title: '进度追踪', desc: '记录每张卡的记住状态', color: '#1CB0F6' },
   { icon: '🔍', title: '智能筛选', desc: '按章节 / 难度精准过滤', color: '#FFC800' },
   { icon: '⭐', title: '收藏重点', desc: '标记高频考点随时复习', color: '#CE82FF' },
 ];
@@ -76,8 +77,10 @@ export function Home() {
     ...customCards,
   ].map((card) => card.id);
   const totalCards = allCardIds.length;
-  const totalMastered = allCardIds.filter((id) => cardStatuses[id] === 'mastered').length;
-  const percentage = totalCards > 0 ? Math.round((totalMastered / totalCards) * 100) : 0;
+  const totalRemembered = allCardIds.filter((id) =>
+    isRemembered(resolveCardStatus(id, cardStatuses))
+  ).length;
+  const percentage = totalCards > 0 ? Math.round((totalRemembered / totalCards) * 100) : 0;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -124,7 +127,7 @@ export function Home() {
           </div>
           <Progress value={percentage} size="md" />
           <p className="text-sm text-[#afafaf] font-bold mt-2">
-            已掌握 {totalMastered} / {totalCards} 张卡片
+            已记住 {totalRemembered} / {totalCards} 张卡片
           </p>
         </motion.div>
 

@@ -10,37 +10,32 @@ import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 import { Button } from '@/components/ui';
 import { Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
+import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
 import MDEditor from '@uiw/react-md-editor';
 
 export function CoreChapter() {
   const { chapterId } = useParams<{ chapterId: string }>();
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showIndexPicker, setShowIndexPicker] = useState(false);
-  const indexPickerRef = useRef<HTMLDivElement>(null);
+  const enteredChapterRef = useRef<string | null>(null);
   const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
   const hydrated = useCardStoreHydrated();
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (indexPickerRef.current && !indexPickerRef.current.contains(event.target as Node)) {
-        setShowIndexPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     if (!hydrated || !chapterId) return;
     const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
     const mergedCards = getMergedCards('core', chapterId, chapterCards);
     setCards(mergedCards);
-    const savedIndex = getCardProgress('core', chapterId);
-    setCurrentIndex(Math.min(savedIndex, Math.max(mergedCards.length - 1, 0)));
-  }, [chapterId, hydrated, getMergedCards, getCardProgress]);
+
+    if (enteredChapterRef.current !== chapterId) {
+      enteredChapterRef.current = chapterId;
+      const { cardStatuses } = useCardStore.getState();
+      const initialIndex = findFirstUnrememberedIndex(mergedCards, cardStatuses);
+      setCurrentIndex(Math.min(initialIndex, Math.max(mergedCards.length - 1, 0)));
+    }
+  }, [chapterId, hydrated, getMergedCards]);
 
   useEffect(() => {
     if (cards.length > 0 && chapterId) {
@@ -62,7 +57,6 @@ export function CoreChapter() {
   const handleJumpTo = (idx: number) => {
     if (idx >= 0 && idx < cards.length) {
       setCurrentIndex(idx);
-      setShowIndexPicker(false);
     }
   };
 
@@ -102,12 +96,6 @@ export function CoreChapter() {
         backPath="/core"
         chapterTitle={chapterTitle}
         category={currentCard.category}
-        currentIndex={currentIndex}
-        totalCards={cards.length}
-        showIndexPicker={showIndexPicker}
-        setShowIndexPicker={setShowIndexPicker}
-        indexPickerRef={indexPickerRef}
-        onJumpTo={handleJumpTo}
         onPrev={() => currentIndex > 0 && setCurrentIndex((p) => p - 1)}
         onNext={() => currentIndex < cards.length - 1 && setCurrentIndex((p) => p + 1)}
         canPrev={currentIndex > 0}
@@ -130,6 +118,8 @@ export function CoreChapter() {
             onStatusChange={handleStatusChange}
             currentIndex={currentIndex}
             totalCards={cards.length}
+            onJumpTo={handleJumpTo}
+            chapterCards={cards}
             showEdit
           />
         </motion.div>

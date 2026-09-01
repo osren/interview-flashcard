@@ -1,6 +1,7 @@
 import type { CardStatus, FlashCard } from '@/types';
 import type { CheckInDateKey } from '@/types/streak';
 import { mergeCheckInDates } from '@/utils/streak';
+import { migrateCardStatusRecord, normalizeCardStatus } from '@/utils/cardStatus';
 import { useCardStore } from '@/store/useCardStore';
 import { useStreakStore } from '@/store/useStreakStore';
 import { supabase } from '@/lib/supabase/client';
@@ -31,9 +32,8 @@ const EMPTY_PAYLOAD: LearningSyncPayload = {
 
 const STATUS_PRIORITY: Record<CardStatus, number> = {
   unvisited: 0,
-  forgotten: 1,
-  fuzzy: 2,
-  mastered: 3,
+  review: 1,
+  remembered: 2,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -41,7 +41,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function mergeCardStatus(a: CardStatus, b: CardStatus): CardStatus {
-  return STATUS_PRIORITY[a] >= STATUS_PRIORITY[b] ? a : b;
+  const normalizedA = normalizeCardStatus(a);
+  const normalizedB = normalizeCardStatus(b);
+  return STATUS_PRIORITY[normalizedA] >= STATUS_PRIORITY[normalizedB] ? normalizedA : normalizedB;
 }
 
 function mergeFlashCardsById(local: FlashCard[], remote: FlashCard[]): FlashCard[] {
@@ -66,9 +68,11 @@ function normalizePayload(raw: unknown): LearningSyncPayload {
   if (!isRecord(raw)) return { ...EMPTY_PAYLOAD };
 
   return {
-    cardStatuses: isRecord(raw.cardStatuses)
-      ? (raw.cardStatuses as Record<string, CardStatus>)
-      : {},
+    cardStatuses: migrateCardStatusRecord(
+      isRecord(raw.cardStatuses)
+        ? (raw.cardStatuses as Record<string, CardStatus>)
+        : undefined
+    ),
     cardProgress: isRecord(raw.cardProgress)
       ? Object.fromEntries(
           Object.entries(raw.cardProgress).filter(([, v]) => typeof v === 'number')

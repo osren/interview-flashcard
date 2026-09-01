@@ -6,26 +6,29 @@ import { Edit, Save, X, Heart, HelpCircle, Sparkles, MessageCircleQuestion } fro
 import MDEditor from '@uiw/react-md-editor';
 import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
+import { resolveCardStatus } from '@/utils/cardStatus';
 import { useAuth, LoginModal } from '@/components/Auth';
 import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
 import { AnswerImageViewer } from '@/components/Card/AnswerImageViewer';
+import { CardIndexPicker } from '@/components/Card/CardIndexPicker';
 
 interface FlashCardProps {
   card: FlashCardType;
   onStatusChange: (status: CardStatus) => void;
   currentIndex?: number;
   totalCards?: number;
+  onJumpTo?: (index: number) => void;
+  chapterCards?: Array<{ id: string; status?: CardStatus }>;
   showEdit?: boolean;
 }
 
 const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'primary' | 'success' | 'warning' | 'danger' }> = {
   unvisited: { label: '未开始', variant: 'default' },
-  forgotten: { label: '忘记', variant: 'danger' },
-  fuzzy: { label: '模糊', variant: 'warning' },
-  mastered: { label: '掌握', variant: 'success' },
+  review: { label: '再背背', variant: 'warning' },
+  remembered: { label: '记住了', variant: 'success' },
 };
 
-export function FlashCard({ card, onStatusChange, currentIndex, totalCards, showEdit = false }: FlashCardProps) {
+export function FlashCard({ card, onStatusChange, currentIndex, totalCards, onJumpTo, chapterCards, showEdit = false }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(card.answer);
@@ -35,9 +38,9 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
   const { user } = useAuth();
 
   const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
-  const savedStatus = useCardStore((state) => state.cardStatuses[card.id]);
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
   const displayCard = getCardWithModifications(card);
-  const currentStatus = savedStatus ?? displayCard.status;
+  const currentStatus = resolveCardStatus(card.id, cardStatuses, displayCard.status);
   const hasModification = !!modifiedCards[card.id];
 
   useEffect(() => {
@@ -87,6 +90,37 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
 
   return (
     <div className="w-full max-w-4xl mx-auto min-w-0">
+      {/* 状态按钮 */}
+      <div className="flex justify-center gap-3 mb-4">
+        {([
+          { status: 'remembered' as CardStatus, emoji: '✅', label: '记住了', cls: 'bg-[#58CC02] text-white border-b-[#46A302]' },
+          { status: 'review' as CardStatus, emoji: '📖', label: '再背背', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
+        ]).map((btn) => (
+          <button
+            key={btn.status}
+            onClick={() => onStatusChange(btn.status)}
+            className={cn(
+              'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
+              'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
+              btn.cls,
+              currentStatus === btn.status && 'ring-2 ring-offset-2 ring-[#3c3c3c]'
+            )}
+          >
+            <span>{btn.emoji}</span>
+            <span>{btn.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {onJumpTo && currentIndex !== undefined && totalCards !== undefined && (
+        <CardIndexPicker
+          currentIndex={currentIndex}
+          totalCards={totalCards}
+          onJumpTo={onJumpTo}
+          cards={chapterCards}
+        />
+      )}
+
       <div
         className="relative cursor-pointer w-full h-[clamp(420px,calc(100dvh-11rem),640px)] lg:h-[clamp(480px,calc(100dvh-10rem),720px)]"
         style={{ perspective: '1000px' }}
@@ -108,9 +142,6 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5]">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
-                {currentIndex !== undefined && totalCards !== undefined && (
-                  <Badge variant="outline">{currentIndex + 1} / {totalCards}</Badge>
-                )}
                 {hasModification && <Badge variant="warning" className="text-xs">已修改</Badge>}
               </div>
               <div className="flex items-center gap-2">
@@ -253,29 +284,6 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             </div>
           </div>
         </motion.div>
-      </div>
-
-      {/* 状态按钮 */}
-      <div className="flex justify-center gap-3 mt-4">
-        {([
-          { status: 'forgotten' as CardStatus, emoji: '😵', label: '忘记', cls: 'bg-[#FF4B4B] text-white border-b-[#EA2B2B]' },
-          { status: 'fuzzy' as CardStatus, emoji: '🤔', label: '模糊', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
-          { status: 'mastered' as CardStatus, emoji: '✅', label: '掌握', cls: 'bg-[#58CC02] text-white border-b-[#46A302]' },
-        ]).map((btn) => (
-          <button
-            key={btn.status}
-            onClick={() => onStatusChange(btn.status)}
-            className={cn(
-              'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
-              'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
-              btn.cls,
-              currentStatus === btn.status && 'ring-2 ring-offset-2 ring-[#3c3c3c]'
-            )}
-          >
-            <span>{btn.emoji}</span>
-            <span>{btn.label}</span>
-          </button>
-        ))}
       </div>
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />

@@ -11,7 +11,7 @@ interface ChapterCardProps {
   description?: string;
   icon?: ReactNode;
   cardCount?: number;
-  masteredCount?: number;
+  rememberedCount?: number;
   progress?: number;
   badges?: ReactNode;
   index?: number;
@@ -26,14 +26,14 @@ export function ChapterCard({
   description,
   icon,
   cardCount,
-  masteredCount,
+  rememberedCount,
   progress,
   badges,
   index = 0,
   actionLabel = '开始',
 }: ChapterCardProps) {
-  const percentage = progress ?? (cardCount && masteredCount !== undefined
-    ? Math.round((masteredCount / cardCount) * 100)
+  const percentage = progress ?? (cardCount && rememberedCount !== undefined
+    ? Math.round((rememberedCount / cardCount) * 100)
     : 0);
   const iconColor = ICON_COLORS[index % ICON_COLORS.length];
 
@@ -69,9 +69,9 @@ export function ChapterCard({
                     {cardCount !== undefined && (
                       <Badge variant="blue">{cardCount} 张卡片</Badge>
                     )}
-                    {masteredCount !== undefined && (
+                    {rememberedCount !== undefined && (
                       <Badge variant={percentage >= 80 ? 'success' : percentage >= 50 ? 'warning' : 'default'}>
-                        已掌握 {masteredCount} 张
+                        已记住 {rememberedCount} 张
                       </Badge>
                     )}
                     {badges}
@@ -82,7 +82,7 @@ export function ChapterCard({
                 {actionLabel} →
               </span>
             </div>
-            {(progress !== undefined || (cardCount && masteredCount !== undefined)) && (
+            {(progress !== undefined || (cardCount && rememberedCount !== undefined)) && (
               <div className="mt-4">
                 <Progress value={percentage} size="sm" />
               </div>

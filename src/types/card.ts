@@ -1,5 +1,5 @@
 // 卡片状态
-export type CardStatus = 'unvisited' | 'forgotten' | 'fuzzy' | 'mastered';
+export type CardStatus = 'unvisited' | 'remembered' | 'review';
 
 // 难度等级
 export type Difficulty = 'easy' | 'medium' | 'hard';

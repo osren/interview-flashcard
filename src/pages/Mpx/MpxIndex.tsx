@@ -2,6 +2,7 @@ import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
 import { PageShell, SectionHeader, ChapterCard } from '@/components/ui';
 import { Rocket } from 'lucide-react';
 import { useCardStore } from '@/store';
+import { isRemembered, resolveCardStatus } from '@/utils/cardStatus';
 
 export function MpxIndex() {
   const cardStatuses = useCardStore((state) => state.cardStatuses);
@@ -21,7 +22,9 @@ export function MpxIndex() {
             ...mpxCards.filter((card) => card.chapterId === chapter.id),
             ...customCards.filter((card) => card.module === 'mpx' && card.chapterId === chapter.id),
           ];
-          const mastered = chapterCards.filter((card) => cardStatuses[card.id] === 'mastered').length;
+          const remembered = chapterCards.filter((card) =>
+            isRemembered(resolveCardStatus(card.id, cardStatuses, card.status))
+          ).length;
           return (
             <ChapterCard
               key={chapter.id}
@@ -30,7 +33,7 @@ export function MpxIndex() {
               description={chapter.description}
               icon={<span>{chapter.icon ?? ['🚀', '🏗️', '📘', '📗'][index] ?? '🚀'}</span>}
               cardCount={chapterCards.length}
-              masteredCount={mastered}
+              rememberedCount={remembered}
               index={index}
             />
           );

@@ -7,7 +7,7 @@ import { useCardStore } from '@/store';
 import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, ArrowLeft, Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import { CardStatus, FlashCard, ModuleType } from '@/types';
-import MDEditor from '@uiw/react-md-editor';
+import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
 
 interface EditingCard {
   id?: string;
@@ -200,6 +200,8 @@ export function CustomCardsPage() {
               onStatusChange={handleStatusChange}
               currentIndex={currentIndex}
               totalCards={cards.length}
+              onJumpTo={setCurrentIndex}
+              chapterCards={cards}
               showEdit={true}
             />
           </motion.div>
@@ -227,6 +229,8 @@ export function CustomCardsPage() {
               onStatusChange={handleStatusChange}
               currentIndex={currentIndex}
               totalCards={cards.length}
+              onJumpTo={setCurrentIndex}
+              chapterCards={cards}
               showEdit={true}
             />
           </motion.div>
@@ -308,7 +312,10 @@ export function CustomCardsPage() {
         {/* 开始练习按钮 */}
         {!isEditing && customCards.length > 0 && (
           <button
-            onClick={() => setPracticeMode(true)}
+            onClick={() => {
+              setCurrentIndex(findFirstUnrememberedIndex(cards, cardStatuses));
+              setPracticeMode(true);
+            }}
             className="w-full mt-4 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-md"
           >
             <span className="text-lg font-medium">开始练习</span>
