@@ -16,12 +16,14 @@ import { GithubTrending } from '@/pages/AI/GithubTrending';
 import { LLMHandbookPage } from '@/pages/LLMHandbook';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
+import { LearningSyncProvider } from '@/hooks/useLearningSync';
 import { Button } from '@/components/ui';
 
 function App() {
   return (
     <ThemeProvider>
       <CampusJobSyncProvider>
+        <LearningSyncProvider>
         <AppShell>
         <FloatingResumeButton />
         <Routes>
@@ -70,6 +72,7 @@ function App() {
         </Routes>
         <Footer />
       </AppShell>
+        </LearningSyncProvider>
       </CampusJobSyncProvider>
     </ThemeProvider>
   );

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CardStatus, FlashCard } from '@/types';
 import { migratePersistedCardStatuses } from './migrateCardStatuses';
+import { recordLearningCheckIn } from './useStreakStore';
 
 interface CardState {
   // 当前卡片状态
@@ -59,6 +60,14 @@ interface CardState {
   favorites: FlashCard[];
   toggleFavorite: (card: FlashCard) => void;
   isFavorited: (cardId: string) => boolean;
+
+  importSyncedState: (payload: {
+    cardStatuses: Record<string, CardStatus>;
+    cardProgress: Record<string, number>;
+    customCards: FlashCard[];
+    modifiedCards: Record<string, Partial<FlashCard>>;
+    favorites: FlashCard[];
+  }) => void;
 }
 
 export const useCardStore = create<CardState>()(
@@ -107,15 +116,20 @@ export const useCardStore = create<CardState>()(
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 
-      updateCardStatus: (cardId, status) => set((state) => ({
-        cardStatuses: { ...state.cardStatuses, [cardId]: status },
-        cards: state.cards.map((card) =>
-          card.id === cardId ? { ...card, status } : card
-        ),
-        customCards: state.customCards.map((card) =>
-          card.id === cardId ? { ...card, status } : card
-        ),
-      })),
+      updateCardStatus: (cardId, status) => {
+        if (status !== 'unvisited') {
+          recordLearningCheckIn();
+        }
+        set((state) => ({
+          cardStatuses: { ...state.cardStatuses, [cardId]: status },
+          cards: state.cards.map((card) =>
+            card.id === cardId ? { ...card, status } : card
+          ),
+          customCards: state.customCards.map((card) =>
+            card.id === cardId ? { ...card, status } : card
+          ),
+        }));
+      },
 
       getProgress: () => {
         const { cards, cardStatuses } = get();
@@ -199,6 +213,19 @@ export const useCardStore = create<CardState>()(
       isFavorited: (cardId) => {
         return get().favorites.some((f) => f.id === cardId);
       },
+
+      importSyncedState: (payload) =>
+        set((state) => ({
+          cardStatuses: migratePersistedCardStatuses({
+            cardStatuses: payload.cardStatuses,
+            cards: state.cards,
+            customCards: payload.customCards,
+          }),
+          cardProgress: payload.cardProgress,
+          customCards: payload.customCards,
+          modifiedCards: payload.modifiedCards,
+          favorites: payload.favorites,
+        })),
     }),
     {
       name: 'card-storage',

@@ -2,10 +2,12 @@ import { useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
 import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
+import { handbookGroups, handbookItems } from '@/data/llm-handbook';
 import { motion } from 'framer-motion';
 import { Progress, ModuleTile } from '@/components/ui';
+import { StreakCalendar } from '@/components/Streak';
 import { Logo } from '@/components/Layout/Logo';
-import { BookOpen, Rocket, Briefcase, Sparkles, FileJson } from 'lucide-react';
+import { BookOpen, Rocket, Briefcase, Bot, Sparkles, FileJson } from 'lucide-react';
 
 const modules = [
   {
@@ -31,6 +33,15 @@ const modules = [
     description: '滴滴实习 + AI 监控降噪 + GResume 项目深度复盘',
     cardCount: projectCards.length,
     chapters: projectChapters.length,
+  },
+  {
+    path: '/llm-handbook',
+    icon: <Bot size={28} strokeWidth={2.5} />,
+    title: '大模型开发手册',
+    description: 'RAG / Agent / LangChain 等飞书资源导航，一键复制密码',
+    isHandbook: true,
+    handbookCount: handbookItems.length,
+    groupCount: handbookGroups.length,
   },
   {
     path: '/custom',
@@ -93,17 +104,19 @@ export function Home() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="text-lg sm:text-xl text-[#777777] font-semibold max-w-md mx-auto mb-8"
+          className="text-lg sm:text-xl text-[#777777] font-semibold max-w-md mx-auto mb-6"
         >
           翻转卡片，追踪进度，每天进步一点点
         </motion.p>
+      </section>
 
-        {/* 进度卡片 */}
+      {/* 学习进度 + 打卡日历 */}
+      <div className="grid md:grid-cols-2 gap-4 mb-10 items-stretch">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="surface-panel p-6 max-w-sm mx-auto text-left"
+          className="surface-panel p-5 text-left h-full flex flex-col justify-center"
         >
           <div className="flex justify-between items-center mb-3">
             <span className="text-base font-extrabold text-[#3c3c3c]">学习进度</span>
@@ -114,7 +127,9 @@ export function Home() {
             已掌握 {totalMastered} / {totalCards} 张卡片
           </p>
         </motion.div>
-      </section>
+
+        <StreakCalendar />
+      </div>
 
       {/* 学习路径 - 多邻国单元卡片 */}
       <section className="mb-10">
@@ -132,13 +147,16 @@ export function Home() {
               index={index}
               actionLabel={
                 module.isCustom ? '管理卡片' :
-                module.isDemo ? '查看演示' : '开始学习'
+                module.isDemo ? '查看演示' :
+                module.isHandbook ? '查看手册' : '开始学习'
               }
               stats={
                 module.isCustom ? (
                   <span>{customCards.length} 张自定义卡片</span>
                 ) : module.isDemo ? (
                   <span>交互式 Demo</span>
+                ) : module.isHandbook ? (
+                  <span>{module.groupCount} 分类 · {module.handbookCount} 篇手册</span>
                 ) : (
                   <span>{module.chapters} 章节 · {module.cardCount} 张卡片</span>
                 )
