@@ -4,7 +4,6 @@ import { Favorites } from '@/pages/Favorites';
 import { Home } from '@/pages/Home';
 import { CoreIndex, CoreChapter } from '@/pages/Core';
 import { ProjectsIndex, ProjectDetail } from '@/pages/Projects';
-import { AlgorithmsIndex, AlgorithmDetail } from '@/pages/Algorithms';
 import { MpxIndex, MpxChapter } from '@/pages/Mpx';
 import { CustomCardsPage } from '@/pages/Custom';
 import { ResumePage } from '@/pages/Resume/ResumePage';
@@ -33,9 +32,6 @@ function App() {
 
           <Route path="/projects" element={<ProjectsIndex />} />
           <Route path="/projects/:projectId" element={<ProjectDetail />} />
-
-          <Route path="/algorithms" element={<AlgorithmsIndex />} />
-          <Route path="/algorithms/:type" element={<AlgorithmDetail />} />
 
           <Route path="/mpx" element={<MpxIndex />} />
           <Route path="/mpx/:chapterId" element={<MpxChapter />} />

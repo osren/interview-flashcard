@@ -51,15 +51,6 @@ const moduleOptions: { module: ModuleType; label: string; chapters: { id: string
       { id: 'gresume', label: 'GResume 智能简历' },
     ],
   },
-  {
-    module: 'algorithms',
-    label: '刷题模块',
-    chapters: [
-      { id: 'coding', label: '手撕代码' },
-      { id: 'concept', label: '概念解释' },
-      { id: 'scenario', label: '场景设计' },
-    ],
-  },
 ];
 
 export function CustomCardsPage() {

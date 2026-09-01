@@ -14,7 +14,6 @@ const navItems = [
   { path: '/core', label: '核心考点' },
   { path: '/mpx', label: 'MPX' },
   { path: '/projects', label: '项目复盘' },
-  { path: '/algorithms', label: '刷题' },
   { path: '/ai', label: 'AI资讯', icon: Sparkles },
   { path: '/resume', label: '简历', icon: FileText },
   { path: '/campus', label: '秋招投递', icon: Send },

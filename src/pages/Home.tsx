@@ -1,12 +1,11 @@
 import { useCardStore } from '@/store';
 import { coreCards } from '@/data/core';
 import { projectChapters, projectCards } from '@/data/projects';
-import { algorithmChapters, algorithmCards } from '@/data/algorithms';
 import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
 import { motion } from 'framer-motion';
 import { Progress, ModuleTile } from '@/components/ui';
 import { Logo } from '@/components/Layout/Logo';
-import { BookOpen, Rocket, Briefcase, Code2, Sparkles, FileJson } from 'lucide-react';
+import { BookOpen, Rocket, Briefcase, Sparkles, FileJson } from 'lucide-react';
 
 const modules = [
   {
@@ -32,14 +31,6 @@ const modules = [
     description: '滴滴实习 + AI 监控降噪 + GResume 项目深度复盘',
     cardCount: projectCards.length,
     chapters: projectChapters.length,
-  },
-  {
-    path: '/algorithms',
-    icon: <Code2 size={28} strokeWidth={2.5} />,
-    title: '刷题模块',
-    description: '手撕代码 / 概念解释 / 场景设计',
-    cardCount: algorithmCards.length,
-    chapters: algorithmChapters.length,
   },
   {
     path: '/custom',
@@ -70,7 +61,6 @@ export function Home() {
   const allCardIds = [
     ...coreCards,
     ...projectCards,
-    ...algorithmCards,
     ...mpxCards,
     ...customCards,
   ].map((card) => card.id);
