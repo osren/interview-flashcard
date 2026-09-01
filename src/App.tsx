@@ -18,6 +18,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { LearningSyncProvider } from '@/hooks/useLearningSync';
 import { Button } from '@/components/ui';
+import { CardImagePreview } from '@/pages/Preview/CardImagePreview';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
           <Route path="/ai/:projectId" element={<AIDetail />} />
 
           <Route path="/rjsf" element={<RJSFDemo />} />
+          <Route path="/preview/card-image" element={<CardImagePreview />} />
 
           <Route
             path="*"

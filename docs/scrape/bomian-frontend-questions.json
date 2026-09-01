@@ -1,0 +1,1470 @@
+{
+  "scrapedAt": "2026-09-01T09:03:08.708Z",
+  "source": "https://www.bomianfm.com/web/category/前端",
+  "parentCategoryId": 33,
+  "totalCategories": 10,
+  "totalQuestions": 200,
+  "withImage": 200,
+  "data": [
+    {
+      "tab": "JavaScript",
+      "categoryId": 34,
+      "questions": [
+        {
+          "id": 203,
+          "title": "JavaScript中null 和 undefined 的区别",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/203_1777607877656.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 202,
+          "title": "JavaScript 中 var、let、const 详解",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/202_1777608102352.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 201,
+          "title": "JavaScript中call, apply, bind 的作用和区别",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/201_1777608319855.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 200,
+          "title": "JavaScript 的作用域（Scope）和作用域链（Scope Chain）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/200_1777608539152.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 199,
+          "title": "JavaScript中new操作符在创建一个实例时做了哪些事情？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/199_1777608759176.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 198,
+          "title": "JavaScript中的this关键字",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/198_1777608998621.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 197,
+          "title": "JavaScript事件循环机制",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/197_1777609224943.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 196,
+          "title": "JavaScript异步编程",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/196_1777609448585.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 195,
+          "title": "跨域是什么，如何解决？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/195_1777876692139.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1024,
+          "title": "ES6 模块（import/export）和 CommonJS（require/module.exports）的区别",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1024_1777610059762.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1023,
+          "title": "扩展运算符（Spread ...）和剩余参数（Rest ...）的区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1023_1777610279383.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1022,
+          "title": "JavaScript 的回调地狱（Callback Hell）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1022_1777610509288.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1021,
+          "title": "JavaScript async/await 的底层实现原理",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1021_1777610739140.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1020,
+          "title": "Promise.all、Promise.race 和 Promise.allSettled 的区别",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1020_1777610977889.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1019,
+          "title": "JavaScript 中的宏任务（Macrotask）和微任务（Microtask）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1019_1777611195434.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1018,
+          "title": "JavaScript 浏览器的事件循环（Event Loop）机制",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1018_1777611415515.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1017,
+          "title": "instanceof 操作符的运行原理是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1017_1777611546043.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1016,
+          "title": "Object.create(null) 和 new Object() 创建的对象有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1016_1777611762458.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1015,
+          "title": "JavaScript 中的原型（Prototype）和原型链（Prototype Chain）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1015_1777612166943.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1014,
+          "title": "什么是函数柯里化（Currying）？它有什么实际作用？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1014_1777612394913.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1013,
+          "title": "JavaScript 中的执行上下文（Execution Context）和作用域链（Scope Chain）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1013_1777612621054.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        },
+        {
+          "id": 1012,
+          "title": "什么是变量提升（Hoisting）和函数提升？两者的优先级是怎样的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/1012_1777612849692.png?eo-img.format=webp",
+          "categoryId": 34,
+          "categoryName": "JavaScript"
+        }
+      ]
+    },
+    {
+      "tab": "HTML",
+      "categoryId": 52,
+      "questions": [
+        {
+          "id": 424,
+          "title": "浏览器同一个域名下通常限制多少个并发请求？这对 HTML 资源加载有什么影响？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/424_1777613107204.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 423,
+          "title": "什么是渐进式渲染（Progressive Rendering）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/423_1777613337619.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 422,
+          "title": "<h1> 到 <h6> 标签在 SEO 中的重要性？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/422_1777613570241.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 421,
+          "title": "<iframe> 标签有哪些优缺点？什么是 sandbox 属性？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/421_1777613805275.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 420,
+          "title": "什么是 HTML5 的拖放 API（Drag and Drop）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/420_1777614051366.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 419,
+          "title": "什么是 WebSocket？它和 HTTP 协议的区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/419_1777614285077.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 418,
+          "title": "什么是 Web Worker？它主要解决什么问题？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/418_1777614513468.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 417,
+          "title": "Cookie、LocalStorage 和 SessionStorage 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/417_1777614732302.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 416,
+          "title": "HTML5 新增了哪些表单属性？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/416_1777614861369.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 415,
+          "title": "HTML5 新增了哪些 Input 类型？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/415_1777615075387.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 414,
+          "title": "浏览器是如何解析 HTML 的？（DOM 树构建过程）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/414_1777615293008.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 413,
+          "title": "title 属性和 alt 属性的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/413_1777615509861.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 412,
+          "title": "<meta> 标签有哪些常见用法？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/412_1777615717977.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 411,
+          "title": "<div> 和 <span> 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/411_1777615949210.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 410,
+          "title": "HTML、XHTML 和 HTML5 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/410_1777616165909.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 409,
+          "title": "常见的块级元素（Block）、行内元素（Inline）和行内块元素（Inline-block）有哪些？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/409_1777616380445.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 408,
+          "title": "HTML 中的标准模式（Standard Mode）和怪异模式（Quirks Mode）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/408_1777616518354.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        },
+        {
+          "id": 407,
+          "title": "<!DOCTYPE html> 的作用是什么？如果不写会发生什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/407_1777616722792.png?eo-img.format=webp",
+          "categoryId": 52,
+          "categoryName": "HTML"
+        }
+      ]
+    },
+    {
+      "tab": "CSS",
+      "categoryId": 53,
+      "questions": [
+        {
+          "id": 431,
+          "title": "transition（过渡）和 animation（动画）的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/431_1777616938751.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        },
+        {
+          "id": 430,
+          "title": "移动端 1px 边框问题（Retina 屏）是如何产生的？常见的解决方案有哪些？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/430_1777617169307.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        },
+        {
+          "id": 429,
+          "title": "移动端开发中，px、em、rem、vw/vh 的区别和适用场景？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/429_1777617312993.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        },
+        {
+          "id": 428,
+          "title": "flex-grow 和 flex-shrink 的计算规则是怎样的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/428_1777617555450.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        },
+        {
+          "id": 427,
+          "title": "伪类（Pseudo-classes）和伪元素（Pseudo-elements）的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/427_1777617777641.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        },
+        {
+          "id": 426,
+          "title": "CSS 选择器的优先级（Specificity）是如何计算的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/426_1777617996040.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        },
+        {
+          "id": 425,
+          "title": "box-sizing 属性的 content-box 和 border-box 分别代表什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/425_1777618215128.png?eo-img.format=webp",
+          "categoryId": 53,
+          "categoryName": "CSS"
+        }
+      ]
+    },
+    {
+      "tab": "Vue",
+      "categoryId": 54,
+      "questions": [
+        {
+          "id": 445,
+          "title": "v-model 的实现原理?",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/445_1777618439054.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 444,
+          "title": "Vue兄弟组件之间如何通信？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/444_1777618668623.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 443,
+          "title": "Vue父子组件通信有哪些实现方式？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/443_1777618876847.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 442,
+          "title": "Vue 中如何获取 DOM？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/442_1777619097279.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 441,
+          "title": "Vue 中 ref 的作用是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/441_1777619353213.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 440,
+          "title": "Vue中computed 和 watch 的区别及使用场景",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/440_1777619609159.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 439,
+          "title": "v-if 和 v-show 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/439_1777619859384.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 438,
+          "title": "Vue 是如何实现 MVVM 的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/438_1777620085055.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 437,
+          "title": "Vue 3 相比 Vue 2 有哪些主要改进？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/437_1777620329187.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 436,
+          "title": "Vue 3.0 的响应式原理",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/436_1777620579368.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 435,
+          "title": "Vue 组件间通信有哪些方式？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/435_1777620796939.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 452,
+          "title": "watch 和 watchEffect 的区别是什么",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/452_1777876981289.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 451,
+          "title": "ref 和 reactive 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/451_1777621065532.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 450,
+          "title": "Vue为什么要引入 Composition API？与 Options API 相比有什么优势？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/450_1777621298574.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 449,
+          "title": "Vuex 有哪几个核心属性？（State, Getter, Mutation, Action, Module）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/449_1777621522263.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 448,
+          "title": "Vue如何实现路由懒加载（Lazy Loading）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/448_1777621739267.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 447,
+          "title": "Vue Router 有哪几种模式？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/447_1777621948935.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        },
+        {
+          "id": 446,
+          "title": "Vue 的生命周期各个阶段",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/446_1777877229621.png?eo-img.format=webp",
+          "categoryId": 54,
+          "categoryName": "Vue"
+        }
+      ]
+    },
+    {
+      "tab": "Next.js",
+      "categoryId": 83,
+      "questions": [
+        {
+          "id": 947,
+          "title": "Next.js 中客户端渲染 (CSR)、服务端渲染 (SSR) 和 静态站点生成 (SSG) 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/947_1777622547939.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 946,
+          "title": "什么是水合 (Hydration)？在 Next.js 中它是如何工作的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/946_1777622861667.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 945,
+          "title": "Next.js 的核心特性有哪些？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/945_1777623097800.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 944,
+          "title": "Next.js 相比于纯 React（Create React App 或 Vite）主要解决了什么问题？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/944_1777877513476.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 960,
+          "title": "如何分析 Next.js 应用的打包体积？（Bundle Analysis）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/960_1777623705419.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 959,
+          "title": "如何在 Next.js 中使用静态资源（图片、字体等）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/959_1777623931664.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 958,
+          "title": "Next.js 内置支持哪些 CSS 方案？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/958_1777624134680.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 957,
+          "title": "Next.js 的 <Link> 组件和普通的 <a> 标签有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/957_1777624343129.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 956,
+          "title": "Server Actions是如何简化表单提交和数据突变 (Mutation)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/956_1777624565230.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 955,
+          "title": "在 Next.js 中如何处理跨域 (CORS) 问题？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/955_1777624791201.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 954,
+          "title": "如何在 Pages Router 的 API Routes (pages/api) 中处理 HTTP 请求？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/954_1777625011398.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 953,
+          "title": "如何在 App Router 中通过 fetch 配置缓存策略（如 force-cache, no-store）来实现 SSG 或 SSR？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/953_1777625242722.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 952,
+          "title": "App Router 中的 generateStaticParams 的作用",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/952_1777625480833.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 951,
+          "title": "Next.js的Intercepting Routes（拦截路由）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/951_1777625703042.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 950,
+          "title": "Next.js的Parallel Routes（并行路由）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/950_1777625919164.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 949,
+          "title": "App Router 中的 layout.js、page.js 和 template.js 的区别",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/949_1777626143479.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        },
+        {
+          "id": 948,
+          "title": "Next.js 13/14 引入的 app 目录 (App Router) 和 pages 目录 (Pages Router) 有什么本质区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/948_1777626377982.png?eo-img.format=webp",
+          "categoryId": 83,
+          "categoryName": "Next.js"
+        }
+      ]
+    },
+    {
+      "tab": "React",
+      "categoryId": 67,
+      "questions": [
+        {
+          "id": 703,
+          "title": "React.lazy 和 Suspense 的用法",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/703_1777626594468.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 702,
+          "title": "如何定位 React 应用中的性能瓶颈？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/702_1777626828386.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 701,
+          "title": "React如何防止不必要的组件重渲染 (Re-render)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/701_1777627050192.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 700,
+          "title": "React 的调和算法 (Reconciliation) 是如何工作的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/700_1777627285112.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 699,
+          "title": "解释 Redux 的工作流",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/699_1777627503482.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 698,
+          "title": "什么是 Context API？它解决了什么问题？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/698_1777627724162.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 697,
+          "title": "React 中组件间通信有哪些方式？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/697_1777627952952.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 696,
+          "title": "useEffect 和 useLayoutEffect 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/696_1777628184753.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 695,
+          "title": "useState 和 useReducer 分别在什么场景下使用？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/695_1777628424161.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 694,
+          "title": "常用的 React Hooks 及其作用",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/694_1777628649438.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 693,
+          "title": "React Hooks 解决了类组件的哪些痛点？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/693_1777628873801.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 689,
+          "title": "什么是受控组件 (Controlled) 和非受控组件 (Uncontrolled)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/689_1777629088449.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 963,
+          "title": "如何在 React 中进行单元测试？（Jest + React Testing Library）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/963_1777629442929.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 962,
+          "title": "React 中，useRef 和forwardRef是什么",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/962_1777629657773.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 961,
+          "title": "React 中，forwardRef 和useImperativeHandle的作用与区别",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/961_1777629872007.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 708,
+          "title": "ReReact 服务器组件 (Server Components, RSC)与客户端组件的区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/708_1777630091978.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 707,
+          "title": "React 18 中的并发模式 (Concurrent Mode) 是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/707_1777630319648.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 706,
+          "title": "useTransition Hook 的作用及使用场景",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/706_1777630549924.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 705,
+          "title": "useDeferredValue Hook 的作用",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/705_1777630791655.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 704,
+          "title": "合成事件 (SyntheticEvent)与原生 DOM 事件的区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/704_1777631008891.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 692,
+          "title": "React类组件的生命周期方法有哪些？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/692_1777631225744.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 691,
+          "title": "React 中，为什么 State 是不可变的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/691_1777631415568.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 690,
+          "title": "在 React 中，什么是“单向数据流”？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/690_1777631627550.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 688,
+          "title": "为什么在 JSX 中不能直接使用 if-else 或 for 循环？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/688_1777877784117.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        },
+        {
+          "id": 687,
+          "title": "React 中的 Element 和 Component 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/687_1777878064937.png?eo-img.format=webp",
+          "categoryId": 67,
+          "categoryName": "React"
+        }
+      ]
+    },
+    {
+      "tab": "TypeScript",
+      "categoryId": 78,
+      "questions": [
+        {
+          "id": 878,
+          "title": "如何在 TypeScript 中使用类型断言 (Type Assertion)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/878_1777632154238.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 877,
+          "title": "联合类型 (Union Types) 和交叉类型 (Intersection Types)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/877_1777632381407.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 876,
+          "title": "null 和 undefined 在 TypeScript 中是如何处理的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/876_1777632603828.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 875,
+          "title": "Typescript的类型推断 (Type Inference)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/05/875_1777954138794.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 874,
+          "title": "any、unknown、never 和 void 之间有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/874_1777633061593.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 873,
+          "title": "TypeScript 中的基本数据类型有哪些？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/873_1777633274312.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 872,
+          "title": "TypeScript 和 JavaScript 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/872_1777633472466.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 885,
+          "title": "typeof 和 instanceof 在类型守卫中如何使用？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/885_1777633726397.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 884,
+          "title": "TypeScript中的类型守卫 (Type Guards)",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/884_1777633981782.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 883,
+          "title": "内置工具类型的作用：Partial<T>、Required<T> 和 Readonly<T>",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/883_1777634208127.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 882,
+          "title": "typeof 关键字在 TypeScript 类型上下文中的作用",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/882_1777634461776.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 881,
+          "title": "keyof 关键字的作用",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/881_1777634678762.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 880,
+          "title": "readonly 修饰符的作用",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/880_1777634914958.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        },
+        {
+          "id": 879,
+          "title": "TypeScript interface 和 type 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/879_1777635127812.png?eo-img.format=webp",
+          "categoryId": 78,
+          "categoryName": "TypeScript"
+        }
+      ]
+    },
+    {
+      "tab": "浏览器特性",
+      "categoryId": 79,
+      "questions": [
+        {
+          "id": 893,
+          "title": "为什么建议把 CSS 放在 <head> 中，而把 JS 放在 <body> 底部？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/893_1777635348809.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 892,
+          "title": "DOM 树、CSSOM 树和 渲染树 (Render Tree) 的关系是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/892_1777635573207.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 891,
+          "title": "什么是关键渲染路径 (Critical Rendering Path)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/891_1777635805153.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 890,
+          "title": "script 标签的 async 和 defer 属性有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/890_1777636036067.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 889,
+          "title": "为什么 JS 脚本的执行会阻塞页面的渲染？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/889_1777636261247.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 888,
+          "title": "浏览器的渲染进程包含哪些线程？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/888_1777636494953.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 887,
+          "title": "哪些操作会触发回流 (Reflow)？如何减少回流？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/887_1777636759247.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 886,
+          "title": "浏览器的重绘 (Repaint) 和回流 (Reflow/Layout)的区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/886_1777636983898.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 907,
+          "title": "什么是事件冒泡 (Bubbling) 和事件捕获 (Capturing)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/907_1777637184719.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 906,
+          "title": "setTimeout、Promise、async/await 的执行顺序是怎样的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/906_1777637433138.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 905,
+          "title": "宏任务 (MacroTask) 和 微任务 (MicroTask) 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/905_1777637659150.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 904,
+          "title": "IndexedDB 是什么？它适用于什么场景？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/904_1777637919200.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 903,
+          "title": "如何实现多标签页（跨 Tab）之间的通信？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/903_1777638060218.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 902,
+          "title": "什么是浏览器的事件循环 (Event Loop)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/902_1777638282785.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 901,
+          "title": "Cookie、LocalStorage 和 SessionStorage 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/01/901_1777638533291.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 900,
+          "title": "XMLHttpRequest 和 fetch 的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/900_1777878713666.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 899,
+          "title": "简单请求和复杂请求（预检请求 Preflight）的区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/899_1777878974257.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 898,
+          "title": "解决跨域问题有哪些常见方案？（CORS、JSONP、Nginx反代等）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/898_1777879234001.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 897,
+          "title": "什么是同源策略 (Same-Origin Policy)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/897_1777879484100.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 896,
+          "title": "浏览器缓存的位置有哪些？（Memory Cache vs Disk Cache）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/896_1777879732154.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 895,
+          "title": "HTTP 响应头中的 Cache-Control、Expires、Last-Modified、Etag 分别起什么作用？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/895_1777880034582.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        },
+        {
+          "id": 894,
+          "title": "浏览器的缓存机制（强缓存 vs 协商缓存）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/04/894_1777880287582.png?eo-img.format=webp",
+          "categoryId": 79,
+          "categoryName": "浏览器特性"
+        }
+      ]
+    },
+    {
+      "tab": "浏览器安全",
+      "categoryId": 80,
+      "questions": [
+        {
+          "id": 911,
+          "title": "什么是点击劫持 (Clickjacking)？如何防御？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/911_1777651550528.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 910,
+          "title": "CSP (Content Security Policy) 是什么？它能解决什么问题？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/910_1777651891614.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 909,
+          "title": "什么是 CSRF 攻击 (跨站请求伪造)？如何防御？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/909_1777652256482.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 908,
+          "title": "什么是 XSS 攻击 (跨站脚本攻击)？如何防御？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/908_1777652599220.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 921,
+          "title": "什么是 DNS 重绑定攻击 (DNS Rebinding)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/921_1777652994330.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 920,
+          "title": "什么是浏览器指纹 (Browser Fingerprinting)？它对用户隐私有什么影响？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/920_1777653350227.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 919,
+          "title": "前端如何检测和处理过期的 Token？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/919_1777653663950.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 918,
+          "title": "Session ID 和 Token 在存储和传输上的安全性差异是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/918_1777653963552.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 917,
+          "title": "双重 Cookie 验证 (Double Submit Cookie) 是什么防御策略？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/917_1777654312139.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 916,
+          "title": "为什么将 API 设计为只接受 JSON 格式（Content-Type: application/json）可以降低 CSRF 风险？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/916_1777654577835.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 915,
+          "title": "CSRF 攻击与 XSS 攻击的本质区别是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/915_1777654841903.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 914,
+          "title": "浏览器遇到混合内容 (Mixed Content) 时会发生什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/914_1777655098104.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 913,
+          "title": "为什么 HTTP/2 相比 HTTP/1.1 更快？（多路复用、头部压缩等）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/913_1777655350414.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        },
+        {
+          "id": 912,
+          "title": "什么是中间人攻击 (MITM)？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/05/02/912_1777655624550.png?eo-img.format=webp",
+          "categoryId": 80,
+          "categoryName": "浏览器安全"
+        }
+      ]
+    },
+    {
+      "tab": "Webpack",
+      "categoryId": 114,
+      "questions": [
+        {
+          "id": 2078,
+          "title": "Webpack 与 Vite、Rollup、Turbopack、esbuild 等构建工具有何区别？各自的适用场景是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2078.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2077,
+          "title": "Webpack 5 的持久化缓存（Persistent Caching）原理是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2077.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2076,
+          "title": "讲讲Webpack 中 AST（抽象语法树）解析的作用及依赖分析流程",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2076.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2075,
+          "title": "Webpack 打包出来的 bundle 结构是怎样的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2075.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2074,
+          "title": "当两个异步 Chunk 依赖同一个公共模块时，Webpack 是如何保证该模块只被加载和执行一次的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2074.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2073,
+          "title": "循环依赖（Circular Dependencies）在 Webpack 打包时是如何被处理和解决的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2073.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2072,
+          "title": "Webpack 4 与 Webpack 5 相比有哪些核心变革与重大升级？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2072.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2071,
+          "title": "什么是模块联邦（Module Federation）？它的核心应用场景是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2071.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2070,
+          "title": "如何配置 DevServer 开启 HTTPS 和 HTTP/2 协议支持？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2070.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2069,
+          "title": "HMR 和全局刷新的区别是什么？在 React / Vue 中是如何实现组件级别 HMR 的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2069.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2068,
+          "title": "什么是 Tree Shaking？它的工作原理是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2068.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2067,
+          "title": "什么是 Webpack 的 Watch 模式？它和 DevServer 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2067.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2066,
+          "title": "DevServer 中的 historyApiFallback 配置有什么作用？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2066.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2065,
+          "title": "webpack-dev-server 中的 Proxy 代理是如何工作的？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2065.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2064,
+          "title": "什么是模块热替换（HMR - Hot Module Replacement）？它的实现原理是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2064.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2063,
+          "title": "webpack-dev-server 的工作原理是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2063.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2062,
+          "title": "什么是按需加载（Lazy Loading）与预加载（Preload/Prefetch）？它们的区别和适用场景是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2062.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2061,
+          "title": "如何使用 splitChunks 将第三方库（node_modules）与业务代码分离打包？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2061.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2060,
+          "title": "Webpack 实现代码分割主要有哪几种方式？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2060.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2059,
+          "title": "如何压缩 JavaScript、CSS 和图片资源？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2059.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2058,
+          "title": "如何缩小 Webpack 的 Loader 处理范围（如 include / exclude）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2058.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2057,
+          "title": "如何提升 Webpack 的二次构建速度（",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2057.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2056,
+          "title": "为什么在小型项目中开启多线程构建反而会导致打包变慢？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2056.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2055,
+          "title": "Webpack 的插件机制是基于哪个核心库实现的？（Tapable）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2055.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2054,
+          "title": "Tapable 提供了哪些常见的钩子（Hook）类型？（如 SyncHook、AsyncSeriesHook 等）",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2054.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2053,
+          "title": "如何在 Node.js 中通过 API 调用 Webpack（Compiler API）？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/25/question_2053.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2052,
+          "title": "如何分析 Webpack 打包后的体积和依赖关系？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2052.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2051,
+          "title": "如何编写一个自定义的 Loader？处理同步/异步 Loader 的 API 是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2051.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2050,
+          "title": "postcss-loader 的作用是什么？常见的 PostCSS 插件有哪些？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2050.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2049,
+          "title": "前端开发中常见的 Loader 有哪些？各自解决什么问题？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2049.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2048,
+          "title": "Loader 和 Plugin 有什么本质区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2048.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2047,
+          "title": "Webpack 中的 mode 参数有哪几种取值？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2047.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2046,
+          "title": "publicPath 的作用是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2046.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2045,
+          "title": "Loader 的执行顺序是怎样的？为什么设计成从右到左（或从下到上）执行？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2045.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2044,
+          "title": "什么是 Plugin？它的作用是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2044.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2043,
+          "title": "什么是 Loader？它的作用是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2043.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2042,
+          "title": "什么是 Webpack 的 Hash、Chunkhash 和 Contenthash？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2042.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2041,
+          "title": "什么是 Source Map？开发环境与生产环境应该如何选择 Source Map 模式？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2041.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2040,
+          "title": "什么是 Output？filename 和 chunkFilename 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2040.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2039,
+          "title": "什么是 Entry？单入口与多入口配置有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2039.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2038,
+          "title": "Webpack 中的 Module、Chunk 和 Bundle 有什么区别？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2038.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2037,
+          "title": "Webpack 的构建流程是怎样的？从启动到输出经历了哪些主要步骤？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2037.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        },
+        {
+          "id": 2036,
+          "title": "什么是 Webpack？它的核心作用是什么？",
+          "imageUrl": "https://img.bomianfm.com/question-images/images/2026/07/24/question_2036.png?eo-img.format=webp",
+          "categoryId": 114,
+          "categoryName": "Webpack"
+        }
+      ]
+    }
+  ]
+}

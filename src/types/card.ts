@@ -20,6 +20,16 @@ export interface FlashCard {
   difficulty?: Difficulty;
   codeExample?: string;
   extendQuestion?: string;
+  /**
+   * 答案图解 URL（仅存 URL，不存图片文件）
+   *
+   * 展示约定（前端 AnswerImageViewer 统一处理）：
+   * - 卡片背面：宽度自适应（w-full），保持图片原始比例
+   * - 全屏：Portal 挂 body + 背景遮罩，按 1316×740 比例适配浏览器宽度
+   * - 交互：点击遮罩 / Esc / 关闭按钮退出
+   * - 格式：优先 PNG；CDN 可用 ?eo-img.format=webp 等参数
+   */
+  answerImage?: string;
 }
 
 // 卡片进度

@@ -8,6 +8,7 @@ import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
 import { useAuth, LoginModal } from '@/components/Auth';
 import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
+import { AnswerImageViewer } from '@/components/Card/AnswerImageViewer';
 
 interface FlashCardProps {
   card: FlashCardType;
@@ -161,6 +162,9 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                 <Badge variant={statusConfig[currentStatus].variant}>
                   {statusConfig[currentStatus].label}
                 </Badge>
+                {displayCard.answerImage && !isEditing && (
+                  <span className="text-xs font-bold text-[#1CB0F6]">图解 · 点击放大</span>
+                )}
               </div>
               {showEdit && (
                 <div className="flex items-center gap-2" data-stop-propagation>
@@ -198,10 +202,19 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                 />
               ) : (
                 <>
-                  <MDEditor.Markdown
-                    source={formattedAnswer}
-                    style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
-                  />
+                  {displayCard.answerImage && (
+                    <AnswerImageViewer
+                      src={displayCard.answerImage}
+                      alt={displayCard.question}
+                      className="mb-4"
+                    />
+                  )}
+                  {formattedAnswer.trim() && (
+                    <MDEditor.Markdown
+                      source={formattedAnswer}
+                      style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
+                    />
+                  )}
                   {displayCard.codeExample && (
                     <div className="mt-6">
                       <div className="text-sm font-medium text-ink-secondary mb-2 font-mono">代码示例</div>

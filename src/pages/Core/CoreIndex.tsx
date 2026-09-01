@@ -12,7 +12,7 @@ export function CoreIndex() {
       <SectionHeader
         icon={<BookOpen size={24} className="text-white" strokeWidth={2.5} />}
         title="前端基础核心考点"
-        description="涵盖 JavaScript、TypeScript、React、浏览器等核心知识"
+        description="涵盖 JavaScript、HTML/CSS、React、Vue、浏览器、Webpack 等核心考点（含播面图解）"
       />
 
       <div className="grid gap-4">
