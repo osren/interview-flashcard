@@ -58,7 +58,7 @@ export function StreakCalendar({ className }: StreakCalendarProps) {
   const checkInDates = useStreakStore((state) => state.checkInDates);
   const streak = useStreakStore((state) => state.getStreak());
   const hasCheckedInToday = useStreakStore((state) => state.hasCheckedInToday());
-  const { isLoggedIn, isConfigured, status } = useLearningSyncContext();
+  const { isLoggedIn, isConfigured, status, cloudUnavailable } = useLearningSyncContext();
 
   const now = new Date();
   const [viewMode, setViewMode] = useState<CalendarViewMode>('week');
@@ -169,12 +169,23 @@ export function StreakCalendar({ className }: StreakCalendarProps) {
         <p className="text-[10px] font-bold text-[#afafaf] mb-2 flex items-center gap-1">
           {isLoggedIn ? (
             <>
-              <Cloud size={10} className={status === 'error' ? 'text-[#FF4B4B]' : 'text-[#58CC02]'} />
+              <Cloud
+                size={10}
+                className={
+                  status === 'error'
+                    ? 'text-[#FF4B4B]'
+                    : cloudUnavailable || status === 'local_only'
+                      ? 'text-[#FFC800]'
+                      : 'text-[#58CC02]'
+                }
+              />
               {status === 'syncing' || status === 'loading'
                 ? '同步中…'
                 : status === 'error'
                   ? '同步失败，已保存本地'
-                  : '已登录，跨设备自动同步'}
+                  : cloudUnavailable || status === 'local_only'
+                    ? '打卡与学习进度已存本地（云端表待创建）'
+                    : '已登录，跨设备自动同步'}
             </>
           ) : (
             <>

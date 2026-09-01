@@ -115,6 +115,14 @@ export function mergeLearningPayload(
   };
 }
 
+function isSupabaseTableMissingError(error: { code?: string; message?: string }): boolean {
+  return (
+    error.code === 'PGRST205' ||
+    (typeof error.message === 'string' &&
+      error.message.includes("Could not find the table 'public.learning_sync'"))
+  );
+}
+
 export async function fetchLearningSync(
   userId: string
 ): Promise<LearningSyncPayload | null> {
@@ -124,7 +132,10 @@ export async function fetchLearningSync(
     .eq('user_id', userId)
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (isSupabaseTableMissingError(error)) return null;
+    throw new Error(error.message);
+  }
   if (!data) return null;
 
   return normalizePayload((data as Pick<LearningSyncRow, 'payload'>).payload);
@@ -133,7 +144,7 @@ export async function fetchLearningSync(
 export async function saveLearningSync(
   userId: string,
   payload: LearningSyncPayload
-): Promise<string> {
+): Promise<string | null> {
   const { data, error } = await supabase
     .from('learning_sync')
     .upsert(
@@ -147,9 +158,22 @@ export async function saveLearningSync(
     .select('updated_at')
     .single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (isSupabaseTableMissingError(error)) return null;
+    throw new Error(error.message);
+  }
 
   return (data as Pick<LearningSyncRow, 'updated_at'>).updated_at;
+}
+
+export function isLearningSyncTableMissingError(error: unknown): boolean {
+  if (error instanceof Error) {
+    return error.message.includes('learning_sync') || error.message.includes('PGRST205');
+  }
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    return isSupabaseTableMissingError(error as { code?: string; message?: string });
+  }
+  return false;
 }
 
 export function buildLearningSyncPayload(): LearningSyncPayload {

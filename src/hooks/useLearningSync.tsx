@@ -5,13 +5,14 @@ import {
   applyLearningSyncPayload,
   buildLearningSyncPayload,
   fetchLearningSync,
+  isLearningSyncTableMissingError,
   mergeLearningPayload,
   saveLearningSync,
 } from '@/lib/supabase/learning-sync';
 import { useCardStore } from '@/store/useCardStore';
 import { useStreakStore } from '@/store/useStreakStore';
 
-export type LearningSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'error';
+export type LearningSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'error' | 'local_only';
 
 const PUSH_DEBOUNCE_MS = 1500;
 
@@ -21,6 +22,8 @@ interface LearningSyncContextValue {
   lastSyncedAt: string | null;
   isLoggedIn: boolean;
   isConfigured: boolean;
+  /** Cloud table learning_sync is not deployed yet */
+  cloudUnavailable: boolean;
 }
 
 const LearningSyncContext = createContext<LearningSyncContextValue | null>(null);
@@ -85,13 +88,27 @@ function useLearningSync(): LearningSyncContextValue {
   const [status, setStatus] = useState<LearningSyncStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [cloudUnavailable, setCloudUnavailable] = useState(false);
   const hydrated = useStoresHydrated();
 
   const applyingRemoteRef = useRef(false);
   const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncGenerationRef = useRef(0);
+  const cloudUnavailableRef = useRef(false);
+
+  const markCloudUnavailable = useCallback(() => {
+    cloudUnavailableRef.current = true;
+    setCloudUnavailable(true);
+    setStatus('local_only');
+    setError(null);
+  }, []);
 
   const pullAndMerge = useCallback(async (userId: string) => {
+    if (cloudUnavailableRef.current) {
+      setStatus('local_only');
+      return;
+    }
+
     const generation = syncGenerationRef.current + 1;
     syncGenerationRef.current = generation;
     setStatus('loading');
@@ -111,17 +128,28 @@ function useLearningSync(): LearningSyncContextValue {
       applyingRemoteRef.current = false;
       if (syncGenerationRef.current !== generation) return;
 
+      if (updatedAt === null) {
+        markCloudUnavailable();
+        return;
+      }
+
       setLastSyncedAt(updatedAt);
       setStatus('synced');
     } catch (err) {
       if (syncGenerationRef.current !== generation) return;
       applyingRemoteRef.current = false;
+      if (isLearningSyncTableMissingError(err)) {
+        markCloudUnavailable();
+        return;
+      }
       setStatus('error');
       setError(err instanceof Error ? err.message : '同步失败');
     }
-  }, []);
+  }, [markCloudUnavailable]);
 
   const pushToCloud = useCallback(async (userId: string) => {
+    if (cloudUnavailableRef.current) return;
+
     const generation = syncGenerationRef.current;
     setStatus('syncing');
     setError(null);
@@ -131,14 +159,23 @@ function useLearningSync(): LearningSyncContextValue {
       const updatedAt = await saveLearningSync(userId, payload);
       if (syncGenerationRef.current !== generation) return;
 
+      if (updatedAt === null) {
+        markCloudUnavailable();
+        return;
+      }
+
       setLastSyncedAt(updatedAt);
       setStatus('synced');
     } catch (err) {
       if (syncGenerationRef.current !== generation) return;
+      if (isLearningSyncTableMissingError(err)) {
+        markCloudUnavailable();
+        return;
+      }
       setStatus('error');
       setError(err instanceof Error ? err.message : '同步失败');
     }
-  }, []);
+  }, [markCloudUnavailable]);
 
   const schedulePush = useCallback(
     (userId: string) => {
@@ -162,6 +199,8 @@ function useLearningSync(): LearningSyncContextValue {
       syncGenerationRef.current += 1;
       setStatus('idle');
       setError(null);
+      cloudUnavailableRef.current = false;
+      setCloudUnavailable(false);
       return;
     }
 
@@ -169,7 +208,9 @@ function useLearningSync(): LearningSyncContextValue {
   }, [user?.id, configured, authLoading, hydrated, pullAndMerge]);
 
   useEffect(() => {
-    if (!configured || !user || authLoading || !hydrated) return;
+    if (!configured || !user || authLoading || !hydrated || cloudUnavailableRef.current) {
+      return;
+    }
 
     const unsubCard = useCardStore.subscribe((state, prevState) => {
       if (applyingRemoteRef.current) return;
@@ -207,5 +248,6 @@ function useLearningSync(): LearningSyncContextValue {
     lastSyncedAt,
     isLoggedIn: Boolean(user),
     isConfigured: configured && isSupabaseConfigured,
+    cloudUnavailable,
   };
 }
