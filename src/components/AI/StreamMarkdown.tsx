@@ -1,4 +1,4 @@
-import MDEditor from '@uiw/react-md-editor';
+import { LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 
 interface StreamMarkdownProps {
   content: string;
@@ -16,7 +16,7 @@ export function StreamMarkdown({ content, streaming = false }: StreamMarkdownPro
 
   return (
     <div className="prose prose-sm max-w-none" data-color-mode="light">
-      <MDEditor.Markdown
+      <LazyMDMarkdown
         source={content}
         style={{ backgroundColor: 'transparent', color: '#3c3c3c' }}
       />

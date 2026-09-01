@@ -5,11 +5,11 @@ import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { ChapterLayout } from '@/components/Layout/ChapterLayout';
 import { useCardStore } from '@/store';
-import { projectCards } from '@/data/projects';
+import { loadProjectCards } from '@/data/projects';
 import { Button } from '@/components/ui';
+import { LazyMDEditor } from '@/components/ui/LazyMDEditor';
 import { ChevronLeft, Home, Plus, FileText } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
-import MDEditor from '@uiw/react-md-editor';
 import { useProjectStore } from '@/store/useProjectStore';
 import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
@@ -25,25 +25,28 @@ export function ProjectDetail() {
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const customCards = useCardStore((state) => state.customCards);
-  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard, cardStatuses } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, addCustomCard, cardStatuses } = useCardStore();
   const hydrated = useCardStoreHydrated();
 
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
-  const reloadCards = () => {
-    if (!projectId) return;
-    const projectCardsList = projectCards.filter((c) => c.chapterId === projectId);
-    const merged = getMergedCards('projects', projectId, projectCardsList);
-    setCards(merged);
-    const initialIndex = findFirstUnrememberedIndex(merged, cardStatuses);
-    setCurrentIndex(merged.length > 0 ? Math.min(initialIndex, merged.length - 1) : 0);
-  };
-
   useEffect(() => {
-    if (!hydrated) return;
-    reloadCards();
-  }, [projectId, customCards, hydrated]);
+    if (!hydrated || !projectId) return;
+    let cancelled = false;
+
+    void loadProjectCards(projectId).then((projectCardsList) => {
+      if (cancelled) return;
+      const merged = getMergedCards('projects', projectId, projectCardsList);
+      setCards(merged);
+      const initialIndex = findFirstUnrememberedIndex(merged, cardStatuses);
+      setCurrentIndex(merged.length > 0 ? Math.min(initialIndex, merged.length - 1) : 0);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, customCards, hydrated, getMergedCards, cardStatuses]);
 
   useEffect(() => {
     if (cards.length > 0 && projectId) {
@@ -152,7 +155,7 @@ export function ProjectDetail() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-ink-secondary mb-1">回答</label>
-                <MDEditor
+                <LazyMDEditor
                   value={newQuestion.answer}
                   onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
                   height={200}

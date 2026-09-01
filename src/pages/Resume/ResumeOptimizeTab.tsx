@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
-import MDEditor from '@uiw/react-md-editor';
+import { useEffect, useMemo, useState } from 'react';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { Download, Loader2, Save, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useAuth, LoginModal } from '@/components/Auth';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { useResumeStore } from '@/store/useResumeStore';
 import { invokeEdgeFunction } from '@/lib/llm/invoke';
+import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
+import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
 
 interface OptimizeResult {
   optimized_markdown: string;
@@ -14,9 +16,11 @@ interface OptimizeResult {
 
 export function ResumeOptimizeTab() {
   const { user } = useAuth();
+  const sync = useCampusJobSyncContext();
   const { markdownResumes, primaryResumeId, updateMarkdownContent, upsertMarkdownResume, setPrimaryResumeId } =
     useResumeStore();
   const jobs = useCampusJobStore((state) => state.getAllJobs());
+  const setCatalogJobs = useCampusJobStore((state) => state.setCatalogJobs);
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [selectedResumeId, setSelectedResumeId] = useState(primaryResumeId);
@@ -26,6 +30,25 @@ export function ResumeOptimizeTab() {
   const [changes, setChanges] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    sync.ensureCatalogLoaded();
+  }, [sync.ensureCatalogLoaded]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void ensureLocalCampusCatalog().then((localJobs) => {
+      if (cancelled) return;
+      const state = useCampusJobStore.getState();
+      if (state.catalogSource === 'remote' && state.catalogJobs.length > 0) return;
+      if (localJobs.length > 0) {
+        setCatalogJobs(localJobs, 'local');
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [setCatalogJobs]);
 
   const current = useMemo(
     () => markdownResumes.find((item) => item.id === selectedResumeId) ?? markdownResumes[0],
@@ -152,7 +175,7 @@ export function ResumeOptimizeTab() {
         <div className="space-y-3">
           <h3 className="font-extrabold text-[#3c3c3c]">当前简历</h3>
           <div data-color-mode="light">
-            <MDEditor
+            <LazyMDEditor
               value={current?.content ?? ''}
               onChange={(value) => current && updateMarkdownContent(current.id, value || '')}
               height={420}
@@ -174,7 +197,7 @@ export function ResumeOptimizeTab() {
             </ul>
           )}
           <div data-color-mode="light" className="rounded-xl border-2 border-[#e5e5e5] p-3 min-h-[420px] bg-white overflow-auto">
-            <MDEditor.Markdown source={preview || '*点击「按 JD 优化」后在此展示副本*'} />
+            <LazyMDMarkdown source={preview || '*点击「按 JD 优化」后在此展示副本*'} />
           </div>
         </div>
       </div>

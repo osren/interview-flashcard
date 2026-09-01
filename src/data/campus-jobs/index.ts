@@ -1,2 +1,8 @@
-export { localBuiltinCampusJobs, builtinCampusJobs, getJobsByCompany, buildJobId } from './loadJobs';
+export {
+  localBuiltinCampusJobs,
+  builtinCampusJobs,
+  getJobsByCompany,
+  buildJobId,
+  ensureLocalCampusCatalog,
+} from './loadJobs';
 export * from './const';

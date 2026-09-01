@@ -1,59 +1,17 @@
-import { javascriptCards, javascriptChapter } from './javascript';
-import { htmlCards, htmlChapter } from './html';
-import { cssCards, cssChapter } from './css';
-import { vueCards, vueChapter } from './vue';
-import { nextjsCards, nextjsChapter } from './nextjs';
-import { reactCards, reactChapter } from './react';
-import { typescriptCards, typescriptChapter } from './typescript';
-import { browserfeaturesCards, browserfeaturesChapter } from './browser-features';
-import { browsersecurityCards, browsersecurityChapter } from './browser-security';
-import { webpackCards, webpackChapter } from './webpack';
-import {
-  performanceCards,
-  performanceChapter,
-  engineeringCards,
-  engineeringChapter,
-  aiEngineeringCards,
-  aiEngineeringChapter,
-  systemDesignCards,
-  systemDesignChapter,
-  reactHooksCards,
-  reactHooksChapter,
-} from './extra-chapters';
-import { Chapter, FlashCard } from '@/types';
+export { coreChapters, CORE_TOTAL_CARD_COUNT } from './chapters-meta';
+export { loadCoreChapterCards, loadAllCoreCards, getCoreChapterLoaderIds } from './loadChapter';
 
-export const coreChapters: Chapter[] = [
-  javascriptChapter,
-  htmlChapter,
-  cssChapter,
-  vueChapter,
-  nextjsChapter,
-  reactChapter,
-  typescriptChapter,
-  browserfeaturesChapter,
-  browsersecurityChapter,
-  webpackChapter,
-  reactHooksChapter,
-  engineeringChapter,
-  performanceChapter,
-  aiEngineeringChapter,
-  systemDesignChapter,
-];
+import type { FlashCard } from '@/types';
+import { loadAllCoreCards } from './loadChapter';
 
-export const coreCards: FlashCard[] = [
-  ...javascriptCards,
-  ...htmlCards,
-  ...cssCards,
-  ...vueCards,
-  ...nextjsCards,
-  ...reactCards,
-  ...typescriptCards,
-  ...browserfeaturesCards,
-  ...browsersecurityCards,
-  ...webpackCards,
-  ...reactHooksCards,
-  ...engineeringCards,
-  ...performanceCards,
-  ...aiEngineeringCards,
-  ...systemDesignCards,
-];
+/**
+ * @deprecated Prefer loadCoreChapterCards / loadAllCoreCards for code-splitting.
+ * Kept as empty sync stub so accidental sync imports don't pull the full dataset.
+ * Callers that need cards must use the async loaders.
+ */
+export const coreCards: FlashCard[] = [];
+
+/** Eager-load helper for rare sync migration paths */
+export async function ensureCoreCardsLoaded(): Promise<FlashCard[]> {
+  return loadAllCoreCards();
+}

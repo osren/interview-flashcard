@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { ArrowLeft, Plus, Edit3, Save, X, ChevronLeft, ChevronRight, Clock, Check, List, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import MDEditor from '@uiw/react-md-editor';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { ImportExportModal } from '@/components/ImportExportModal';
 
 export function InterviewDetail() {
@@ -304,7 +304,7 @@ export function InterviewDetail() {
                           className="w-full px-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:border-blue-400 outline-none"
                           placeholder="问题"
                         />
-                        <MDEditor
+                        <LazyMDEditor
                           value={editQuestion.answer}
                           onChange={(val) => setEditQuestion({ ...editQuestion, answer: val || '' })}
                           height={250}
@@ -313,7 +313,7 @@ export function InterviewDetail() {
                       </div>
                     ) : (
                       <div className="text-gray-700">
-                        <MDEditor.Markdown
+                        <LazyMDMarkdown
                           source={currentQuestion.answer || '暂无回答'}
                           style={{ backgroundColor: 'transparent' }}
                         />
@@ -443,7 +443,7 @@ export function InterviewDetail() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">回答</label>
-                    <MDEditor
+                    <LazyMDEditor
                       value={newQuestion.answer}
                       onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
                       height={200}

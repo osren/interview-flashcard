@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
 import { Edit, Save, X, Heart, HelpCircle, Sparkles, MessageCircleQuestion } from 'lucide-react';
-import MDEditor from '@uiw/react-md-editor';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
 import { resolveCardStatus } from '@/utils/cardStatus';
@@ -224,7 +224,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, onJu
 
             <div className="flex-1 px-4 py-3 sm:px-5 overflow-y-auto" data-color-mode="light">
               {isEditing ? (
-                <MDEditor
+                <LazyMDEditor
                   value={editedAnswer}
                   onChange={(val) => setEditedAnswer(val || '')}
                   height="100%"
@@ -241,7 +241,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, onJu
                     />
                   )}
                   {formattedAnswer.trim() && (
-                    <MDEditor.Markdown
+                    <LazyMDMarkdown
                       source={formattedAnswer}
                       style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
                     />

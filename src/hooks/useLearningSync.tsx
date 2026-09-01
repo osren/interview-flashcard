@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, createContext, useContext, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/Auth';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import {
@@ -16,6 +17,25 @@ export type LearningSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'er
 
 const PUSH_DEBOUNCE_MS = 1500;
 
+/** Routes that need learning progress cloud sync */
+const LEARNING_ROUTE_PREFIXES = [
+  '/',
+  '/core',
+  '/projects',
+  '/mpx',
+  '/custom',
+  '/favorites',
+  '/ai',
+  '/interview',
+  '/llm-handbook',
+];
+
+function isLearningRoute(pathname: string): boolean {
+  return LEARNING_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || (prefix !== '/' && pathname.startsWith(`${prefix}/`))
+  );
+}
+
 interface LearningSyncContextValue {
   status: LearningSyncStatus;
   error: string | null;
@@ -29,7 +49,9 @@ interface LearningSyncContextValue {
 const LearningSyncContext = createContext<LearningSyncContextValue | null>(null);
 
 export function LearningSyncProvider({ children }: { children: ReactNode }) {
-  const value = useLearningSync();
+  const location = useLocation();
+  const enabled = isLearningRoute(location.pathname);
+  const value = useLearningSync(enabled);
   return (
     <LearningSyncContext.Provider value={value}>{children}</LearningSyncContext.Provider>
   );
@@ -83,7 +105,7 @@ function useStoresHydrated(): boolean {
   return hydrated;
 }
 
-function useLearningSync(): LearningSyncContextValue {
+function useLearningSync(enabled: boolean): LearningSyncContextValue {
   const { user, loading: authLoading, configured } = useAuth();
   const [status, setStatus] = useState<LearningSyncStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -188,7 +210,7 @@ function useLearningSync(): LearningSyncContextValue {
   );
 
   useEffect(() => {
-    if (!configured || authLoading || !hydrated) return;
+    if (!enabled || !configured || authLoading || !hydrated) return;
 
     if (pushTimerRef.current) {
       clearTimeout(pushTimerRef.current);
@@ -205,10 +227,10 @@ function useLearningSync(): LearningSyncContextValue {
     }
 
     void pullAndMerge(user.id);
-  }, [user?.id, configured, authLoading, hydrated, pullAndMerge]);
+  }, [enabled, user?.id, configured, authLoading, hydrated, pullAndMerge]);
 
   useEffect(() => {
-    if (!configured || !user || authLoading || !hydrated || cloudUnavailableRef.current) {
+    if (!enabled || !configured || !user || authLoading || !hydrated || cloudUnavailableRef.current) {
       return;
     }
 
@@ -240,7 +262,7 @@ function useLearningSync(): LearningSyncContextValue {
         pushTimerRef.current = null;
       }
     };
-  }, [user?.id, configured, authLoading, hydrated, schedulePush]);
+  }, [enabled, user?.id, configured, authLoading, hydrated, schedulePush]);
 
   return {
     status,

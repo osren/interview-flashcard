@@ -1,8 +1,7 @@
-// import { didiCards, didiChapter } from './didi';
-import { didiCards, didiChapter } from './didi_new';
-import { gresumeCards, gresumeChapter } from './gresume';
-import { aiMonitorCards, aiMonitorChapter } from './ai-monitor';
-import { Chapter, FlashCard } from '@/types';
+export { projectChapters, PROJECT_TOTAL_CARD_COUNT } from './chapters-meta';
+export { loadProjectCards, loadAllProjectCards } from './loadProject';
 
-export const projectChapters: Chapter[] = [didiChapter, aiMonitorChapter, gresumeChapter];
-export const projectCards: FlashCard[] = [...didiCards, ...aiMonitorCards, ...gresumeCards];
+import type { FlashCard } from '@/types';
+
+/** @deprecated Prefer loadProjectCards / loadAllProjectCards */
+export const projectCards: FlashCard[] = [];

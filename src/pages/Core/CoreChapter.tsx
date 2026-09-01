@@ -5,48 +5,59 @@ import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { ChapterLayout } from '@/components/Layout/ChapterLayout';
 import { useCardStore } from '@/store';
-import { coreCards, coreChapters } from '@/data/core';
+import { coreChapters, loadCoreChapterCards } from '@/data/core';
 import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 import { Button } from '@/components/ui';
+import { LazyMDEditor } from '@/components/ui/LazyMDEditor';
 import { Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
-import MDEditor from '@uiw/react-md-editor';
 
 export function CoreChapter() {
   const { chapterId } = useParams<{ chapterId: string }>();
   const [cards, setCards] = useState<FlashCard[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const enteredChapterRef = useRef<string | null>(null);
-  const { updateCardStatus, getMergedCards, saveCardProgress, getCardProgress, addCustomCard } = useCardStore();
+  const { updateCardStatus, getMergedCards, saveCardProgress, addCustomCard } = useCardStore();
   const hydrated = useCardStoreHydrated();
   const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ question: '', answer: '' });
 
   useEffect(() => {
     if (!hydrated || !chapterId) return;
-    const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
-    const mergedCards = getMergedCards('core', chapterId, chapterCards);
-    setCards(mergedCards);
+    let cancelled = false;
+    setLoading(true);
 
-    if (enteredChapterRef.current !== chapterId) {
-      enteredChapterRef.current = chapterId;
-      const { cardStatuses } = useCardStore.getState();
-      const initialIndex = findFirstUnrememberedIndex(mergedCards, cardStatuses);
-      setCurrentIndex(Math.min(initialIndex, Math.max(mergedCards.length - 1, 0)));
-    }
+    void loadCoreChapterCards(chapterId).then((chapterCards) => {
+      if (cancelled) return;
+      const mergedCards = getMergedCards('core', chapterId, chapterCards);
+      setCards(mergedCards);
+      setLoading(false);
+
+      if (enteredChapterRef.current !== chapterId) {
+        enteredChapterRef.current = chapterId;
+        const { cardStatuses } = useCardStore.getState();
+        const initialIndex = findFirstUnrememberedIndex(mergedCards, cardStatuses);
+        setCurrentIndex(Math.min(initialIndex, Math.max(mergedCards.length - 1, 0)));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [chapterId, hydrated, getMergedCards]);
 
   useEffect(() => {
     if (cards.length > 0 && chapterId) {
       saveCardProgress('core', chapterId, currentIndex);
     }
-  }, [currentIndex, chapterId]);
+  }, [currentIndex, chapterId, cards.length, saveCardProgress]);
 
   const currentCard = cards[currentIndex];
-  const chapterTitle = coreChapters.find(c => c.id === chapterId)?.title || chapterId || '';
+  const chapterTitle = coreChapters.find((c) => c.id === chapterId)?.title || chapterId || '';
 
-  if (!currentCard) {
+  if (loading || !currentCard) {
     return (
       <div className="min-h-screen app-bg flex items-center justify-center">
         <p className="text-ink-muted">加载中...</p>
@@ -70,7 +81,7 @@ export function CoreChapter() {
     }
   };
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async () => {
     if (newQuestion.question.trim() && chapterId) {
       addCustomCard({
         id: '',
@@ -83,7 +94,7 @@ export function CoreChapter() {
       });
       setNewQuestion({ question: '', answer: '' });
       setIsAdding(false);
-      const chapterCards = coreCards.filter((c) => c.chapterId === chapterId);
+      const chapterCards = await loadCoreChapterCards(chapterId);
       const mergedCards = getMergedCards('core', chapterId, chapterCards);
       setCards(mergedCards);
       setCurrentIndex(mergedCards.length - 1);
@@ -156,7 +167,7 @@ export function CoreChapter() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-ink-secondary mb-1">回答</label>
-                  <MDEditor
+                  <LazyMDEditor
                     value={newQuestion.answer}
                     onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
                     height={200}
@@ -165,10 +176,16 @@ export function CoreChapter() {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <Button variant="ghost" onClick={() => { setIsAdding(false); setNewQuestion({ question: '', answer: '' }); }}>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setIsAdding(false);
+                    setNewQuestion({ question: '', answer: '' });
+                  }}
+                >
                   取消
                 </Button>
-                <Button onClick={handleAddQuestion} disabled={!newQuestion.question.trim()}>
+                <Button onClick={() => void handleAddQuestion()} disabled={!newQuestion.question.trim()}>
                   保存
                 </Button>
               </div>

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
 import { ResumeOptimizeTab } from './ResumeOptimizeTab';
 import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
 const ONLINE_RESUME_URL = 'https://506resume.vercel.app/';
@@ -13,6 +13,10 @@ export function ResumePage() {
   const { resumes, addResume, removeResume, introScript, setIntroScript } = useResumeStore();
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('online');
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabType>>(
+    () => new Set<TabType>([activeTab])
+  );
+  const [mountedPdfIds, setMountedPdfIds] = useState<Set<string>>(() => new Set());
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(introScript);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,6 +79,26 @@ export function ResumePage() {
 
   const isOnlineTab = activeTab === 'online';
 
+  const selectTab = (tab: TabType) => {
+    setActiveTab(tab);
+    setVisitedTabs((prev) => {
+      if (prev.has(tab)) return prev;
+      const next = new Set(prev);
+      next.add(tab);
+      return next;
+    });
+  };
+
+  const openPdfPreview = (resume: Resume) => {
+    setPreviewResume(resume);
+    setMountedPdfIds((prev) => {
+      if (prev.has(resume.id)) return prev;
+      const next = new Set(prev);
+      next.add(resume.id);
+      return next;
+    });
+  };
+
   return (
     <div
       className={cn(
@@ -105,7 +129,7 @@ export function ResumePage() {
         <div className={cn('flex justify-center', isOnlineTab ? 'mb-3' : 'mb-8')}>
           <div className="inline-flex bg-white/80 backdrop-blur-sm rounded-xl p-1.5 shadow-sm border border-gray-100">
             <button
-              onClick={() => setActiveTab('online')}
+              onClick={() => selectTab('online')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === 'online'
                   ? 'bg-blue-600 text-white shadow-md'
@@ -116,7 +140,7 @@ export function ResumePage() {
               在线简历
             </button>
             <button
-              onClick={() => setActiveTab('resume')}
+              onClick={() => selectTab('resume')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === 'resume'
                   ? 'bg-blue-600 text-white shadow-md'
@@ -127,7 +151,7 @@ export function ResumePage() {
               PDF 简历
             </button>
             <button
-              onClick={() => setActiveTab('intro')}
+              onClick={() => selectTab('intro')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === 'intro'
                   ? 'bg-blue-600 text-white shadow-md'
@@ -138,7 +162,7 @@ export function ResumePage() {
               面试口述稿
             </button>
             <button
-              onClick={() => setActiveTab('optimize')}
+              onClick={() => selectTab('optimize')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === 'optimize'
                   ? 'bg-blue-600 text-white shadow-md'
@@ -151,12 +175,15 @@ export function ResumePage() {
           </div>
         </div>
 
-        {/* 在线简历 Tab */}
-        {activeTab === 'online' && (
+        {/* 在线简历 Tab — 首次访问后保持 iframe 挂载，切换 Tab 仅隐藏 */}
+        {visitedTabs.has('online') && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col"
+            className={cn(
+              'bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col',
+              !isOnlineTab && 'hidden'
+            )}
             style={{ height: 'calc(100dvh - 6.5rem)' }}
           >
             <div className="flex items-center justify-between px-3 sm:px-5 py-2 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
@@ -189,7 +216,8 @@ export function ResumePage() {
         )}
 
         {/* 简历 Tab 内容 */}
-        {activeTab === 'resume' && (
+        {visitedTabs.has('resume') && (
+          <div className={cn(activeTab !== 'resume' && 'hidden')}>
           <>
             {/* 统计信息 */}
             {resumes.length > 0 && (
@@ -275,7 +303,7 @@ export function ResumePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 cursor-pointer"
-                onClick={() => setPreviewResume(resume)}
+                onClick={() => openPdfPreview(resume)}
               >
                 {/* 顶部图标 */}
                 <div className="flex items-start justify-between mb-4">
@@ -304,7 +332,7 @@ export function ResumePage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setPreviewResume(resume);
+                      openPdfPreview(resume);
                     }}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
                   >
@@ -326,14 +354,15 @@ export function ResumePage() {
           </div>
         )}
           </>
+          </div>
         )}
 
         {/* 口述稿 Tab 内容 */}
-        {activeTab === 'intro' && (
+        {visitedTabs.has('intro') && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl mx-auto"
+            className={cn('max-w-3xl mx-auto', activeTab !== 'intro' && 'hidden')}
           >
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               {/* 口述稿头部 */}
@@ -410,8 +439,12 @@ export function ResumePage() {
           </motion.div>
         )}
 
-        {activeTab === 'optimize' && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        {visitedTabs.has('optimize') && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(activeTab !== 'optimize' && 'hidden')}
+          >
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm p-5">
               <ResumeOptimizeTab />
             </div>
@@ -419,63 +452,61 @@ export function ResumePage() {
         )}
       </div>
 
-      {/* PDF 预览弹窗 */}
-      <AnimatePresence>
-        {previewResume && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setPreviewResume(null)}
+      {/* PDF 预览：外壳可关闭，iframe 按 id 缓存避免重复加载 */}
+      {previewResume && (
+        <div
+          className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setPreviewResume(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* 标题栏 */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-red-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{previewResume.name}</h3>
-                    <p className="text-xs text-gray-400">PDF 文档</p>
-                  </div>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-red-500" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={previewResume.data}
-                    download={`${previewResume.name}.pdf`}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                  >
-                    <Download size={16} />
-                    下载
-                  </a>
-                  <button
-                    onClick={() => setPreviewResume(null)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{previewResume.name}</h3>
+                  <p className="text-xs text-gray-400">PDF 文档</p>
                 </div>
               </div>
-              {/* PDF 预览 */}
-              <div className="flex-1 overflow-hidden bg-gray-100">
-                <iframe
-                  src={previewResume.data}
-                  className="w-full h-full"
-                  title="PDF Preview"
-                />
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewResume.data}
+                  download={`${previewResume.name}.pdf`}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                >
+                  <Download size={16} />
+                  下载
+                </a>
+                <button
+                  onClick={() => setPreviewResume(null)}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+            <div className="relative flex-1 overflow-hidden bg-gray-100">
+              {resumes
+                .filter((r) => mountedPdfIds.has(r.id))
+                .map((r) => (
+                  <iframe
+                    key={r.id}
+                    src={r.data}
+                    className={cn(
+                      'absolute inset-0 w-full h-full',
+                      previewResume.id === r.id ? 'z-0' : 'invisible pointer-events-none'
+                    )}
+                    title={`PDF Preview ${r.name}`}
+                  />
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PageShell, SectionHeader } from '@/components/ui';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import type { CampusTab } from '@/types/campus-job';
@@ -7,25 +7,61 @@ import { JobsTab } from './components/JobsTab';
 import { ProgressTab } from './components/ProgressTab';
 import { CampusJobSyncBadge } from './components/CampusJobSyncBadge';
 import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
-import { LayoutDashboard, Briefcase, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Table2, TrendingUp } from 'lucide-react';
+import { JobPoolTab } from './components/JobPoolTab';
 import { cn } from '@/utils/cn';
+import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
 
 const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: '\u6295\u9012\u770b\u677f', icon: LayoutDashboard },
   { id: 'jobs', label: '\u79cb\u62db\u804c\u4f4d', icon: Briefcase },
+  { id: 'job-pool', label: '\u79cb\u62db\u5c97\u4f4d\u6c60', icon: Table2 },
   { id: 'progress', label: '\u6c42\u804c\u8fdb\u5ea6', icon: TrendingUp },
 ];
 
 export function CampusIndex() {
   const [activeTab, setActiveTab] = useState<CampusTab>('dashboard');
+  const [visitedTabs, setVisitedTabs] = useState<Set<CampusTab>>(
+    () => new Set<CampusTab>(['dashboard'])
+  );
   const sync = useCampusJobSyncContext();
   const customJobs = useCampusJobStore((state) => state.customJobs);
   const catalogJobs = useCampusJobStore((state) => state.catalogJobs);
   const catalogSource = useCampusJobStore((state) => state.catalogSource);
+  const setCatalogJobs = useCampusJobStore((state) => state.setCatalogJobs);
   const jobs = useMemo(
     () => [...catalogJobs, ...customJobs],
     [catalogJobs, customJobs]
   );
+
+  useEffect(() => {
+    sync.ensureCatalogLoaded();
+  }, [sync.ensureCatalogLoaded]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void ensureLocalCampusCatalog().then((localJobs) => {
+      if (cancelled) return;
+      const state = useCampusJobStore.getState();
+      if (state.catalogSource === 'remote' && state.catalogJobs.length > 0) return;
+      if (localJobs.length > 0) {
+        setCatalogJobs(localJobs, 'local');
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [setCatalogJobs]);
+
+  const selectTab = (id: CampusTab) => {
+    setActiveTab(id);
+    setVisitedTabs((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
 
   return (
     <PageShell maxWidth="2xl">
@@ -51,7 +87,7 @@ export function CampusIndex() {
             <button
               key={id}
               type="button"
-              onClick={() => setActiveTab(id)}
+              onClick={() => selectTab(id)}
               className={cn(
                 'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-extrabold transition-all',
                 activeTab === id
@@ -65,9 +101,26 @@ export function CampusIndex() {
           ))}
         </div>
 
-        {activeTab === 'dashboard' && <DashboardTab jobs={jobs} />}
-        {activeTab === 'jobs' && <JobsTab jobs={jobs} />}
-        {activeTab === 'progress' && <ProgressTab jobs={jobs} />}
+        {visitedTabs.has('dashboard') && (
+          <div className={cn(activeTab !== 'dashboard' && 'hidden')}>
+            <DashboardTab jobs={jobs} />
+          </div>
+        )}
+        {visitedTabs.has('jobs') && (
+          <div className={cn(activeTab !== 'jobs' && 'hidden')}>
+            <JobsTab jobs={jobs} />
+          </div>
+        )}
+        {visitedTabs.has('job-pool') && (
+          <div className={cn(activeTab !== 'job-pool' && 'hidden')}>
+            <JobPoolTab />
+          </div>
+        )}
+        {visitedTabs.has('progress') && (
+          <div className={cn(activeTab !== 'progress' && 'hidden')}>
+            <ProgressTab jobs={jobs} />
+          </div>
+        )}
       </div>
     </PageShell>
   );

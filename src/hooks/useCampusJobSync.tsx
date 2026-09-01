@@ -24,6 +24,8 @@ interface CampusJobSyncContextValue {
   lastSyncedAt: string | null;
   isLoggedIn: boolean;
   isConfigured: boolean;
+  /** Fetch remote catalog on demand (campus / resume optimize). Idempotent. */
+  ensureCatalogLoaded: () => void;
 }
 
 const CampusJobSyncContext = createContext<CampusJobSyncContextValue | null>(null);
@@ -53,6 +55,7 @@ function useCampusJobSync(): CampusJobSyncContextValue {
   const applyingRemoteRef = useRef(false);
   const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncGenerationRef = useRef(0);
+  const catalogFetchStartedRef = useRef(false);
 
   useEffect(() => {
     if (useCampusJobStore.persist.hasHydrated()) {
@@ -65,28 +68,25 @@ function useCampusJobSync(): CampusJobSyncContextValue {
     });
   }, []);
 
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
+  const ensureCatalogLoaded = useCallback(() => {
+    if (!isSupabaseConfigured || catalogFetchStartedRef.current) {
       return;
     }
-
-    let cancelled = false;
+    catalogFetchStartedRef.current = true;
     useCampusJobStore.getState().setCatalogLoading(true);
 
     void fetchCampusJobCatalog()
       .then((jobs) => {
-        if (cancelled || jobs.length === 0) return;
+        if (jobs.length === 0) {
+          useCampusJobStore.getState().setCatalogLoading(false);
+          return;
+        }
         useCampusJobStore.getState().setCatalogJobs(jobs, 'remote');
       })
       .catch(() => {
-        if (!cancelled) {
-          useCampusJobStore.getState().setCatalogLoading(false);
-        }
+        useCampusJobStore.getState().setCatalogLoading(false);
+        catalogFetchStartedRef.current = false;
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   const pullAndMerge = useCallback(async (userId: string) => {
@@ -228,5 +228,6 @@ function useCampusJobSync(): CampusJobSyncContextValue {
     lastSyncedAt,
     isLoggedIn: Boolean(user),
     isConfigured: configured,
+    ensureCatalogLoaded,
   };
 }

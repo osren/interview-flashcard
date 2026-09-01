@@ -1,64 +1,76 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { aiProjects, getProjectCards } from '@/data/ai';
 import { ArrowLeft, FileText, FileCode, X, Table } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as XLSX from 'xlsx';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { CardStatus } from '@/types';
 import { useCardStore } from '@/store';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
+import { cn } from '@/utils/cn';
 
 export function AIDetail() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const project = aiProjects.find(p => p.id === projectId);
+  const project = aiProjects.find((p) => p.id === projectId);
   const cards = getProjectCards(projectId || '');
 
-  // 状态
   const [showHtmlModal, setShowHtmlModal] = useState(false);
+  const [htmlIframeMounted, setHtmlIframeMounted] = useState(false);
   const [showXlsxModal, setShowXlsxModal] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [xlsxData, setXlsxData] = useState<any[]>([]);
+  const [xlsxData, setXlsxData] = useState<Record<string, string | number | null>[]>([]);
   const [xlsxHeaders, setXlsxHeaders] = useState<string[]>([]);
+  const [xlsxLoaded, setXlsxLoaded] = useState(false);
+  const xlsxLoadingRef = useRef(false);
 
-  // 加载 XLSX 数据
-  useEffect(() => {
-    if (project?.files.xlsx) {
-      loadXlsxData();
-    }
-  }, [project]);
-
-  // Jump to first card not marked as remembered
   useEffect(() => {
     if (cards.length === 0) return;
     const { cardStatuses } = useCardStore.getState();
     setCurrentCardIndex(findFirstUnrememberedIndex(cards, cardStatuses));
   }, [projectId, cards.length]);
 
+  const openHtmlModal = () => {
+    setHtmlIframeMounted(true);
+    setShowHtmlModal(true);
+  };
+
   const loadXlsxData = async () => {
+    if (!project?.files.xlsx || xlsxLoaded || xlsxLoadingRef.current) return;
+    xlsxLoadingRef.current = true;
     try {
-      const response = await fetch(project!.files.xlsx!);
+      const XLSX = await import('xlsx');
+      const response = await fetch(project.files.xlsx);
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as Array<
+        Array<string | number | null>
+      >;
 
       if (jsonData.length > 0) {
-        setXlsxHeaders(jsonData[0] as string[]);
-        const headers = jsonData[0] as string[];
-        const data = jsonData.slice(1).map(row => {
-          const obj: any = {};
+        const headers = (jsonData[0] as string[]).map(String);
+        setXlsxHeaders(headers);
+        const data = jsonData.slice(1).map((row) => {
+          const obj: Record<string, string | number | null> = {};
           headers.forEach((header, i) => {
-            obj[header] = row[i];
+            obj[header] = row[i] ?? null;
           });
           return obj;
         });
         setXlsxData(data);
+        setXlsxLoaded(true);
       }
     } catch (error) {
       console.error('Failed to load XLSX:', error);
+    } finally {
+      xlsxLoadingRef.current = false;
     }
+  };
+
+  const openXlsxModal = () => {
+    setShowXlsxModal(true);
+    void loadXlsxData();
   };
 
   const currentCard = cards[currentCardIndex];
@@ -69,7 +81,7 @@ export function AIDetail() {
     }
     if (currentCardIndex < cards.length - 1) {
       setTimeout(() => {
-        setCurrentCardIndex(prev => Math.min(cards.length - 1, prev + 1));
+        setCurrentCardIndex((prev) => Math.min(cards.length - 1, prev + 1));
       }, 300);
     }
   };
@@ -103,7 +115,6 @@ export function AIDetail() {
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4">
-        {/* 头部 */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigate('/ai')}
@@ -115,11 +126,10 @@ export function AIDetail() {
           <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
         </div>
 
-        {/* 文件区域 - 改为查看按钮 */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           {project.files.html && (
             <button
-              onClick={() => setShowHtmlModal(true)}
+              onClick={openHtmlModal}
               className="flex items-center justify-center gap-2 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
             >
               <FileCode className="text-blue-600" size={24} />
@@ -128,7 +138,7 @@ export function AIDetail() {
           )}
           {project.files.xlsx && (
             <button
-              onClick={() => setShowXlsxModal(true)}
+              onClick={openXlsxModal}
               className="flex items-center justify-center gap-2 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors"
             >
               <Table className="text-green-600" size={24} />
@@ -148,7 +158,6 @@ export function AIDetail() {
           )}
         </div>
 
-        {/* 知识卡片区域 */}
         {cards.length > 0 && (
           <div className="flex flex-col items-center">
             <div className="flex items-center justify-between w-[768px] max-w-full mb-4">
@@ -165,7 +174,6 @@ export function AIDetail() {
               showEdit={true}
             />
 
-            {/* 导航按钮 */}
             <div className="flex items-center justify-center gap-4 mt-6">
               <button
                 onClick={() => handleCardChange(currentCardIndex - 1)}
@@ -185,7 +193,6 @@ export function AIDetail() {
           </div>
         )}
 
-        {/* 空卡片状态 */}
         {cards.length === 0 && (
           <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100">
             <p className="text-gray-500 font-medium">暂无知识卡片</p>
@@ -193,45 +200,35 @@ export function AIDetail() {
         )}
       </div>
 
-      {/* HTML 弹窗 */}
-      <AnimatePresence>
-        {showHtmlModal && project.files.html && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setShowHtmlModal(false)}
+      {/* HTML iframe：首次打开后保持挂载，关闭仅隐藏外壳 */}
+      {htmlIframeMounted && project.files.html && (
+        <div
+          className={cn(
+            'fixed inset-0 z-50 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center p-4',
+            !showHtmlModal && 'hidden'
+          )}
+          onClick={() => setShowHtmlModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] overflow-hidden flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
-                <button
-                  onClick={() => setShowHtmlModal(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <iframe
-                src={project.files.html}
-                className="flex-1 w-full"
-                title={project.name}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
+              <button
+                onClick={() => setShowHtmlModal(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <iframe src={project.files.html} className="flex-1 w-full" title={project.name} />
+          </div>
+        </div>
+      )}
 
-      {/* XLSX 弹窗 */}
       <AnimatePresence>
-        {showXlsxModal && project.files.xlsx && xlsxData.length > 0 && (
+        {showXlsxModal && project.files.xlsx && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -256,30 +253,34 @@ export function AIDetail() {
                 </button>
               </div>
               <div className="flex-1 overflow-auto p-6">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        {xlsxHeaders.map(header => (
-                          <th key={header} className="px-4 py-2 text-left font-medium text-gray-700">
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {xlsxData.map((row, i) => (
-                        <tr key={i} className="border-t border-gray-100">
-                          {xlsxHeaders.map(header => (
-                            <td key={header} className="px-4 py-2 text-gray-600">
-                              {row[header]}
-                            </td>
+                {!xlsxLoaded ? (
+                  <p className="text-sm text-gray-500 text-center py-12">加载中…</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          {xlsxHeaders.map((header) => (
+                            <th key={header} className="px-4 py-2 text-left font-medium text-gray-700">
+                              {header}
+                            </th>
                           ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {xlsxData.map((row, i) => (
+                          <tr key={i} className="border-t border-gray-100">
+                            {xlsxHeaders.map((header) => (
+                              <td key={header} className="px-4 py-2 text-gray-600">
+                                {row[header]}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

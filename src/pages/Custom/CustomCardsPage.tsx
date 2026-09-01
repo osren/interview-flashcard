@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, ArrowLeft, Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import { CardStatus, FlashCard, ModuleType } from '@/types';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 
 interface EditingCard {
   id?: string;
@@ -374,12 +375,11 @@ export function CustomCardsPage() {
                 答案（支持 Markdown 和代码块）
               </label>
               <div data-color-mode="light">
-                <MDEditor
+                <LazyMDEditor
                   value={editingCard.answer}
                   onChange={(value) => setEditingCard({ ...editingCard, answer: value || '' })}
                   height={300}
                   preview="edit"
-                  enableScroll={true}
                 />
               </div>
             </div>
@@ -487,7 +487,7 @@ export function CustomCardsPage() {
                   </div>
                   <p className="text-gray-800 font-medium line-clamp-2">{card.question}</p>
                   <div className="mt-2 text-gray-500 text-sm line-clamp-3 prose prose-sm max-w-none" data-color-mode="light">
-                    <MDEditor.Markdown source={card.answer.slice(0, 200) + (card.answer.length > 200 ? '...' : '')} />
+                    <LazyMDMarkdown source={card.answer.slice(0, 200) + (card.answer.length > 200 ? '...' : '')} />
                   </div>
                 </div>
                 <div className="flex items-center gap-1">

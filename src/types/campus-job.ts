@@ -101,4 +101,4 @@ export interface CustomJobInput {
   reason?: string;
 }
 
-export type CampusTab = 'dashboard' | 'jobs' | 'progress';
+export type CampusTab = 'dashboard' | 'jobs' | 'job-pool' | 'progress';

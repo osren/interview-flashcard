@@ -35,10 +35,9 @@ interface RawJobJson {
   };
 }
 
-const jobModules = import.meta.glob('../../../docs/秋招岗位/**/*.json', {
-  eager: true,
+const jobModuleLoaders = import.meta.glob('../../../docs/秋招岗位/**/*.json', {
   import: 'default',
-}) as Record<string, RawJobJson>;
+}) as Record<string, () => Promise<RawJobJson>>;
 
 function slugify(value: string): string {
   return value.replace(/[^\w\u4e00-\u9fff-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
@@ -57,10 +56,10 @@ function normalizeCategory(category: string): JobCategory {
   return allowed.includes(category as JobCategory) ? (category as JobCategory) : 'other';
 }
 
-function loadBuiltinJobs(): CampusJobData[] {
+function normalizeJobs(entries: Array<[string, RawJobJson]>): CampusJobData[] {
   const usedIds = new Set<string>();
 
-  return Object.entries(jobModules).map(([filePath, raw]) => {
+  return entries.map(([filePath, raw]) => {
     const fileStem = filePath.split(/[/\\]/).pop()?.replace(/\.json$/i, '') ?? '';
     const baseId = buildJobId(raw.basic.company, raw.basic.position, raw.basic.location);
     const id = usedIds.has(baseId)
@@ -72,7 +71,7 @@ function loadBuiltinJobs(): CampusJobData[] {
 
     return {
       id,
-      source: 'builtin',
+      source: 'builtin' as const,
       basic: raw.basic,
       details: raw.details,
       extended: {
@@ -88,7 +87,29 @@ function loadBuiltinJobs(): CampusJobData[] {
   });
 }
 
-export const localBuiltinCampusJobs = loadBuiltinJobs();
+let cachedLocalJobs: CampusJobData[] | null = null;
+let loadingPromise: Promise<CampusJobData[]> | null = null;
+
+/** Lazy-load local JSON catalog (offline fallback). Cached after first load. */
+export async function ensureLocalCampusCatalog(): Promise<CampusJobData[]> {
+  if (cachedLocalJobs) return cachedLocalJobs;
+  if (loadingPromise) return loadingPromise;
+
+  loadingPromise = Promise.all(
+    Object.entries(jobModuleLoaders).map(async ([path, loader]) => {
+      const raw = await loader();
+      return [path, raw] as [string, RawJobJson];
+    })
+  ).then((entries) => {
+    cachedLocalJobs = normalizeJobs(entries);
+    return cachedLocalJobs;
+  });
+
+  return loadingPromise;
+}
+
+/** Empty until ensureLocalCampusCatalog() resolves — avoids eager JSON in main bundle. */
+export const localBuiltinCampusJobs: CampusJobData[] = [];
 
 /** @deprecated Use store catalogJobs or getAllJobs(); kept for offline fallback init */
 export const builtinCampusJobs = localBuiltinCampusJobs;

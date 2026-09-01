@@ -245,7 +245,10 @@ export function JobsTab({ jobs }: JobsTabProps) {
             const customCo = customCompanies.find((c) => c.name === companyName);
 
             return (
-              <div key={companyName}>
+              <div
+                key={companyName}
+                style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 52px' }}
+              >
                 <div className="flex items-center gap-1 group">
                   <button
                     type="button"

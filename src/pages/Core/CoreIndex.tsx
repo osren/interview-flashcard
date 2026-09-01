@@ -1,12 +1,31 @@
-import { coreCards, coreChapters } from '@/data/core';
+import { coreChapters, loadCoreChapterCards } from '@/data/core';
 import { PageShell, SectionHeader, ChapterCard } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
 import { useCardStore } from '@/store';
 import { isRemembered, resolveCardStatus } from '@/utils/cardStatus';
+import { useEffect, useState } from 'react';
+import type { FlashCard } from '@/types';
 
 export function CoreIndex() {
   const cardStatuses = useCardStore((state) => state.cardStatuses);
   const customCards = useCardStore((state) => state.customCards);
+  const [cardsByChapter, setCardsByChapter] = useState<Record<string, FlashCard[]>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(
+      coreChapters.map(async (chapter) => {
+        const cards = await loadCoreChapterCards(chapter.id);
+        return [chapter.id, cards] as const;
+      })
+    ).then((entries) => {
+      if (cancelled) return;
+      setCardsByChapter(Object.fromEntries(entries));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <PageShell>
@@ -18,8 +37,9 @@ export function CoreIndex() {
 
       <div className="grid gap-4">
         {coreChapters.map((chapter, index) => {
+          const loaded = cardsByChapter[chapter.id] ?? [];
           const chapterCards = [
-            ...coreCards.filter((card) => card.chapterId === chapter.id),
+            ...loaded,
             ...customCards.filter((card) => card.module === 'core' && card.chapterId === chapter.id),
           ];
           const remembered = chapterCards.filter((card) =>
@@ -32,7 +52,7 @@ export function CoreIndex() {
               title={chapter.title}
               description={chapter.description}
               icon={<span>{chapter.icon}</span>}
-              cardCount={chapterCards.length}
+              cardCount={chapterCards.length || chapter.cardCount}
               rememberedCount={remembered}
               index={index}
             />

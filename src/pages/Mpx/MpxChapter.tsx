@@ -11,7 +11,7 @@ import { Button } from '@/components/ui';
 import { Plus } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
-import MDEditor from '@uiw/react-md-editor';
+import { LazyMDEditor } from '@/components/ui/LazyMDEditor';
 
 export function MpxChapter() {
   const { chapterId } = useParams<{ chapterId: string }>();
@@ -156,7 +156,7 @@ export function MpxChapter() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-ink-secondary mb-1">回答</label>
-                  <MDEditor
+                  <LazyMDEditor
                     value={newQuestion.answer}
                     onChange={(val) => setNewQuestion({ ...newQuestion, answer: val || '' })}
                     height={200}

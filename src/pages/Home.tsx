@@ -1,6 +1,6 @@
 import { useCardStore } from '@/store';
-import { coreCards } from '@/data/core';
-import { projectChapters, projectCards } from '@/data/projects';
+import { CORE_TOTAL_CARD_COUNT, coreChapters, loadAllCoreCards } from '@/data/core';
+import { PROJECT_TOTAL_CARD_COUNT, projectChapters, loadAllProjectCards } from '@/data/projects';
 import { mpxCards, mpxChapters } from '@/data/mpx/mpx';
 import { handbookGroups, handbookItems } from '@/data/llm-handbook';
 import { isRemembered, resolveCardStatus } from '@/utils/cardStatus';
@@ -9,6 +9,7 @@ import { Progress, ModuleTile } from '@/components/ui';
 import { StreakCalendar } from '@/components/Streak';
 import { Logo } from '@/components/Layout/Logo';
 import { BookOpen, Rocket, Briefcase, Bot, Sparkles, FileJson } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 const modules = [
   {
@@ -16,8 +17,8 @@ const modules = [
     icon: <BookOpen size={28} strokeWidth={2.5} />,
     title: '前端基础核心考点',
     description: 'JavaScript / TypeScript / React / 浏览器等核心知识',
-    cardCount: coreCards.length,
-    chapters: 10,
+    cardCount: CORE_TOTAL_CARD_COUNT,
+    chapters: coreChapters.length,
   },
   {
     path: '/mpx',
@@ -32,7 +33,7 @@ const modules = [
     icon: <Briefcase size={28} strokeWidth={2.5} />,
     title: '项目针对性复盘',
     description: '滴滴实习 + AI 监控降噪 + GResume 项目深度复盘',
-    cardCount: projectCards.length,
+    cardCount: PROJECT_TOTAL_CARD_COUNT,
     chapters: projectChapters.length,
   },
   {
@@ -70,13 +71,27 @@ const features = [
 export function Home() {
   const customCards = useCardStore((state) => state.customCards);
   const cardStatuses = useCardStore((state) => state.cardStatuses);
-  const allCardIds = [
-    ...coreCards,
-    ...projectCards,
-    ...mpxCards,
-    ...customCards,
-  ].map((card) => card.id);
-  const totalCards = allCardIds.length;
+  const [loadedCardIds, setLoadedCardIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([loadAllCoreCards(), loadAllProjectCards()]).then(([core, projects]) => {
+      if (cancelled) return;
+      setLoadedCardIds([...core, ...projects, ...mpxCards].map((c) => c.id));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const allCardIds = useMemo(
+    () => [...loadedCardIds, ...customCards.map((c) => c.id)],
+    [loadedCardIds, customCards]
+  );
+
+  const estimatedTotal =
+    CORE_TOTAL_CARD_COUNT + PROJECT_TOTAL_CARD_COUNT + mpxCards.length + customCards.length;
+  const totalCards = loadedCardIds.length > 0 ? allCardIds.length : estimatedTotal;
   const totalRemembered = allCardIds.filter((id) =>
     isRemembered(resolveCardStatus(id, cardStatuses))
   ).length;
@@ -84,7 +99,6 @@ export function Home() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Hero - 多邻国风格 */}
       <section className="text-center mb-10">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -113,7 +127,6 @@ export function Home() {
         </motion.p>
       </section>
 
-      {/* 学习进度 + 打卡日历 */}
       <div className="grid md:grid-cols-2 gap-4 mb-10 items-stretch">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -134,11 +147,8 @@ export function Home() {
         <StreakCalendar />
       </div>
 
-      {/* 学习路径 - 多邻国单元卡片 */}
       <section className="mb-10">
-        <h2 className="text-2xl font-extrabold text-[#3c3c3c] mb-5">
-          学习路径
-        </h2>
+        <h2 className="text-2xl font-extrabold text-[#3c3c3c] mb-5">学习路径</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((module, index) => (
             <ModuleTile
@@ -149,9 +159,13 @@ export function Home() {
               description={module.description}
               index={index}
               actionLabel={
-                module.isCustom ? '管理卡片' :
-                module.isDemo ? '查看演示' :
-                module.isHandbook ? '查看手册' : '开始学习'
+                module.isCustom
+                  ? '管理卡片'
+                  : module.isDemo
+                    ? '查看演示'
+                    : module.isHandbook
+                      ? '查看手册'
+                      : '开始学习'
               }
               stats={
                 module.isCustom ? (
@@ -159,9 +173,13 @@ export function Home() {
                 ) : module.isDemo ? (
                   <span>交互式 Demo</span>
                 ) : module.isHandbook ? (
-                  <span>{module.groupCount} 分类 · {module.handbookCount} 篇手册</span>
+                  <span>
+                    {module.groupCount} 分类 · {module.handbookCount} 篇手册
+                  </span>
                 ) : (
-                  <span>{module.chapters} 章节 · {module.cardCount} 张卡片</span>
+                  <span>
+                    {module.chapters} 章节 · {module.cardCount} 张卡片
+                  </span>
                 )
               }
             />
@@ -169,11 +187,8 @@ export function Home() {
         </div>
       </section>
 
-      {/* 功能介绍 */}
       <section className="pb-12">
-        <h2 className="text-2xl font-extrabold text-[#3c3c3c] mb-5 text-center">
-          核心功能
-        </h2>
+        <h2 className="text-2xl font-extrabold text-[#3c3c3c] mb-5 text-center">核心功能</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {features.map((feature, i) => (
             <motion.div
