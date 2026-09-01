@@ -8,6 +8,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui';
 
 const moduleInfo = {
+  interviewflash: {
+    icon: '⚡',
+    title: 'InterviewFlash 秋招面试一体化备战平台',
+    topics: ['性能拆包', '秋招投递闭环', '云同步'],
+  },
   didi: {
     icon: '🚗',
     title: '滴滴企业版 - 商旅体验',

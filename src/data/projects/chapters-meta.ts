@@ -2,6 +2,15 @@ import type { Chapter } from '@/types';
 
 export const projectChapters: Chapter[] = [
   {
+    id: 'interviewflash',
+    module: 'projects',
+    title: 'InterviewFlash 秋招面试一体化备战平台',
+    description:
+      '项目搭建、架构组织、开发流程、核心功能、性能优化与项目亮点（含岗位池/拆包/keep-alive 复盘）',
+    cardCount: 15,
+    icon: '⚡',
+  },
+  {
     id: 'didi',
     module: 'projects',
     title: '滴滴企业版 - 商旅体验',

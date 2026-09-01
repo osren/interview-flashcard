@@ -3,6 +3,7 @@ import type { FlashCard } from '@/types';
 type ProjectLoader = () => Promise<FlashCard[]>;
 
 const projectLoaders: Record<string, ProjectLoader> = {
+  interviewflash: () => import('./interviewflash').then((m) => m.interviewflashCards),
   didi: () => import('./didi_new').then((m) => m.didiCards),
   'ai-monitor': () => import('./ai-monitor').then((m) => m.aiMonitorCards),
   gresume: () => import('./gresume').then((m) => m.gresumeCards),

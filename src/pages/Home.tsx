@@ -32,7 +32,7 @@ const modules = [
     path: '/projects',
     icon: <Briefcase size={28} strokeWidth={2.5} />,
     title: '项目针对性复盘',
-    description: '滴滴实习 + AI 监控降噪 + GResume 项目深度复盘',
+    description: 'InterviewFlash + 滴滴实习 + AI 监控降噪 + GResume 项目深度复盘',
     cardCount: PROJECT_TOTAL_CARD_COUNT,
     chapters: projectChapters.length,
   },

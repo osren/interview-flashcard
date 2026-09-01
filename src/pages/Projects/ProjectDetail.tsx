@@ -80,6 +80,11 @@ export function ProjectDetail() {
   const currentCard = cards[currentIndex];
 
   const staticProjectMeta: Record<string, { title: string; exportTitle: string; subtitle: string }> = {
+    interviewflash: {
+      title: '⚡ InterviewFlash',
+      exportTitle: 'InterviewFlash 秋招备战平台',
+      subtitle: '一体化备战复盘',
+    },
     didi: { title: '🚗 滴滴企业版', exportTitle: '滴滴企业版', subtitle: '实习深挖' },
     'ai-monitor': { title: '📡 AI 监控降噪工具', exportTitle: 'AI 监控降噪工具', subtitle: '告警智能判定' },
     gresume: { title: '📝 GResume', exportTitle: 'GResume 智能简历', subtitle: '技术攻坚' },
