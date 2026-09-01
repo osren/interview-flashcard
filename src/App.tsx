@@ -14,6 +14,7 @@ import { CampusIndex } from '@/pages/Campus';
 import { AIIndex, AIDetail } from '@/pages/AI';
 import { RJSFDemo } from '@/pages/RJSF';
 import { GithubTrending } from '@/pages/AI/GithubTrending';
+import { LLMHandbookPage } from '@/pages/LLMHandbook';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { Button } from '@/components/ui';
@@ -38,6 +39,8 @@ function App() {
 
           <Route path="/mpx" element={<MpxIndex />} />
           <Route path="/mpx/:chapterId" element={<MpxChapter />} />
+
+          <Route path="/llm-handbook" element={<LLMHandbookPage />} />
 
           <Route path="/custom" element={<CustomCardsPage />} />
           <Route path="/favorites" element={<Favorites />} />

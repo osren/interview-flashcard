@@ -17,6 +17,7 @@ import {
   Rocket,
   Send,
   Sparkles,
+  Bot,
   UserRound,
   X,
   type LucideIcon,
@@ -46,6 +47,7 @@ const navGroups: NavGroup[] = [
       { path: '/mpx', label: 'MPX', icon: Rocket },
       { path: '/projects', label: '项目复盘', icon: Briefcase },
       { path: '/algorithms', label: '刷题', icon: Code2 },
+      { path: '/llm-handbook', label: '大模型开发手册', icon: Bot },
     ],
   },
   {
