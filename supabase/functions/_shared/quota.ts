@@ -26,6 +26,15 @@ export function getDefaultModel(): string {
   return Deno.env.get('AI_DEFAULT_MODEL') ?? 'deepseek-chat';
 }
 
+export function getQuotaAdminEmail(): string {
+  return (Deno.env.get('AI_QUOTA_ADMIN_EMAIL') ?? '1529924810@qq.com').trim().toLowerCase();
+}
+
+export function isQuotaAdmin(email: string | undefined): boolean {
+  if (!email) return false;
+  return email.trim().toLowerCase() === getQuotaAdminEmail();
+}
+
 export function createServiceClient(): SupabaseClient {
   const url = Deno.env.get('SUPABASE_URL') ?? '';
   const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
@@ -47,10 +56,12 @@ export async function getUserQuota(
   }
 
   const payload = data as AiQuotaSnapshot;
+  const used = Number(payload.used ?? 0);
+  const effectiveLimit = Number(payload.limit ?? limit);
   return {
-    used: payload.used ?? 0,
-    limit: payload.limit ?? limit,
-    remaining: payload.remaining ?? limit,
+    used,
+    limit: effectiveLimit,
+    remaining: Math.max(0, effectiveLimit - used),
   };
 }
 
@@ -69,11 +80,13 @@ export async function consumeUserQuota(
   }
 
   const payload = data as AiQuotaConsumeResult;
+  const used = Number(payload.used ?? 0);
+  const effectiveLimit = Number(payload.limit ?? limit);
   return {
     ok: Boolean(payload.ok),
-    used: payload.used ?? 0,
-    limit: payload.limit ?? limit,
-    remaining: payload.remaining ?? 0,
+    used,
+    limit: effectiveLimit,
+    remaining: Math.max(0, effectiveLimit - used),
   };
 }
 
@@ -101,6 +114,20 @@ export async function fetchDeepSeekBalance(apiKey: string): Promise<DeepSeekBala
   } catch {
     return null;
   }
+}
+
+export async function resetTodayQuota(admin: SupabaseClient): Promise<number> {
+  const { data, error } = await admin
+    .from('ai_usage_daily')
+    .delete()
+    .gte('call_count', 0)
+    .select('user_id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.length ?? 0;
 }
 
 export function quotaExceededResponse(quota: AiQuotaSnapshot): Response {

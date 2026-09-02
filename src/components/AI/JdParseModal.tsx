@@ -34,7 +34,14 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [parsed, setParsed] = useState<ParsedJobPayload | null>(null);
-  const { quota, loading: quotaLoading, error: quotaError, refresh: refreshQuota, hasQuota } = useLlmQuota({
+  const {
+    quota,
+    loading: quotaLoading,
+    error: quotaError,
+    refresh: refreshQuota,
+    isQuotaExhausted,
+    canUseAi,
+  } = useLlmQuota({
     enabled: open && Boolean(user),
   });
 
@@ -83,7 +90,7 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
   const handleParse = async (event: FormEvent) => {
     event.preventDefault();
     if (!ensureLogin()) return;
-    if (!hasQuota) {
+    if (isQuotaExhausted) {
       setError('今日 AI 额度已用完，请明日再试');
       return;
     }
@@ -156,6 +163,7 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
                       quota={quota}
                       loading={quotaLoading}
                       error={quotaError}
+                      onRefresh={refreshQuota}
                       className="mt-1"
                     />
                   )}
@@ -210,7 +218,7 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
                     {error}
                   </div>
                 )}
-                <Button type="submit" className="w-full" disabled={loading || (Boolean(user) && !hasQuota)}>
+                <Button type="submit" className="w-full" disabled={loading || (Boolean(user) && !canUseAi)}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                   {loading ? '解析中...' : '解析为标准岗位'}
                 </Button>

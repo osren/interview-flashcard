@@ -29,6 +29,8 @@ begin
   from public.ai_usage_daily
   where user_id = p_user_id and usage_date = v_date;
 
+  v_count := coalesce(v_count, 0);
+
   return jsonb_build_object(
     'used', v_count,
     'limit', p_limit,

@@ -15,6 +15,18 @@ import { useLlmQuota } from '@/hooks/useLlmQuota';
 
 export type CardAIMode = 'explain' | 'followup';
 
+const QUOTA_EXHAUSTED_MSG = '今日 AI 额度已用完，请明日再试';
+
+const backdropTransition = {
+  duration: 0.15,
+  ease: [0.4, 0, 1, 1] as const,
+};
+
+const panelTransition = {
+  enter: { type: 'spring' as const, stiffness: 420, damping: 36 },
+  exit: { duration: 0.18, ease: [0.4, 0, 1, 1] as const },
+};
+
 interface CardAIPanelProps {
   open: boolean;
   card: FlashCard;
@@ -31,12 +43,21 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   const abortRef = useRef(false);
   const cardIdRef = useRef(card.id);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { quota, loading: quotaLoading, error: quotaError, refresh: refreshQuota, hasQuota } = useLlmQuota({
+  const {
+    quota,
+    loading: quotaLoading,
+    error: quotaError,
+    refresh: refreshQuota,
+    quotaPending,
+    isQuotaExhausted,
+    canUseAi,
+  } = useLlmQuota({
     enabled: open,
   });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || quotaPending || isQuotaExhausted) return;
+
     abortRef.current = false;
     if (cardIdRef.current !== card.id) {
       cardIdRef.current = card.id;
@@ -45,7 +66,7 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
     return () => {
       abortRef.current = true;
     };
-  }, [open, card.id, mode]);
+  }, [open, card.id, mode, quotaPending, isQuotaExhausted]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,10 +75,7 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   }, [content, streaming]);
 
   const runStream = async (messages: ChatMessage[]) => {
-    if (!hasQuota) {
-      setError('今日 AI 额度已用完，请明日再试');
-      return;
-    }
+    if (!canUseAi) return;
 
     setStreaming(true);
     setError(null);
@@ -102,23 +120,27 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   };
 
   const title = mode === 'explain' ? 'AI 解释' : 'AI 追问';
+  const followupPlaceholder = quotaPending
+    ? '额度加载中…'
+    : isQuotaExhausted
+      ? '今日额度已用完'
+      : '继续追问，例如：和 React 闭包陷阱有什么关系？';
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="sync">
       {open && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: backdropTransition }}
+            exit={{ opacity: 0, transition: backdropTransition }}
             className="fixed inset-0 z-[60] bg-black/30"
             onClick={onClose}
           />
           <motion.aside
-            initial={{ x: 360 }}
-            animate={{ x: 0 }}
-            exit={{ x: 360 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            initial={{ x: '100%' }}
+            animate={{ x: 0, transition: panelTransition.enter }}
+            exit={{ x: '100%', transition: panelTransition.exit }}
             className="fixed inset-y-0 right-0 z-[61] w-full max-w-md bg-white border-l-2 border-[#e5e5e5] shadow-2xl flex flex-col"
             onClick={(event) => event.stopPropagation()}
           >
@@ -136,6 +158,7 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
                     quota={quota}
                     loading={quotaLoading}
                     error={quotaError}
+                    onRefresh={refreshQuota}
                     className="mt-1"
                   />
                 </div>
@@ -151,6 +174,11 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
             </div>
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+              {isQuotaExhausted && !streaming && (
+                <div className="mb-3 rounded-xl border-2 border-[#FF4B4B] bg-[#fff0f0] px-3 py-2 text-sm text-[#b42318]">
+                  {QUOTA_EXHAUSTED_MSG}
+                </div>
+              )}
               {error && (
                 <div className="mb-3 rounded-xl border-2 border-[#FF4B4B] bg-[#fff0f0] px-3 py-2 text-sm text-[#b42318]">
                   {error}
@@ -163,13 +191,13 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
               <input
                 value={followup}
                 onChange={(event) => setFollowup(event.target.value)}
-                disabled={streaming || !hasQuota}
+                disabled={streaming || !canUseAi}
                 className="flex-1 rounded-xl border-2 border-[#e5e5e5] px-3 py-2 text-sm outline-none focus:border-[#1CB0F6]"
-                placeholder={hasQuota ? '继续追问，例如：和 React 闭包陷阱有什么关系？' : '今日额度已用完'}
+                placeholder={followupPlaceholder}
               />
               <button
                 type="submit"
-                disabled={streaming || !followup.trim() || !hasQuota}
+                disabled={streaming || !followup.trim() || !canUseAi}
                 className="px-3 py-2 rounded-xl bg-[#1CB0F6] text-white text-sm font-extrabold border-b-4 border-[#1899D6] disabled:opacity-50"
               >
                 {streaming ? <Loader2 size={16} className="animate-spin" /> : '发送'}

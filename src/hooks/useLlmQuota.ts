@@ -42,11 +42,21 @@ export function useLlmQuota(options: UseLlmQuotaOptions = {}) {
     void refresh();
   }, [enabled, user, refresh]);
 
+  const quotaPending = Boolean(user && enabled && loading && quota === null);
+  const quotaReady = Boolean(user && enabled && !quotaPending);
+  const isQuotaExhausted = quotaReady && quota !== null && quota.remaining <= 0;
+  const hasQuota = quota !== null && quota.remaining > 0;
+  const canUseAi = quotaReady && !isQuotaExhausted;
+
   return {
     quota,
     loading,
     error,
     refresh,
-    hasQuota: (quota?.remaining ?? 0) > 0,
+    quotaPending,
+    quotaReady,
+    isQuotaExhausted,
+    hasQuota,
+    canUseAi,
   };
 }

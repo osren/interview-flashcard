@@ -32,7 +32,14 @@ export function ResumeOptimizeTab() {
   const [changes, setChanges] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { quota, loading: quotaLoading, error: quotaError, refresh: refreshQuota, hasQuota } = useLlmQuota({
+  const {
+    quota,
+    loading: quotaLoading,
+    error: quotaError,
+    refresh: refreshQuota,
+    isQuotaExhausted,
+    canUseAi,
+  } = useLlmQuota({
     enabled: Boolean(user),
   });
 
@@ -81,7 +88,7 @@ export function ResumeOptimizeTab() {
       setLoginOpen(true);
       return;
     }
-    if (!hasQuota) {
+    if (isQuotaExhausted) {
       setError('今日 AI 额度已用完，请明日再试');
       return;
     }
@@ -145,6 +152,7 @@ export function ResumeOptimizeTab() {
           quota={quota}
           loading={quotaLoading}
           error={quotaError}
+          onRefresh={refreshQuota}
         />
       )}
       <div className="flex flex-wrap gap-3 items-center">
@@ -169,7 +177,7 @@ export function ResumeOptimizeTab() {
             </option>
           ))}
         </select>
-        <Button type="button" onClick={handleOptimize} disabled={loading || (Boolean(user) && !hasQuota)}>
+        <Button type="button" onClick={handleOptimize} disabled={loading || (Boolean(user) && !canUseAi)}>
           {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
           {loading ? '优化中...' : '按 JD 优化'}
         </Button>

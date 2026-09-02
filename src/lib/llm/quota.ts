@@ -50,3 +50,38 @@ export function formatLlmBalanceLabel(quota: LlmQuotaInfo): string | null {
   const symbol = quota.balance.currency === 'USD' ? '$' : '¥';
   return `账户余额 ${symbol}${quota.balance.total}`;
 }
+
+export async function resetLlmQuotaToday(): Promise<LlmQuotaInfo> {
+  const token = await getAccessToken();
+  if (!token) {
+    throw new Error('请先登录后再重置 AI 额度');
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${getSupabaseUrl()}/functions/v1/llm-quota`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: getSupabaseAnonKey(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action: 'reset_today' }),
+    });
+  } catch (error) {
+    const hint = error instanceof Error ? error.message : '网络请求失败';
+    throw new Error(`额度重置失败（${hint}）`);
+  }
+
+  let payload = await response.json() as LlmQuotaInfo & {
+    error?: string;
+    detail?: string;
+    message?: string;
+  };
+
+  if (!response.ok) {
+    throw new Error(payload.detail ?? payload.error ?? `额度重置失败 (${response.status})`);
+  }
+
+  return payload;
+}
