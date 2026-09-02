@@ -14,67 +14,60 @@
 
 ## 实习经历
 
-**滴滴出行 · 企业版商旅** | 前端开发实习生 | 2026.01 — 2026.07
+**滴滴出行 · 企业版商旅（商旅体验）** | 前端开发实习生 | 2026.01 — 2026.07  
+汇报关系：向商旅前端 Mentor / 组长汇报；与 PM、RD、QA 协作需求评审与发版验收
 
 **项目一：AI 规范驱动的 C/B 双端业务交付**
 
-- **项目描述**：在团队 AI Coding Spec 约束下，参与商旅 C 端预订链路与 B 端配置中台开发；用大模型 + Agent Skills 加速需求理解、方案草案与规范编码，人工把关样式兼容与发版质量。
+- **项目描述**：作为**前端开发**，负责/参与商旅 C 端机/火预订链路与 B 端甲子配置中台功能交付；在团队 AI Coding Spec 约束下用大模型 + Agent Skills 加速需求理解、方案草案与规范编码，人工把关样式兼容与发版质量，支撑企业客户日常预订与后台配置运营。
 - **技术栈**：React 17、TypeScript、Ant Design、Redux、AI Coding Spec、Cooper、Agent Skills
 - **主要工作**：
+  - **个人职责**：负责/协助 `fe-esflight`（机票）、`fe-estrain`（火车票）预订端需求与 `jiazi` 后台配置模块的前端实现、联调与上线
   - 规范底座：业务仓接入 `fe-estrip-ai-coding-spec`（Rules + Agent 约束 + Skills），让大模型在组内规范下协作
   - 模型 + Skills 协同：Cooper 读 PRD → 工作流 Skill 走需求/设计/开发 → 页面组件脚手架 → code-review 质检
-  - 人机门禁：AI 加速定位与草案生成；样式/星河兼容、主链路边界与发版质量由人工把关
-  - 业务闭环：规范约束下完成 C 端 + B 端中台 **20+** 项交付并稳定发版，证明 AI 是杠杆而非替代
+  - **业务结果**：规范约束下完成 C 端 + B 端中台 **20+** 项交付、**15 次 release** 稳定发版；代表需求含机票分享扩量、超标预警、**B 端机票政策域多模块配置（航司销控/佣金出账等）**等已上线特性
 
 **项目二：Agent 驱动的页面性能复盘 Skill**
 
-- **项目描述**：将页面性能复盘流程固化为 Agent Skill，与 PerfMonitor/Omega 运行时监控联动，形成「Skill 定位瓶颈 → 改造 → 线上指标验收」闭环。
+- **项目描述**：作为**独立推动者**，将页面性能复盘流程固化为 Agent Skill，与业务仓 PerfMonitor/Omega 运行时监控联动，形成「Skill 定位瓶颈 → 改造 → 线上指标验收」闭环，改善商旅首页/列表等核心页加载与交互体验。
 - **技术栈**：Agent Skill、Prompt 工程、PerfMonitor、Omega、Web Vitals、React
 - **主要工作**：
+  - **个人职责**：编写 Skill 规程与接入文档，推动业务仓埋点改造与优化方案落地，并用 Omega 指标验收
   - Skill 工程：固化加载 / 交互 / 监听三阶段分析规程，报告强制输出 P0/P1/P2 优先级与瓶颈清单
-  - 监控联动：与业务仓运行时监控打通，列表 LCP **1400→1160ms（↓17%）**、菜单切换卡顿约 **↓27%** 经线上指标验收
-  - 可复用交付：沉淀 Skill 规范与接入文档，可复用于团队 Agent 工作流
+  - **业务结果**：列表 LCP **1400→1160ms（↓17%）**、星河底部菜单切换卡顿约 **↓27%**，经线上监控验收；Skill 规范可复用于团队 Agent 工作流
 
 **项目三：商旅 AI 告警智能降噪判定服务（error-triage）**
 
-- **项目描述**：面向机酒火多 Domain 接口告警的 LLM 判定引擎，在派发前智能过滤噪音；工程负责路由编排与 Eval 闭环，模型负责语义判定。
+- **项目描述**：参与商旅 AI 告警智能降噪判定服务的设计与实现，面向机酒火接口告警「噪音高、真故障易被淹没」问题，在告警派发前用 LLM 做分级判定；工程负责路由编排与 Eval 闭环，模型负责语义判定，目标是把业务正常拒绝/展示类噪音挡在 IM/工单之前。
 - **技术栈**：Node.js、Prompt 工程、Agent Skills、Eval、LLM Gateway
 - **主要工作**：
+  - **个人职责**：参与引擎脚手架、火车票 Domain（路由表 + Prompt）配置，以及 discover/onboard Skills 与 `/eval` 评测链路搭建
   - 工程理念：判定交给模型，工程只做路由与编排；调优聚焦 Prompt 而非规则旁路
-  - Skills 产品化：探针发现核心链路、接入生成 Domain 骨架、清单漂移检测，降低业务 onboarding 成本
-  - 数据驱动：Eval 批量对比 gold 集，人机协作迭代 Prompt；漏报优先，火车 Domain 已接入
-  - 技术实现：动态 Prompt 按 category 按需拼装（`_base` + 分类规则）；`/judge`/`/eval` 支持 gold 对比与 Prompt 回归，解析失败保守上报
+  - **评测成果**（gold 集）：以**漏报率 FN 为头号指标**，holdout 集 FN 压至 **≈0**；Prompt 迭代可将典型 business_reject 误报 **FP 1/1→0/1**（评测样例）；severity 一致率同步提升
+  - **业务价值**：火车票 Domain 已接入并完成回源核验；机酒 url 清单已摘、Domain 待 onboard；派发通道当前为日志占位（真实 IM/工单接缝已预留）
+  - 技术实现：动态 Prompt 按 category 拼装（`_base` + 分类规则）；`/judge`/`/eval` 支持 gold 对比与 Prompt 回归，解析/超时失败保守上报
 
 ---
 
 ## 项目经历
 
-**GResume · AI 驱动简历优化与 JD 派生** | 2025.10 — 2026.06 | 个人项目  
-Github：https://github.com/506-FETL/resume
-
-- **项目描述**：独立开发 AI 驱动的**简历创作**平台，模型负责判定与生成，工程负责编排、校验与人在回路写回；聚焦 TipTap 编辑、模板换肤与 PDF 导出，密钥经 `llm-proxy` 不出前端。
-- **技术栈**：React 19、TypeScript、Vite、TipTap、Zustand、Supabase Edge Functions、DeepSeek LLM、Automerge（CRDT）
-- **主要工作**：
-  - ATS 闭环：一次结构化扫描产出五维分 + findings + path 级 suggestions，Issue-fix 对比确认后写入，避免「只打分不落地」
-  - 双入口改写：Optimize 整份修复 vs 编辑器划词（STAR/量化/强动词/润色/JD 靠拢）多候选应用，能力复用同一 LLM 网关
-  - JD 工作流：解析关键词 → 克隆底稿 → 白名单字段改写 → 匹配度与血缘树；后台任务可续跑
-  - 协作底座：Automerge CRDT + Supabase Realtime 支持分享链接、远程光标与离线合并
-
-**InterviewFlash · AI 增强面试备考闪卡** | 2025.12 — 2026.09 | 个人项目  
+**InterviewFlash · 秋招面试一体化 AI 备战平台** | 2025.12 — 2026.09 | 个人项目  
 Github：https://github.com/osren/interview-flashcard
 
-- **项目描述**：面向**面试背题与模拟追问**的 AI 增强闪卡系统，将 LLM 讲解/追问、JD 结构化解析与复习进度打通，形成「背题 → 模拟追问 → 按 JD 补弱」备考闭环。
-- **技术栈**：React 18、TypeScript、Supabase Edge Functions、DeepSeek LLM、Zustand、Framer Motion、react-markdown
+- **项目描述**：独立设计并开发面向秋招的**面试备战 Web 应用**，将闪卡刷题、AI 讲解/追问、秋招投递追踪、JD 智能解析、简历定向优化、面经复盘打通为「背题 → 模拟追问 → 按 JD 补弱 → 投递管理」闭环；未登录可用本地能力，登录后 Supabase 云同步。
+- **技术栈**：React 18、TypeScript、Vite 5、Tailwind CSS、Zustand、Framer Motion、Supabase（Auth / Postgres / Edge Functions）、DeepSeek LLM、Recharts
 - **主要工作**：
-  - 卡片 AI：基于闪卡上下文构建 Explain/Follow-up Prompt，Edge Function 流式输出；JWT 鉴权 + 未登录门禁
-  - JD 解析链路：`fetch-jd-url` 服务端抓取 bypass CORS → `parse-jd` 结构化入库秋招岗位库，联动投递看板
-  - 备考向微调：Markdown 主简历 + 选定 JD → `optimize-resume` 生成优化副本与变更摘要（辅助自查背诵，非 TipTap 编辑器）
-  - 复习引擎：四态掌握度持久化 + 自定义面经导入；收藏/筛选/搜索与岗位 JD 关键词联动选题
+  - **产品架构**：覆盖刷题、面经、秋招投递、简历等 8+ 模块；题库按章动态加载，Campus Tab keep-alive 优化首屏与切换体验
+  - **AI 讲解/追问**：CardAIPanel 侧滑面板，基于闪卡上下文构建 Explain / Follow-up Prompt，注入项目案例与候选人背景；SSE 流式输出，会话本地缓存避免重复扣费
+  - **LLM 工程化**：Edge Function 统一代理 DeepSeek，JWT 鉴权 + 日额度 RPC 原子扣减；JD 结构化解析、简历定向优化，API Key 不出前端
+  - **秋招投递**：ProgressRaceChart 竞赛图追踪各岗位阶段，行内切换状态；AI 解析 JD 入库，S/A/B 分级看板 + 岗位库云同步
+  - **简历辅助**：Markdown 简历 + 岗位 JD → 生成优化副本与变更摘要，支撑按 JD 自查背诵与关键词对齐
+  - **性能与同步**：路由/章节懒加载 + Vite 拆包；学习进度与投递数据 debounce 云同步 merge
 
 ---
 
 ## 专业技能
 
 - **Web 前端**：熟练掌握 React、TypeScript；熟悉 Vue；具备小程序 / H5 多端经验；熟练使用 Ant Design、Tailwind CSS；熟悉 Redux、Zustand
-- **Agent 编排与 LLM 应用**：熟悉 Prompt 工程、Agent Skills 产品化与 Eval 评测闭环；熟悉 LLM 结构化输出与人在回路写回；了解 Claude Code / AI Coding Spec 协作开发
+- **AI 应用与 LLM 工程**：熟悉 Prompt 工程与大模型结构化输出；熟悉 Eval 评测闭环与人在回路写回；了解 LLM 代理鉴权、SSE 流式交互与 AI Coding 协作开发
 - **工程化与其他**：熟悉 Vite、Webpack、Git；了解 Node.js、Supabase Edge Functions；熟悉 HTML5 / CSS3、JavaScript（ES6+）
