@@ -11,7 +11,16 @@ export function StreamMarkdown({ content, streaming = false }: StreamMarkdownPro
   }
 
   if (!content) {
-    return <p className="text-sm text-[#afafaf]">点击卡片上的 AI 按钮开始。</p>;
+    return null;
+  }
+
+  if (streaming) {
+    return (
+      <div className="text-sm leading-relaxed text-[#3c3c3c] whitespace-pre-wrap break-words">
+        {content}
+        <span className="inline-block w-2 h-4 ml-0.5 bg-[#1CB0F6] animate-pulse align-middle" />
+      </div>
+    );
   }
 
   return (
@@ -20,9 +29,6 @@ export function StreamMarkdown({ content, streaming = false }: StreamMarkdownPro
         source={content}
         style={{ backgroundColor: 'transparent', color: '#3c3c3c' }}
       />
-      {streaming && (
-        <span className="inline-block w-2 h-4 ml-0.5 bg-[#1CB0F6] animate-pulse align-middle" />
-      )}
     </div>
   );
 }

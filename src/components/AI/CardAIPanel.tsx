@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, MessageCircleQuestion, Sparkles, X } from 'lucide-react';
 import type { FlashCard } from '@/types';
@@ -9,11 +9,13 @@ import {
   buildExplainMessages,
   buildFollowupMessages,
 } from '@/lib/llm/prompts/card-ai';
+import { isRestorableSession, useCardAiStore, type CardAiMode } from '@/store/useCardAiStore';
+import { clearCardAiAutoRun, isCardAiAutoRunInflight, runCardAiAutoRunOnce } from './card-ai-auto-run';
 import { StreamMarkdown } from './StreamMarkdown';
 import { LlmQuotaBadge } from './LlmQuotaBadge';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
 
-export type CardAIMode = 'explain' | 'followup';
+export type CardAIMode = CardAiMode;
 
 const QUOTA_EXHAUSTED_MSG = '今日 AI 额度已用完，请明日再试';
 
@@ -34,15 +36,29 @@ interface CardAIPanelProps {
   onClose: () => void;
 }
 
+function sessionKey(cardId: string, mode: CardAIMode): string {
+  return `${cardId}:${mode}`;
+}
+
 export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   const [content, setContent] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [followup, setFollowup] = useState('');
+  const [restoredSession, setRestoredSession] = useState(false);
+  const [openedWithSavedSession, setOpenedWithSavedSession] = useState(false);
   const historyRef = useRef<ChatMessage[]>([]);
+  const contentRef = useRef('');
+  const streamingRef = useRef(false);
   const abortRef = useRef(false);
-  const cardIdRef = useRef(card.id);
+  const streamGenerationRef = useRef(0);
+  const activeKeyRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const getSession = useCardAiStore((state) => state.getSession);
+  const saveSession = useCardAiStore((state) => state.saveSession);
+
+  const key = sessionKey(card.id, mode);
+
   const {
     quota,
     loading: quotaLoading,
@@ -55,18 +71,87 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
     enabled: open,
   });
 
+  const persistSession = useCallback(() => {
+    if (!isRestorableSession({ history: historyRef.current, displayContent: contentRef.current, updatedAt: 0 })) {
+      return;
+    }
+    saveSession(card.id, mode, {
+      history: historyRef.current,
+      displayContent: contentRef.current,
+    });
+  }, [card.id, mode, saveSession]);
+
+  const restoreFromStore = useCallback((saved: NonNullable<ReturnType<typeof getSession>>, fromCache: boolean) => {
+    historyRef.current = saved.history;
+    contentRef.current = saved.displayContent;
+    setContent(saved.displayContent);
+    setRestoredSession(true);
+    setOpenedWithSavedSession(fromCache);
+    setError(null);
+  }, []);
+
   useEffect(() => {
-    if (!open || quotaPending || isQuotaExhausted) return;
+    contentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    streamingRef.current = streaming;
+  }, [streaming]);
+
+  useEffect(() => {
+    const previousKey = activeKeyRef.current;
+
+    if (!open) {
+      abortRef.current = true;
+      streamGenerationRef.current += 1;
+      if (previousKey) {
+        clearCardAiAutoRun(previousKey);
+      }
+      activeKeyRef.current = null;
+      if (!streamingRef.current) {
+        persistSession();
+      }
+      return;
+    }
+
+    if (previousKey && previousKey !== key) {
+      abortRef.current = true;
+      streamGenerationRef.current += 1;
+      clearCardAiAutoRun(previousKey);
+    }
 
     abortRef.current = false;
-    if (cardIdRef.current !== card.id) {
-      cardIdRef.current = card.id;
+    activeKeyRef.current = key;
+
+    const saved = getSession(card.id, mode);
+    if (isRestorableSession(saved)) {
+      restoreFromStore(saved, true);
+      return;
     }
-    void runInitial(mode);
-    return () => {
-      abortRef.current = true;
-    };
-  }, [open, card.id, mode, quotaPending, isQuotaExhausted]);
+
+    if (!streamingRef.current && !isCardAiAutoRunInflight(key)) {
+      historyRef.current = [];
+      contentRef.current = '';
+      setContent('');
+      setRestoredSession(false);
+      setOpenedWithSavedSession(false);
+      setError(null);
+    }
+  }, [open, key, card.id, mode, getSession, persistSession, restoreFromStore]);
+
+  useEffect(() => {
+    if (!open || quotaPending || restoredSession || isQuotaExhausted || !canUseAi) {
+      return;
+    }
+
+    runCardAiAutoRunOnce(key, async () => {
+      await runInitial(mode);
+      const saved = getSession(card.id, mode);
+      if (isRestorableSession(saved)) {
+        restoreFromStore(saved, false);
+      }
+    });
+  }, [open, key, card.id, mode, quotaPending, restoredSession, isQuotaExhausted, canUseAi, getSession, restoreFromStore]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -77,9 +162,11 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   const runStream = async (messages: ChatMessage[]) => {
     if (!canUseAi) return;
 
+    const generation = streamGenerationRef.current;
     setStreaming(true);
     setError(null);
     setContent('');
+    contentRef.current = '';
     historyRef.current = messages;
     let assembled = '';
 
@@ -89,17 +176,38 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
         temperature: 0.5,
         max_tokens: 1200,
       })) {
-        if (abortRef.current) break;
+        if (abortRef.current || generation !== streamGenerationRef.current) break;
         assembled += chunk;
+        contentRef.current = assembled;
         setContent(assembled);
       }
-      historyRef.current = [...messages, { role: 'assistant', content: assembled }];
-      await refreshQuota();
+
+      if (assembled) {
+        const fullHistory: ChatMessage[] = [...messages, { role: 'assistant', content: assembled }];
+        saveSession(card.id, mode, {
+          history: fullHistory,
+          displayContent: assembled,
+        });
+        if (generation === streamGenerationRef.current) {
+          historyRef.current = fullHistory;
+          setContent(assembled);
+          setRestoredSession(true);
+        }
+      } else if (generation === streamGenerationRef.current && abortRef.current) {
+        setError('生成已中断，请关闭后重新打开');
+      }
+
+      if (generation === streamGenerationRef.current) {
+        await refreshQuota();
+      }
     } catch (err) {
+      if (generation !== streamGenerationRef.current) return;
       setError(err instanceof Error ? err.message : 'AI 请求失败');
       await refreshQuota();
     } finally {
-      setStreaming(false);
+      if (generation === streamGenerationRef.current) {
+        setStreaming(false);
+      }
     }
   };
 
@@ -124,7 +232,9 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
     ? '额度加载中…'
     : isQuotaExhausted
       ? '今日额度已用完'
-      : '继续追问，例如：和 React 闭包陷阱有什么关系？';
+      : restoredSession
+        ? '继续追问，或输入新问题…'
+        : '继续追问，例如：和 React 闭包陷阱有什么关系？';
 
   return (
     <AnimatePresence mode="sync">
@@ -174,6 +284,9 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
             </div>
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+              {openedWithSavedSession && !streaming && content && (
+                <p className="mb-3 text-[11px] font-semibold text-[#999999]">已恢复上次对话，继续输入将消耗 1 次额度</p>
+              )}
               {isQuotaExhausted && !streaming && (
                 <div className="mb-3 rounded-xl border-2 border-[#FF4B4B] bg-[#fff0f0] px-3 py-2 text-sm text-[#b42318]">
                   {QUOTA_EXHAUSTED_MSG}
