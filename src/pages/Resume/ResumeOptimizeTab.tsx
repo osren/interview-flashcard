@@ -8,6 +8,8 @@ import { useResumeStore } from '@/store/useResumeStore';
 import { invokeEdgeFunction } from '@/lib/llm/invoke';
 import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
 import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
+import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
+import { useLlmQuota } from '@/hooks/useLlmQuota';
 
 interface OptimizeResult {
   optimized_markdown: string;
@@ -30,6 +32,9 @@ export function ResumeOptimizeTab() {
   const [changes, setChanges] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { quota, loading: quotaLoading, error: quotaError, refresh: refreshQuota, hasQuota } = useLlmQuota({
+    enabled: Boolean(user),
+  });
 
   useEffect(() => {
     sync.ensureCatalogLoaded();
@@ -76,6 +81,10 @@ export function ResumeOptimizeTab() {
       setLoginOpen(true);
       return;
     }
+    if (!hasQuota) {
+      setError('今日 AI 额度已用完，请明日再试');
+      return;
+    }
     if (!current?.content.trim() || !jdText.trim()) {
       setError('请先选择/编辑简历，并填写或选择 JD');
       return;
@@ -91,8 +100,10 @@ export function ResumeOptimizeTab() {
       });
       setPreview(result.optimized_markdown);
       setChanges(result.changes_summary ?? []);
+      await refreshQuota();
     } catch (err) {
       setError(err instanceof Error ? err.message : '优化失败');
+      await refreshQuota();
     } finally {
       setLoading(false);
     }
@@ -129,6 +140,13 @@ export function ResumeOptimizeTab() {
 
   return (
     <div className="space-y-4">
+      {user && (
+        <LlmQuotaBadge
+          quota={quota}
+          loading={quotaLoading}
+          error={quotaError}
+        />
+      )}
       <div className="flex flex-wrap gap-3 items-center">
         <select
           value={current?.id ?? ''}
@@ -151,7 +169,7 @@ export function ResumeOptimizeTab() {
             </option>
           ))}
         </select>
-        <Button type="button" onClick={handleOptimize} disabled={loading}>
+        <Button type="button" onClick={handleOptimize} disabled={loading || (Boolean(user) && !hasQuota)}>
           {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
           {loading ? '优化中...' : '按 JD 优化'}
         </Button>

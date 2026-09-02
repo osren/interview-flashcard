@@ -7,6 +7,8 @@ import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { fetchJdFromUrl, parseJdText, parsedJobToInput, type ParsedJobPayload } from '@/lib/llm/jd';
 import { JOB_CATEGORY_LABELS } from '@/data/campus-jobs';
 import type { JobCategory } from '@/types/campus-job';
+import { LlmQuotaBadge } from './LlmQuotaBadge';
+import { useLlmQuota } from '@/hooks/useLlmQuota';
 
 interface JdParseModalProps {
   open: boolean;
@@ -32,6 +34,9 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [parsed, setParsed] = useState<ParsedJobPayload | null>(null);
+  const { quota, loading: quotaLoading, error: quotaError, refresh: refreshQuota, hasQuota } = useLlmQuota({
+    enabled: open && Boolean(user),
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -78,6 +83,10 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
   const handleParse = async (event: FormEvent) => {
     event.preventDefault();
     if (!ensureLogin()) return;
+    if (!hasQuota) {
+      setError('今日 AI 额度已用完，请明日再试');
+      return;
+    }
     if (!jdText.trim()) {
       setError('请先抓取 URL 或粘贴 JD 文本');
       return;
@@ -92,8 +101,10 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
       });
       setParsed(job);
       setStep('preview');
+      await refreshQuota();
     } catch (err) {
       setError(err instanceof Error ? err.message : '解析失败');
+      await refreshQuota();
     } finally {
       setLoading(false);
     }
@@ -140,6 +151,14 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
                 <div>
                   <h2 className="font-extrabold text-[#3c3c3c]">智能添加岗位</h2>
                   <p className="text-xs text-[#777777]">优先抓取 URL，失败则粘贴 JD 文本解析</p>
+                  {user && (
+                    <LlmQuotaBadge
+                      quota={quota}
+                      loading={quotaLoading}
+                      error={quotaError}
+                      className="mt-1"
+                    />
+                  )}
                 </div>
               </div>
               <button type="button" onClick={onClose} className="p-2 rounded-lg text-[#777777] hover:bg-white" aria-label="关闭">
@@ -191,7 +210,7 @@ export function JdParseModal({ open, onClose, defaultCompany = '', onAdded }: Jd
                     {error}
                   </div>
                 )}
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || (Boolean(user) && !hasQuota)}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                   {loading ? '解析中...' : '解析为标准岗位'}
                 </Button>

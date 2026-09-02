@@ -6,6 +6,9 @@ export type { ChatMessage, LlmCallOptions };
 async function parseLlmError(response: Response): Promise<string> {
   try {
     const body = (await response.json()) as LlmProxyErrorBody;
+    if (body.error === 'QUOTA_EXCEEDED') {
+      return body.detail ?? '今日 AI 额度已用完，请明日再试';
+    }
     if (body.detail) return `${body.error ?? 'LLM 请求失败'}: ${body.detail}`;
     return body.error ?? `LLM 请求失败 (${response.status})`;
   } catch {

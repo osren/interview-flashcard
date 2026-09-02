@@ -10,7 +10,13 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "report": "node claude-report-server.cjs",
-    "seed:campus-catalog": "node scripts/generate-campus-catalog-seed.mjs"
+    "seed:campus-catalog": "node scripts/generate-campus-catalog-seed.mjs",
+    "supabase": "supabase",
+    "supabase:login": "supabase login",
+    "supabase:link": "supabase link --project-ref hrearoyfuozkcrohsome",
+    "supabase:db:push": "supabase db push",
+    "supabase:deploy:ai": "supabase functions deploy llm-quota --no-verify-jwt && supabase functions deploy llm-proxy --no-verify-jwt && supabase functions deploy optimize-resume --no-verify-jwt && supabase functions deploy parse-jd --no-verify-jwt",
+    "supabase:deploy:ai:all": "powershell -ExecutionPolicy Bypass -File scripts/deploy-supabase-ai.ps1"
   },
   "dependencies": {
     "@rjsf/antd": "^6.5.2",
@@ -42,6 +48,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.35",
+    "supabase": "^2.116.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.1.4"

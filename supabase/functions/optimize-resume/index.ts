@@ -1,5 +1,10 @@
 import { corsHeaders, jsonResponse, requireUser } from '../_shared/auth.ts';
 import { CANDIDATE_CONTEXT } from '../_shared/candidate.ts';
+import {
+  consumeUserQuota,
+  createServiceClient,
+  quotaExceededResponse,
+} from '../_shared/quota.ts';
 
 function extractJson(text: string): unknown {
   const fenced = text.match(/```json\s*([\s\S]*?)```/i)?.[1] ?? text.match(/```\s*([\s\S]*?)```/)?.[1];
@@ -38,6 +43,12 @@ Deno.serve(async (req) => {
     const jd = body.jd_text?.trim() ?? '';
     if (!resume || !jd) {
       return jsonResponse({ error: 'resume_markdown and jd_text are required' }, 400);
+    }
+
+    const admin = createServiceClient();
+    const quotaResult = await consumeUserQuota(admin, auth.user!.id);
+    if (!quotaResult.ok) {
+      return quotaExceededResponse(quotaResult);
     }
 
     const system = `你是简历优化助手。只改表述、关键词与顺序，禁止捏造经历、公司、数字或技能。

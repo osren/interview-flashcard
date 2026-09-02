@@ -36,6 +36,9 @@ export async function invokeEdgeFunction<T>(
   }
 
   if (!response.ok) {
+    if (response.status === 429 && payload.error === 'QUOTA_EXCEEDED') {
+      throw new Error(payload.detail ?? '今日 AI 额度已用完，请明日再试');
+    }
     if (response.status === 404 || payload.code === 'NOT_FOUND') {
       throw new Error(
         `Edge Function「${name}」未部署。请在项目根目录执行：supabase functions deploy ${name} --no-verify-jwt`

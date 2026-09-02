@@ -10,6 +10,8 @@ import {
   buildFollowupMessages,
 } from '@/lib/llm/prompts/card-ai';
 import { StreamMarkdown } from './StreamMarkdown';
+import { LlmQuotaBadge } from './LlmQuotaBadge';
+import { useLlmQuota } from '@/hooks/useLlmQuota';
 
 export type CardAIMode = 'explain' | 'followup';
 
@@ -29,6 +31,9 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   const abortRef = useRef(false);
   const cardIdRef = useRef(card.id);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { quota, loading: quotaLoading, error: quotaError, refresh: refreshQuota, hasQuota } = useLlmQuota({
+    enabled: open,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -49,6 +54,11 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
   }, [content, streaming]);
 
   const runStream = async (messages: ChatMessage[]) => {
+    if (!hasQuota) {
+      setError('今日 AI 额度已用完，请明日再试');
+      return;
+    }
+
     setStreaming(true);
     setError(null);
     setContent('');
@@ -66,8 +76,10 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
         setContent(assembled);
       }
       historyRef.current = [...messages, { role: 'assistant', content: assembled }];
+      await refreshQuota();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'AI 请求失败');
+      await refreshQuota();
     } finally {
       setStreaming(false);
     }
@@ -120,6 +132,12 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
                 <div className="min-w-0">
                   <h2 className="font-extrabold text-[#3c3c3c]">{title}</h2>
                   <p className="text-xs text-[#999999] truncate">{card.question}</p>
+                  <LlmQuotaBadge
+                    quota={quota}
+                    loading={quotaLoading}
+                    error={quotaError}
+                    className="mt-1"
+                  />
                 </div>
               </div>
               <button
@@ -145,13 +163,13 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
               <input
                 value={followup}
                 onChange={(event) => setFollowup(event.target.value)}
-                disabled={streaming}
+                disabled={streaming || !hasQuota}
                 className="flex-1 rounded-xl border-2 border-[#e5e5e5] px-3 py-2 text-sm outline-none focus:border-[#1CB0F6]"
-                placeholder="继续追问，例如：和 React 闭包陷阱有什么关系？"
+                placeholder={hasQuota ? '继续追问，例如：和 React 闭包陷阱有什么关系？' : '今日额度已用完'}
               />
               <button
                 type="submit"
-                disabled={streaming || !followup.trim()}
+                disabled={streaming || !followup.trim() || !hasQuota}
                 className="px-3 py-2 rounded-xl bg-[#1CB0F6] text-white text-sm font-extrabold border-b-4 border-[#1899D6] disabled:opacity-50"
               >
                 {streaming ? <Loader2 size={16} className="animate-spin" /> : '发送'}

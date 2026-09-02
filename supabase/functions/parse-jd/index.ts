@@ -1,5 +1,10 @@
 import { corsHeaders, jsonResponse, requireUser } from '../_shared/auth.ts';
 import { CANDIDATE_CONTEXT } from '../_shared/candidate.ts';
+import {
+  consumeUserQuota,
+  createServiceClient,
+  quotaExceededResponse,
+} from '../_shared/quota.ts';
 
 const PARSE_PROMPT = `你是校招岗位解析器。根据 JD 文本输出 JSON（不要 Markdown）。
 候选人背景：
@@ -71,6 +76,12 @@ Deno.serve(async (req) => {
     const jdText = body.jd_text?.trim() ?? '';
     if (!jdText) {
       return jsonResponse({ error: 'jd_text is required' }, 400);
+    }
+
+    const admin = createServiceClient();
+    const quotaResult = await consumeUserQuota(admin, auth.user!.id);
+    if (!quotaResult.ok) {
+      return quotaExceededResponse(quotaResult);
     }
 
     const userPrompt = [

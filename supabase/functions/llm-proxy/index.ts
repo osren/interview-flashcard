@@ -1,4 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+  consumeUserQuota,
+  createServiceClient,
+  quotaExceededResponse,
+} from '../_shared/quota.ts';
 
 const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -72,6 +77,12 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    const admin = createServiceClient();
+    const quotaResult = await consumeUserQuota(admin, user.id);
+    if (!quotaResult.ok) {
+      return quotaExceededResponse(quotaResult);
     }
 
     const upstream = await fetch('https://api.deepseek.com/v1/chat/completions', {

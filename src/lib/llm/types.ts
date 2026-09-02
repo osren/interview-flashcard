@@ -17,4 +17,23 @@ export interface LlmCallOptions {
 export interface LlmProxyErrorBody {
   error?: string;
   detail?: string;
+  quota?: {
+    used: number;
+    limit: number;
+    remaining: number;
+  };
+}
+
+export interface LlmQuotaBalance {
+  isAvailable: boolean;
+  total: string | null;
+  currency: string;
+}
+
+export interface LlmQuotaInfo {
+  model: string;
+  dailyLimit: number;
+  usedToday: number;
+  remaining: number;
+  balance: LlmQuotaBalance | null;
 }
