@@ -2,11 +2,12 @@ import { Suspense, lazy, type ComponentType, type ReactNode } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { AppShell, Footer } from '@/components/Layout';
 import { Home } from '@/pages/Home';
+import { CampusIndex } from '@/pages/Campus';
 import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { LearningSyncProvider } from '@/hooks/useLearningSync';
-import { Button } from '@/components/ui';
+import { Button, PageLoadingSkeleton } from '@/components/ui';
 
 function lazyPage<T extends ComponentType<unknown>>(
   factory: () => Promise<{ default: T } | Record<string, T>>,
@@ -35,7 +36,6 @@ const CustomCardsPage = lazyPage(() => import('@/pages/Custom'), 'CustomCardsPag
 const ResumePage = lazyPage(() => import('@/pages/Resume/ResumePage'), 'ResumePage');
 const InterviewIndex = lazyPage(() => import('@/pages/Interview'), 'InterviewIndex');
 const InterviewDetail = lazyPage(() => import('@/pages/Interview'), 'InterviewDetail');
-const CampusIndex = lazyPage(() => import('@/pages/Campus'), 'CampusIndex');
 const AIIndex = lazyPage(() => import('@/pages/AI'), 'AIIndex');
 const AIDetail = lazyPage(() => import('@/pages/AI'), 'AIDetail');
 const GithubTrending = lazyPage(() => import('@/pages/AI/GithubTrending'), 'GithubTrending');
@@ -44,11 +44,7 @@ const RJSFDemo = lazyPage(() => import('@/pages/RJSF'), 'RJSFDemo');
 const CardImagePreview = lazyPage(() => import('@/pages/Preview/CardImagePreview'), 'CardImagePreview');
 
 function RouteFallback() {
-  return (
-    <div className="min-h-[40vh] flex items-center justify-center text-ink-secondary text-sm font-bold">
-      加载中…
-    </div>
-  );
+  return <PageLoadingSkeleton />;
 }
 
 function LazyRoute({ children }: { children: ReactNode }) {
@@ -167,14 +163,7 @@ function App() {
                 }
               />
 
-              <Route
-                path="/campus"
-                element={
-                  <LazyRoute>
-                    <CampusIndex />
-                  </LazyRoute>
-                }
-              />
+              <Route path="/campus" element={<CampusIndex />} />
 
               <Route
                 path="/ai"

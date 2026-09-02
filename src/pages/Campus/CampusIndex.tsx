@@ -1,28 +1,35 @@
-import { useEffect, useMemo, useState } from 'react';
-import { PageShell, SectionHeader } from '@/components/ui';
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
+import { PageShell, SectionHeader, PageLoadingSkeleton } from '@/components/ui';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import type { CampusTab } from '@/types/campus-job';
-import { DashboardTab } from './components/DashboardTab';
-import { JobsTab } from './components/JobsTab';
 import { ProgressTab } from './components/ProgressTab';
 import { CampusJobSyncBadge } from './components/CampusJobSyncBadge';
 import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
 import { LayoutDashboard, Briefcase, Table2, TrendingUp } from 'lucide-react';
-import { JobPoolTab } from './components/JobPoolTab';
 import { cn } from '@/utils/cn';
 import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
 
+const DashboardTab = lazy(() =>
+  import('./components/DashboardTab').then((m) => ({ default: m.DashboardTab }))
+);
+const JobsTab = lazy(() =>
+  import('./components/JobsTab').then((m) => ({ default: m.JobsTab }))
+);
+const JobPoolTab = lazy(() =>
+  import('./components/JobPoolTab').then((m) => ({ default: m.JobPoolTab }))
+);
+
 const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
+  { id: 'progress', label: '\u6c42\u804c\u8fdb\u5ea6', icon: TrendingUp },
   { id: 'dashboard', label: '\u6295\u9012\u770b\u677f', icon: LayoutDashboard },
   { id: 'jobs', label: '\u79cb\u62db\u804c\u4f4d', icon: Briefcase },
   { id: 'job-pool', label: '\u79cb\u62db\u5c97\u4f4d\u6c60', icon: Table2 },
-  { id: 'progress', label: '\u6c42\u804c\u8fdb\u5ea6', icon: TrendingUp },
 ];
 
 export function CampusIndex() {
-  const [activeTab, setActiveTab] = useState<CampusTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<CampusTab>('progress');
   const [visitedTabs, setVisitedTabs] = useState<Set<CampusTab>>(
-    () => new Set<CampusTab>(['dashboard'])
+    () => new Set<CampusTab>(['progress'])
   );
   const sync = useCampusJobSyncContext();
   const customJobs = useCampusJobStore((state) => state.customJobs);
@@ -103,17 +110,23 @@ export function CampusIndex() {
 
         {visitedTabs.has('dashboard') && (
           <div className={cn(activeTab !== 'dashboard' && 'hidden')}>
-            <DashboardTab jobs={jobs} />
+            <Suspense fallback={<PageLoadingSkeleton />}>
+              <DashboardTab jobs={jobs} />
+            </Suspense>
           </div>
         )}
         {visitedTabs.has('jobs') && (
           <div className={cn(activeTab !== 'jobs' && 'hidden')}>
-            <JobsTab jobs={jobs} />
+            <Suspense fallback={<PageLoadingSkeleton />}>
+              <JobsTab jobs={jobs} />
+            </Suspense>
           </div>
         )}
         {visitedTabs.has('job-pool') && (
           <div className={cn(activeTab !== 'job-pool' && 'hidden')}>
-            <JobPoolTab />
+            <Suspense fallback={<PageLoadingSkeleton />}>
+              <JobPoolTab />
+            </Suspense>
           </div>
         )}
         {visitedTabs.has('progress') && (
