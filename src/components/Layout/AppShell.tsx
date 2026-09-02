@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { Logo } from '@/components/Layout/Logo';
-import { Pomodoro } from '@/components/Pomodoro';
+import { FloatingPomodoro, PomodoroCount } from '@/components/Pomodoro';
 import { useAuth, LoginModal, ProfileModal, UserAvatar } from '@/components/Auth';
 
 interface NavItem {
@@ -76,7 +76,6 @@ export function AppShell({ children }: AppShellProps) {
   const {
     user,
     loading,
-    configured,
     signOut,
     displayName,
     profile,
@@ -126,7 +125,7 @@ export function AppShell({ children }: AppShellProps) {
   const sidebarWidth = collapsed ? 'w-[76px]' : 'w-[240px]';
 
   const renderNav = (compact: boolean) => (
-    <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-5">
+    <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-5">
       {navGroups.map((group) => (
         <div key={group.title}>
           {!compact && (
@@ -162,14 +161,18 @@ export function AppShell({ children }: AppShellProps) {
     </nav>
   );
 
-  const renderUserBlock = (compact: boolean) => (
-    <div className={cn('border-t-2 border-[#e5e5e5] p-3 space-y-2', compact && 'px-2')}>
-      <div className={cn('flex justify-center', !compact && 'px-1')}>
-        <Pomodoro compact={compact} />
-      </div>
-
-      {!loading && configured && (
-        user ? (
+  const renderSidebarFooter = (compact: boolean) => (
+    <div className="mt-auto flex-shrink-0 border-t-2 border-[#e5e5e5] bg-white">
+      <div className={cn('p-3', compact && 'px-2')}>
+        {loading ? (
+          <div
+            className={cn(
+              'rounded-xl bg-[#f7f7f7] animate-pulse',
+              compact ? 'h-10 w-10 mx-auto' : 'h-[88px] w-full'
+            )}
+            aria-hidden
+          />
+        ) : user ? (
           <div className={cn('space-y-1', compact && 'flex flex-col items-center')}>
             <button
               type="button"
@@ -231,14 +234,16 @@ export function AppShell({ children }: AppShellProps) {
             <LogIn size={18} />
             {!compact && '登录'}
           </button>
-        )
-      )}
+        )}
+      </div>
+
+      <PomodoroCount compact={compact} />
     </div>
   );
 
   const sidebarBody = (compact: boolean) => (
-    <>
-      <div className={cn('flex items-center border-b-2 border-[#e5e5e5]', compact ? 'justify-center px-2 py-4' : 'gap-3 px-4 py-4')}>
+    <div className="flex flex-col flex-1 min-h-0 w-full">
+      <div className={cn('flex-shrink-0 flex items-center border-b-2 border-[#e5e5e5]', compact ? 'justify-center px-2 py-4' : 'gap-3 px-4 py-4')}>
         <Link to="/" className="flex items-center gap-3 min-w-0 group">
           <Logo size={compact ? 36 : 40} className="group-hover:scale-105 transition-transform flex-shrink-0" />
           {!compact && (
@@ -249,16 +254,17 @@ export function AppShell({ children }: AppShellProps) {
         </Link>
       </div>
       {renderNav(compact)}
-      {renderUserBlock(compact)}
-    </>
+      {renderSidebarFooter(compact)}
+    </div>
   );
 
   return (
     <div className="min-h-screen app-bg flex">
+      <FloatingPomodoro />
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col fixed inset-y-0 left-0 z-40 bg-white border-r-2 border-[#e5e5e5] transition-[width] duration-200',
+          'hidden lg:flex flex-col fixed inset-y-0 left-0 z-40 bg-white border-r-2 border-[#e5e5e5] transition-[width] duration-200 overflow-hidden',
           sidebarWidth
         )}
       >
@@ -289,9 +295,9 @@ export function AppShell({ children }: AppShellProps) {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="lg:hidden fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r-2 border-[#e5e5e5] flex flex-col shadow-xl"
+              className="lg:hidden fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r-2 border-[#e5e5e5] flex flex-col overflow-hidden shadow-xl"
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#e5e5e5]">
+              <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b-2 border-[#e5e5e5]">
                 <span className="font-extrabold text-[#58CC02]">菜单</span>
                 <button
                   type="button"

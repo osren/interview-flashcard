@@ -96,8 +96,32 @@ export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModal
 
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
             {!configured && (
-              <div className="rounded-xl border-2 border-[#FFC800] bg-[#fff8dc] px-4 py-3 text-sm text-[#7a5c00]">
-                未检测到 Supabase 环境变量，请在项目根目录配置 <code className="font-mono">.env</code>。
+              <div className="rounded-xl border-2 border-[#FFC800] bg-[#fff8dc] px-4 py-3 text-sm text-[#7a5c00] space-y-2">
+                <p className="font-bold">本地尚未配置 Supabase，登录功能不可用。</p>
+                <ol className="list-decimal list-inside space-y-1 text-xs leading-relaxed">
+                  <li>
+                    复制 <code className="font-mono bg-white/60 px-1 rounded">.env.example</code>{' '}
+                    为 <code className="font-mono bg-white/60 px-1 rounded">.env</code>
+                  </li>
+                  <li>
+                    打开{' '}
+                    <a
+                      href="https://supabase.com/dashboard/project/hrearoyfuozkcrohsome/settings/api-keys"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline font-bold text-[#1CB0F6]"
+                    >
+                      Supabase API Keys
+                    </a>
+                    ，复制 Publishable key 或 Legacy anon key
+                  </li>
+                  <li>
+                    写入{' '}
+                    <code className="font-mono bg-white/60 px-1 rounded">VITE_SUPABASE_ANON_KEY</code>
+                  </li>
+                  <li>重启开发服务器（<code className="font-mono">npm run dev</code>）</li>
+                </ol>
+                <p className="text-xs opacity-80">详细步骤见项目文档 docs/supabase-phase0.md</p>
               </div>
             )}
 

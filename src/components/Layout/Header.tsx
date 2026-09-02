@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
-import { Pomodoro } from '@/components/Pomodoro';
 import { Logo } from '@/components/Layout/Logo';
 import { useAuth, LoginModal, ProfileModal, UserAvatar } from '@/components/Auth';
 import {
@@ -204,7 +203,6 @@ export function Header() {
                 </button>
               )
             )}
-            <Pomodoro />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden p-2.5 rounded-xl text-[#777777] hover:bg-[#f7f7f7]"
