@@ -1,8 +1,8 @@
 import type { ApplicationStatus, CampusJobData, RejectReason } from '@/types/campus-job';
 import {
   APPLICATION_STATUS_COLORS,
-  APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_ORDER,
+  APPLICATION_STATUS_SHORT_LABELS,
 } from '@/data/campus-jobs';
 import { getFurthestProgressIndex } from '../utils';
 import { RaceChartStatusSelect } from './RaceChartStatusSelect';
@@ -16,10 +16,10 @@ interface ProgressRaceChartProps {
 const STATUS_COLUMNS = [...APPLICATION_STATUS_ORDER, 'rejected' as ApplicationStatus];
 const ROW_HEIGHT = 68;
 const LEFT_LABEL_WIDTH = 290;
-const RIGHT_PADDING = 24;
+const RIGHT_PADDING = 16;
 const TOP_PADDING = 60;
 const BOTTOM_PADDING = 32;
-const CHART_WIDTH = 760;
+const CHART_WIDTH = 1080;
 
 function truncateLabel(value: string, maxChars: number): string {
   return value.length > maxChars ? `${value.slice(0, maxChars)}…` : value;
@@ -40,7 +40,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
 
   return (
     <div className="surface-panel p-4 overflow-x-auto">
-      <div className="flex min-w-[760px]">
+      <div className="flex min-w-[1080px]">
         <div className="flex-shrink-0" style={{ width: LEFT_LABEL_WIDTH }}>
           <div style={{ height: TOP_PADDING }} aria-hidden="true" />
           {jobs.map((job) => {
@@ -106,9 +106,9 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
                   y={32}
                   textAnchor="middle"
                   className="fill-ink-secondary font-bold"
-                  style={{ fontSize: 16 }}
+                  style={{ fontSize: 13 }}
                 >
-                  {APPLICATION_STATUS_LABELS[status]}
+                  {APPLICATION_STATUS_SHORT_LABELS[status]}
                 </text>
                 <line
                   x1={i * colWidth}
@@ -197,14 +197,14 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
         </svg>
       </div>
 
-      <div className={cn('flex flex-wrap gap-3 mt-2 px-2 text-base text-ink-secondary')}>
+      <div className={cn('flex flex-wrap gap-2 mt-2 px-2 text-xs text-ink-secondary')}>
         {STATUS_COLUMNS.map((s) => (
-          <span key={s} className="flex items-center gap-1.5">
+          <span key={s} className="flex items-center gap-1">
             <span
-              className="w-2.5 h-2.5 rounded-full inline-block"
+              className="w-2 h-2 rounded-full inline-block"
               style={{ backgroundColor: APPLICATION_STATUS_COLORS[s] }}
             />
-            {APPLICATION_STATUS_LABELS[s]}
+            {APPLICATION_STATUS_SHORT_LABELS[s]}
           </span>
         ))}
       </div>

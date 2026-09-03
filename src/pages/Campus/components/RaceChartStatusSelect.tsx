@@ -1,6 +1,6 @@
+import { ChevronDown } from 'lucide-react';
 import type { ApplicationStatus, RejectReason } from '@/types/campus-job';
 import {
-  APPLICATION_STATUS_COLORS,
   APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_ORDER,
   REJECT_REASON_LABELS,
@@ -35,46 +35,50 @@ function decodeStatusValue(value: string): { status: ApplicationStatus; rejectRe
   return { status: value as ApplicationStatus };
 }
 
+const SELECT_COLOR = '#6B7280';
+
 export function RaceChartStatusSelect({ jobId, status, rejectReason }: RaceChartStatusSelectProps) {
   const setJobStatus = useCampusJobStore((s) => s.setJobStatus);
-  const color = APPLICATION_STATUS_COLORS[status];
+  const currentLabel = formatApplicationStatusLabel(status, rejectReason);
 
   return (
-    <select
-      value={encodeStatusValue(status, rejectReason)}
-      onChange={(e) => {
-        const { status: nextStatus, rejectReason: nextReason } = decodeStatusValue(e.target.value);
-        setJobStatus(jobId, nextStatus, undefined, nextReason);
-      }}
-      onClick={(e) => e.stopPropagation()}
-      title="切换投递状态"
-      aria-label="切换投递状态"
-      className={cn(
-        'flex-shrink-0 max-w-[108px] rounded-lg border-2 bg-white px-1.5 py-1',
-        'text-[11px] font-bold leading-tight cursor-pointer',
-        'focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[color:var(--status-color)]'
-      )}
-      style={{
-        color,
-        borderColor: `${color}66`,
-        ['--status-color' as string]: color,
-      }}
-    >
-      {APPLICATION_STATUS_ORDER.map((optionStatus) => (
-        <option key={optionStatus} value={optionStatus}>
-          {APPLICATION_STATUS_LABELS[optionStatus]}
-        </option>
-      ))}
-      <optgroup label="已终止">
-        {REJECT_REASON_ORDER.map((reason) => (
-          <option key={reason} value={`rejected:${reason}`}>
-            {REJECT_REASON_LABELS[reason]}
+    <div className="relative flex-shrink-0 w-7 h-7">
+      <select
+        value={encodeStatusValue(status, rejectReason)}
+        onChange={(e) => {
+          const { status: nextStatus, rejectReason: nextReason } = decodeStatusValue(e.target.value);
+          setJobStatus(jobId, nextStatus, undefined, nextReason);
+        }}
+        onClick={(e) => e.stopPropagation()}
+        title={`切换投递状态（当前：${currentLabel}）`}
+        aria-label={`切换投递状态，当前 ${currentLabel}`}
+        className={cn(
+          'absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10'
+        )}
+      >
+        {APPLICATION_STATUS_ORDER.map((optionStatus) => (
+          <option key={optionStatus} value={optionStatus}>
+            {APPLICATION_STATUS_LABELS[optionStatus]}
           </option>
         ))}
-      </optgroup>
-      {status === 'rejected' && !rejectReason && (
-        <option value="rejected">{formatApplicationStatusLabel('rejected')}</option>
-      )}
-    </select>
+        <optgroup label="已终止">
+          {REJECT_REASON_ORDER.map((reason) => (
+            <option key={reason} value={`rejected:${reason}`}>
+              {REJECT_REASON_LABELS[reason]}
+            </option>
+          ))}
+        </optgroup>
+        {status === 'rejected' && !rejectReason && (
+          <option value="rejected">{formatApplicationStatusLabel('rejected')}</option>
+        )}
+      </select>
+      <div
+        className="w-7 h-7 flex items-center justify-center rounded-lg border-2 pointer-events-none"
+        style={{ borderColor: `${SELECT_COLOR}44`, color: SELECT_COLOR }}
+        aria-hidden="true"
+      >
+        <ChevronDown size={14} strokeWidth={2.5} />
+      </div>
+    </div>
   );
 }

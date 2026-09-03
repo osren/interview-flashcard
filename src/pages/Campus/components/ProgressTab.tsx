@@ -9,6 +9,7 @@ import {
   REJECT_REASON_LABELS,
   REJECT_REASON_ORDER,
   formatApplicationStatusLabel,
+  getStatusSortIndex,
 } from '@/data/campus-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ProgressRaceChart } from './ProgressRaceChart';
@@ -76,16 +77,18 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
 
   const sortedForChart = useMemo(() => {
     return [...trackedJobs].sort((a, b) => {
-      const catA = JOB_CATEGORY_ORDER.indexOf(a.match.category);
-      const catB = JOB_CATEGORY_ORDER.indexOf(b.match.category);
-      if (catA !== catB) return catA - catB;
+      const pA = getProgress(a.id);
+      const pB = getProgress(b.id);
+      const idxA = pA ? getStatusSortIndex(pA.status) : -1;
+      const idxB = pB ? getStatusSortIndex(pB.status) : -1;
+      if (idxA !== idxB) return idxB - idxA;
       return a.basic.company.localeCompare(b.basic.company, 'zh-CN');
     });
-  }, [trackedJobs]);
+  }, [trackedJobs, getProgress]);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-10 gap-2">
         {APPLICATION_STATUS_ALL.map((status) => (
           <div key={status} className="surface-panel p-3 text-center">
             <div

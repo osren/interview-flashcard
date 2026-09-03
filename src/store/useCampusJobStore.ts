@@ -13,6 +13,8 @@ import {
   buildJobId,
   getTierFromMatch,
   isRejectReason,
+  normalizeApplicationStatus,
+  normalizeRejectReason,
 } from '@/data/campus-jobs';
 import {
   deriveCurrentStatus,
@@ -40,6 +42,7 @@ interface CampusJobState {
   addCustomCompany: (name: string, color: string) => void;
   removeCustomCompany: (companyId: string) => void;
   updateCustomCompany: (companyId: string, name: string, color: string) => void;
+  renameCustomCompany: (companyId: string, newName: string) => void;
 
   addCustomJob: (input: CustomJobInput) => string;
   removeCustomJob: (jobId: string) => void;
@@ -59,9 +62,7 @@ interface CampusJobState {
 }
 
 function normalizeStatus(status: string): ApplicationStatus {
-  if (status === 'saved') return 'applied';
-  const allowed: ApplicationStatus[] = ['applied', 'screen', 'written_exam', 'interview', 'offer', 'rejected'];
-  return allowed.includes(status as ApplicationStatus) ? (status as ApplicationStatus) : 'applied';
+  return normalizeApplicationStatus(status);
 }
 
 function normalizeJobProgress(progress: JobProgress): JobProgress {
@@ -71,15 +72,14 @@ function normalizeJobProgress(progress: JobProgress): JobProgress {
     status: normalizeStatus(entry.status),
     rejectReason:
       entry.status === 'rejected' || normalizeStatus(entry.status) === 'rejected'
-        ? (isRejectReason(entry.rejectReason) ? entry.rejectReason : undefined)
+        ? normalizeRejectReason(entry.rejectReason)
         : undefined,
   }));
   const status = normalizeStatus(progress.status);
   const rejectReason =
     status === 'rejected'
-      ? (isRejectReason(progress.rejectReason)
-          ? progress.rejectReason
-          : deriveCurrentRejectReason(statusHistory))
+      ? (normalizeRejectReason(progress.rejectReason) ??
+          deriveCurrentRejectReason(statusHistory))
       : undefined;
 
   return {
@@ -184,6 +184,83 @@ export const useCampusJobStore = create<CampusJobState>()(
             c.id === companyId ? { ...c, name, color } : c
           ),
         }));
+      },
+
+      renameCustomCompany: (companyId, newName) => {
+        const trimmed = newName.trim();
+        if (!trimmed) return;
+
+        set((state) => {
+          const source = state.customCompanies.find((c) => c.id === companyId);
+          if (!source || source.name === trimmed) return state;
+
+          const oldName = source.name;
+          const targetExists = state.customCompanies.some(
+            (c) => c.name === trimmed && c.id !== companyId
+          );
+
+          const idChanges = new Map<string, string>();
+          let customJobs = state.customJobs.map((job) => {
+            if (job.basic.company !== oldName) return job;
+
+            let nextId = buildJobId(trimmed, job.basic.position, job.basic.location);
+            const conflict = state.customJobs.some(
+              (other) => other.id === nextId && other.id !== job.id
+            );
+            if (conflict) {
+              nextId = buildJobId(
+                trimmed,
+                job.basic.position,
+                job.basic.location,
+                job.id.slice(-8)
+              );
+            }
+
+            if (nextId !== job.id) {
+              idChanges.set(job.id, nextId);
+            }
+
+            return {
+              ...job,
+              id: nextId,
+              basic: { ...job.basic, company: trimmed },
+            };
+          });
+
+          const usedIds = new Set<string>();
+          customJobs = customJobs.map((job) => {
+            if (usedIds.has(job.id)) {
+              const disambiguatedId = buildJobId(
+                job.basic.company,
+                job.basic.position,
+                job.basic.location,
+                crypto.randomUUID().slice(0, 8)
+              );
+              idChanges.set(job.id, disambiguatedId);
+              return { ...job, id: disambiguatedId };
+            }
+            usedIds.add(job.id);
+            return job;
+          });
+
+          const jobProgress = { ...state.jobProgress };
+          for (const [oldId, newId] of idChanges) {
+            if (jobProgress[oldId]) {
+              jobProgress[newId] = { ...jobProgress[oldId], jobId: newId };
+              delete jobProgress[oldId];
+            }
+          }
+
+          let customCompanies = targetExists
+            ? state.customCompanies.filter((c) => c.id !== companyId)
+            : state.customCompanies.map((c) =>
+                c.id === companyId ? { ...c, name: trimmed } : c
+              );
+
+          customCompanies = ensureCustomCompaniesForJobs(customCompanies, customJobs);
+
+          return { customJobs, jobProgress, customCompanies };
+        });
       },
 
       addCustomJob: (input) => {
@@ -330,7 +407,7 @@ export const useCampusJobStore = create<CampusJobState>()(
     }),
     {
       name: 'campus-job-storage',
-      version: 3,
+      version: 4,
       partialize: (state) => ({
         customCompanies: state.customCompanies,
         customJobs: state.customJobs,

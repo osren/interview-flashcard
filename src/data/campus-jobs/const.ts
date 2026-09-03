@@ -2,9 +2,12 @@ import type { ApplicationStatus, JobCategory, JobTier, RejectReason } from '@/ty
 
 export const APPLICATION_STATUS_ORDER: ApplicationStatus[] = [
   'applied',
-  'screen',
-  'written_exam',
-  'interview',
+  'written_aptitude',
+  'written_tech',
+  'interview_1',
+  'interview_2',
+  'interview_3',
+  'interview_hr',
   'offer',
 ];
 
@@ -14,26 +17,46 @@ export const APPLICATION_STATUS_ALL: ApplicationStatus[] = [
 ];
 
 export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
-  applied: '已投递',
-  screen: '筛选中',
-  written_exam: '笔试中',
-  interview: '面试中',
+  applied: '投递/筛选',
+  written_aptitude: '素质测评',
+  written_tech: '技术测评',
+  interview_1: '一面',
+  interview_2: '二面',
+  interview_3: '三面',
+  interview_hr: 'HR面',
   offer: '已录用',
   rejected: '已终止',
 };
 
+/** 竞赛图列头短标签 */
+export const APPLICATION_STATUS_SHORT_LABELS: Record<ApplicationStatus, string> = {
+  applied: '投递',
+  written_aptitude: '素质测评',
+  written_tech: '技术测评',
+  interview_1: '一面',
+  interview_2: '二面',
+  interview_3: '三面',
+  interview_hr: 'HR面',
+  offer: 'Offer',
+  rejected: '终止',
+};
+
 export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
   applied: '#1CB0F6',
-  screen: '#FFC800',
-  written_exam: '#FF9600',
-  interview: '#CE82FF',
-  offer: '#58CC02',
+  written_aptitude: '#58CC02',
+  written_tech: '#FF9600',
+  interview_1: '#CE82FF',
+  interview_2: '#A855F7',
+  interview_3: '#9333EA',
+  interview_hr: '#EC4899',
+  offer: '#16A34A',
   rejected: '#FF4B4B',
 };
 
 export const REJECT_REASON_ORDER: RejectReason[] = [
   'screen_fail',
-  'written_fail',
+  'written_aptitude_fail',
+  'written_tech_fail',
   'interview_1',
   'interview_2',
   'interview_3',
@@ -43,7 +66,8 @@ export const REJECT_REASON_ORDER: RejectReason[] = [
 
 export const REJECT_REASON_LABELS: Record<RejectReason, string> = {
   screen_fail: '未通过筛选',
-  written_fail: '笔试挂',
+  written_aptitude_fail: '素质测评挂',
+  written_tech_fail: '技术测评挂',
   interview_1: '一面挂',
   interview_2: '二面挂',
   interview_3: '三面挂',
@@ -51,13 +75,26 @@ export const REJECT_REASON_LABELS: Record<RejectReason, string> = {
   lateral: '被横向',
 };
 
+const LEGACY_REJECT_REASON_MAP: Record<string, RejectReason> = {
+  written_fail: 'written_tech_fail',
+};
+
+export function normalizeRejectReason(value: unknown): RejectReason | undefined {
+  if (typeof value !== 'string') return undefined;
+  if (REJECT_REASON_ORDER.includes(value as RejectReason)) {
+    return value as RejectReason;
+  }
+  return LEGACY_REJECT_REASON_MAP[value];
+}
+
 export function formatApplicationStatusLabel(
   status: ApplicationStatus,
   rejectReason?: RejectReason | null
 ): string {
   if (status === 'rejected') {
-    if (rejectReason && REJECT_REASON_LABELS[rejectReason]) {
-      return `已终止 · ${REJECT_REASON_LABELS[rejectReason]}`;
+    const normalized = rejectReason ? normalizeRejectReason(rejectReason) : undefined;
+    if (normalized && REJECT_REASON_LABELS[normalized]) {
+      return `已终止 · ${REJECT_REASON_LABELS[normalized]}`;
     }
     return '已终止';
   }
@@ -92,7 +129,7 @@ export const TIER_CONFIG: Record<
   A: { label: '高优先级', emoji: '⭐⭐', description: '0.90 – 0.94', minConf: 0.9 },
   B: { label: '备选', emoji: '⭐', description: '0.80 – 0.89', minConf: 0.8 },
   edge: { label: '边缘', emoji: '⚠️', description: '0.76 – 0.79', minConf: 0.76 },
-  skip: { label: '跳过', emoji: '❌', description: '方向不匹配' },
+  skip: { label: '不建议投递', emoji: '❌', description: '方向不匹配' },
 };
 
 export const COMPANY_COLORS = [
@@ -128,7 +165,38 @@ export function getTierFromMatch(qualified: boolean, confidence: number): JobTie
   return 'skip';
 }
 
+const LEGACY_STATUS_MAP: Record<string, ApplicationStatus> = {
+  saved: 'applied',
+  screen: 'applied',
+  written_exam: 'written_tech',
+  interview: 'interview_1',
+};
+
+export function normalizeApplicationStatus(status: string): ApplicationStatus {
+  if (LEGACY_STATUS_MAP[status]) {
+    return LEGACY_STATUS_MAP[status];
+  }
+  const allowed: ApplicationStatus[] = [
+    'applied',
+    'written_aptitude',
+    'written_tech',
+    'interview_1',
+    'interview_2',
+    'interview_3',
+    'interview_hr',
+    'offer',
+    'rejected',
+  ];
+  return allowed.includes(status as ApplicationStatus) ? (status as ApplicationStatus) : 'applied';
+}
+
 export function getStatusIndex(status: ApplicationStatus): number {
   if (status === 'rejected') return APPLICATION_STATUS_ORDER.length;
   return APPLICATION_STATUS_ORDER.indexOf(status);
+}
+
+/** 竞赛图排序：进度越快越靠前，已终止垫底 */
+export function getStatusSortIndex(status: ApplicationStatus): number {
+  if (status === 'rejected') return -1;
+  return getStatusIndex(status);
 }

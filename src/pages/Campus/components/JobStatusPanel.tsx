@@ -90,7 +90,7 @@ export function JobStatusPanel({ job, onClose }: JobStatusPanelProps) {
             <p className="text-xs text-ink-secondary mb-2">
               再次点击当前状态可撤销（同一天内）；「已终止」需选择具体原因，便于后续统计
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {APPLICATION_STATUS_ORDER.map((status) => (
                 <button
                   key={status}

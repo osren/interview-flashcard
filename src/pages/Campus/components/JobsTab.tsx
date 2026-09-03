@@ -38,6 +38,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
     addCustomCompany,
     removeCustomCompany,
     updateCustomCompany,
+    renameCustomCompany,
     addCustomJob,
     removeCustomJob,
     getProgress,
@@ -135,6 +136,41 @@ export function JobsTab({ jobs }: JobsTabProps) {
   const handleSelectJob = (job: CampusJobData) => {
     setSelectedJobId(job.id);
     setLastSelectedJobId(job.id);
+  };
+
+  const handleDeleteJob = (job: CampusJobData) => {
+    const label = `${job.basic.company} · ${job.basic.position}`;
+    if (
+      !window.confirm(
+        `确定删除岗位「${label}」吗？\n\n删除后将同步从云端移除，且该岗位的投递进度记录也会清除。`
+      )
+    ) {
+      return;
+    }
+    removeCustomJob(job.id);
+    if (selectedJobId === job.id) {
+      setSelectedJobId(null);
+    }
+  };
+
+  const handleSaveCompanyName = (customCo: { id: string; name: string; color: string }) => {
+    const trimmed = editCompanyName.trim();
+    if (!trimmed) return;
+
+    if (trimmed !== customCo.name) {
+      renameCustomCompany(customCo.id, trimmed);
+      setExpandedCompanies((prev) => {
+        const next = new Set(prev);
+        if (next.has(customCo.name)) {
+          next.delete(customCo.name);
+          next.add(trimmed);
+        }
+        return next;
+      });
+    } else {
+      updateCustomCompany(customCo.id, trimmed, customCo.color);
+    }
+    setEditingCompanyId(null);
   };
 
   return (
@@ -302,10 +338,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
                     />
                     <button
                       type="button"
-                      onClick={() => {
-                        updateCustomCompany(customCo.id, editCompanyName, customCo.color);
-                        setEditingCompanyId(null);
-                      }}
+                      onClick={() => handleSaveCompanyName(customCo)}
                       className="p-1 text-[#58CC02]"
                     >
                       <Check size={14} />
@@ -324,35 +357,50 @@ export function JobsTab({ jobs }: JobsTabProps) {
                       const isSelected = selectedJobId === job.id;
 
                       return (
-                        <button
+                        <div
                           key={job.id}
-                          type="button"
-                          onClick={() => handleSelectJob(job)}
                           className={cn(
-                            'w-full text-left px-2 py-2 rounded-xl text-xs transition-all border-2',
+                            'flex items-center gap-1 rounded-xl border-2 transition-all',
                             isSelected
                               ? 'border-[#58CC02] bg-[#eefbf0]'
                               : 'border-transparent hover:bg-[#f7f7f7]'
                           )}
                         >
-                          <div className="font-bold truncate">{job.basic.position}</div>
-                          <div className="flex items-center justify-between mt-0.5">
-                            <span className="text-ink-secondary">{job.basic.location}</span>
-                            {status ? (
-                              <span
-                                className="font-bold px-1.5 py-0.5 rounded-md text-[10px]"
-                                style={{
-                                  color: APPLICATION_STATUS_COLORS[status],
-                                  backgroundColor: `${APPLICATION_STATUS_COLORS[status]}18`,
-                                }}
-                              >
-                                {formatApplicationStatusLabel(status, progress?.rejectReason)}
-                              </span>
-                            ) : (
-                              <span className="text-[10px] text-ink-secondary">{'\u672a\u8bb0\u5f55'}</span>
-                            )}
-                          </div>
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectJob(job)}
+                            className="flex-1 min-w-0 text-left px-2 py-2 text-xs"
+                          >
+                            <div className="font-bold truncate">{job.basic.position}</div>
+                            <div className="flex items-center justify-between mt-0.5">
+                              <span className="text-ink-secondary">{job.basic.location}</span>
+                              {status ? (
+                                <span
+                                  className="font-bold px-1.5 py-0.5 rounded-md text-[10px]"
+                                  style={{
+                                    color: APPLICATION_STATUS_COLORS[status],
+                                    backgroundColor: `${APPLICATION_STATUS_COLORS[status]}18`,
+                                  }}
+                                >
+                                  {formatApplicationStatusLabel(status, progress?.rejectReason)}
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-ink-secondary">{'\u672a\u8bb0\u5f55'}</span>
+                              )}
+                            </div>
+                          </button>
+                          {job.source === 'custom' && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteJob(job)}
+                              className="flex-shrink-0 p-1.5 mr-1 rounded-lg text-red-500 hover:bg-red-50"
+                              title="删除岗位"
+                              aria-label={`删除 ${job.basic.position}`}
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          )}
+                        </div>
                       );
                     })}
 
@@ -462,10 +510,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
                 {selectedJob.source === 'custom' && (
                   <button
                     type="button"
-                    onClick={() => {
-                      removeCustomJob(selectedJob.id);
-                      setSelectedJobId(null);
-                    }}
+                    onClick={() => handleDeleteJob(selectedJob)}
                     className="text-xs text-red-500 font-bold hover:underline"
                   >
                     {'\u5220\u9664\u5c97\u4f4d'}

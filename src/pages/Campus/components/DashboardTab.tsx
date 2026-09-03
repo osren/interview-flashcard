@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { CampusJobData, JobTier } from '@/types/campus-job';
 import { TIER_CONFIG, JOB_CATEGORY_LABELS } from '@/data/campus-jobs';
+import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ExternalLink, Star } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -10,17 +11,35 @@ interface DashboardTabProps {
 
 const TIER_ORDER: JobTier[] = ['S', 'A', 'B', 'edge'];
 
-function TierSection({ tier, jobs }: { tier: JobTier; jobs: CampusJobData[] }) {
+function isJobApplied(jobId: string, getProgress: ReturnType<typeof useCampusJobStore.getState>['getProgress']) {
+  const progress = getProgress(jobId);
+  return Boolean(progress && progress.statusHistory.length > 0);
+}
+
+function TierSection({
+  tier,
+  jobs,
+  getProgress,
+}: {
+  tier: JobTier;
+  jobs: CampusJobData[];
+  getProgress: ReturnType<typeof useCampusJobStore.getState>['getProgress'];
+}) {
   const config = TIER_CONFIG[tier];
   const tierJobs = jobs.filter((j) => j.tier === tier);
   if (tierJobs.length === 0) return null;
 
+  const appliedCount = tierJobs.filter((j) => isJobApplied(j.id, getProgress)).length;
+
   return (
     <section className="mb-8">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
         <span className="text-xl">{config.emoji}</span>
         <h3 className="font-extrabold text-lg text-ink-primary">{config.label}</h3>
-        <span className="text-sm text-ink-secondary">({tierJobs.length})</span>
+        <span className="text-sm font-bold text-[#58CC02] tabular-nums">
+          {appliedCount}/{tierJobs.length}
+        </span>
+        <span className="text-xs text-ink-secondary">已投递/总数</span>
         <span className="text-xs text-ink-secondary ml-1">{'\u00b7'} {config.description}</span>
       </div>
       <div className="surface-panel overflow-hidden">
@@ -80,32 +99,50 @@ function TierSection({ tier, jobs }: { tier: JobTier; jobs: CampusJobData[] }) {
 }
 
 export function DashboardTab({ jobs }: DashboardTabProps) {
+  const getProgress = useCampusJobStore((s) => s.getProgress);
+  const jobProgress = useCampusJobStore((s) => s.jobProgress);
+
   const qualifiedJobs = useMemo(() => jobs.filter((j) => j.match.qualified), [jobs]);
-  const skipCount = jobs.filter((j) => !j.match.qualified).length;
+  const skipJobs = useMemo(() => jobs.filter((j) => !j.match.qualified), [jobs]);
+  const skipAppliedCount = useMemo(
+    () => skipJobs.filter((j) => isJobApplied(j.id, getProgress)).length,
+    [skipJobs, getProgress, jobProgress]
+  );
 
   const stats = useMemo(
     () =>
-      TIER_ORDER.map((tier) => ({
-        tier,
-        count: qualifiedJobs.filter((j) => j.tier === tier).length,
-      })),
-    [qualifiedJobs]
+      TIER_ORDER.map((tier) => {
+        const tierJobs = qualifiedJobs.filter((j) => j.tier === tier);
+        const appliedCount = tierJobs.filter((j) => isJobApplied(j.id, getProgress)).length;
+        return {
+          tier,
+          total: tierJobs.length,
+          applied: appliedCount,
+        };
+      }),
+    [qualifiedJobs, getProgress, jobProgress]
   );
 
   return (
     <div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-        {stats.map(({ tier, count }) => (
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
+        {stats.map(({ tier, total, applied }) => (
           <div key={tier} className="surface-panel p-4 text-center">
             <div className="text-2xl mb-1">{TIER_CONFIG[tier].emoji}</div>
-            <div className="text-2xl font-extrabold text-ink-primary">{count}</div>
+            <div className="text-2xl font-extrabold text-ink-primary tabular-nums">
+              {applied}/{total}
+            </div>
             <div className="text-xs text-ink-secondary font-bold">{TIER_CONFIG[tier].label}</div>
+            <div className="text-[10px] text-ink-secondary mt-0.5">已投递/总数</div>
           </div>
         ))}
         <div className="surface-panel p-4 text-center">
           <div className="text-2xl mb-1">{'\u274c'}</div>
-          <div className="text-2xl font-extrabold text-ink-primary">{skipCount}</div>
+          <div className="text-2xl font-extrabold text-ink-primary tabular-nums">
+            {skipAppliedCount}/{skipJobs.length}
+          </div>
           <div className="text-xs text-ink-secondary font-bold">{'\u4e0d\u5efa\u8bae\u6295\u9012'}</div>
+          <div className="text-[10px] text-ink-secondary mt-0.5">已投递/总数</div>
         </div>
       </div>
 
@@ -117,29 +154,30 @@ export function DashboardTab({ jobs }: DashboardTabProps) {
       </div>
 
       {TIER_ORDER.map((tier) => (
-        <TierSection key={tier} tier={tier} jobs={qualifiedJobs} />
+        <TierSection key={tier} tier={tier} jobs={qualifiedJobs} getProgress={getProgress} />
       ))}
 
       <section>
-        <h3 className="font-extrabold text-lg text-ink-primary mb-3 flex items-center gap-2">
+        <h3 className="font-extrabold text-lg text-ink-primary mb-3 flex items-center gap-2 flex-wrap">
           <span>{'\u274c'}</span> {'\u4e0d\u5efa\u8bae\u6295\u9012'}
-          <span className="text-sm font-normal text-ink-secondary">({skipCount})</span>
+          <span className="text-sm font-bold text-[#58CC02] tabular-nums">
+            {skipAppliedCount}/{skipJobs.length}
+          </span>
+          <span className="text-xs font-normal text-ink-secondary">已投递/总数</span>
         </h3>
         <div className="surface-panel p-4">
           <div className="flex flex-wrap gap-2">
-            {jobs
-              .filter((j) => !j.match.qualified)
-              .map((job) => (
-                <span
-                  key={job.id}
-                  className={cn(
-                    'px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f7f7f7] text-ink-secondary border border-[#e5e5e5]'
-                  )}
-                  title={job.match.reason}
-                >
-                  {job.basic.company} {'\u00b7'} {job.basic.position}
-                </span>
-              ))}
+            {skipJobs.map((job) => (
+              <span
+                key={job.id}
+                className={cn(
+                  'px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f7f7f7] text-ink-secondary border border-[#e5e5e5]'
+                )}
+                title={job.match.reason}
+              >
+                {job.basic.company} {'\u00b7'} {job.basic.position}
+              </span>
+            ))}
           </div>
         </div>
       </section>
