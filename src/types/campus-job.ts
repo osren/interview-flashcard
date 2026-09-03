@@ -77,6 +77,8 @@ export interface StageDetail {
   link?: string;
   /** 本地日期时间，如 2026-09-03T14:30 */
   scheduledAt?: string;
+  /** 该测评/面试是否已完成 */
+  completed?: boolean;
 }
 
 export interface JobProgress {

@@ -25,7 +25,7 @@ import {
   isSameCalendarDay,
 } from '@/utils/campus-job-status';
 import type { CampusJobSyncPayload } from '@/lib/supabase/campus-job-sync';
-import { ensureCustomCompaniesForJobs } from '@/utils/campus-job-filters';
+import { ensureCustomCompaniesForJobs, pruneCompaniesWithoutJobs } from '@/utils/campus-job-filters';
 
 interface CampusJobState {
   catalogJobs: CampusJobData[];
@@ -33,6 +33,7 @@ interface CampusJobState {
   catalogLoading: boolean;
   customCompanies: CustomCompany[];
   customJobs: CampusJobData[];
+  hiddenJobIds: string[];
   jobProgress: Record<string, JobProgress>;
   lastSelectedJobId: string | null;
 
@@ -47,7 +48,7 @@ interface CampusJobState {
   renameCustomCompany: (companyId: string, newName: string) => void;
 
   addCustomJob: (input: CustomJobInput) => string;
-  removeCustomJob: (jobId: string) => void;
+  removeJob: (jobId: string) => void;
 
   setJobStatus: (
     jobId: string,
@@ -80,10 +81,12 @@ function normalizeStageDetails(
     const link = typeof value.link === 'string' ? value.link.trim() : '';
     const scheduledAt =
       typeof value.scheduledAt === 'string' ? value.scheduledAt.trim() : '';
-    if (!link && !scheduledAt) continue;
+    const completed = value.completed === true;
+    if (!link && !scheduledAt && !completed) continue;
     next[status] = {
       ...(link ? { link } : {}),
       ...(scheduledAt ? { scheduledAt } : {}),
+      ...(completed ? { completed: true } : {}),
     };
   }
 
@@ -159,6 +162,15 @@ function buildCustomJob(input: CustomJobInput): CampusJobData {
   };
 }
 
+function getVisibleJobs(
+  catalogJobs: CampusJobData[],
+  customJobs: CampusJobData[],
+  hiddenJobIds: string[]
+): CampusJobData[] {
+  const hidden = new Set(hiddenJobIds);
+  return [...catalogJobs, ...customJobs].filter((job) => !hidden.has(job.id));
+}
+
 export const useCampusJobStore = create<CampusJobState>()(
   persist(
     (set, get) => ({
@@ -167,10 +179,12 @@ export const useCampusJobStore = create<CampusJobState>()(
       catalogLoading: false,
       customCompanies: [],
       customJobs: [],
+      hiddenJobIds: [],
       jobProgress: {},
       lastSelectedJobId: null,
 
-      getAllJobs: () => [...get().catalogJobs, ...get().customJobs],
+      getAllJobs: () =>
+        getVisibleJobs(get().catalogJobs, get().customJobs, get().hiddenJobIds),
 
       getJobById: (jobId) => get().getAllJobs().find((j) => j.id === jobId),
 
@@ -301,11 +315,34 @@ export const useCampusJobStore = create<CampusJobState>()(
         return job.id;
       },
 
-      removeCustomJob: (jobId) => {
+      removeJob: (jobId) => {
         set((state) => {
+          const allJobs = [...state.catalogJobs, ...state.customJobs];
+          const target = allJobs.find((j) => j.id === jobId);
+          if (!target) return state;
+
           const { [jobId]: _removed, ...restProgress } = state.jobProgress;
+          const hiddenSet = new Set(state.hiddenJobIds);
+          const customJobs =
+            target.source === 'custom'
+              ? state.customJobs.filter((j) => j.id !== jobId)
+              : state.customJobs;
+          if (target.source !== 'custom') {
+            hiddenSet.add(jobId);
+          }
+
+          const hiddenJobIds = [...hiddenSet];
+          const visibleJobs = getVisibleJobs(state.catalogJobs, customJobs, hiddenJobIds);
+          const customCompanies = pruneCompaniesWithoutJobs(
+            state.customCompanies,
+            visibleJobs,
+            target.basic.company
+          );
+
           return {
-            customJobs: state.customJobs.filter((j) => j.id !== jobId),
+            customJobs,
+            hiddenJobIds,
+            customCompanies,
             jobProgress: restProgress,
             lastSelectedJobId:
               state.lastSelectedJobId === jobId ? null : state.lastSelectedJobId,
@@ -387,6 +424,7 @@ export const useCampusJobStore = create<CampusJobState>()(
 
         const link = detail.link?.trim() || undefined;
         const scheduledAt = detail.scheduledAt?.trim() || undefined;
+        const completed = detail.completed === true;
         const now = new Date().toISOString();
 
         set((state) => {
@@ -394,12 +432,13 @@ export const useCampusJobStore = create<CampusJobState>()(
           if (!existing) return state;
 
           const stageDetails = { ...(existing.stageDetails ?? {}) };
-          if (!link && !scheduledAt) {
+          if (!link && !scheduledAt && !completed) {
             delete stageDetails[status];
           } else {
             stageDetails[status] = {
               ...(link ? { link } : {}),
               ...(scheduledAt ? { scheduledAt } : {}),
+              ...(completed ? { completed: true } : {}),
             };
           }
 
@@ -445,6 +484,7 @@ export const useCampusJobStore = create<CampusJobState>()(
           customJobs: state.customJobs,
           jobProgress: state.jobProgress,
           lastSelectedJobId: state.lastSelectedJobId,
+          hiddenJobIds: state.hiddenJobIds,
         };
       },
 
@@ -464,6 +504,7 @@ export const useCampusJobStore = create<CampusJobState>()(
         set({
           customCompanies,
           customJobs,
+          hiddenJobIds: payload.hiddenJobIds ?? [],
           jobProgress: normalizedProgress,
           lastSelectedJobId: payload.lastSelectedJobId,
         });
@@ -471,21 +512,26 @@ export const useCampusJobStore = create<CampusJobState>()(
     }),
     {
       name: 'campus-job-storage',
-      version: 4,
+      version: 5,
       partialize: (state) => ({
         customCompanies: state.customCompanies,
         customJobs: state.customJobs,
+        hiddenJobIds: state.hiddenJobIds,
         jobProgress: state.jobProgress,
         lastSelectedJobId: state.lastSelectedJobId,
       }),
       migrate: (persisted, fromVersion) => {
         const state = persisted as {
           jobProgress?: Record<string, JobProgress>;
+          hiddenJobIds?: string[];
         };
         if (state?.jobProgress) {
           for (const key of Object.keys(state.jobProgress)) {
             state.jobProgress[key] = normalizeJobProgress(state.jobProgress[key]);
           }
+        }
+        if (!state.hiddenJobIds) {
+          state.hiddenJobIds = [];
         }
         void fromVersion;
         return persisted as CampusJobState;

@@ -9,10 +9,12 @@ import { ChevronDown, ExternalLink } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { formatStageScheduledAt } from './StageDetailEditor';
 
-/** 待办/过期提醒覆盖的阶段（不含 Offer） */
+/** 待办/过期/已完成提醒覆盖的阶段（不含 Offer） */
 const REMINDER_STATUSES: ApplicationStatus[] = STAGE_DETAIL_STATUSES.filter(
   (s) => s !== 'offer'
 );
+
+export type StageReminderKind = 'expired' | 'todo' | 'completed';
 
 export interface StageReminderItem {
   key: string;
@@ -22,7 +24,7 @@ export interface StageReminderItem {
   status: ApplicationStatus;
   link?: string;
   scheduledAt?: string;
-  expired: boolean;
+  kind: StageReminderKind;
 }
 
 function parseStageTime(value?: string): number | null {
@@ -35,6 +37,12 @@ function parseStageTime(value?: string): number | null {
   return Number.isNaN(t) ? null : t;
 }
 
+const KIND_ORDER: Record<StageReminderKind, number> = {
+  expired: 0,
+  todo: 1,
+  completed: 2,
+};
+
 export function collectStageReminders(
   jobs: CampusJobData[],
   getProgress: (jobId: string) => JobProgress | undefined,
@@ -44,15 +52,22 @@ export function collectStageReminders(
 
   for (const job of jobs) {
     const progress = getProgress(job.id);
+    // 已终止：不进入过期/待办/已完成，仅由终止原因分布统计
     if (!progress || progress.status === 'rejected') continue;
     if (!REMINDER_STATUSES.includes(progress.status)) continue;
 
     const detail = progress.stageDetails?.[progress.status];
-    if (!detail?.link && !detail?.scheduledAt) continue;
+    if (!detail?.link && !detail?.scheduledAt && !detail?.completed) continue;
 
     const timeMs = parseStageTime(detail.scheduledAt);
-    // 有时间才参与过期/待办统计；仅有链接也进列表，算待办
-    const expired = timeMs !== null && timeMs < now;
+    let kind: StageReminderKind;
+    if (detail.completed) {
+      kind = 'completed';
+    } else if (timeMs !== null && timeMs < now) {
+      kind = 'expired';
+    } else {
+      kind = 'todo';
+    }
 
     items.push({
       key: `${job.id}-${progress.status}`,
@@ -62,12 +77,12 @@ export function collectStageReminders(
       status: progress.status,
       link: detail.link,
       scheduledAt: detail.scheduledAt,
-      expired,
+      kind,
     });
   }
 
   return items.sort((a, b) => {
-    if (a.expired !== b.expired) return a.expired ? -1 : 1;
+    if (a.kind !== b.kind) return KIND_ORDER[a.kind] - KIND_ORDER[b.kind];
     const ta = parseStageTime(a.scheduledAt) ?? Number.MAX_SAFE_INTEGER;
     const tb = parseStageTime(b.scheduledAt) ?? Number.MAX_SAFE_INTEGER;
     if (ta !== tb) return ta - tb;
@@ -80,6 +95,12 @@ interface RaceChartRemindersProps {
   getProgress: (jobId: string) => JobProgress | undefined;
 }
 
+const KIND_BADGE: Record<StageReminderKind, { label: string; className: string }> = {
+  expired: { label: '已过期', className: 'bg-[#fff0f0] text-[#FF4B4B]' },
+  todo: { label: '待办', className: 'bg-[#fff8e6] text-[#FF9600]' },
+  completed: { label: '已完成', className: 'bg-[#eefbf0] text-[#58CC02]' },
+};
+
 export function RaceChartReminders({ jobs, getProgress }: RaceChartRemindersProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -90,8 +111,9 @@ export function RaceChartReminders({ jobs, getProgress }: RaceChartRemindersProp
     [jobs, getProgress, jobProgress]
   );
 
-  const expiredCount = items.filter((i) => i.expired).length;
-  const todoCount = items.filter((i) => !i.expired).length;
+  const expiredCount = items.filter((i) => i.kind === 'expired').length;
+  const todoCount = items.filter((i) => i.kind === 'todo').length;
+  const completedCount = items.filter((i) => i.kind === 'completed').length;
 
   useEffect(() => {
     if (!open) return;
@@ -124,6 +146,8 @@ export function RaceChartReminders({ jobs, getProgress }: RaceChartRemindersProp
         <span className="text-[#FF4B4B] tabular-nums">{expiredCount} 个已过期</span>
         <span className="text-ink-secondary">·</span>
         <span className="text-[#FF9600] tabular-nums">{todoCount} 个待办</span>
+        <span className="text-ink-secondary">·</span>
+        <span className="text-[#58CC02] tabular-nums">{completedCount} 个已完成</span>
         <ChevronDown
           size={14}
           className={cn('text-ink-secondary transition-transform', open && 'rotate-180')}
@@ -132,15 +156,16 @@ export function RaceChartReminders({ jobs, getProgress }: RaceChartRemindersProp
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-1.5 w-[min(100vw-2rem,360px)] max-h-72 overflow-y-auto rounded-xl border-2 border-[#e5e5e5] bg-white shadow-lg"
+          className="absolute right-0 top-full mt-1.5 w-[min(100vw-2rem,380px)] max-h-72 overflow-y-auto rounded-xl border-2 border-[#e5e5e5] bg-white shadow-lg"
           role="listbox"
         >
           <div className="px-3 py-2 text-[10px] font-bold text-ink-secondary bg-[#fafafa] border-b border-[#e5e5e5]">
-            未完成的测评 / 面试
+            测评 / 面试提醒（已终止岗位不计入）
           </div>
           <ul className="py-1">
             {items.map((item) => {
               const stageLabel = APPLICATION_STATUS_LABELS[item.status];
+              const badge = KIND_BADGE[item.kind];
               return (
                 <li
                   key={item.key}
@@ -170,12 +195,10 @@ export function RaceChartReminders({ jobs, getProgress }: RaceChartRemindersProp
                     <span
                       className={cn(
                         'flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md',
-                        item.expired
-                          ? 'bg-[#fff0f0] text-[#FF4B4B]'
-                          : 'bg-[#fff8e6] text-[#FF9600]'
+                        badge.className
                       )}
                     >
-                      {item.expired ? '已过期' : '待办'}
+                      {badge.label}
                     </span>
                   </div>
                   {item.scheduledAt && (

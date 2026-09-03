@@ -32,3 +32,15 @@ export function ensureCustomCompaniesForJobs(
 
   return next;
 }
+
+/** 公司下已无可见岗位时，移除对应自定义公司条目 */
+export function pruneCompaniesWithoutJobs(
+  customCompanies: CustomCompany[],
+  visibleJobs: CampusJobData[],
+  removedCompanyName?: string
+): CustomCompany[] {
+  if (!removedCompanyName) return customCompanies;
+  const stillHasJobs = visibleJobs.some((j) => j.basic.company === removedCompanyName);
+  if (stillHasJobs) return customCompanies;
+  return customCompanies.filter((c) => c.name !== removedCompanyName);
+}

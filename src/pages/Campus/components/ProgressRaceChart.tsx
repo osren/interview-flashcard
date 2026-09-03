@@ -15,7 +15,6 @@ import {
 } from '@/data/campus-jobs';
 import { getFurthestProgressIndex } from '../utils';
 import { RaceChartStatusSelect } from './RaceChartStatusSelect';
-import { RaceChartReminders } from './RaceChartReminders';
 import { StageDetailEditor, StageDetailTooltip } from './StageDetailEditor';
 import { cn } from '@/utils/cn';
 
@@ -46,7 +45,7 @@ function truncateLabel(value: string, maxChars: number): string {
 }
 
 function hasStageInfo(detail?: StageDetail): boolean {
-  return Boolean(detail?.link || detail?.scheduledAt);
+  return Boolean(detail?.link || detail?.scheduledAt || detail?.completed);
 }
 
 export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps) {
@@ -80,13 +79,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
   const chartHeight = TOP_PADDING + jobs.length * ROW_HEIGHT + BOTTOM_PADDING;
 
   return (
-    <div className="surface-panel p-4 overflow-x-auto relative">
-      <div className="absolute top-3 right-3 z-30">
-        <RaceChartReminders
-          jobs={jobs}
-          getProgress={(jobId) => getProgress(jobId) as JobProgress | undefined}
-        />
-      </div>
+    <div className="surface-panel p-4 overflow-x-auto overflow-y-visible">
       <div className="flex min-w-[1080px]">
         <div className="flex-shrink-0" style={{ width: LEFT_LABEL_WIDTH }}>
           <div style={{ height: TOP_PADDING }} aria-hidden="true" />
@@ -97,7 +90,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
             const title = `${job.basic.company} · ${job.basic.position}`;
             const labelContent = (
               <>
-                <p className="font-semibold text-[17px] text-ink-primary truncate leading-tight">
+                <p className="font-bold text-[17px] text-ink-primary truncate leading-tight">
                   {truncateLabel(job.basic.company, 12)}
                 </p>
                 <p className="text-[16px] text-ink-secondary truncate leading-tight mt-0.5">
@@ -137,7 +130,10 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
           })}
         </div>
 
-        <div className="relative flex-shrink-0" style={{ width: svgWidth, height: chartHeight }}>
+        <div
+          className="relative flex-shrink-0 overflow-visible"
+          style={{ width: svgWidth, height: chartHeight }}
+        >
           <svg
             width={svgWidth}
             height={chartHeight}
@@ -154,7 +150,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
                     y={32}
                     textAnchor="middle"
                     className="fill-ink-secondary font-bold"
-                    style={{ fontSize: 13 }}
+                    style={{ fontSize: 15 }}
                   >
                     {APPLICATION_STATUS_SHORT_LABELS[status]}
                   </text>
@@ -280,7 +276,7 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
               return (
                 <div
                   key={key}
-                  className="absolute"
+                  className={cn('absolute', showTip && 'z-50')}
                   style={{
                     left: cx,
                     top: y,
@@ -302,7 +298,10 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
                     }
                     className={cn(
                       'rounded-full border-2 border-white shadow-sm transition-transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#58CC02]',
-                      filled && 'ring-2 ring-offset-1 ring-[#1CB0F6]/40'
+                      filled &&
+                        (detail?.completed
+                          ? 'ring-2 ring-offset-1 ring-[#58CC02]/50'
+                          : 'ring-2 ring-offset-1 ring-[#1CB0F6]/40')
                     )}
                     style={{
                       width: size,
@@ -312,7 +311,13 @@ export function ProgressRaceChart({ jobs, getProgress }: ProgressRaceChartProps)
                     title={`编辑${APPLICATION_STATUS_LABELS[colStatus]}链接与时间`}
                     aria-label={`编辑${APPLICATION_STATUS_LABELS[colStatus]}链接与时间`}
                   />
-                  {showTip && <StageDetailTooltip status={colStatus} detail={detail} />}
+                  {showTip && (
+                    <StageDetailTooltip
+                      status={colStatus}
+                      detail={detail}
+                      placement={rowIndex === 0 ? 'bottom' : 'top'}
+                    />
+                  )}
                 </div>
               );
             });

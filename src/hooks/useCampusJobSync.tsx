@@ -200,7 +200,9 @@ function useCampusJobSync(): CampusJobSyncContextValue {
         return;
       }
 
-      const jobsChanged = state.customJobs !== prevState.customJobs;
+      const jobsChanged =
+        state.customJobs !== prevState.customJobs ||
+        state.hiddenJobIds !== prevState.hiddenJobIds;
       const companiesChanged = state.customCompanies !== prevState.customCompanies;
       const progressChanged =
         state.jobProgress !== prevState.jobProgress ||

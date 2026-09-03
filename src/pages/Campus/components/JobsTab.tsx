@@ -40,7 +40,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
     updateCustomCompany,
     renameCustomCompany,
     addCustomJob,
-    removeCustomJob,
+    removeJob,
     getProgress,
     setLastSelectedJobId,
   } = useCampusJobStore();
@@ -140,17 +140,26 @@ export function JobsTab({ jobs }: JobsTabProps) {
 
   const handleDeleteJob = (job: CampusJobData) => {
     const label = `${job.basic.company} · ${job.basic.position}`;
-    if (
-      !window.confirm(
-        `确定删除岗位「${label}」吗？\n\n删除后将同步从云端移除，且该岗位的投递进度记录也会清除。`
-      )
-    ) {
+    const hint =
+      job.source === 'custom'
+        ? '删除后将同步从云端移除，且该岗位的投递进度记录也会清除。'
+        : '内置岗位将从列表中隐藏（可同步到其他设备），进度记录也会清除。';
+    if (!window.confirm(`确定删除岗位「${label}」吗？\n\n${hint}`)) {
       return;
     }
-    removeCustomJob(job.id);
+    removeJob(job.id);
     if (selectedJobId === job.id) {
       setSelectedJobId(null);
     }
+    setExpandedCompanies((prev) => {
+      const stillHasCompany = jobs.some(
+        (j) => j.id !== job.id && j.basic.company === job.basic.company
+      );
+      if (stillHasCompany) return prev;
+      const next = new Set(prev);
+      next.delete(job.basic.company);
+      return next;
+    });
   };
 
   const handleSaveCompanyName = (customCo: { id: string; name: string; color: string }) => {
@@ -371,7 +380,14 @@ export function JobsTab({ jobs }: JobsTabProps) {
                             onClick={() => handleSelectJob(job)}
                             className="flex-1 min-w-0 text-left px-2 py-2 text-xs"
                           >
-                            <div className="font-bold truncate">{job.basic.position}</div>
+                            <div className="font-bold truncate flex items-center gap-1">
+                              <span className="truncate">{job.basic.position}</span>
+                              {job.source === 'custom' && (
+                                <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[#f7f7f7] text-ink-secondary flex-shrink-0">
+                                  自定义
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center justify-between mt-0.5">
                               <span className="text-ink-secondary">{job.basic.location}</span>
                               {status ? (
@@ -389,17 +405,15 @@ export function JobsTab({ jobs }: JobsTabProps) {
                               )}
                             </div>
                           </button>
-                          {job.source === 'custom' && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteJob(job)}
-                              className="flex-shrink-0 p-1.5 mr-1 rounded-lg text-red-500 hover:bg-red-50"
-                              title="删除岗位"
-                              aria-label={`删除 ${job.basic.position}`}
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          )}
+                          <button
+                           type="button"
+                            onClick={() => handleDeleteJob(job)}
+                            className="flex-shrink-0 p-1.5 mr-1 rounded-lg text-red-500 hover:bg-red-50"
+                            title="删除岗位"
+                            aria-label={`删除 ${job.basic.position}`}
+                          >
+                            <Trash2 size={12} />
+                          </button>
                         </div>
                       );
                     })}
@@ -507,15 +521,13 @@ export function JobsTab({ jobs }: JobsTabProps) {
                     <ExternalLink size={14} />
                   </a>
                 )}
-                {selectedJob.source === 'custom' && (
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteJob(selectedJob)}
-                    className="text-xs text-red-500 font-bold hover:underline"
-                  >
-                    {'\u5220\u9664\u5c97\u4f4d'}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => handleDeleteJob(selectedJob)}
+                  className="text-xs text-red-500 font-bold hover:underline"
+                >
+                  {'\u5220\u9664\u5c97\u4f4d'}
+                </button>
               </div>
             </div>
 

@@ -10,6 +10,7 @@ export interface CampusJobSyncPayload {
   customJobs: CampusJobData[];
   jobProgress: Record<string, JobProgress>;
   lastSelectedJobId: string | null;
+  hiddenJobIds: string[];
 }
 
 interface CampusJobSyncRow {
@@ -23,6 +24,7 @@ const EMPTY_PAYLOAD: CampusJobSyncPayload = {
   customJobs: [],
   jobProgress: {},
   lastSelectedJobId: null,
+  hiddenJobIds: [],
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -44,6 +46,9 @@ function normalizePayload(raw: unknown): CampusJobSyncPayload {
       : {},
     lastSelectedJobId:
       typeof raw.lastSelectedJobId === 'string' ? raw.lastSelectedJobId : null,
+    hiddenJobIds: Array.isArray(raw.hiddenJobIds)
+      ? (raw.hiddenJobIds as string[])
+      : [],
   };
 }
 
@@ -91,11 +96,14 @@ export function mergeCampusJobPayload(
     customCompanies.set(company.id, company);
   }
 
+  const hiddenJobIds = [...new Set([...remote.hiddenJobIds, ...local.hiddenJobIds])];
+
   return {
     customCompanies: [...customCompanies.values()],
     customJobs: [...customJobs.values()],
     jobProgress,
     lastSelectedJobId: remote.lastSelectedJobId ?? local.lastSelectedJobId,
+    hiddenJobIds,
   };
 }
 

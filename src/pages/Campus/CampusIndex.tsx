@@ -34,11 +34,13 @@ export function CampusIndex() {
   const sync = useCampusJobSyncContext();
   const customJobs = useCampusJobStore((state) => state.customJobs);
   const catalogJobs = useCampusJobStore((state) => state.catalogJobs);
+  const hiddenJobIds = useCampusJobStore((state) => state.hiddenJobIds);
   const catalogSource = useCampusJobStore((state) => state.catalogSource);
   const setCatalogJobs = useCampusJobStore((state) => state.setCatalogJobs);
+  const getAllJobs = useCampusJobStore((state) => state.getAllJobs);
   const jobs = useMemo(
-    () => [...catalogJobs, ...customJobs],
-    [catalogJobs, customJobs]
+    () => getAllJobs(),
+    [catalogJobs, customJobs, hiddenJobIds, getAllJobs]
   );
 
   useEffect(() => {

@@ -40,6 +40,7 @@ export function StageDetailEditor({
   const labels = getStageDetailFieldLabels(status);
   const [link, setLink] = useState(detail?.link ?? '');
   const [scheduledAt, setScheduledAt] = useState(toDatetimeLocalValue(detail?.scheduledAt));
+  const [completed, setCompleted] = useState(detail?.completed === true);
   const linkRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export function StageDetailEditor({
     setStageDetail(jobId, status, {
       link: normalizedLink || undefined,
       scheduledAt: scheduledAt.trim() || undefined,
+      completed: completed || undefined,
     });
     onClose();
   };
@@ -112,7 +114,17 @@ export function StageDetailEditor({
               className="w-full px-3 py-2 rounded-xl border-2 border-[#e5e5e5] text-sm focus:outline-none focus:border-[#58CC02]"
             />
           </div>
-          <p className="text-xs text-ink-secondary">留空并保存可清除该阶段信息</p>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={completed}
+              onChange={(e) => setCompleted(e.target.checked)}
+              className="w-4 h-4 rounded border-[#e5e5e5] text-[#58CC02] focus:ring-[#58CC02]"
+            />
+            <span className="text-sm font-bold text-ink-primary">标记为已完成</span>
+            <span className="text-xs text-ink-secondary">（完成后不再计入已过期/待办）</span>
+          </label>
+          <p className="text-xs text-ink-secondary">清空链接、时间并取消已完成，保存后可清除该阶段信息</p>
         </div>
 
         <div className="p-4 pt-0 flex gap-2">
@@ -156,18 +168,34 @@ export function formatStageScheduledAt(value?: string): string {
 interface StageDetailTooltipProps {
   status: ApplicationStatus;
   detail?: StageDetail;
+  /** 首行圆点上方空间不足，改为向下弹出 */
+  placement?: 'top' | 'bottom';
 }
 
-export function StageDetailTooltip({ status, detail }: StageDetailTooltipProps) {
+export function StageDetailTooltip({
+  status,
+  detail,
+  placement = 'top',
+}: StageDetailTooltipProps) {
   const labels = getStageDetailFieldLabels(status);
   const hasLink = Boolean(detail?.link);
   const hasTime = Boolean(detail?.scheduledAt);
+  const completed = detail?.completed === true;
 
   return (
-    <div className="absolute left-1/2 -translate-x-1/2 bottom-full z-20 w-max max-w-[220px] pb-2">
-      <div className="rounded-xl border-2 border-[#e5e5e5] bg-white px-3 py-2 shadow-lg text-left">
-        <p className="text-[10px] font-bold text-ink-secondary mb-1">
+    <div
+      className={
+        placement === 'bottom'
+          ? 'absolute left-1/2 -translate-x-1/2 top-[calc(100%-2px)] z-50 w-max max-w-[220px] pointer-events-none'
+          : 'absolute left-1/2 -translate-x-1/2 bottom-full z-50 w-max max-w-[220px] pb-2 pointer-events-none'
+      }
+    >
+      <div className="relative rounded-xl border-2 border-[#e5e5e5] bg-white px-3 py-2 shadow-lg text-left pointer-events-auto isolate">
+        <p className="text-[10px] font-bold text-ink-secondary mb-1 flex items-center gap-1.5">
           {APPLICATION_STATUS_LABELS[status]}
+          {completed && (
+            <span className="text-[#58CC02] bg-[#eefbf0] px-1.5 py-0.5 rounded-md">已完成</span>
+          )}
         </p>
         {hasLink ? (
           <a
@@ -187,7 +215,7 @@ export function StageDetailTooltip({ status, detail }: StageDetailTooltipProps) 
           <span className="text-ink-secondary">{labels.time}：</span>
           {hasTime ? formatStageScheduledAt(detail!.scheduledAt) : '未填写'}
         </p>
-        {!hasLink && (
+        {!hasLink && !completed && (
           <p className="text-[10px] text-ink-secondary mt-1.5">点击圆点可编辑</p>
         )}
       </div>
