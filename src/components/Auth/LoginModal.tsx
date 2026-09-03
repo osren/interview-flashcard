@@ -121,7 +121,7 @@ export function LoginModal({ open, onClose, initialMode = 'signin' }: LoginModal
                   </li>
                   <li>重启开发服务器（<code className="font-mono">npm run dev</code>）</li>
                 </ol>
-                <p className="text-xs opacity-80">详细步骤见项目文档 docs/supabase-phase0.md</p>
+                <p className="text-xs opacity-80">详细步骤见项目文档 docs/guides/supabase-phase0.md</p>
               </div>
             )}
 

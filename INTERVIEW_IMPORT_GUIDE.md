@@ -47,7 +47,8 @@
 
 ## 导入目标
 
-面试文档应存放于 `src/data/interview/` 目录，按公司名称创建对应的数据文件。
+1. **原始文档**先放入 `docs/面经/`（命名见上文）
+2. 解析后导入 `src/data/interview/`，按公司创建数据文件
 
 例如：
 - 美团 → `src/data/interview/meituan-local-commerce.ts`
