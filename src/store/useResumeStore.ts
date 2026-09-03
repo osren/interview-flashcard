@@ -20,14 +20,23 @@ export interface MarkdownResume {
   createdAt: number;
 }
 
-const PRIMARY_ID = 'resume-primary';
+export interface ResumeSyncPayload {
+  resumes: Resume[];
+  introScript: string;
+  markdownResumes: MarkdownResume[];
+  primaryResumeId: string;
+}
 
-const defaultPrimary: MarkdownResume = {
-  id: PRIMARY_ID,
+export const RESUME_PRIMARY_ID = 'resume-primary';
+
+export const defaultPrimaryMarkdown: MarkdownResume = {
+  id: RESUME_PRIMARY_ID,
   title: '通用精简版',
   content: primaryResumeRaw,
   createdAt: 0,
 };
+
+export const DEFAULT_INTRO_SCRIPT = introScriptRaw.replace(/^#.*$/m, '').trim();
 
 interface ResumeState {
   resumes: Resume[];
@@ -43,17 +52,17 @@ interface ResumeState {
   removeMarkdownResume: (id: string) => void;
   setPrimaryResumeId: (id: string) => void;
   getMarkdownResume: (id: string) => MarkdownResume | undefined;
+  getSyncPayload: () => ResumeSyncPayload;
+  importSyncedState: (payload: ResumeSyncPayload) => void;
 }
-
-const defaultIntroScript = introScriptRaw.replace(/^#.*$/m, '').trim();
 
 export const useResumeStore = create<ResumeState>()(
   persist(
     (set, get) => ({
       resumes: [],
-      introScript: defaultIntroScript,
-      markdownResumes: [defaultPrimary],
-      primaryResumeId: PRIMARY_ID,
+      introScript: DEFAULT_INTRO_SCRIPT,
+      markdownResumes: [defaultPrimaryMarkdown],
+      primaryResumeId: RESUME_PRIMARY_ID,
 
       addResume: (resume) => {
         const newResume: Resume = {
@@ -94,16 +103,45 @@ export const useResumeStore = create<ResumeState>()(
       },
 
       removeMarkdownResume: (id) => {
-        if (id === PRIMARY_ID) return;
+        if (id === RESUME_PRIMARY_ID) return;
         set((state) => ({
           markdownResumes: state.markdownResumes.filter((item) => item.id !== id),
-          primaryResumeId: state.primaryResumeId === id ? PRIMARY_ID : state.primaryResumeId,
+          primaryResumeId: state.primaryResumeId === id ? RESUME_PRIMARY_ID : state.primaryResumeId,
         }));
       },
 
       setPrimaryResumeId: (id) => set({ primaryResumeId: id }),
 
       getMarkdownResume: (id) => get().markdownResumes.find((item) => item.id === id),
+
+      getSyncPayload: () => {
+        const state = get();
+        return {
+          resumes: state.resumes,
+          introScript: state.introScript,
+          markdownResumes: state.markdownResumes,
+          primaryResumeId: state.primaryResumeId,
+        };
+      },
+
+      importSyncedState: (payload) => {
+        const markdownResumes = payload.markdownResumes.some(
+          (item) => item.id === RESUME_PRIMARY_ID
+        )
+          ? payload.markdownResumes
+          : [defaultPrimaryMarkdown, ...payload.markdownResumes];
+
+        const primaryResumeId = markdownResumes.some((item) => item.id === payload.primaryResumeId)
+          ? payload.primaryResumeId
+          : RESUME_PRIMARY_ID;
+
+        set({
+          resumes: payload.resumes,
+          introScript: payload.introScript,
+          markdownResumes,
+          primaryResumeId,
+        });
+      },
     }),
     {
       name: 'resume-storage',
@@ -111,8 +149,8 @@ export const useResumeStore = create<ResumeState>()(
       migrate: (persisted) => {
         const state = persisted as Partial<ResumeState>;
         if (!state.markdownResumes?.length) {
-          state.markdownResumes = [defaultPrimary];
-          state.primaryResumeId = PRIMARY_ID;
+          state.markdownResumes = [defaultPrimaryMarkdown];
+          state.primaryResumeId = RESUME_PRIMARY_ID;
         }
         return state;
       },

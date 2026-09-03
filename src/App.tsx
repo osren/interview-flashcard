@@ -7,6 +7,7 @@ import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { LearningSyncProvider } from '@/hooks/useLearningSync';
+import { ResumeSyncProvider } from '@/hooks/useResumeSync';
 import { Button, PageLoadingSkeleton } from '@/components/ui';
 
 function lazyPage<T extends ComponentType<unknown>>(
@@ -56,6 +57,7 @@ function App() {
     <ThemeProvider>
       <CampusJobSyncProvider>
         <LearningSyncProvider>
+          <ResumeSyncProvider>
           <AppShell>
             <FloatingResumeButton />
             <Routes>
@@ -224,6 +226,7 @@ function App() {
             </Routes>
             <Footer />
           </AppShell>
+          </ResumeSyncProvider>
         </LearningSyncProvider>
       </CampusJobSyncProvider>
     </ThemeProvider>

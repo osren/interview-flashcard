@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
 import { ResumeOptimizeTab } from './ResumeOptimizeTab';
-import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2 } from 'lucide-react';
+import { useResumeSyncContext } from '@/hooks/useResumeSync';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2, Cloud, CloudOff, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
@@ -11,6 +12,7 @@ type TabType = 'online' | 'resume' | 'intro' | 'optimize';
 
 export function ResumePage() {
   const { resumes, addResume, removeResume, introScript, setIntroScript } = useResumeStore();
+  const { isLoggedIn, isConfigured, status, error, cloudUnavailable } = useResumeSyncContext();
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('online');
   const [visitedTabs, setVisitedTabs] = useState<Set<TabType>>(
@@ -122,6 +124,36 @@ export function ResumePage() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">我的简历</h1>
           <p className="text-gray-500">在线预览、PDF 管理、口述稿与 JD 优化</p>
+          {isConfigured && (
+            <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/80 border border-gray-100 text-gray-500">
+              {!isLoggedIn ? (
+                <>
+                  <CloudOff size={14} />
+                  登录后自动云端同步
+                </>
+              ) : cloudUnavailable ? (
+                <>
+                  <CloudOff size={14} />
+                  云端未部署，仅本地保存
+                </>
+              ) : status === 'loading' || status === 'syncing' ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  正在同步…
+                </>
+              ) : status === 'error' ? (
+                <>
+                  <CloudOff size={14} className="text-red-500" />
+                  同步失败{error ? `：${error}` : ''}
+                </>
+              ) : status === 'synced' ? (
+                <>
+                  <Cloud size={14} className="text-blue-600" />
+                  已同步到云端
+                </>
+              ) : null}
+            </div>
+          )}
         </div>
         )}
 
