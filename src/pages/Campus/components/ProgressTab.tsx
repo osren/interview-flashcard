@@ -101,6 +101,14 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
         ))}
       </div>
 
+      <section>
+        <h3 className="font-extrabold text-lg text-ink-primary mb-2">{'\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}</h3>
+        <p className="text-sm text-ink-secondary mb-4">
+          {'\u6a2a\u5411\u5c55\u793a\u5404\u5c97\u4f4d\u5f53\u524d\u8fdb\u5ea6\uff0c\u7eb5\u8f74\u4e3a\u516c\u53f8/\u5c97\u4f4d\uff0c\u6a2a\u8f74\u4e3a\u6295\u9012\u9636\u6bb5'}
+        </p>
+        <ProgressRaceChart jobs={sortedForChart} getProgress={getProgress} />
+      </section>
+
       {stats.rejected > 0 && (
         <section className="surface-panel p-4">
           <h3 className="font-extrabold text-base text-ink-primary mb-1">终止原因分布</h3>
@@ -135,14 +143,6 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
           </div>
         </section>
       )}
-
-      <section>
-        <h3 className="font-extrabold text-lg text-ink-primary mb-2">{'\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}</h3>
-        <p className="text-sm text-ink-secondary mb-4">
-          {'\u6a2a\u5411\u5c55\u793a\u5404\u5c97\u4f4d\u5f53\u524d\u8fdb\u5ea6\uff0c\u7eb5\u8f74\u4e3a\u516c\u53f8/\u5c97\u4f4d\uff0c\u6a2a\u8f74\u4e3a\u6295\u9012\u9636\u6bb5'}
-        </p>
-        <ProgressRaceChart jobs={sortedForChart} getProgress={getProgress} />
-      </section>
 
       <section>
         <h3 className="font-extrabold text-lg text-ink-primary mb-3">{'\u6309\u65b9\u5411\u5206\u7c7b'}</h3>
