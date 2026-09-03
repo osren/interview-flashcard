@@ -7,12 +7,14 @@ import type {
   CustomJobInput,
   JobProgress,
   RejectReason,
+  StageDetail,
 } from '@/types/campus-job';
 import {
   localBuiltinCampusJobs,
   buildJobId,
   getTierFromMatch,
   isRejectReason,
+  isStageDetailStatus,
   normalizeApplicationStatus,
   normalizeRejectReason,
 } from '@/data/campus-jobs';
@@ -53,6 +55,7 @@ interface CampusJobState {
     note?: string,
     rejectReason?: RejectReason
   ) => void;
+  setStageDetail: (jobId: string, status: ApplicationStatus, detail: StageDetail) => void;
   clearJobStatus: (jobId: string) => void;
   setLastSelectedJobId: (jobId: string | null) => void;
   setCatalogJobs: (jobs: CampusJobData[], source: 'local' | 'remote') => void;
@@ -63,6 +66,28 @@ interface CampusJobState {
 
 function normalizeStatus(status: string): ApplicationStatus {
   return normalizeApplicationStatus(status);
+}
+
+function normalizeStageDetails(
+  raw: JobProgress['stageDetails']
+): JobProgress['stageDetails'] | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+
+  const next: NonNullable<JobProgress['stageDetails']> = {};
+  for (const [key, value] of Object.entries(raw)) {
+    const status = normalizeStatus(key);
+    if (!isStageDetailStatus(status) || !value || typeof value !== 'object') continue;
+    const link = typeof value.link === 'string' ? value.link.trim() : '';
+    const scheduledAt =
+      typeof value.scheduledAt === 'string' ? value.scheduledAt.trim() : '';
+    if (!link && !scheduledAt) continue;
+    next[status] = {
+      ...(link ? { link } : {}),
+      ...(scheduledAt ? { scheduledAt } : {}),
+    };
+  }
+
+  return Object.keys(next).length > 0 ? next : undefined;
 }
 
 function normalizeJobProgress(progress: JobProgress): JobProgress {
@@ -87,6 +112,7 @@ function normalizeJobProgress(progress: JobProgress): JobProgress {
     status,
     statusHistory,
     rejectReason,
+    stageDetails: normalizeStageDetails(progress.stageDetails),
   };
 }
 
@@ -323,6 +349,7 @@ export const useCampusJobStore = create<CampusJobState>()(
                     statusHistory: newHistory,
                     updatedAt: now,
                     rejectReason: deriveCurrentRejectReason(newHistory),
+                    stageDetails: existing?.stageDetails,
                   },
                 },
               };
@@ -348,6 +375,43 @@ export const useCampusJobStore = create<CampusJobState>()(
                 statusHistory,
                 updatedAt: now,
                 rejectReason: status === 'rejected' ? normalizedReason : undefined,
+                stageDetails: existing?.stageDetails,
+              },
+            },
+          };
+        });
+      },
+
+      setStageDetail: (jobId, status, detail) => {
+        if (!isStageDetailStatus(status)) return;
+
+        const link = detail.link?.trim() || undefined;
+        const scheduledAt = detail.scheduledAt?.trim() || undefined;
+        const now = new Date().toISOString();
+
+        set((state) => {
+          const existing = state.jobProgress[jobId];
+          if (!existing) return state;
+
+          const stageDetails = { ...(existing.stageDetails ?? {}) };
+          if (!link && !scheduledAt) {
+            delete stageDetails[status];
+          } else {
+            stageDetails[status] = {
+              ...(link ? { link } : {}),
+              ...(scheduledAt ? { scheduledAt } : {}),
+            };
+          }
+
+          const normalized = normalizeStageDetails(stageDetails);
+
+          return {
+            jobProgress: {
+              ...state.jobProgress,
+              [jobId]: {
+                ...existing,
+                updatedAt: now,
+                stageDetails: normalized,
               },
             },
           };

@@ -11,6 +11,34 @@ export const APPLICATION_STATUS_ORDER: ApplicationStatus[] = [
   'offer',
 ];
 
+/** 竞赛图可编辑链接/时间的阶段（素质测评 → Offer） */
+export const STAGE_DETAIL_STATUSES: ApplicationStatus[] = [
+  'written_aptitude',
+  'written_tech',
+  'interview_1',
+  'interview_2',
+  'interview_3',
+  'interview_hr',
+  'offer',
+];
+
+export function isStageDetailStatus(status: ApplicationStatus): boolean {
+  return STAGE_DETAIL_STATUSES.includes(status);
+}
+
+export function getStageDetailFieldLabels(status: ApplicationStatus): {
+  link: string;
+  time: string;
+} {
+  if (status === 'written_aptitude' || status === 'written_tech') {
+    return { link: '测评链接', time: '测评时间' };
+  }
+  if (status === 'offer') {
+    return { link: 'Offer 链接', time: '通知时间' };
+  }
+  return { link: '面试链接', time: '面试时间' };
+}
+
 export const APPLICATION_STATUS_ALL: ApplicationStatus[] = [
   ...APPLICATION_STATUS_ORDER,
   'rejected',

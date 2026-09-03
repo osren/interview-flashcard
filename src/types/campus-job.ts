@@ -72,6 +72,13 @@ export interface StatusHistoryEntry {
   rejectReason?: RejectReason;
 }
 
+/** 竞赛图节点上的环节信息（测评/面试链接与时间） */
+export interface StageDetail {
+  link?: string;
+  /** 本地日期时间，如 2026-09-03T14:30 */
+  scheduledAt?: string;
+}
+
 export interface JobProgress {
   jobId: string;
   status: ApplicationStatus;
@@ -79,6 +86,8 @@ export interface JobProgress {
   updatedAt: string;
   /** 当前为已终止时的细分原因 */
   rejectReason?: RejectReason;
+  /** 各阶段的链接与时间（素质测评 → Offer） */
+  stageDetails?: Partial<Record<ApplicationStatus, StageDetail>>;
 }
 
 export interface CustomCompany {
