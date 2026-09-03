@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ExternalLink, Globe, Table2 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
-type JobPoolSource = 'feishu' | 'tencent';
+type JobPoolSource = 'feishu' | 'tencent' | 'zhipin';
 
 const JOB_POOL_SOURCES: {
   id: JobPoolSource;
@@ -22,6 +22,12 @@ const JOB_POOL_SOURCES: {
     description: '27届提前批秋招信息汇总（持续更新）',
     url: 'https://docs.qq.com/smartsheet/DZkdPVGtGb1ZvaG5R?tab=t00i2h&viewId=v2JKhc',
   },
+  {
+    id: 'zhipin',
+    label: '27届校招秋招实习内推合集',
+    description: '面向27届应届毕业生投递秋招岗位',
+    url: 'https://docs.qq.com/smartsheet/DY3pHYkNvb0ZRSHdi?tab=t0gmEC&viewId=vUQPXH',
+  }
 ];
 
 const EMBED_LOAD_TIMEOUT_MS = 15000;
@@ -46,6 +52,7 @@ type SourceEmbedState = {
 const INITIAL_EMBED_STATE: Record<JobPoolSource, SourceEmbedState> = {
   feishu: { mounted: true, loading: true, failed: false },
   tencent: { mounted: false, loading: false, failed: false },
+  zhipin: { mounted: false, loading: false, failed: false },
 };
 
 function isIframeBlocked(iframe: HTMLIFrameElement): boolean {
