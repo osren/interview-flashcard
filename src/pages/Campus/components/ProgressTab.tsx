@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { CampusJobData, JobCategory } from '@/types/campus-job';
 import {
   APPLICATION_STATUS_LABELS,
@@ -14,7 +14,7 @@ import {
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ProgressRaceChart } from './ProgressRaceChart';
 import { RaceChartReminders } from './RaceChartReminders';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { RejectReason } from '@/types/campus-job';
 
@@ -25,6 +25,7 @@ interface ProgressTabProps {
 export function ProgressTab({ jobs }: ProgressTabProps) {
   const jobProgress = useCampusJobStore((s) => s.jobProgress);
   const { getProgress, getTrackedJobs } = useCampusJobStore();
+  const [showRejected, setShowRejected] = useState(false);
 
   const trackedJobs = useMemo(
     () => getTrackedJobs(),
@@ -77,7 +78,7 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
   }, [trackedJobs]);
 
   const sortedForChart = useMemo(() => {
-    return [...trackedJobs].sort((a, b) => {
+    const sorted = [...trackedJobs].sort((a, b) => {
       const pA = getProgress(a.id);
       const pB = getProgress(b.id);
       const idxA = pA ? getStatusSortIndex(pA.status) : -1;
@@ -85,7 +86,17 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
       if (idxA !== idxB) return idxB - idxA;
       return a.basic.company.localeCompare(b.basic.company, 'zh-CN');
     });
-  }, [trackedJobs, getProgress]);
+    
+    // 如果未展开已终止岗位，则过滤掉
+    if (!showRejected) {
+      return sorted.filter(job => {
+        const p = getProgress(job.id);
+        return p?.status !== 'rejected';
+      });
+    }
+    
+    return sorted;
+  }, [trackedJobs, getProgress, showRejected]);
 
   return (
     <div className="space-y-6">
@@ -132,6 +143,32 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
           <RaceChartReminders jobs={sortedForChart} getProgress={getProgress} />
         </div>
         <ProgressRaceChart jobs={sortedForChart} getProgress={getProgress} />
+        
+        {stats.rejected > 0 && (
+          <button
+            onClick={() => setShowRejected(!showRejected)}
+            className={cn(
+              'mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl',
+              'border-2 border-dashed transition-colors',
+              'text-sm font-bold',
+              showRejected
+                ? 'border-[#FF6B6B] bg-[#FF6B6B]/5 text-[#FF6B6B] hover:bg-[#FF6B6B]/10'
+                : 'border-[#e5e5e5] bg-slate-50 text-ink-secondary hover:border-[#FF6B6B] hover:text-[#FF6B6B]'
+            )}
+          >
+            {showRejected ? (
+              <>
+                <ChevronUp size={16} />
+                收起已终止岗位 ({stats.rejected})
+              </>
+            ) : (
+              <>
+                <ChevronDown size={16} />
+                展开已终止岗位 ({stats.rejected})
+              </>
+            )}
+          </button>
+        )}
       </section>
 
       {stats.rejected > 0 && (
