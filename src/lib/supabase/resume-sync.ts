@@ -35,6 +35,7 @@ function normalizeResume(raw: unknown): Resume | null {
     name: raw.name,
     data: raw.data,
     uploadTime: raw.uploadTime,
+    ...(typeof raw.extractedText === 'string' ? { extractedText: raw.extractedText } : {}),
   };
 }
 
@@ -90,8 +91,13 @@ function mergeResumes(local: Resume[], remote: Resume[]): Resume[] {
   for (const resume of remote) map.set(resume.id, resume);
   for (const resume of local) {
     const existing = map.get(resume.id);
-    if (!existing || resume.uploadTime >= existing.uploadTime) {
+    if (!existing || resume.uploadTime > existing.uploadTime) {
       map.set(resume.id, resume);
+      continue;
+    }
+    if (resume.uploadTime === existing.uploadTime) {
+      const extractedText = resume.extractedText || existing.extractedText;
+      map.set(resume.id, extractedText ? { ...resume, extractedText } : resume);
     }
   }
   return [...map.values()];

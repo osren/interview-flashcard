@@ -10,27 +10,64 @@ import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
 import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
 import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
+import { extractPdfText } from '@/utils/extractPdfText';
 
 interface OptimizeResult {
   optimized_markdown: string;
   changes_summary: string[];
 }
 
+type OptimizeSourceKind = 'pdf' | 'markdown';
+
+interface OptimizeSource {
+  kind: OptimizeSourceKind;
+  id: string;
+}
+
+function sourceKey(source: OptimizeSource): string {
+  return `${source.kind}:${source.id}`;
+}
+
+function parseSourceKey(value: string): OptimizeSource | null {
+  const [kind, ...rest] = value.split(':');
+  const id = rest.join(':');
+  if ((kind !== 'pdf' && kind !== 'markdown') || !id) return null;
+  return { kind, id };
+}
+
 export function ResumeOptimizeTab() {
   const { user } = useAuth();
   const sync = useCampusJobSyncContext();
-  const { markdownResumes, primaryResumeId, updateMarkdownContent, upsertMarkdownResume, setPrimaryResumeId } =
-    useResumeStore();
+  const {
+    resumes,
+    markdownResumes,
+    primaryResumeId,
+    updateMarkdownContent,
+    updateResumeExtractedText,
+    upsertMarkdownResume,
+    setPrimaryResumeId,
+  } = useResumeStore();
   const jobs = useCampusJobStore((state) => state.getAllJobs());
   const setCatalogJobs = useCampusJobStore((state) => state.setCatalogJobs);
 
+  const latestPdf = useMemo(() => {
+    if (resumes.length === 0) return undefined;
+    return [...resumes].sort((a, b) => b.uploadTime - a.uploadTime)[0];
+  }, [resumes]);
+
+  const defaultSource = useMemo<OptimizeSource>(() => {
+    if (latestPdf) return { kind: 'pdf', id: latestPdf.id };
+    return { kind: 'markdown', id: primaryResumeId };
+  }, [latestPdf, primaryResumeId]);
+
   const [loginOpen, setLoginOpen] = useState(false);
-  const [selectedResumeId, setSelectedResumeId] = useState(primaryResumeId);
+  const [source, setSource] = useState<OptimizeSource>(defaultSource);
   const [selectedJobId, setSelectedJobId] = useState('');
   const [jdText, setJdText] = useState('');
   const [preview, setPreview] = useState('');
   const [changes, setChanges] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {
     quota,
@@ -42,6 +79,20 @@ export function ResumeOptimizeTab() {
   } = useLlmQuota({
     enabled: Boolean(user),
   });
+
+  // Prefer newest PDF whenever the default source changes (e.g. after upload)
+  useEffect(() => {
+    setSource(defaultSource);
+  }, [defaultSource.id, defaultSource.kind]);
+
+  // If the selected resume was deleted, fall back to the default source
+  useEffect(() => {
+    const exists =
+      source.kind === 'pdf'
+        ? resumes.some((item) => item.id === source.id)
+        : markdownResumes.some((item) => item.id === source.id);
+    if (!exists) setSource(defaultSource);
+  }, [resumes, markdownResumes, source, defaultSource]);
 
   useEffect(() => {
     sync.ensureCatalogLoaded();
@@ -62,12 +113,69 @@ export function ResumeOptimizeTab() {
     };
   }, [setCatalogJobs]);
 
-  const current = useMemo(
-    () => markdownResumes.find((item) => item.id === selectedResumeId) ?? markdownResumes[0],
-    [markdownResumes, selectedResumeId]
+  const selectedPdf = useMemo(
+    () => (source.kind === 'pdf' ? resumes.find((item) => item.id === source.id) : undefined),
+    [resumes, source]
   );
 
+  const selectedMarkdown = useMemo(
+    () =>
+      source.kind === 'markdown'
+        ? markdownResumes.find((item) => item.id === source.id) ?? markdownResumes[0]
+        : undefined,
+    [markdownResumes, source]
+  );
+
+  const resumeText =
+    source.kind === 'pdf'
+      ? selectedPdf?.extractedText?.trim() ?? ''
+      : selectedMarkdown?.content?.trim() ?? '';
+
+  const sourceTitle =
+    source.kind === 'pdf'
+      ? selectedPdf?.name ?? 'PDF 简历'
+      : selectedMarkdown?.title ?? 'Markdown 简历';
+
+  // Lazy-extract text for PDFs that were uploaded before this feature
+  useEffect(() => {
+    if (source.kind !== 'pdf' || !selectedPdf) return;
+    if (selectedPdf.extractedText?.trim()) return;
+
+    let cancelled = false;
+    setExtracting(true);
+    setError(null);
+
+    void extractPdfText(selectedPdf.data)
+      .then((text) => {
+        if (cancelled) return;
+        if (!text.trim()) {
+          setError('未能从该 PDF 提取到文字，可改用 Markdown 简历作为备用');
+          return;
+        }
+        updateResumeExtractedText(selectedPdf.id, text);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError('PDF 文本提取失败，可改用 Markdown 简历作为备用');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setExtracting(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [source, selectedPdf, updateResumeExtractedText]);
+
   const selectedJob = jobs.find((job) => job.id === selectedJobId);
+
+  const handleSourceChange = (value: string) => {
+    const next = parseSourceKey(value);
+    if (!next) return;
+    setSource(next);
+    setError(null);
+  };
 
   const handleJobChange = (jobId: string) => {
     setSelectedJobId(jobId);
@@ -92,15 +200,21 @@ export function ResumeOptimizeTab() {
       setError('今日 AI 额度已用完，请明日再试');
       return;
     }
-    if (!current?.content.trim() || !jdText.trim()) {
-      setError('请先选择/编辑简历，并填写或选择 JD');
+    if (!resumeText || !jdText.trim()) {
+      setError(
+        source.kind === 'pdf' && extracting
+          ? '正在提取 PDF 文本，请稍候'
+          : '请先选择带文本的简历，并填写或选择 JD'
+      );
       return;
     }
     setLoading(true);
     setError(null);
     try {
       const result = await invokeEdgeFunction<OptimizeResult>('optimize-resume', {
-        resume_markdown: current.content,
+        resume_text: resumeText,
+        resume_markdown: resumeText,
+        resume_source: source.kind,
         jd_text: jdText,
         company: selectedJob?.basic.company,
         position: selectedJob?.basic.position,
@@ -117,30 +231,30 @@ export function ResumeOptimizeTab() {
   };
 
   const handleSaveCopy = () => {
-    if (!preview.trim() || !current) return;
+    if (!preview.trim()) return;
     const company = selectedJob?.basic.company ?? '自定义JD';
     const position = selectedJob?.basic.position ?? '优化版';
     const copy = {
       id: `resume-${Date.now()}`,
       title: `${company}-${position}-优化版`,
       content: preview,
-      sourceResumeId: current.id,
+      sourceResumeId: source.id,
       targetJobId: selectedJobId || undefined,
       jdSnapshot: jdText,
       createdAt: Date.now(),
     };
     upsertMarkdownResume(copy);
-    setSelectedResumeId(copy.id);
+    setSource({ kind: 'markdown', id: copy.id });
     setPrimaryResumeId(copy.id);
   };
 
   const handleExport = () => {
-    const content = preview || current?.content || '';
+    const content = preview || resumeText || '';
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${current?.title ?? 'resume'}.md`;
+    link.download = `${sourceTitle}.md`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -155,15 +269,34 @@ export function ResumeOptimizeTab() {
           onRefresh={refreshQuota}
         />
       )}
+      <div className="rounded-xl border-2 border-[#e5e5e5] bg-[#f7fbff] px-4 py-3 text-sm text-[#4b4b4b]">
+        默认使用<strong className="text-[#1CB0F6]">最近上传的 PDF</strong>
+        提取文本进行 JD 优化；也可切换到 Markdown 简历作为备用。
+      </div>
       <div className="flex flex-wrap gap-3 items-center">
         <select
-          value={current?.id ?? ''}
-          onChange={(event) => setSelectedResumeId(event.target.value)}
-          className="rounded-xl border-2 border-[#e5e5e5] px-3 py-2 text-sm font-bold"
+          value={sourceKey(source)}
+          onChange={(event) => handleSourceChange(event.target.value)}
+          className="rounded-xl border-2 border-[#e5e5e5] px-3 py-2 text-sm font-bold min-w-[220px]"
         >
-          {markdownResumes.map((item) => (
-            <option key={item.id} value={item.id}>{item.title}</option>
-          ))}
+          {resumes.length > 0 && (
+            <optgroup label="PDF 简历（默认优先）">
+              {[...resumes]
+                .sort((a, b) => b.uploadTime - a.uploadTime)
+                .map((item, index) => (
+                  <option key={item.id} value={sourceKey({ kind: 'pdf', id: item.id })}>
+                    {index === 0 ? `★ ${item.name}（最近上传）` : item.name}
+                  </option>
+                ))}
+            </optgroup>
+          )}
+          <optgroup label="Markdown 简历（备用）">
+            {markdownResumes.map((item) => (
+              <option key={item.id} value={sourceKey({ kind: 'markdown', id: item.id })}>
+                {item.title}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <select
           value={selectedJobId}
@@ -177,9 +310,13 @@ export function ResumeOptimizeTab() {
             </option>
           ))}
         </select>
-        <Button type="button" onClick={handleOptimize} disabled={loading || (Boolean(user) && !canUseAi)}>
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-          {loading ? '优化中...' : '按 JD 优化'}
+        <Button
+          type="button"
+          onClick={handleOptimize}
+          disabled={loading || extracting || (Boolean(user) && !canUseAi)}
+        >
+          {loading || extracting ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+          {extracting ? '提取 PDF 中...' : loading ? '优化中...' : '按 JD 优化'}
         </Button>
         <Button type="button" variant="secondary" onClick={handleSaveCopy} disabled={!preview}>
           <Save size={16} />
@@ -199,15 +336,36 @@ export function ResumeOptimizeTab() {
 
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="space-y-3">
-          <h3 className="font-extrabold text-[#3c3c3c]">当前简历</h3>
-          <div data-color-mode="light">
-            <LazyMDEditor
-              value={current?.content ?? ''}
-              onChange={(value) => current && updateMarkdownContent(current.id, value || '')}
-              height={420}
-              preview="edit"
+          <h3 className="font-extrabold text-[#3c3c3c]">
+            {source.kind === 'pdf' ? '当前简历（PDF 提取文本）' : '当前简历（Markdown）'}
+          </h3>
+          {source.kind === 'pdf' ? (
+            <textarea
+              value={selectedPdf?.extractedText ?? ''}
+              onChange={(event) => {
+                if (!selectedPdf) return;
+                updateResumeExtractedText(selectedPdf.id, event.target.value);
+              }}
+              disabled={extracting}
+              className="w-full h-[420px] rounded-xl border-2 border-[#e5e5e5] px-3 py-2 text-sm outline-none focus:border-[#1CB0F6] resize-y font-mono leading-relaxed"
+              placeholder={
+                extracting
+                  ? '正在从 PDF 提取文字…'
+                  : '上传 PDF 后将自动显示提取文本；也可在此编辑后再优化'
+              }
             />
-          </div>
+          ) : (
+            <div data-color-mode="light">
+              <LazyMDEditor
+                value={selectedMarkdown?.content ?? ''}
+                onChange={(value) =>
+                  selectedMarkdown && updateMarkdownContent(selectedMarkdown.id, value || '')
+                }
+                height={420}
+                preview="edit"
+              />
+            </div>
+          )}
           <textarea
             value={jdText}
             onChange={(event) => setJdText(event.target.value)}
@@ -219,10 +377,15 @@ export function ResumeOptimizeTab() {
           <h3 className="font-extrabold text-[#3c3c3c]">优化预览</h3>
           {changes.length > 0 && (
             <ul className="list-disc pl-5 text-sm text-[#4b4b4b] space-y-1">
-              {changes.map((item) => <li key={item}>{item}</li>)}
+              {changes.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
           )}
-          <div data-color-mode="light" className="rounded-xl border-2 border-[#e5e5e5] p-3 min-h-[420px] bg-white overflow-auto">
+          <div
+            data-color-mode="light"
+            className="rounded-xl border-2 border-[#e5e5e5] p-3 min-h-[420px] bg-white overflow-auto"
+          >
             <LazyMDMarkdown source={preview || '*点击「按 JD 优化」后在此展示副本*'} />
           </div>
         </div>

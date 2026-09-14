@@ -34,15 +34,17 @@ Deno.serve(async (req) => {
   try {
     const body = (await req.json()) as {
       resume_markdown?: string;
+      resume_text?: string;
+      resume_source?: 'pdf' | 'markdown' | string;
       jd_text?: string;
       company?: string;
       position?: string;
     };
 
-    const resume = body.resume_markdown?.trim() ?? '';
+    const resume = (body.resume_text ?? body.resume_markdown)?.trim() ?? '';
     const jd = body.jd_text?.trim() ?? '';
     if (!resume || !jd) {
-      return jsonResponse({ error: 'resume_markdown and jd_text are required' }, 400);
+      return jsonResponse({ error: 'resume_text (or resume_markdown) and jd_text are required' }, 400);
     }
 
     const admin = createServiceClient();
@@ -51,9 +53,16 @@ Deno.serve(async (req) => {
       return quotaExceededResponse(quotaResult);
     }
 
+    const sourceHint =
+      body.resume_source === 'pdf'
+        ? '输入可能是从 PDF 提取的纯文本，请整理为结构清晰的 Markdown 简历。'
+        : '输入为 Markdown 简历。';
+
     const system = `你是简历优化助手。只改表述、关键词与顺序，禁止捏造经历、公司、数字或技能。
 候选人背景（事实边界）：
 ${CANDIDATE_CONTEXT}
+
+${sourceHint}
 
 只输出 JSON：
 {
@@ -66,7 +75,7 @@ ${CANDIDATE_CONTEXT}
       body.position ? `目标岗位：${body.position}` : '',
       'JD：',
       jd.slice(0, 8000),
-      '当前简历 Markdown：',
+      '当前简历内容：',
       resume.slice(0, 12000),
     ].filter(Boolean).join('\n');
 

@@ -24,6 +24,7 @@ export default defineConfig({
             return 'vendor-mdeditor';
           }
           if (id.includes('xlsx')) return 'vendor-xlsx';
+          if (id.includes('pdfjs-dist')) return 'vendor-pdfjs';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (id.includes('recharts')) return 'vendor-recharts';
         },

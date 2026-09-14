@@ -8,6 +8,8 @@ export interface Resume {
   name: string;
   data: string;
   uploadTime: number;
+  /** Plain text extracted from the PDF for JD optimization */
+  extractedText?: string;
 }
 
 export interface MarkdownResume {
@@ -46,6 +48,7 @@ interface ResumeState {
   addResume: (resume: Omit<Resume, 'id' | 'uploadTime'>) => void;
   removeResume: (id: string) => void;
   getResume: (id: string) => Resume | undefined;
+  updateResumeExtractedText: (id: string, extractedText: string) => void;
   setIntroScript: (script: string) => void;
   upsertMarkdownResume: (resume: MarkdownResume) => void;
   updateMarkdownContent: (id: string, content: string) => void;
@@ -82,6 +85,14 @@ export const useResumeStore = create<ResumeState>()(
       },
 
       getResume: (id) => get().resumes.find((r) => r.id === id),
+
+      updateResumeExtractedText: (id, extractedText) => {
+        set((state) => ({
+          resumes: state.resumes.map((item) =>
+            item.id === id ? { ...item, extractedText } : item
+          ),
+        }));
+      },
 
       setIntroScript: (script) => set({ introScript: script }),
 
@@ -145,12 +156,19 @@ export const useResumeStore = create<ResumeState>()(
     }),
     {
       name: 'resume-storage',
-      version: 2,
+      version: 3,
       migrate: (persisted) => {
         const state = persisted as Partial<ResumeState>;
         if (!state.markdownResumes?.length) {
           state.markdownResumes = [defaultPrimaryMarkdown];
           state.primaryResumeId = RESUME_PRIMARY_ID;
+        }
+        if (Array.isArray(state.resumes)) {
+          state.resumes = state.resumes.map((item) => ({
+            ...item,
+            extractedText:
+              typeof item.extractedText === 'string' ? item.extractedText : undefined,
+          }));
         }
         return state;
       },

@@ -5,6 +5,7 @@ import { useResumeSyncContext } from '@/hooks/useResumeSync';
 import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2, Cloud, CloudOff, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
+import { extractPdfText } from '@/utils/extractPdfText';
 
 const ONLINE_RESUME_URL = 'https://506resume.vercel.app/';
 
@@ -21,6 +22,7 @@ export function ResumePage() {
   const [mountedPdfIds, setMountedPdfIds] = useState<Set<string>>(() => new Set());
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(introScript);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveIntro = () => {
@@ -33,34 +35,49 @@ export function ResumePage() {
     setIsEditing(false);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
-      if (file.type !== 'application/pdf') {
-        alert(`"${file.name}" 不是 PDF 文件`);
-        return;
-      }
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        if (file.type !== 'application/pdf') {
+          alert(`"${file.name}" 不是 PDF 文件`);
+          continue;
+        }
 
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`"${file.name}" 超过 10MB 限制`);
-        return;
-      }
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`"${file.name}" 超过 10MB 限制`);
+          continue;
+        }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string;
-        addResume({
-          name: file.name.replace('.pdf', ''),
-          data: base64,
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(reader.error ?? new Error('读取文件失败'));
+          reader.readAsDataURL(file);
         });
-      };
-      reader.readAsDataURL(file);
-    });
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+        let extractedText: string | undefined;
+        try {
+          const text = await extractPdfText(dataUrl);
+          if (text.trim()) extractedText = text;
+        } catch {
+          // Keep the PDF even if text extraction fails; JD tab can retry lazily.
+        }
+
+        addResume({
+          name: file.name.replace(/\.pdf$/i, ''),
+          data: dataUrl,
+          ...(extractedText ? { extractedText } : {}),
+        });
+      }
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -279,19 +296,28 @@ export function ResumePage() {
           className="relative mb-10 group"
         >
           <div
-            onClick={() => fileInputRef.current?.click()}
-            className="relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl p-10 text-center cursor-pointer border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-300"
+            onClick={() => !uploading && fileInputRef.current?.click()}
+            className={cn(
+              'relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl p-10 text-center cursor-pointer border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-300',
+              uploading && 'pointer-events-none opacity-80'
+            )}
           >
             {/* 渐变背景 */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity" />
 
             <div className="relative">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                <Upload className="w-9 h-9 text-blue-600" />
+                {uploading ? (
+                  <Loader2 className="w-9 h-9 text-blue-600 animate-spin" />
+                ) : (
+                  <Upload className="w-9 h-9 text-blue-600" />
+                )}
               </div>
-              <p className="text-lg font-semibold text-gray-800 mb-1">点击上传 PDF 简历</p>
+              <p className="text-lg font-semibold text-gray-800 mb-1">
+                {uploading ? '正在上传并提取文本…' : '点击上传 PDF 简历'}
+              </p>
               <p className="text-gray-400 text-sm">拖拽文件到此处，或点击选择文件</p>
-              <p className="text-gray-300 text-xs mt-2">支持 PDF 格式，单个文件最大 10MB，可多选</p>
+              <p className="text-gray-300 text-xs mt-2">支持 PDF 格式，单个文件最大 10MB，可多选；上传后自动提取文字供 JD 优化</p>
             </div>
 
             <input
