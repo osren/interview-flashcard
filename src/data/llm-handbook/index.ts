@@ -94,6 +94,13 @@ export const handbookItems: HandbookItem[] = [
     category: 'basic',
   },
   {
+    id: 'cursor-save',
+    title: 'Cursor 省钱使用指南',
+    url: 'https://www.doubao.com/docx/JSZ9dXyTCoGw0cxn12KcDUWAnWd',
+    password: '',
+    category: 'basic',
+  },
+  {
     id: 'claude-code',
     title: 'Claude Code · 入门实战教程文档',
     url: 'https://dqej47nflyz.feishu.cn/wiki/Zuicww3siienxOknDT5cygj9nI3',
