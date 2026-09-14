@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
   }
 
   const supabase = createServiceClient();
-  const quotaCheck = await consumeUserQuota(supabase, auth.userId, 1);
+  const quotaCheck = await consumeUserQuota(supabase, auth.user.id, 1);
   if (!quotaCheck.ok) return quotaExceededResponse(quotaCheck.remaining);
 
   try {
