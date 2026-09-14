@@ -85,16 +85,21 @@ npm run dev
 
 #### 简历（`/resume`）
 
-四个 Tab：
+五个 Tab：
 
 | Tab | 功能 |
 |-----|------|
 | 在线简历 | 嵌入 506 Resume，可视化编辑简历 |
 | PDF 简历 | 上传 / 预览 / 下载 PDF |
 | 面试口述稿 | 编辑 5 分钟自我介绍 |
-| JD 优化 | 选岗位 JD，AI 优化 Markdown 简历 |
+| JD 优化 | 选岗位 JD，AI 优化 Markdown 简历，紧贴岗位关键词 |
+| 简历优化 | 不绑 JD，专注格式 / 措辞调整，支持 PDF / Markdown 两种简历源；可输入"优化说明"（STAR、时间倒序、量化数字等），左右双列联动 diff 高亮预览修改前后 |
 
 **登录后**，PDF、口述稿、JD 优化版本会自动 **云端同步**（需 Supabase 已部署 `resume_sync` 表）。
+
+> **JD 优化 vs 简历优化**：JD 优化需要目标 JD，主要关注关键词匹配；简历优化只针对简历本身，关注排版/措辞/叙事结构。两者共用同一个 Edge Function，分别通过 `jd_text` 和 `instruction` 字段区分。
+>
+> **简历优化的简历源**：下拉框默认显示最近上传的 PDF 简历（自动从 PDF 提取文本），也可切换到 Markdown 简历作为备用；可直接在「简历优化」tab 内点击「上传 PDF 简历」按钮增量导入 PDF，无需先到「PDF 简历」tab。
 
 #### 秋招投递（`/campus`）
 
@@ -164,6 +169,7 @@ npm run dev
 2. 加入 **秋招职位**，标记状态
 3. 在 **竞赛图** 维护测评 / 面试链接与时间
 4. 用 **JD 优化** 针对岗位改简历
+5. 用 **简历优化** 统一改排版/措辞，再针对每个岗位单独跑 JD 优化
 
 #### 面试前 1–2 天
 
@@ -285,14 +291,21 @@ The **streak calendar** on the Home page tracks daily study habits.
 
 #### Resume (`/resume`)
 
+Five tabs:
+
 | Tab | Feature |
 |-----|---------|
 | Online Resume | Embedded 506 Resume editor |
 | PDF Resumes | Upload, preview, download PDFs |
 | Intro Script | Edit your ~5-minute self-introduction |
-| JD Optimize | AI-optimize Markdown resume against a job description |
+| JD Optimize | AI-optimize Markdown resume against a job description, focused on keyword matching |
+| Polish | No JD required; focus on formatting / wording. Supports PDF (auto-extracted) or Markdown source. Add free-form instructions (STAR, reverse-chronological, quantification) and preview before / after with side-by-side diff highlighting. |
 
 When **logged in**, PDFs, intro script, and JD versions **sync to the cloud** (requires Supabase `resume_sync` table).
+
+> **JD Optimize vs Polish**: JD Optimize takes a target JD and focuses on keyword alignment; Polish targets the resume itself — structure, wording, narrative. Both share the same Edge Function and are differentiated by the `jd_text` and `instruction` fields respectively.
+>
+> **Polish sources**: The dropdown defaults to the most recently uploaded PDF (text extracted automatically) and can fall back to Markdown. Use the "Upload PDF" button in this tab to add PDFs on the fly — no need to switch to the "PDF Resumes" tab first.
 
 #### Campus Applications (`/campus`)
 
@@ -355,6 +368,7 @@ Without login, data stays in **browser localStorage** only.
 2. Add to **Jobs** and update status
 3. Maintain links/times on the **race chart**
 4. Run **JD Optimize** per role
+5. Run **Polish** once for general formatting / wording, then target each role with JD Optimize
 
 #### 1–2 Days Before Interview
 

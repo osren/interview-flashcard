@@ -39,12 +39,20 @@ Deno.serve(async (req) => {
       jd_text?: string;
       company?: string;
       position?: string;
+      instruction?: string;
     };
 
     const resume = (body.resume_text ?? body.resume_markdown)?.trim() ?? '';
     const jd = body.jd_text?.trim() ?? '';
-    if (!resume || !jd) {
-      return jsonResponse({ error: 'resume_text (or resume_markdown) and jd_text are required' }, 400);
+    const instruction = body.instruction?.trim() ?? '';
+    if (!resume) {
+      return jsonResponse({ error: 'resume_text (or resume_markdown) is required' }, 400);
+    }
+    if (!jd && !instruction) {
+      return jsonResponse(
+        { error: 'jd_text or instruction is required (one of them must be provided)' },
+        400
+      );
     }
 
     const admin = createServiceClient();
@@ -58,11 +66,17 @@ Deno.serve(async (req) => {
         ? '输入可能是从 PDF 提取的纯文本，请整理为结构清晰的 Markdown 简历。'
         : '输入为 Markdown 简历。';
 
+    const modeHint = instruction
+      ? `当前为「按说明优化」模式：忽略 JD，关注用户的优化说明，针对性地调整措辞、顺序、格式。`
+      : `当前为「按 JD 优化」模式：紧贴 JD 提炼关键词、调整侧重点。`;
+
     const system = `你是简历优化助手。只改表述、关键词与顺序，禁止捏造经历、公司、数字或技能。
 候选人背景（事实边界）：
 ${CANDIDATE_CONTEXT}
 
 ${sourceHint}
+
+${modeHint}
 
 只输出 JSON：
 {
@@ -70,14 +84,17 @@ ${sourceHint}
   "changes_summary": ["改动1", "改动2"]
 }`;
 
-    const user = [
-      body.company ? `目标公司：${body.company}` : '',
-      body.position ? `目标岗位：${body.position}` : '',
-      'JD：',
-      jd.slice(0, 8000),
-      '当前简历内容：',
-      resume.slice(0, 12000),
-    ].filter(Boolean).join('\n');
+    const userParts: string[] = [];
+    if (body.company) userParts.push(`目标公司：${body.company}`);
+    if (body.position) userParts.push(`目标岗位：${body.position}`);
+    if (jd) {
+      userParts.push('JD：', jd.slice(0, 8000));
+    }
+    if (instruction) {
+      userParts.push('优化说明：', instruction.slice(0, 2000));
+    }
+    userParts.push('当前简历内容：', resume.slice(0, 12000));
+    const user = userParts.join('\n');
 
     const upstream = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
+import { LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { Download, Loader2, Save, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useAuth, LoginModal } from '@/components/Auth';
@@ -339,33 +339,18 @@ export function ResumeOptimizeTab() {
           <h3 className="font-extrabold text-[#3c3c3c]">
             {source.kind === 'pdf' ? '当前简历（PDF 提取文本）' : '当前简历（Markdown）'}
           </h3>
-          {source.kind === 'pdf' ? (
-            <textarea
-              value={selectedPdf?.extractedText ?? ''}
-              onChange={(event) => {
-                if (!selectedPdf) return;
-                updateResumeExtractedText(selectedPdf.id, event.target.value);
-              }}
-              disabled={extracting}
-              className="w-full h-[420px] rounded-xl border-2 border-[#e5e5e5] px-3 py-2 text-sm outline-none focus:border-[#1CB0F6] resize-y font-mono leading-relaxed"
-              placeholder={
-                extracting
-                  ? '正在从 PDF 提取文字…'
-                  : '上传 PDF 后将自动显示提取文本；也可在此编辑后再优化'
+          <div
+            data-color-mode="light"
+            className="rounded-xl border-2 border-[#e5e5e5] p-4 bg-white"
+          >
+            <LazyMDMarkdown
+              source={
+                source.kind === 'pdf'
+                  ? selectedPdf?.extractedText?.trim() || (extracting ? '*正在提取 PDF 文本…*' : '*上传 PDF 后将自动显示提取文本*')
+                  : selectedMarkdown?.content?.trim() || '*简历内容为空*'
               }
             />
-          ) : (
-            <div data-color-mode="light">
-              <LazyMDEditor
-                value={selectedMarkdown?.content ?? ''}
-                onChange={(value) =>
-                  selectedMarkdown && updateMarkdownContent(selectedMarkdown.id, value || '')
-                }
-                height={420}
-                preview="edit"
-              />
-            </div>
-          )}
+          </div>
           <textarea
             value={jdText}
             onChange={(event) => setJdText(event.target.value)}
@@ -375,19 +360,24 @@ export function ResumeOptimizeTab() {
         </div>
         <div className="space-y-3">
           <h3 className="font-extrabold text-[#3c3c3c]">优化预览</h3>
-          {changes.length > 0 && (
-            <ul className="list-disc pl-5 text-sm text-[#4b4b4b] space-y-1">
-              {changes.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          )}
           <div
             data-color-mode="light"
-            className="rounded-xl border-2 border-[#e5e5e5] p-3 min-h-[420px] bg-white overflow-auto"
+            className="rounded-xl border-2 border-[#e5e5e5] p-4 bg-white"
           >
-            <LazyMDMarkdown source={preview || '*点击「按 JD 优化」后在此展示副本*'} />
+            <LazyMDMarkdown
+              source={preview || '*点击「按 JD 优化」后在此预览优化结果*'}
+            />
           </div>
+          {changes.length > 0 && (
+            <div className="rounded-xl border-2 border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-sm text-[#4b4b4b]">
+              <p className="font-bold text-[#3c3c3c] mb-1">本次改动摘要</p>
+              <ul className="list-disc pl-5 space-y-0.5">
+                {changes.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />

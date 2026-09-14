@@ -14,7 +14,22 @@ function dataUrlToUint8Array(dataUrl: string): Uint8Array {
 }
 
 /**
+ * 启发式识别简历标题行（通常短、有关键词、全大写/加粗）
+ */
+function isLikelyHeading(text: string): boolean {
+  const trimmed = text.trim();
+  if (trimmed.length === 0 || trimmed.length > 60) return false;
+  // 常见简历章节关键词
+  const keywords = [
+    '教育', '实习', '项目', '技能', '荣誉', '证书', '自我评价',
+    'EDUCATION', 'EXPERIENCE', 'SKILLS', 'PROJECTS', 'HONORS', 'AWARDS',
+  ];
+  return keywords.some((kw) => trimmed.includes(kw));
+}
+
+/**
  * Extract plain text from a PDF data URL (base64) or raw ArrayBuffer.
+ * Returns basic structured Markdown with headings for likely section titles.
  */
 export async function extractPdfText(
   source: string | ArrayBuffer | Uint8Array
@@ -28,18 +43,26 @@ export async function extractPdfText(
 
   const loadingTask = getDocument({ data, useSystemFonts: true });
   const pdf = await loadingTask.promise;
-  const pages: string[] = [];
+  const lines: string[] = [];
 
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
     const page = await pdf.getPage(pageNum);
     const content = await page.getTextContent();
-    const line = content.items
+    const text = content.items
       .map((item) => ('str' in item ? item.str : ''))
       .join(' ')
       .replace(/\s+/g, ' ')
       .trim();
-    if (line) pages.push(line);
+    if (text) lines.push(text);
   }
 
-  return pages.join('\n\n').trim();
+  // 简单结构化：如果某行像标题，就给它加 ## 前缀
+  const structured = lines.map((line) => {
+    if (isLikelyHeading(line)) {
+      return `## ${line}`;
+    }
+    return line;
+  });
+
+  return structured.join('\n\n').trim();
 }

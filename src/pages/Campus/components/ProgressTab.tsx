@@ -106,10 +106,28 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
       </div>
 
       <section>
-        <h3 className="font-extrabold text-lg text-ink-primary mb-2">{'\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-extrabold text-lg text-ink-primary">{'\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}</h3>
+          {(() => {
+            const inProgress =
+              (stats.applied ?? 0) +
+              (stats.written_aptitude ?? 0) +
+              (stats.written_tech ?? 0) +
+              (stats.interview_1 ?? 0) +
+              (stats.interview_2 ?? 0) +
+              (stats.interview_3 ?? 0) +
+              (stats.interview_hr ?? 0);
+            return inProgress > 0 ? (
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1CB0F6] bg-[#1CB0F6]/8 px-2.5 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1CB0F6] inline-block" />
+                {inProgress} 个在进度中
+              </span>
+            ) : null;
+          })()}
+        </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
           <p className="text-sm text-ink-secondary">
-            {'\u6a2a\u5411\u5c55\u793a\u5404\u5c97\u4f4d\u5f53\u524d\u8fdb\u5ea6\uff0c\u7eb5\u8f74\u4e3a\u516c\u53f8/\u5c97\u4f4d\uff0c\u6a2a\u8f74\u4e3a\u6295\u9012\u9636\u6bb5'}
+            {'\u6a2a\u5411\u5c55\u793a\u5404\u5c97\u4f4d\u5f53\u524d\u8fdb\u5ea6\uff0c\u7eb5\u8f74\u4e3a\u516c\u53f8/\u5c97\u4f4d\uffc9\u6a2a\u8f74\u4e3a\u6295\u9012\u9636\u6bb5'}
           </p>
           <RaceChartReminders jobs={sortedForChart} getProgress={getProgress} />
         </div>

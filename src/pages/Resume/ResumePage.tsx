@@ -1,18 +1,20 @@
 import { useState, useRef } from 'react';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
 import { ResumeOptimizeTab } from './ResumeOptimizeTab';
+import { ResumePolishTab } from './ResumePolishTab';
+import { ResumeIntroTab } from './ResumeIntroTab';
 import { useResumeSyncContext } from '@/hooks/useResumeSync';
-import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2, Cloud, CloudOff, Loader2 } from 'lucide-react';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2, Cloud, CloudOff, Loader2, PenLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { extractPdfText } from '@/utils/extractPdfText';
 
 const ONLINE_RESUME_URL = 'https://506resume.vercel.app/';
 
-type TabType = 'online' | 'resume' | 'intro' | 'optimize';
+type TabType = 'online' | 'resume' | 'intro' | 'optimize' | 'polish';
 
 export function ResumePage() {
-  const { resumes, addResume, removeResume, introScript, setIntroScript } = useResumeStore();
+  const { resumes, addResume, removeResume } = useResumeStore();
   const { isLoggedIn, isConfigured, status, error, cloudUnavailable } = useResumeSyncContext();
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('online');
@@ -20,20 +22,8 @@ export function ResumePage() {
     () => new Set<TabType>([activeTab])
   );
   const [mountedPdfIds, setMountedPdfIds] = useState<Set<string>>(() => new Set());
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(introScript);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleSaveIntro = () => {
-    setIntroScript(editContent);
-    setIsEditing(false);
-  };
-
-  const handleCancelEdit = () => {
-    setEditContent(introScript);
-    setIsEditing(false);
-  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -220,6 +210,17 @@ export function ResumePage() {
             >
               <Wand2 size={16} />
               JD 优化
+            </button>
+            <button
+              onClick={() => selectTab('polish')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === 'polish'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <PenLine size={16} />
+              简历优化
             </button>
           </div>
         </div>
@@ -416,85 +417,8 @@ export function ResumePage() {
         )}
 
         {/* 口述稿 Tab 内容 */}
-        {visitedTabs.has('intro') && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={cn('max-w-3xl mx-auto', activeTab !== 'intro' && 'hidden')}
-          >
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              {/* 口述稿头部 */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">面试自我介绍</h3>
-                    <p className="text-xs text-gray-400">约 5 分钟</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isEditing ? (
-                    <>
-                      <button
-                        onClick={handleSaveIntro}
-                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
-                      >
-                        <Save size={16} />
-                        保存
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                      >
-                        取消
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setEditContent(introScript);
-                        setIsEditing(true);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                    >
-                      <Edit3 size={16} />
-                      编辑
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* 口述稿内容 */}
-              <div className="p-6">
-                {isEditing ? (
-                  <textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="w-full h-96 p-4 text-gray-700 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none resize-none font-medium leading-relaxed"
-                    placeholder="在这里编辑您的面试自我介绍稿..."
-                  />
-                ) : (
-                  <div
-                    className="prose prose-green max-w-none text-gray-700 whitespace-pre-wrap font-medium leading-loose"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    {introScript}
-                  </div>
-                )}
-              </div>
-
-              {/* 提示 */}
-              {!isEditing && (
-                <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
-                  <p className="text-sm text-gray-400 text-center">
-                    点击内容区域可编辑口述稿
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
+        {visitedTabs.has('intro') && activeTab === 'intro' && (
+          <ResumeIntroTab />
         )}
 
         {visitedTabs.has('optimize') && (
@@ -505,6 +429,18 @@ export function ResumePage() {
           >
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm p-5">
               <ResumeOptimizeTab />
+            </div>
+          </motion.div>
+        )}
+
+        {visitedTabs.has('polish') && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(activeTab !== 'polish' && 'hidden')}
+          >
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm p-5">
+              <ResumePolishTab />
             </div>
           </motion.div>
         )}
