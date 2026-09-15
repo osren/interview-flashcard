@@ -34,6 +34,14 @@ export const projectChapters: Chapter[] = [
     cardCount: 67,
     icon: '📝',
   },
+  {
+    id: 'didi-interview-guide',
+    module: 'projects',
+    title: '滴滴实习项目简历备战指南',
+    description: '完整面试准备材料：项目背景、核心要点、技术亮点、避坑指南、快速复习',
+    cardCount: 16,
+    icon: '📋',
+  },
 ];
 
 export const PROJECT_TOTAL_CARD_COUNT = projectChapters.reduce((sum, c) => sum + c.cardCount, 0);

@@ -7,6 +7,7 @@ const projectLoaders: Record<string, ProjectLoader> = {
   didi: () => import('./didi_new').then((m) => m.didiCards),
   'ai-monitor': () => import('./ai-monitor').then((m) => m.aiMonitorCards),
   gresume: () => import('./gresume').then((m) => m.gresumeCards),
+  'didi-interview-guide': () => import('./didi-interview-guide').then((m) => m.didiInterviewGuideCards),
 };
 
 const cache = new Map<string, FlashCard[]>();
