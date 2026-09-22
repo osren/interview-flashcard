@@ -58,39 +58,67 @@ function TierSection({
           <tbody>
             {tierJobs
               .sort((a, b) => b.match.confidence - a.match.confidence)
-              .map((job) => (
-                <tr key={job.id} className="border-b border-[#f0f0f0] hover:bg-[#fafafa]">
-                  <td className="px-4 py-3 font-bold">{job.basic.company}</td>
-                  <td className="px-4 py-3">{job.basic.position}</td>
-                  <td className="px-4 py-3 text-ink-secondary">{job.basic.location}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-lg bg-[#eefbf0] text-[#58CC02] text-xs font-bold">
-                      {JOB_CATEGORY_LABELS[job.match.category]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-bold tabular-nums">
-                    {job.match.confidence.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3 text-ink-secondary max-w-xs truncate" title={job.match.reason}>
-                    {job.match.reason}
-                  </td>
-                  <td className="px-4 py-3">
-                    {job.details.job_url ? (
-                      <a
-                        href={job.details.job_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[#1CB0F6] font-bold hover:underline"
-                      >
-                        {'\u6295\u9012'}
-                        <ExternalLink size={12} />
-                      </a>
-                    ) : (
-                      <span className="text-ink-secondary">{'\u2014'}</span>
+              .map((job) => {
+                const progress = getProgress(job.id);
+                const applied = Boolean(progress && progress.statusHistory.length > 0);
+                const isRejected = progress?.status === 'rejected';
+                return (
+                  <tr 
+                    key={job.id} 
+                    className={cn(
+                      "border-b border-[#f0f0f0] hover:bg-[#fafafa]",
+                      applied && "bg-[#f0fdf4]"
                     )}
-                  </td>
-                </tr>
-              ))}
+                  >
+                    <td className="px-4 py-3 font-bold">
+                      <div className="flex items-center gap-2">
+                        {applied && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#58CC02]" title="已投递" />
+                        )}
+                        {job.basic.company}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{job.basic.position}</td>
+                    <td className="px-4 py-3 text-ink-secondary">{job.basic.location}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded-lg bg-[#eefbf0] text-[#58CC02] text-xs font-bold">
+                        {JOB_CATEGORY_LABELS[job.match.category]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-bold tabular-nums">
+                      {job.match.confidence.toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3 text-ink-secondary max-w-xs truncate" title={job.match.reason}>
+                      {job.match.reason}
+                    </td>
+                    <td className="px-4 py-3">
+                      {job.details.job_url ? (
+                        isRejected ? (
+                          <span className="inline-flex items-center gap-1 font-bold text-[#FF4B4B]">
+                            已结束
+                            <ExternalLink size={12} />
+                          </span>
+                        ) : (
+                          <a
+                            href={job.details.job_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                              "inline-flex items-center gap-1 font-bold hover:underline",
+                              applied ? "text-ink-secondary" : "text-[#1CB0F6]"
+                            )}
+                          >
+                            {applied ? '已投递' : '\u6295\u9012'}
+                            <ExternalLink size={12} />
+                          </a>
+                        )
+                      ) : (
+                        <span className="text-ink-secondary">{'\u2014'}</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>

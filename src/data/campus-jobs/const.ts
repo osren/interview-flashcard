@@ -156,7 +156,7 @@ export const TIER_CONFIG: Record<
   S: { label: '最高优先级', emoji: '⭐⭐⭐', description: 'confidence ≥ 0.95', minConf: 0.95 },
   A: { label: '高优先级', emoji: '⭐⭐', description: '0.90 – 0.94', minConf: 0.9 },
   B: { label: '备选', emoji: '⭐', description: '0.80 – 0.89', minConf: 0.8 },
-  edge: { label: '边缘', emoji: '⚠️', description: '0.76 – 0.79', minConf: 0.76 },
+  edge: { label: '边缘', emoji: '⚠️', description: '0.70 – 0.79', minConf: 0.7 },
   skip: { label: '不建议投递', emoji: '❌', description: '方向不匹配' },
 };
 
@@ -189,7 +189,7 @@ export function getTierFromMatch(qualified: boolean, confidence: number): JobTie
   if (confidence >= 0.95) return 'S';
   if (confidence >= 0.9) return 'A';
   if (confidence >= 0.8) return 'B';
-  if (confidence >= 0.76) return 'edge';
+  if (confidence >= 0.7) return 'edge';
   return 'skip';
 }
 

@@ -364,6 +364,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
                       const progress = getProgress(job.id);
                       const status = progress?.status;
                       const isSelected = selectedJobId === job.id;
+                      const isApplied = status && status !== 'rejected';
 
                       return (
                         <div
@@ -385,6 +386,11 @@ export function JobsTab({ jobs }: JobsTabProps) {
                               {job.source === 'custom' && (
                                 <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[#f7f7f7] text-ink-secondary flex-shrink-0">
                                   自定义
+                                </span>
+                              )}
+                              {isApplied && (
+                                <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[#1CB0F6] text-white flex-shrink-0">
+                                  已投
                                 </span>
                               )}
                             </div>

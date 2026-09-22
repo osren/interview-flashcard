@@ -7,7 +7,8 @@ export function shouldShowCampusJob(
   if (filter === 'all') {
     return true;
   }
-  return job.match.qualified || job.source === 'custom';
+  // 仅推荐模式：显示 tier 不是 'skip' 的岗位，或者自定义岗位
+  return job.tier !== 'skip' || job.source === 'custom';
 }
 
 export function ensureCustomCompaniesForJobs(
