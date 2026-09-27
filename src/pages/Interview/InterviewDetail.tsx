@@ -202,7 +202,7 @@ export function InterviewDetail() {
                 className="absolute inset-0 w-full h-full"
                 initial={false}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                transition={{ duration: 0.35, ease: 'easeInOut' }}
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {/* 正面 - 问题 */}

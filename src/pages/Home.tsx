@@ -72,15 +72,25 @@ export function Home() {
   const customCards = useCardStore((state) => state.customCards);
   const cardStatuses = useCardStore((state) => state.cardStatuses);
   const [loadedCardIds, setLoadedCardIds] = useState<string[]>([]);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
 
+  // 🚀 优化：延迟加载全量卡片数据
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([loadAllCoreCards(), loadAllProjectCards()]).then(([core, projects]) => {
-      if (cancelled) return;
-      setLoadedCardIds([...core, ...projects, ...mpxCards].map((c) => c.id));
-    });
+    
+    // 延迟 1 秒后加载完整数据（用户可能已经跳转到其他页面）
+    const timer = setTimeout(() => {
+      setIsLoadingFull(true);
+      void Promise.all([loadAllCoreCards(), loadAllProjectCards()]).then(([core, projects]) => {
+        if (cancelled) return;
+        setLoadedCardIds([...core, ...projects, ...mpxCards].map((c) => c.id));
+        setIsLoadingFull(false);
+      });
+    }, 1000);
+    
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, []);
 
@@ -91,10 +101,18 @@ export function Home() {
 
   const estimatedTotal =
     CORE_TOTAL_CARD_COUNT + PROJECT_TOTAL_CARD_COUNT + mpxCards.length + customCards.length;
+  
+  // 🚀 优化：使用 localStorage 缓存快速计算进度（避免全量遍历）
+  const cachedRemembered = useMemo(() => {
+    return Object.keys(cardStatuses).filter((id) =>
+      isRemembered(cardStatuses[id])
+    ).length;
+  }, [cardStatuses]);
+  
   const totalCards = loadedCardIds.length > 0 ? allCardIds.length : estimatedTotal;
-  const totalRemembered = allCardIds.filter((id) =>
-    isRemembered(resolveCardStatus(id, cardStatuses))
-  ).length;
+  const totalRemembered = loadedCardIds.length > 0 
+    ? allCardIds.filter((id) => isRemembered(resolveCardStatus(id, cardStatuses))).length
+    : cachedRemembered;
   const percentage = totalCards > 0 ? Math.round((totalRemembered / totalCards) * 100) : 0;
 
   return (
