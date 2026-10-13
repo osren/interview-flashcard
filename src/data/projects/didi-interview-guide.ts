@@ -6,59 +6,7 @@ import { FlashCard, Chapter } from '@/types';
  */
 
 export const didiInterviewGuideCards: FlashCard[] = [
-  // ===== 项目背景与定位 =====
-  {
-    id: 'didi-guide-bg-001',
-    module: 'projects',
-    chapterId: 'didi-interview-guide',
-    category: '项目背景',
-    question: '简要介绍滴滴实习的时间线、业务上下文和技术栈',
-    answer: `**实习时间线**：
-滴滴出行 · 企业版商旅 | 前端开发实习生 | 2026.01 — 2026.07（7个月）
-
-**业务上下文**：
-- **业务线**：商旅（机票/酒店/火车票 H5 + 小程序）
-- **用户规模**：企业用户预订场景
-- **技术栈**：MPX（类 Vue 小程序框架）+ H5 双端
-- **团队定位**：C 端业务前端，关注预订链路体验与稳定性
-
-**两个核心项目**：
-1. **性能监控与体验优化**：搭建函数级性能基础设施，LCP↓17%、卡顿↓27%
-2. **AI 智能监控降噪**：LLM 驱动的告警判定系统，降噪引擎 + 火车票 Domain 配置
-
-**共性**：都是「从问题定位到工程化沉淀」的完整闭环，体现前端基础设施建设能力。`,
-    tags: ['滴滴', '项目背景', '面试准备'],
-    status: 'unvisited',
-    difficulty: 'easy',
-  },
-
   // ===== 项目一：性能监控核心要点 =====
-  {
-    id: 'didi-guide-perf-001',
-    module: 'projects',
-    chapterId: 'didi-interview-guide',
-    category: '性能监控',
-    question: '项目一：性能监控与体验优化的一句话概括和核心数据',
-    answer: `**一句话概括**：
-在商旅 H5/小程序搭建函数级性能监控体系，定位并优化列表页 LCP 和星河底部菜单卡顿，沉淀为可复用 Agent Skill。
-
-**核心数据**：
-- 列表页 LCP：**1400ms → 1160ms（↓17%）**
-- 星河底部菜单卡顿：改善约 **27%**
-
-**技术亮点**：
-1. **双端适配**：H5 和星河小程序通过 Adapter 模式统一上报
-2. **缓存命中直渲状态机**：避免无效网络请求
-3. **关键路径剥离**：将 privacyPopList 等非关键接口移出 LCP 统计
-
-**工程化沉淀**：
-- 将「定位 → 诊断 → 优化 → 验收」闭环固化为 \`page-performance-analysis\` Skill
-- 为后续性能问题提供函数级监控基础设施`,
-    tags: ['滴滴', '性能监控', '面试要点'],
-    status: 'unvisited',
-    difficulty: 'medium',
-  },
-
   {
     id: 'didi-guide-perf-002',
     module: 'projects',
@@ -124,34 +72,6 @@ class StarAdapter {
   },
 
   // ===== 项目二：AI 监控降噪核心要点 =====
-  {
-    id: 'didi-guide-ai-001',
-    module: 'projects',
-    chapterId: 'didi-interview-guide',
-    category: 'AI监控降噪',
-    question: '项目二：AI 监控降噪的一句话概括和核心原则',
-    answer: `**一句话概括**：
-基于 LLM 的接口告警智能判定系统，每条告警走一次模型判断「该不该报、定什么级」，把噪音挡在派发之前。
-
-**问题背景**：
-机酒火线上接口告警量大，噪音占比高（业务正常拒绝、低价值展示类错误），真故障被淹没。
-
-**核心原则**：
-1. **宁可误报不可误杀**：漏报（FN）优先压到 ≈ 0
-2. **判定交给模型**：工程只做路由与编排
-3. **引擎领域无关**：业务知识在可插拔 Domain
-
-**我的具体工作**：
-1. **接口发现**：用 Claude Code 分析业务代码仓库，自动摘取核心接口清单
-2. **火车票 Domain 配置**：配置 url 路由与 severity 基线（如余票查询异常判 P1）
-3. **business_reject 清单**：写业务正常拒绝清单，避免误杀
-4. **兜底策略**：模型超时统一保守上报 P2
-5. **评测闭环**：用漏报率 FN 作为头号指标`,
-    tags: ['滴滴', 'AI降噪', '面试要点'],
-    status: 'unvisited',
-    difficulty: 'medium',
-  },
-
   {
     id: 'didi-guide-ai-002',
     module: 'projects',

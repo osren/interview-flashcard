@@ -2,32 +2,6 @@ import { FlashCard, Chapter } from '@/types';
 
 export const aiMonitorCards: FlashCard[] = [
   {
-    id: 'ai-monitor-001',
-    module: 'projects',
-    chapterId: 'ai-monitor',
-    category: '项目介绍',
-    question: "请介绍一下你做的 AI 监控降噪项目，解决什么问题？",
-    answer: `**定位**：接口错误告警的智能上报判定系统——每条告警走一次 LLM，判断「该不该上报、定什么等级」，把噪音挡在派发之前。
-
-**痛点**：商旅（机酒火）线上接口错误告警量大、噪音占比高：
-- 业务正常拒绝（无票、已退改、重复提交、超时未支付取消）刷屏
-- 低价值展示类错误（NPS、公告、分享页）占用注意力
-- 信息不全的原始告警难以人工快速判断
-- 三方/非自有接口异常让值班「背锅」
-
-**结果**：真故障被淹没，值班被刷屏，漏看风险上升。
-
-**目标输出**（每条告警）：
-1. \`should_report\`：是否值得上报
-2. \`severity\`：P0～P3
-3. \`error_type\` + 中文 \`reason\`
-
-**核心原则**：宁可误报不可误杀；判定交给模型，工程只做路由与编排；引擎领域无关，业务知识在可插拔 Domain。`,
-    tags: ["AI监控降噪","项目介绍"],
-    status: 'unvisited',
-    difficulty: 'easy',
-  },
-  {
     id: 'ai-monitor-002',
     module: 'projects',
     chapterId: 'ai-monitor',

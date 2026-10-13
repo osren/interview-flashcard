@@ -18,6 +18,11 @@ const moduleInfo = {
     title: '滴滴企业版 - 商旅体验',
     topics: ['遗留系统重构', 'AI工程化转型', '弱网性能优化'],
   },
+  'didi-performance': {
+    icon: '⚡',
+    title: '商旅 H5 / 小程序性能监控与体验优化',
+    topics: ['双端性能监控', '列表首屏优化', '小程序菜单卡顿'],
+  },
   'ai-monitor': {
     icon: '📡',
     title: 'AI 监控降噪工具',
@@ -27,6 +32,11 @@ const moduleInfo = {
     icon: '📝',
     title: 'GResume 智能简历平台',
     topics: ['CRDT文档冲突', 'IndexedDB离线', 'DeepSeek ATS评分'],
+  },
+  'comprehensive-interview': {
+    icon: '🗣️',
+    title: '综合面试题与参考回答',
+    topics: ['前端基础', 'AI 项目深挖', '现场情景题'],
   },
 };
 
@@ -112,7 +122,7 @@ export function ProjectsIndex() {
       <SectionHeader
         icon={<Briefcase size={24} className="text-white" strokeWidth={2.5} />}
         title="项目针对性复盘"
-        description="针对滴滴实习、AI 监控降噪和 GResume 项目进行深度复盘"
+        description="针对滴滴商旅、性能监控、AI 告警降噪和 GResume 项目进行深度复盘"
       />
 
       <div className="grid gap-5">

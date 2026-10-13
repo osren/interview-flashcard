@@ -5,9 +5,12 @@ type ProjectLoader = () => Promise<FlashCard[]>;
 const projectLoaders: Record<string, ProjectLoader> = {
   interviewflash: () => import('./interviewflash').then((m) => m.interviewflashCards),
   didi: () => import('./didi_new').then((m) => m.didiCards),
+  'didi-performance': () => import('./didi-performance').then((m) => m.didiPerformanceCards),
   'ai-monitor': () => import('./ai-monitor').then((m) => m.aiMonitorCards),
   gresume: () => import('./gresume').then((m) => m.gresumeCards),
   'didi-interview-guide': () => import('./didi-interview-guide').then((m) => m.didiInterviewGuideCards),
+  'comprehensive-interview': () =>
+    import('./comprehensive-interview').then((m) => m.comprehensiveInterviewCards),
 };
 
 const cache = new Map<string, FlashCard[]>();

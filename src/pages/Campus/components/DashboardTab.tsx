@@ -1,9 +1,20 @@
 import { useMemo } from 'react';
-import type { CampusJobData, JobTier } from '@/types/campus-job';
-import { TIER_CONFIG, JOB_CATEGORY_LABELS } from '@/data/campus-jobs';
+import type { ApplicationStatus, CampusJobData, JobProgress, JobTier } from '@/types/campus-job';
+import {
+  APPLICATION_STATUS_COLORS,
+  APPLICATION_STATUS_LABELS,
+  APPLICATION_STATUS_ORDER,
+  formatApplicationStatusLabel,
+  isRejectReason,
+  JOB_CATEGORY_LABELS,
+  REJECT_REASON_LABELS,
+  REJECT_REASON_ORDER,
+  TIER_CONFIG,
+} from '@/data/campus-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ExternalLink, Star } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import type { RejectReason } from '@/types/campus-job';
 
 interface DashboardTabProps {
   jobs: CampusJobData[];
@@ -14,6 +25,55 @@ const TIER_ORDER: JobTier[] = ['S', 'A', 'B', 'edge'];
 function isJobApplied(jobId: string, getProgress: ReturnType<typeof useCampusJobStore.getState>['getProgress']) {
   const progress = getProgress(jobId);
   return Boolean(progress && progress.statusHistory.length > 0);
+}
+
+function encodeStatus(status: ApplicationStatus, rejectReason?: RejectReason): string {
+  return status === 'rejected' && rejectReason ? `rejected:${rejectReason}` : status;
+}
+
+function DashboardJobStatusSelect({ job, progress }: { job: CampusJobData; progress?: JobProgress }) {
+  const setJobStatus = useCampusJobStore((state) => state.setJobStatus);
+  const value = progress ? encodeStatus(progress.status, progress.rejectReason) : '';
+  const label = progress
+    ? formatApplicationStatusLabel(progress.status, progress.rejectReason)
+    : '未设置';
+
+  return (
+    <select
+      value={value}
+      aria-label={`更新${job.basic.company} ${job.basic.position}的投递状态`}
+      title={`当前状态：${label}`}
+      onChange={(event) => {
+        const nextValue = event.target.value;
+        if (!nextValue) return;
+        if (nextValue.startsWith('rejected:')) {
+          const reason = nextValue.slice('rejected:'.length);
+          if (isRejectReason(reason)) setJobStatus(job.id, 'rejected', undefined, reason);
+          return;
+        }
+        setJobStatus(job.id, nextValue as ApplicationStatus);
+      }}
+      className="max-w-[140px] rounded-lg border border-[#e5e5e5] bg-white px-2 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#1CB0F6]/30"
+      style={{ color: progress ? APPLICATION_STATUS_COLORS[progress.status] : '#777777' }}
+    >
+      {!progress && <option value="">设置状态</option>}
+      {APPLICATION_STATUS_ORDER.map((status) => (
+        <option key={status} value={status}>
+          {APPLICATION_STATUS_LABELS[status]}
+        </option>
+      ))}
+      <optgroup label="已终止">
+        {REJECT_REASON_ORDER.map((reason) => (
+          <option key={reason} value={`rejected:${reason}`}>
+            {REJECT_REASON_LABELS[reason]}
+          </option>
+        ))}
+      </optgroup>
+      {progress?.status === 'rejected' && !progress.rejectReason && (
+        <option value="rejected">已终止（未注明原因）</option>
+      )}
+    </select>
+  );
 }
 
 function TierSection({
@@ -42,8 +102,8 @@ function TierSection({
         <span className="text-xs text-ink-secondary">已投递/总数</span>
         <span className="text-xs text-ink-secondary ml-1">{'\u00b7'} {config.description}</span>
       </div>
-      <div className="surface-panel overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="surface-panel overflow-x-auto">
+        <table className="w-full min-w-[1050px] text-sm">
           <thead>
             <tr className="border-b border-[#e5e5e5] bg-[#fafafa] text-left">
               <th className="px-4 py-2.5 font-bold text-ink-secondary">{'\u516c\u53f8'}</th>
@@ -51,6 +111,7 @@ function TierSection({
               <th className="px-4 py-2.5 font-bold text-ink-secondary">{'\u5730\u70b9'}</th>
               <th className="px-4 py-2.5 font-bold text-ink-secondary">{'\u7c7b\u578b'}</th>
               <th className="px-4 py-2.5 font-bold text-ink-secondary">conf</th>
+              <th className="px-4 py-2.5 font-bold text-ink-secondary">投递状态</th>
               <th className="px-4 py-2.5 font-bold text-ink-secondary">{'\u5339\u914d\u7406\u7531'}</th>
               <th className="px-4 py-2.5 font-bold text-ink-secondary">{'\u94fe\u63a5'}</th>
             </tr>
@@ -88,6 +149,9 @@ function TierSection({
                     <td className="px-4 py-3 font-bold tabular-nums">
                       {job.match.confidence.toFixed(2)}
                     </td>
+                    <td className="px-4 py-3">
+                      <DashboardJobStatusSelect job={job} progress={progress} />
+                    </td>
                     <td className="px-4 py-3 text-ink-secondary max-w-xs truncate" title={job.match.reason}>
                       {job.match.reason}
                     </td>
@@ -108,7 +172,9 @@ function TierSection({
                               applied ? "text-ink-secondary" : "text-[#1CB0F6]"
                             )}
                           >
-                            {applied ? '已投递' : '\u6295\u9012'}
+                            {progress
+                              ? formatApplicationStatusLabel(progress.status, progress.rejectReason)
+                              : '\u6295\u9012'}
                             <ExternalLink size={12} />
                           </a>
                         )
@@ -195,17 +261,19 @@ export function DashboardTab({ jobs }: DashboardTabProps) {
         </h3>
         <div className="surface-panel p-4">
           <div className="flex flex-wrap gap-2">
-            {skipJobs.map((job) => (
-              <span
+          {skipJobs.map((job) => {
+            const progress = getProgress(job.id);
+            return (
+              <div
                 key={job.id}
-                className={cn(
-                  'px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f7f7f7] text-ink-secondary border border-[#e5e5e5]'
-                )}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f7f7f7] text-ink-secondary border border-[#e5e5e5]"
                 title={job.match.reason}
               >
-                {job.basic.company} {'\u00b7'} {job.basic.position}
-              </span>
-            ))}
+                <span>{job.basic.company} {'\u00b7'} {job.basic.position}</span>
+                <DashboardJobStatusSelect job={job} progress={progress} />
+              </div>
+            );
+          })}
           </div>
         </div>
       </section>

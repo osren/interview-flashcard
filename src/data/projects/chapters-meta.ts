@@ -19,11 +19,19 @@ export const projectChapters: Chapter[] = [
     icon: '🚗',
   },
   {
+    id: 'didi-performance',
+    module: 'projects',
+    title: '商旅 H5 / 小程序性能监控与体验优化',
+    description: '双端性能监控、列表首屏与日期切换优化、星河菜单卡顿治理及性能分析 Skill',
+    cardCount: 10,
+    icon: '⚡',
+  },
+  {
     id: 'ai-monitor',
     module: 'projects',
     title: 'AI 监控降噪工具',
     description: '接口错误告警智能上报判定：LLM 降噪、可插拔 Domain、评测闭环',
-    cardCount: 23,
+    cardCount: 21,
     icon: '📡',
   },
   {
@@ -38,9 +46,17 @@ export const projectChapters: Chapter[] = [
     id: 'didi-interview-guide',
     module: 'projects',
     title: '滴滴实习项目简历备战指南',
-    description: '完整面试准备材料：项目背景、核心要点、技术亮点、避坑指南、快速复习',
-    cardCount: 16,
+    description: '项目问答、技术亮点、避坑指南与快速复习',
+    cardCount: 13,
     icon: '📋',
+  },
+  {
+    id: 'comprehensive-interview',
+    module: 'projects',
+    title: '综合面试题与参考回答',
+    description: '前端基础、工程实践、AI 项目深挖与现场情景题，共 54 道问答',
+    cardCount: 54,
+    icon: '🗣️',
   },
 ];
 

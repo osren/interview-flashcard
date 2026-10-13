@@ -7,12 +7,13 @@ import { ChapterLayout } from '@/components/Layout/ChapterLayout';
 import { useCardStore } from '@/store';
 import { loadProjectCards } from '@/data/projects';
 import { Button } from '@/components/ui';
-import { LazyMDEditor } from '@/components/ui/LazyMDEditor';
-import { ChevronLeft, Home, Plus, FileText } from 'lucide-react';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
+import { ChevronLeft, Home, Plus, FileText, BookOpen, Layers } from 'lucide-react';
 import { CardStatus, FlashCard } from '@/types';
 import { useProjectStore } from '@/store/useProjectStore';
 import { useCardStoreHydrated } from '@/hooks/useCardStoreHydrated';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
+import { projectBackgrounds } from '@/data/projects/project-backgrounds';
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -24,6 +25,7 @@ export function ProjectDetail() {
 
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeView, setActiveView] = useState<'questions' | 'background'>('questions');
   const customCards = useCardStore((state) => state.customCards);
   const { updateCardStatus, getMergedCards, saveCardProgress, addCustomCard, cardStatuses } = useCardStore();
   const hydrated = useCardStoreHydrated();
@@ -86,6 +88,21 @@ export function ProjectDetail() {
       subtitle: '一体化备战复盘',
     },
     didi: { title: '🚗 滴滴企业版', exportTitle: '滴滴企业版', subtitle: '实习深挖' },
+    'didi-performance': {
+      title: '⚡ 商旅性能监控与体验优化',
+      exportTitle: '商旅 H5 / 小程序性能监控与体验优化',
+      subtitle: '性能监控与体验优化',
+    },
+    'didi-interview-guide': {
+      title: '📋 滴滴实习项目简历备战指南',
+      exportTitle: '滴滴实习项目简历备战指南',
+      subtitle: '项目问答与复习',
+    },
+    'comprehensive-interview': {
+      title: '🗣️ 综合面试题与参考回答',
+      exportTitle: '综合面试题与参考回答',
+      subtitle: '前端与 AI 面试题',
+    },
     'ai-monitor': { title: '📡 AI 监控降噪工具', exportTitle: 'AI 监控降噪工具', subtitle: '告警智能判定' },
     gresume: { title: '📝 GResume', exportTitle: 'GResume 智能简历', subtitle: '技术攻坚' },
   };
@@ -102,6 +119,9 @@ export function ProjectDetail() {
   const projectSubtitle = isCustomProject
     ? '自定义项目'
     : meta?.subtitle ?? '技术攻坚';
+
+  const backgroundMarkdown = projectId ? projectBackgrounds[projectId] : undefined;
+  const readingButtonLabel = projectId === 'comprehensive-interview' ? '原文阅读' : '背景阅读';
 
   if (projectId?.startsWith('custom-') && !customProject) {
     return (
@@ -182,6 +202,48 @@ export function ProjectDetail() {
     </AnimatePresence>
   );
 
+  if (activeView === 'background' && backgroundMarkdown) {
+    return (
+      <div className="min-h-screen app-bg flex flex-col">
+        <div className="sticky top-14 lg:top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-[#e5e5e5]">
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 py-2 flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => navigate('/projects')}
+              className="flex items-center gap-1 px-2 py-1.5 text-sm font-bold text-[#1CB0F6] hover:bg-[#f7f7f7] rounded-lg"
+            >
+              <ChevronLeft size={16} />
+              <span className="hidden sm:inline">项目列表</span>
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="p-1.5 text-[#afafaf] hover:text-[#777777] hover:bg-[#f7f7f7] rounded-lg"
+              aria-label="返回首页"
+            >
+              <Home size={16} />
+            </button>
+            <h1 className="flex-1 text-center text-sm sm:text-base font-extrabold text-[#3c3c3c] truncate">
+              {projectTitle} · {readingButtonLabel}
+            </h1>
+            <Button variant="outline" size="sm" onClick={() => setActiveView('questions')}>
+              <Layers size={16} />
+              <span className="hidden sm:inline">问答卡片</span>
+            </Button>
+          </div>
+        </div>
+
+        <main className="w-full max-w-4xl mx-auto flex-1 px-4 py-6 sm:py-10">
+          <article className="surface-card px-5 py-6 sm:px-10 sm:py-10" data-color-mode="light">
+            <LazyMDMarkdown
+              source={backgroundMarkdown}
+              className="prose prose-slate max-w-none dark:prose-invert"
+              style={{ backgroundColor: 'transparent' }}
+            />
+          </article>
+        </main>
+      </div>
+    );
+  }
+
   if (cards.length === 0) {
     return (
       <div className="min-h-screen app-bg flex flex-col">
@@ -244,10 +306,18 @@ export function ProjectDetail() {
         canPrev={currentIndex > 0}
         canNext={currentIndex < cards.length - 1}
         footer={
-          <Button onClick={() => setIsAdding(true)} className="gap-2">
-            <Plus size={18} />
-            新增问题
-          </Button>
+          <div className="flex flex-wrap justify-center gap-3">
+            {backgroundMarkdown && (
+              <Button variant="outline" onClick={() => setActiveView('background')} className="gap-2">
+                <BookOpen size={18} />
+                {readingButtonLabel}
+              </Button>
+            )}
+            <Button onClick={() => setIsAdding(true)} className="gap-2">
+              <Plus size={18} />
+              新增问题
+            </Button>
+          </div>
         }
       >
         <motion.div
