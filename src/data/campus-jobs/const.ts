@@ -90,6 +90,7 @@ export const REJECT_REASON_ORDER: RejectReason[] = [
   'interview_3',
   'hr_fail',
   'lateral',
+  'position_offline',
 ];
 
 export const REJECT_REASON_LABELS: Record<RejectReason, string> = {
@@ -101,6 +102,7 @@ export const REJECT_REASON_LABELS: Record<RejectReason, string> = {
   interview_3: '三面挂',
   hr_fail: 'HR面挂',
   lateral: '被横向',
+  position_offline: '岗位已下线',
 };
 
 const LEGACY_REJECT_REASON_MAP: Record<string, RejectReason> = {

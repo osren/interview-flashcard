@@ -18,7 +18,8 @@ export type RejectReason =
   | 'interview_2'
   | 'interview_3'
   | 'hr_fail'
-  | 'lateral';
+  | 'lateral'
+  | 'position_offline';
 
 export type JobCategory = 'frontend' | 'agent_dev' | 'ai_fullstack' | 'ai_app' | 'other';
 
