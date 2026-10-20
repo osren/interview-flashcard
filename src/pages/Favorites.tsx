@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui';
 import { getFavorites, FavoriteItem } from '@/utils/favorites';
 import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
 import type { LucideIcon } from 'lucide-react';
+import { useInterviewSync } from '@/hooks/useInterviewSync';
 
 const moduleConfig: Record<ModuleType, { label: string; icon: LucideIcon; color: string }> = {
   core: { label: '核心考点', icon: BookOpen, color: 'bg-blue-500' },
@@ -38,6 +39,7 @@ function cn(...classes: (string | boolean | undefined)[]) {
 }
 
 export function Favorites() {
+  const interviewSync = useInterviewSync();
   const { favorites } = useCardStore();
   const { favoriteQuestions, toggleFavorite: toggleInterviewFavorite } = useInterviewStore();
   const [selectedGroup, setSelectedGroup] = useState<ChapterGroup | null>(null);
@@ -176,6 +178,10 @@ export function Favorites() {
   const modalCards = selectedGroup ? selectedGroup.cards : allFavorites;
   const modalModule = selectedGroup?.module || 'custom';
   const modalChapterId = selectedGroup?.chapterId || 'favorites';
+
+  if (interviewSync.status === 'loading' && interviewSync.isLoggedIn) {
+    return <div className="min-h-screen app-bg flex items-center justify-center text-sm text-gray-500">正在恢复云端收藏与面经…</div>;
+  }
 
   // 空状态判断 - 只有在加载完成后才能确定是否真的为空
   if (!isLoaded) {

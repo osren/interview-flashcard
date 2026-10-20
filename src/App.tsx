@@ -7,6 +7,7 @@ import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { LearningSyncProvider } from '@/hooks/useLearningSync';
+import { InterviewSyncProvider } from '@/hooks/useInterviewSync';
 import { ResumeSyncProvider } from '@/hooks/useResumeSync';
 import { Button, PageLoadingSkeleton } from '@/components/ui';
 
@@ -57,6 +58,7 @@ function App() {
     <ThemeProvider>
       <CampusJobSyncProvider>
         <LearningSyncProvider>
+        <InterviewSyncProvider>
           <ResumeSyncProvider>
           <AppShell>
             <FloatingResumeButton />
@@ -227,6 +229,7 @@ function App() {
             <Footer />
           </AppShell>
           </ResumeSyncProvider>
+        </InterviewSyncProvider>
         </LearningSyncProvider>
       </CampusJobSyncProvider>
     </ThemeProvider>

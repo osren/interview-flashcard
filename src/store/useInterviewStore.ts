@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Company, Department, InterviewSession, InterviewStatus, InterviewQuestion } from '@/types/interview';
 import { DEMO_DATA } from '@/data/interview/demo-data';
+import { questionsToInterviewMarkdown } from '@/utils/interviewMarkdown';
 
 interface InterviewState {
   companies: Company[];
@@ -26,6 +27,7 @@ interface InterviewState {
   updateSessionName: (companyId: string, departmentId: string, sessionId: string, name: string) => void;
   updateSessionDate: (companyId: string, departmentId: string, sessionId: string, date: string) => void;
   updateSessionStatus: (companyId: string, departmentId: string, sessionId: string, status: InterviewStatus) => void;
+  updateSessionMarkdown: (companyId: string, departmentId: string, sessionId: string, markdownContent: string) => void;
 
   // 问题操作
   addQuestion: (companyId: string, departmentId: string, sessionId: string, question: string, answer: string) => void;
@@ -59,6 +61,32 @@ const COMPANY_COLORS = [
 
 // Key for localStorage initialization flag
 const INIT_KEY = 'interview-storage-init';
+const PRELOADED_MARKDOWN_COMPANIES = new Set(['meituan-local-commerce', 'company-meituan']);
+
+function migratePreloadedInterviewMarkdown(companies: Company[]) {
+  let changed = false;
+  const migrated = companies.map((company) => {
+    if (!PRELOADED_MARKDOWN_COMPANIES.has(company.id)) return company;
+    let companyChanged = false;
+    const departments = company.departments.map((department) => {
+      let departmentChanged = false;
+      const sessions = department.sessions.map((session) => {
+        if (session.markdownContent !== undefined) return session;
+        changed = true;
+        companyChanged = true;
+        departmentChanged = true;
+        const title = `${company.name} · ${department.name} · ${session.name}`;
+        return {
+          ...session,
+          markdownContent: questionsToInterviewMarkdown(session.questions, title),
+        };
+      });
+      return departmentChanged ? { ...department, sessions } : department;
+    });
+    return companyChanged ? { ...company, departments } : company;
+  });
+  return changed ? migrated : companies;
+}
 
 export const useInterviewStore = create<InterviewState>()(
   persist(
@@ -260,6 +288,28 @@ export const useInterviewStore = create<InterviewState>()(
         }));
       },
 
+      updateSessionMarkdown: (companyId, departmentId, sessionId, markdownContent) => {
+        set((state) => ({
+          companies: state.companies.map((company) =>
+            company.id === companyId
+              ? {
+                  ...company,
+                  departments: company.departments.map((department) =>
+                    department.id === departmentId
+                      ? {
+                          ...department,
+                          sessions: department.sessions.map((session) =>
+                            session.id === sessionId ? { ...session, markdownContent } : session
+                          ),
+                        }
+                      : department
+                  ),
+                }
+              : company
+          ),
+        }));
+      },
+
       addQuestion: (companyId, departmentId, sessionId, question, answer) => {
         set((state) => ({
           companies: state.companies.map((c) =>
@@ -395,10 +445,16 @@ export const useInterviewStore = create<InterviewState>()(
     {
       name: 'interview-storage',
       onRehydrateStorage: () => (state) => {
-        // Load demo data on first run
-        if (state && state.companies.length === 0 && !localStorage.getItem(INIT_KEY)) {
-          state.companies = DEMO_DATA;
+        if (!state) return;
+
+        let companies = state.companies;
+        if (companies.length === 0 && !localStorage.getItem(INIT_KEY)) {
+          companies = DEMO_DATA;
           localStorage.setItem(INIT_KEY, 'true');
+        }
+        const migratedCompanies = migratePreloadedInterviewMarkdown(companies);
+        if (migratedCompanies !== state.companies) {
+          useInterviewStore.setState({ companies: migratedCompanies });
         }
       },
     }

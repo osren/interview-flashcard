@@ -12,6 +12,7 @@ export interface InterviewSession {
   date: string; // 日期标记
   status: InterviewStatus;
   questions: InterviewQuestion[];
+  markdownContent?: string;
 }
 
 export interface Department {

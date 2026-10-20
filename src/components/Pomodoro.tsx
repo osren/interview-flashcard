@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Pause, Play, RotateCcw, X } from 'lucide-react';
 import { usePomodoroStore } from '@/store';
@@ -6,6 +6,38 @@ import { cn } from '@/utils/cn';
 
 const COLLAPSED_SIZE = 52;
 const EXPANDED_SIZE = 128;
+const POMODORO_POSITION_KEY = 'floating-pomodoro-position';
+
+interface FloatingPosition {
+  x: number;
+  y: number;
+}
+
+function clampPosition(position: FloatingPosition, expanded: boolean): FloatingPosition {
+  const width = expanded ? EXPANDED_SIZE : COLLAPSED_SIZE;
+  const height = expanded ? 210 : COLLAPSED_SIZE;
+  return {
+    x: Math.max(8, Math.min(position.x, window.innerWidth - width - 8)),
+    y: Math.max(8, Math.min(position.y, window.innerHeight - height - 8)),
+  };
+}
+
+function initialFloatingPosition(): FloatingPosition {
+  if (typeof window === 'undefined') return { x: 16, y: 100 };
+  try {
+    const saved = localStorage.getItem(POMODORO_POSITION_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved) as FloatingPosition;
+      if (Number.isFinite(parsed.x) && Number.isFinite(parsed.y)) return clampPosition(parsed, false);
+    }
+  } catch {
+    // Ignore unavailable or malformed position data.
+  }
+  const desktop = window.matchMedia('(min-width: 1024px)').matches;
+  return desktop
+    ? { x: 264, y: 96 }
+    : clampPosition({ x: window.innerWidth - COLLAPSED_SIZE - 16, y: window.innerHeight - 220 }, false);
+}
 
 function TomatoStem({ className }: { className?: string }) {
   return (
@@ -107,6 +139,9 @@ function TomatoTimerFace({
 }
 
 export function FloatingPomodoro() {
+  const [position, setPosition] = useState<FloatingPosition>(initialFloatingPosition);
+  const dragRef = useRef<{ pointerId: number; startX: number; startY: number; originX: number; originY: number; moved: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
   const {
     timeLeft,
     isRunning,
@@ -133,6 +168,17 @@ export function FloatingPomodoro() {
   const progress = 1 - timeLeft / totalDuration;
   const isExpanded = isSessionActive;
   const size = isExpanded ? EXPANDED_SIZE : COLLAPSED_SIZE;
+  const controlsFitToRight = position.x + 320 <= window.innerWidth - 8;
+
+  useEffect(() => {
+      setPosition((current) => clampPosition(current, isExpanded));
+  }, [isExpanded]);
+
+  useEffect(() => {
+    const handleResize = () => setPosition((current) => clampPosition(current, isExpanded));
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isExpanded]);
 
   const handleMainClick = () => {
     if (isSessionActive) {
@@ -146,8 +192,47 @@ export function FloatingPomodoro() {
     start();
   };
 
+  const handleDragStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.button !== 0) return;
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: position.x,
+      originY: position.y,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleDragMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(deltaX, deltaY) < 5) return;
+    drag.moved = true;
+    setPosition(clampPosition({ x: drag.originX + deltaX, y: drag.originY + deltaY }, isExpanded));
+  };
+
+  const handleDragEnd = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (drag.moved) {
+      suppressClickRef.current = true;
+      const finalPosition = clampPosition({
+        x: drag.originX + event.clientX - drag.startX,
+        y: drag.originY + event.clientY - drag.startY,
+      }, isExpanded);
+      setPosition(finalPosition);
+      try { localStorage.setItem(POMODORO_POSITION_KEY, JSON.stringify(finalPosition)); } catch { /* Ignore unavailable storage. */ }
+      window.setTimeout(() => { suppressClickRef.current = false; }, 0);
+    }
+    dragRef.current = null;
+  };
+
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col items-end gap-2">
+    <div className={`fixed z-50 flex flex-col gap-2 ${controlsFitToRight ? 'items-start' : 'items-end'}`} style={{ left: position.x, top: position.y, touchAction: 'none' }}>
       <div className="relative">
         {isExpanded && (
           <button
@@ -163,20 +248,31 @@ export function FloatingPomodoro() {
 
         <motion.button
           type="button"
-          onClick={handleMainClick}
+          onClick={(event) => {
+            if (suppressClickRef.current) {
+              event.preventDefault();
+              suppressClickRef.current = false;
+              return;
+            }
+            handleMainClick();
+          }}
+          onPointerDown={handleDragStart}
+          onPointerMove={handleDragMove}
+          onPointerUp={handleDragEnd}
+          onPointerCancel={handleDragEnd}
           layout
           animate={{ width: size, height: size }}
           transition={{ type: 'spring', stiffness: 280, damping: 24 }}
           className={cn(
-            'relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58CC02] focus-visible:ring-offset-2 rounded-full',
+            'relative cursor-grab active:cursor-grabbing touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58CC02] focus-visible:ring-offset-2 rounded-full',
             isRunning && !isBreak && 'animate-pulse'
           )}
           title={
             isSessionActive
               ? isRunning
-                ? '点击暂停'
-                : '点击继续'
-              : '开始专注'
+                ? '按住拖动移动；点击暂停'
+                : '按住拖动移动；点击继续'
+              : '按住拖动移动；点击开始专注'
           }
           aria-label={
             isSessionActive
@@ -211,7 +307,7 @@ export function FloatingPomodoro() {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur border border-[#e5e5e5] shadow-sm px-2 py-1.5"
+            className="flex max-w-[calc(100vw-16px)] flex-wrap items-center gap-1.5 rounded-xl border border-[#e5e5e5] bg-white/95 px-2 py-1.5 shadow-sm backdrop-blur"
           >
             <span
               className={cn(

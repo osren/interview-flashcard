@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useInterviewStore, COMPANY_COLOR_OPTIONS } from '@/store/useInterviewStore';
 import { InterviewStatus } from '@/types/interview';
-import { Plus, ChevronDown, ChevronRight, X, Check, Clock, Calendar, Pencil, Trash2, MessageSquare } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, X, Check, Clock, Calendar, Pencil, Trash2, MessageSquare, Cloud, CloudOff, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { PageShell, SectionHeader, Button } from '@/components/ui';
+import { useInterviewSync } from '@/hooks/useInterviewSync';
 
 const STATUS_CONFIG = {
   waiting: { label: '等待', color: 'text-blue-600 bg-blue-50 border-blue-200', icon: Clock },
@@ -38,6 +39,7 @@ const DEPARTMENT_COLOR_MAP: Record<string, string> = {
 
 export function InterviewIndex() {
   const navigate = useNavigate();
+  const interviewSync = useInterviewSync();
   const {
     companies,
     lastVisitedCompany,
@@ -231,7 +233,7 @@ export function InterviewIndex() {
   };
 
   const handleDeleteSession = (companyId: string, departmentId: string, sessionId: string, sessionName: string) => {
-    if (confirm(`确定删除场次"${sessionName}"吗？所有问题都将被删除。`)) {
+    if (confirm(`确定删除场次"${sessionName}"吗？这份面经笔记也会被删除。`)) {
       removeSession(companyId, departmentId, sessionId);
     }
   };
@@ -243,6 +245,26 @@ export function InterviewIndex() {
         title="面经记录"
         description="记录每一次面试，持续更新"
       />
+
+      {interviewSync.status === 'loading' && interviewSync.isLoggedIn ? (
+        <div className="flex min-h-48 items-center justify-center gap-2 text-sm text-stone-500">
+          <Loader2 size={16} className="animate-spin" /> 正在恢复云端面经…
+        </div>
+      ) : (
+      <>
+
+      <div className="mb-5 flex items-center gap-2 text-xs text-stone-500" role="status" aria-live="polite">
+        {interviewSync.status === 'loading' || interviewSync.status === 'syncing' ? <Loader2 size={14} className="animate-spin" /> : interviewSync.status === 'local_only' || !interviewSync.isLoggedIn ? <CloudOff size={14} /> : <Cloud size={14} />}
+        <span>
+          {interviewSync.status === 'loading' ? '正在读取云端面经…'
+            : interviewSync.status === 'syncing' ? '面经正在保存到云端…'
+              : interviewSync.status === 'synced' ? `已同步到云端${interviewSync.lastSyncedAt ? ` · ${new Date(interviewSync.lastSyncedAt).toLocaleString('zh-CN')}` : ''}`
+                : interviewSync.status === 'error' ? `云端同步失败：${interviewSync.error ?? '请检查网络后重试'}`
+                  : interviewSync.status === 'local_only' ? '云端表尚未就绪，当前仅保存在本机'
+                    : interviewSync.isLoggedIn ? '面经云端同步待启动'
+                      : interviewSync.isConfigured ? '登录后可同步面经；当前内容保存在本机' : 'Supabase 未配置，当前内容保存在本机'}
+        </span>
+      </div>
 
       <div className="mb-6">
         <Button onClick={() => setIsAddingCompany(true)} variant="outline" className="gap-2">
@@ -675,6 +697,8 @@ export function InterviewIndex() {
             ))}
           </div>
         )}
+      </>
+      )}
     </PageShell>
   );
 }

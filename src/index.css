@@ -188,6 +188,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-float { animation: float 3s ease-in-out infinite; }
 
+.interview-markdown h1,
+.interview-markdown h2,
+.interview-markdown h3,
+.interview-markdown h4 {
+  scroll-margin-top: 7rem;
+}
+
 /* Desktop sidebar offset for viewport-fixed FABs (Import/Export, etc.) */
 :root {
   --if-sidebar-width: 0px;
