@@ -5,7 +5,9 @@ import { usePomodoroStore } from '@/store';
 import { cn } from '@/utils/cn';
 
 const COLLAPSED_SIZE = 52;
-const EXPANDED_SIZE = 128;
+const EXPANDED_SIZE = 56;
+const CONTROLS_WIDTH = 320;
+const CONTROLS_HEIGHT = 48;
 const POMODORO_POSITION_KEY = 'floating-pomodoro-position';
 
 interface FloatingPosition {
@@ -15,7 +17,7 @@ interface FloatingPosition {
 
 function clampPosition(position: FloatingPosition, expanded: boolean): FloatingPosition {
   const width = expanded ? EXPANDED_SIZE : COLLAPSED_SIZE;
-  const height = expanded ? 210 : COLLAPSED_SIZE;
+  const height = expanded ? EXPANDED_SIZE + CONTROLS_HEIGHT + 12 : COLLAPSED_SIZE;
   return {
     x: Math.max(8, Math.min(position.x, window.innerWidth - width - 8)),
     y: Math.max(8, Math.min(position.y, window.innerHeight - height - 8)),
@@ -63,7 +65,7 @@ function TomatoTimerFace({
   showTime: boolean;
 }) {
   const stemOffset = size * 0.08;
-  const timeScale = size >= EXPANDED_SIZE ? 1 : 0.65;
+  const timeScale = size >= COLLAPSED_SIZE ? 1 : 0.65;
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -168,7 +170,12 @@ export function FloatingPomodoro() {
   const progress = 1 - timeLeft / totalDuration;
   const isExpanded = isSessionActive;
   const size = isExpanded ? EXPANDED_SIZE : COLLAPSED_SIZE;
-  const controlsFitToRight = position.x + 320 <= window.innerWidth - 8;
+  const controlsWidth = Math.min(CONTROLS_WIDTH, Math.max(0, window.innerWidth - 16));
+  const controlsLeft = Math.max(8, Math.min(position.x, window.innerWidth - controlsWidth - 8));
+  const controlsBelowTop = position.y + size + 8;
+  const controlsTop = controlsBelowTop + CONTROLS_HEIGHT <= window.innerHeight - 8
+    ? controlsBelowTop
+    : Math.max(8, position.y - CONTROLS_HEIGHT - 8);
 
   useEffect(() => {
       setPosition((current) => clampPosition(current, isExpanded));
@@ -232,7 +239,7 @@ export function FloatingPomodoro() {
   };
 
   return (
-    <div className={`fixed z-50 flex flex-col gap-2 ${controlsFitToRight ? 'items-start' : 'items-end'}`} style={{ left: position.x, top: position.y, touchAction: 'none' }}>
+    <div className="fixed z-50" style={{ left: position.x, top: position.y, touchAction: 'none' }}>
       <div className="relative">
         {isExpanded && (
           <button
@@ -307,22 +314,26 @@ export function FloatingPomodoro() {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="flex max-w-[calc(100vw-16px)] flex-wrap items-center gap-1.5 rounded-xl border border-[#e5e5e5] bg-white/95 px-2 py-1.5 shadow-sm backdrop-blur"
+            style={{ position: 'fixed', left: controlsLeft, top: controlsTop, width: controlsWidth }}
+            className="flex items-center justify-between gap-1 rounded-xl border border-[#e5e5e5] bg-white/95 px-2 py-1.5 shadow-md backdrop-blur"
           >
             <span
               className={cn(
-                'text-xs font-extrabold px-2 py-0.5 rounded-full',
+                'shrink-0 text-[11px] font-extrabold px-1.5 py-1 rounded-full',
                 isBreak ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
               )}
             >
               {isBreak ? '休息' : '专注'}
-              {!isRunning && ' · 已暂停'}
+            </span>
+
+            <span className="shrink-0 px-1 font-mono text-sm font-bold tabular-nums text-stone-700" aria-label={`剩余 ${minutes} 分 ${seconds} 秒`}>
+              {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
 
             <button
               type="button"
               onClick={isRunning ? pause : start}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-[#4b4b4b] hover:bg-[#f7f7f7] transition-colors"
+              className="flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 text-[11px] font-bold text-[#4b4b4b] transition-colors hover:bg-[#f7f7f7]"
               title={isRunning ? '暂停' : '继续'}
             >
               {isRunning ? <Pause size={12} /> : <Play size={12} />}
@@ -332,7 +343,7 @@ export function FloatingPomodoro() {
             <button
               type="button"
               onClick={restart}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-[#777777] hover:bg-[#f7f7f7] transition-colors"
+              className="flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 text-[11px] font-bold text-[#777777] transition-colors hover:bg-[#f7f7f7]"
               title="重置并重新计时"
             >
               <RotateCcw size={12} />
@@ -342,7 +353,7 @@ export function FloatingPomodoro() {
             <button
               type="button"
               onClick={cancel}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-[#FF4B4B] hover:bg-[#fff0f0] transition-colors"
+              className="flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 text-[11px] font-bold text-[#FF4B4B] transition-colors hover:bg-[#fff0f0]"
               title="取消番茄钟"
             >
               <X size={12} />
