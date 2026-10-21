@@ -32,17 +32,20 @@ function isTableMissing(error: { code?: string; message?: string }): boolean {
     (typeof error.message === 'string' && error.message.includes("Could not find the table 'public.interview_sync'"));
 }
 
-export async function fetchInterviewSync(userId: string): Promise<InterviewSyncPayload | null> {
+export async function fetchInterviewSync(userId: string): Promise<{ payload: InterviewSyncPayload; updatedAt: string } | null> {
   const { data, error } = await supabase
     .from('interview_sync')
-    .select('payload')
+    .select('payload, updated_at')
     .eq('user_id', userId)
     .maybeSingle();
   if (error) {
     if (isTableMissing(error)) return null;
     throw new Error(error.message);
   }
-  return data ? normalizePayload((data as Pick<InterviewSyncRow, 'payload'>).payload) : null;
+  return data ? {
+    payload: normalizePayload((data as Pick<InterviewSyncRow, 'payload'>).payload),
+    updatedAt: (data as Pick<InterviewSyncRow, 'updated_at'>).updated_at,
+  } : null;
 }
 
 export async function saveInterviewSync(userId: string, payload: InterviewSyncPayload): Promise<string | null> {

@@ -20,9 +20,8 @@ export default defineConfig({
           // Do NOT force-split react / antd / rjsf — that can load React as
           // undefined when circular chunk edges evaluate (React.Component crash).
           if (id.includes('framer-motion')) return 'vendor-motion';
-          if (id.includes('@uiw/react-md-editor') || id.includes('@uiw/react-markdown-preview')) {
-            return 'vendor-mdeditor';
-          }
+          if (id.includes('@uiw/react-md-editor')) return 'vendor-mdeditor';
+          if (id.includes('@uiw/react-markdown-preview')) return 'vendor-mdpreview';
           if (id.includes('xlsx')) return 'vendor-xlsx';
           if (id.includes('pdfjs-dist')) return 'vendor-pdfjs';
           if (id.includes('@supabase')) return 'vendor-supabase';

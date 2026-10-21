@@ -91,24 +91,25 @@ export function CampusIndex() {
           />
         </div>
 
-        <div className="flex gap-1 p-1 mb-6 surface-panel rounded-2xl">
+        <nav className="mb-6 grid grid-cols-2 gap-2 rounded-2xl p-2 surface-panel sm:grid-cols-4 sm:gap-1 sm:p-1" aria-label="秋招投递模块">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"
               onClick={() => selectTab(id)}
+              aria-current={activeTab === id ? 'page' : undefined}
               className={cn(
-                'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-extrabold transition-all',
+                'flex min-w-0 w-full items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-extrabold transition-all sm:text-sm',
                 activeTab === id
                   ? 'bg-[#58CC02] text-white shadow-sm'
                   : 'text-ink-secondary hover:bg-[#f7f7f7]'
               )}
             >
-              <Icon size={18} />
-              {label}
+              <Icon size={18} className="shrink-0" />
+              <span className="whitespace-nowrap">{label}</span>
             </button>
           ))}
-        </div>
+        </nav>
 
         {visitedTabs.has('dashboard') && (
           <div className={cn(activeTab !== 'dashboard' && 'hidden')}>

@@ -4,6 +4,7 @@ import { Company, Department, InterviewSession, InterviewStatus, InterviewQuesti
 import { DEMO_DATA } from '@/data/interview/demo-data';
 import { questionsToInterviewMarkdown } from '@/utils/interviewMarkdown';
 import { mergePreloadedInterviewRecords } from '@/data/interview/preloaded-interviews';
+import { interviewPersistStorage } from '@/store/interview-persist-storage';
 
 interface InterviewState {
   companies: Company[];
@@ -64,6 +65,9 @@ const COMPANY_COLORS = [
 const INIT_KEY = 'interview-storage-init';
 const PRELOADED_MARKDOWN_COMPANIES = new Set(['meituan-local-commerce', 'company-meituan']);
 
+type PersistedInterviewState = Pick<InterviewState,
+  'companies' | 'favoriteQuestions' | 'lastVisitedCompany' | 'lastVisitedDepartment' | 'lastVisitedSession'>;
+
 function migratePreloadedInterviewMarkdown(companies: Company[]) {
   let changed = false;
   const migrated = companies.map((company) => {
@@ -73,6 +77,9 @@ function migratePreloadedInterviewMarkdown(companies: Company[]) {
       let departmentChanged = false;
       const sessions = department.sessions.map((session) => {
         if (session.markdownContent !== undefined) return session;
+        // These bundled documents are loaded on demand; do not replace them with
+        // an empty generated document during initial store hydration.
+        if (session.id.startsWith('session-import-')) return session;
         changed = true;
         companyChanged = true;
         departmentChanged = true;
@@ -445,6 +452,14 @@ export const useInterviewStore = create<InterviewState>()(
     }),
     {
       name: 'interview-storage',
+      storage: interviewPersistStorage,
+      partialize: (state): PersistedInterviewState => ({
+        companies: state.companies,
+        favoriteQuestions: state.favoriteQuestions,
+        lastVisitedCompany: state.lastVisitedCompany,
+        lastVisitedDepartment: state.lastVisitedDepartment,
+        lastVisitedSession: state.lastVisitedSession,
+      }),
       merge: (persistedState, currentState) => {
         const persisted = (persistedState ?? {}) as Partial<InterviewState>;
         let companies = Array.isArray(persisted.companies)

@@ -4,7 +4,7 @@ import { useAuth } from '@/components/Auth';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { applyInterviewSyncPayload, buildInterviewSyncPayload, fetchInterviewSync, isInterviewSyncTableMissingError, saveInterviewSync } from '@/lib/supabase/interview-sync';
 import { useInterviewStore } from '@/store/useInterviewStore';
-import { mergePreloadedInterviewRecords } from '@/data/interview/preloaded-interviews';
+import { loadPreloadedInterviewRecords, mergePreloadedInterviewRecords } from '@/data/interview/preloaded-interviews';
 
 export type InterviewSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'error' | 'local_only';
 interface InterviewSyncContextValue {
@@ -27,6 +27,7 @@ export function InterviewSyncProvider({ children }: { children: ReactNode }) {
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(() => useInterviewStore.persist.hasHydrated());
   const [readyUserId, setReadyUserId] = useState<string | null>(null);
+  const [preloadedRecords, setPreloadedRecords] = useState<Awaited<ReturnType<typeof loadPreloadedInterviewRecords>> | null>(null);
   const applyingRemoteRef = useRef(false);
   const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const generationRef = useRef(0);
@@ -37,7 +38,27 @@ export function InterviewSyncProvider({ children }: { children: ReactNode }) {
     return useInterviewStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
 
-  const pull = useCallback(async (userId: string) => {
+  useEffect(() => {
+    if (!enabled || !hydrated) return;
+    let active = true;
+    void loadPreloadedInterviewRecords().then((records) => {
+      if (!active) return;
+      const currentCompanies = useInterviewStore.getState().companies;
+      const companies = mergePreloadedInterviewRecords(currentCompanies, records);
+      if (companies !== currentCompanies) {
+        applyingRemoteRef.current = true;
+        useInterviewStore.setState({ companies });
+        applyingRemoteRef.current = false;
+      }
+      setPreloadedRecords(records);
+    }).catch(() => {
+      // Keep the lightweight company/session metadata available if a document chunk fails.
+      if (active) setPreloadedRecords([]);
+    });
+    return () => { active = false; };
+  }, [enabled, hydrated]);
+
+  const pull = useCallback(async (userId: string, records: Awaited<ReturnType<typeof loadPreloadedInterviewRecords>>) => {
     if (cloudUnavailableRef.current) { setStatus('local_only'); return; }
     const generation = ++generationRef.current;
     setReadyUserId(null);
@@ -45,21 +66,23 @@ export function InterviewSyncProvider({ children }: { children: ReactNode }) {
     try {
       const remote = await fetchInterviewSync(userId);
       if (generationRef.current !== generation) return;
+      let shouldSave = !remote;
       if (remote) {
         // This table stores a complete per-user snapshot. Pulling the snapshot first
         // keeps deletions consistent across devices; bundled imports are then appended
         // idempotently so the initial seed is included in the saved cloud snapshot.
         applyingRemoteRef.current = true;
-        applyInterviewSyncPayload({
-          ...remote,
-          companies: mergePreloadedInterviewRecords(remote.companies),
-        });
+        const companies = mergePreloadedInterviewRecords(remote.payload.companies, records);
+        shouldSave = companies !== remote.payload.companies;
+        applyInterviewSyncPayload({ ...remote.payload, companies });
         applyingRemoteRef.current = false;
       }
-      const payload = buildInterviewSyncPayload();
-      const updatedAt = await saveInterviewSync(userId, payload);
-      if (generationRef.current !== generation) return;
-      if (updatedAt === null) { cloudUnavailableRef.current = true; setStatus('local_only'); return; }
+      let updatedAt = remote?.updatedAt ?? null;
+      if (shouldSave) {
+        updatedAt = await saveInterviewSync(userId, buildInterviewSyncPayload());
+        if (generationRef.current !== generation) return;
+        if (updatedAt === null) { cloudUnavailableRef.current = true; setStatus('local_only'); return; }
+      }
       setReadyUserId(userId);
       setLastSyncedAt(updatedAt); setStatus('synced');
     } catch (cause) {
@@ -86,14 +109,14 @@ export function InterviewSyncProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!enabled || !configured || authLoading || !hydrated) return;
+    if (!enabled || !configured || authLoading || !hydrated || preloadedRecords === null) return;
     if (pushTimerRef.current) { clearTimeout(pushTimerRef.current); pushTimerRef.current = null; }
     cloudUnavailableRef.current = false;
     if (!user) {
       generationRef.current += 1; setReadyUserId(null); setStatus('idle'); setError(null); setLastSyncedAt(null); return;
     }
-    void pull(user.id);
-  }, [enabled, configured, authLoading, hydrated, user?.id, pull]);
+    void pull(user.id, preloadedRecords);
+  }, [enabled, configured, authLoading, hydrated, preloadedRecords, user?.id, pull]);
 
   useEffect(() => {
     if (!enabled || !configured || authLoading || !hydrated || !user || readyUserId !== user.id || cloudUnavailableRef.current) return;

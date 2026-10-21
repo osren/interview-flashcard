@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -21,8 +21,6 @@ import {
   X,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import '@uiw/react-md-editor/markdown-editor.css';
-import '@uiw/react-markdown-preview/markdown.css';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
@@ -31,7 +29,6 @@ import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { streamLlm, type ChatMessage } from '@/lib/llm/call';
 import { createInterviewStarterMarkdown, questionsToInterviewMarkdown } from '@/utils/interviewMarkdown';
 import { downloadMd, readFileAsText } from '@/utils/md';
-import { useInterviewSync } from '@/hooks/useInterviewSync';
 
 interface OutlineItem {
   id: string;
@@ -181,7 +178,6 @@ const STATUS = {
 } as const;
 
 export function InterviewDetail() {
-  const interviewSync = useInterviewSync();
   const navigate = useNavigate();
   const { companyId = '', departmentId = '', sessionId = '' } = useParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -214,29 +210,25 @@ export function InterviewDetail() {
   const [sessionName, setSessionName] = useState(session?.name ?? '');
   const [fileError, setFileError] = useState('');
 
-  useEffect(() => {
+  const collectOutline = useCallback(() => {
     const container = documentContentRef.current;
     if (!container) {
       setOutlineItems([]);
       return;
     }
+    const next = Array.from(container.querySelectorAll<HTMLElement>('h1, h2, h3, h4'))
+      .map((heading) => ({
+        id: heading.id,
+        title: heading.textContent?.trim() ?? '',
+        level: Number(heading.tagName.slice(1)),
+      }))
+      .filter((heading) => heading.id && heading.title);
+    setOutlineItems(next);
+  }, []);
 
-    const collectHeadings = () => {
-      const next = Array.from(container.querySelectorAll<HTMLElement>('h1, h2, h3, h4'))
-        .map((heading) => ({
-          id: heading.id,
-          title: heading.textContent?.trim() ?? '',
-          level: Number(heading.tagName.slice(1)),
-        }))
-        .filter((heading) => heading.id && heading.title);
-      setOutlineItems(next);
-    };
-
-    collectHeadings();
-    const observer = new MutationObserver(collectHeadings);
-    observer.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ['id'] });
-    return () => observer.disconnect();
-  }, [markdown, isEditing]);
+  useEffect(() => {
+    if (isEditing) setOutlineItems([]);
+  }, [isEditing]);
 
   useEffect(() => {
     setMarkdown(sourceMarkdown);
@@ -251,10 +243,6 @@ export function InterviewDetail() {
   const wordCount = markdown.replace(/\s/g, '').length;
   const status = session ? STATUS[session.status] : null;
   const StatusIcon = status?.icon;
-
-  if (interviewSync.status === 'loading' && interviewSync.isLoggedIn) {
-    return <main className="flex min-h-screen items-center justify-center gap-2 bg-[#f6f5f1] text-sm text-stone-500"><Loader2 size={16} className="animate-spin" />正在恢复云端面经…</main>;
-  }
 
   const handleBack = () => {
     if (isDirty && !window.confirm('还有未保存的修改，确定离开吗？')) return;
@@ -283,6 +271,7 @@ export function InterviewDetail() {
   };
 
   const handleStatusCycle = () => {
+    if (!session) return;
     const nextStatus = session.status === 'waiting'
       ? 'passed'
       : session.status === 'passed'
@@ -504,6 +493,7 @@ export function InterviewDetail() {
                   <div ref={documentContentRef}>
                     <LazyMDMarkdown
                       source={markdown}
+                      onRendered={collectOutline}
                       className="interview-markdown prose prose-stone max-w-none prose-headings:font-display prose-headings:font-extrabold prose-h1:mb-8 prose-h1:text-3xl prose-h2:mt-10 prose-h2:border-b prose-h2:border-stone-100 prose-h2:pb-3 prose-h2:text-2xl prose-h3:mt-7 prose-h3:text-lg prose-p:leading-8 prose-li:leading-8 prose-blockquote:border-l-[#c28b4f] prose-blockquote:text-stone-600 prose-a:text-[#a66a2e] prose-pre:rounded-xl prose-pre:bg-stone-900 prose-code:text-[#a66a2e]"
                     />
                   </div>

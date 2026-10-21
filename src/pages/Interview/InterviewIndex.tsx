@@ -246,17 +246,12 @@ export function InterviewIndex() {
         description="记录每一次面试，持续更新"
       />
 
-      {interviewSync.status === 'loading' && interviewSync.isLoggedIn ? (
-        <div className="flex min-h-48 items-center justify-center gap-2 text-sm text-stone-500">
-          <Loader2 size={16} className="animate-spin" /> 正在恢复云端面经…
-        </div>
-      ) : (
       <>
 
       <div className="mb-5 flex items-center gap-2 text-xs text-stone-500" role="status" aria-live="polite">
         {interviewSync.status === 'loading' || interviewSync.status === 'syncing' ? <Loader2 size={14} className="animate-spin" /> : interviewSync.status === 'local_only' || !interviewSync.isLoggedIn ? <CloudOff size={14} /> : <Cloud size={14} />}
         <span>
-          {interviewSync.status === 'loading' ? '正在读取云端面经…'
+          {interviewSync.status === 'loading' ? '正在后台读取云端；当前先显示本地面经…'
             : interviewSync.status === 'syncing' ? '面经正在保存到云端…'
               : interviewSync.status === 'synced' ? `已同步到云端${interviewSync.lastSyncedAt ? ` · ${new Date(interviewSync.lastSyncedAt).toLocaleString('zh-CN')}` : ''}`
                 : interviewSync.status === 'error' ? `云端同步失败：${interviewSync.error ?? '请检查网络后重试'}`
@@ -698,7 +693,6 @@ export function InterviewIndex() {
           </div>
         )}
       </>
-      )}
     </PageShell>
   );
 }
