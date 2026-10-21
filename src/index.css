@@ -64,7 +64,7 @@
 
 html {
   font-size: 18px;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -75,7 +75,7 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   overscroll-behavior: none;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 * {
