@@ -53,7 +53,7 @@ export function ImportExportModal({
       md = exportInterviewQuestionsToMd(interviewQuestions, title);
       filename = `${title || '面经'}-${Date.now()}.md`;
     } else {
-      md = exportCardsToMd(cards);
+      md = exportCardsToMd(cards, title || `${module} · ${chapterId}`);
       filename = `${title || module}-${chapterId}-${Date.now()}.md`;
     }
     downloadMd(md, filename);
@@ -104,7 +104,7 @@ export function ImportExportModal({
             answer: card.answer,
             tags: ['导入'],
             status: 'unvisited',
-            category: title || chapterId,
+            category: card.category || title || chapterId,
           });
         }
         setImportResult({

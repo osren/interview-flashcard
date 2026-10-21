@@ -1,5 +1,6 @@
 import { FlashCard, ModuleType } from '@/types';
 import { InterviewQuestion } from '@/types/interview';
+import { exportStudyMarkdown } from '@/utils/studyMarkdown';
 
 /**
  * 将 FlashCard 数组导出为 Markdown 格式
@@ -10,19 +11,8 @@ import { InterviewQuestion } from '@/types/interview';
  * ## 答案
  * 答案内容（若答案为空则显示"（空）"）
  */
-export function exportCardsToMd(cards: FlashCard[]): string {
-  return cards
-    .map((card, index) => {
-      const num = index + 1;
-      const question = card.question.trim();
-      const answer = card.answer.trim() || '（空）';
-
-      return `## ${num}. ${question}
-
-## 答案
-${answer}`;
-    })
-    .join('\n\n---\n\n');
+export function exportCardsToMd(cards: FlashCard[], title?: string): string {
+  return exportStudyMarkdown(title, cards);
 }
 
 /**
@@ -63,11 +53,40 @@ export function importCardsFromMd(
   mdContent: string,
   _module?: ModuleType,
   _chapterId?: string
-): { question: string; answer: string }[] {
-  const cards: { question: string; answer: string }[] = [];
+): { question: string; answer: string; category?: string }[] {
+  const cards: { question: string; answer: string; category?: string }[] = [];
 
   // 标准化换行符（处理 Windows \r\n）
   const content = mdContent.replace(/\r\n/g, '\n');
+
+  // Current reader format: # chapter / ## category / ### question / #### answer points.
+  if (/^###\s+\d+[.)、]\s+.+$/m.test(content)) {
+    let category: string | undefined;
+    let currentQuestion = '';
+    let answerLines: string[] = [];
+    const saveCurrent = () => {
+      if (!currentQuestion) return;
+      cards.push({ question: currentQuestion, answer: answerLines.join('\n').trim(), category });
+    };
+
+    for (const line of content.split('\n')) {
+      const categoryMatch = line.match(/^##\s+(.+)$/);
+      if (categoryMatch) {
+        category = categoryMatch[1].replace(/^[一二三四五六七八九十百]+[、.)]\s*/, '').trim();
+        continue;
+      }
+      const questionMatch = line.match(/^###\s+\d+[.)、]\s+(.+)$/);
+      if (questionMatch) {
+        saveCurrent();
+        currentQuestion = questionMatch[1].trim();
+        answerLines = [];
+        continue;
+      }
+      if (currentQuestion) answerLines.push(line);
+    }
+    saveCurrent();
+    return cards;
+  }
 
   // 分割每个问答对（用 ## 序号. 分割，--- 不是可靠的分割符）
   // 格式: ## 1. 问题\n\n## 答案\n\n答案内容

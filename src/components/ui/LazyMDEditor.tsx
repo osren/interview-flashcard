@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, type HTMLAttributes, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { markdownHeadingId } from '@/utils/studyMarkdown';
 
 const MDEditorLazy = lazy(async () => {
   await import('@uiw/react-md-editor/markdown-editor.css');
@@ -54,18 +55,65 @@ function childrenToText(children: ReactNode): string {
   return '';
 }
 
-function slugifyHeading(text: string): string {
-  return text.toLocaleLowerCase().trim()
-    .replace(/[^\p{L}\p{N}\p{M}\s-]/gu, '')
-    .replace(/[\s-]+/g, '-');
-}
-
 function createHeading(level: 1 | 2 | 3 | 4) {
   return function MarkdownHeading({ children, ...props }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
-    const base = slugifyHeading(childrenToText(children)) || `heading-${level}`;
+    const base = markdownHeadingId(childrenToText(children)) || `heading-${level}`;
     const Tag = `h${level}` as const;
-    return <Tag {...props} id={base}>{children}</Tag>;
+    return <Tag {...props} id={base} className={`scroll-mt-24 ${props.className ?? ''}`}>{children}</Tag>;
   };
+}
+
+function MarkdownImage({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) {
+  const imageRef = useRef<HTMLImageElement>(null);
+  const [nearViewport, setNearViewport] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const src = props.src;
+
+  useEffect(() => {
+    setNearViewport(false);
+    setLoaded(false);
+    setFailed(false);
+    if (!src) return;
+
+    const image = imageRef.current;
+    if (!image || !('IntersectionObserver' in window)) {
+      setNearViewport(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setNearViewport(true);
+      observer.disconnect();
+    }, { rootMargin: '900px 0px' });
+    observer.observe(image);
+    return () => observer.disconnect();
+  }, [src]);
+
+  return (
+    <span className="relative my-5 block min-h-24 overflow-hidden rounded-xl bg-stone-100">
+      {!loaded && !failed && <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-stone-100 via-stone-200 to-stone-100" aria-hidden="true" />}
+      {failed ? (
+        <span className="relative flex min-h-24 items-center justify-center px-4 text-sm text-stone-500">图片加载失败</span>
+      ) : nearViewport ? (
+        <img
+          {...props}
+          ref={imageRef}
+          src={src}
+          alt={alt ?? ''}
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+          className={`relative my-0 h-auto max-w-full rounded-xl transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'} ${props.className ?? ''}`}
+        />
+      ) : (
+        <img ref={imageRef} alt={alt ?? ''} aria-hidden="true" className="absolute h-px w-px opacity-0" />
+      )}
+    </span>
+  );
 }
 
 const MarkdownHeading1 = createHeading(1);
@@ -86,6 +134,7 @@ function MarkdownPreviewContent({ onRendered, ...props }: LazyMDMarkdownProps) {
         h2: { component: MarkdownHeading2 },
         h3: { component: MarkdownHeading3 },
         h4: { component: MarkdownHeading4 },
+          img: { component: MarkdownImage },
       } }}
     >
       {props.source ?? ''}
