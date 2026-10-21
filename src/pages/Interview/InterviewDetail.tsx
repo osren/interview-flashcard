@@ -445,7 +445,7 @@ export function InterviewDetail() {
           )}
 
           {isEditing ? (
-            <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_16px_50px_-36px_rgba(41,37,36,0.4)]" data-color-mode="light">
+            <div className="overflow-clip rounded-2xl border border-stone-200 bg-white shadow-[0_16px_50px_-36px_rgba(41,37,36,0.4)]" data-color-mode="light">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-4 py-3 sm:px-5">
                 <div>
                   <div className="text-sm font-bold text-stone-800">Markdown 编辑</div>
@@ -479,7 +479,7 @@ export function InterviewDetail() {
               </div>
             </div>
           ) : (
-            <article className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_16px_50px_-36px_rgba(41,37,36,0.4)]">
+            <article className="overflow-clip rounded-2xl border border-stone-200 bg-white shadow-[0_16px_50px_-36px_rgba(41,37,36,0.4)]">
               <div className="border-b border-stone-100 bg-[#fcfbf8] px-6 py-5 sm:px-10">
                 <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b87935]">{company.name} / {department.name}</div>
                 <h2 className="font-display text-2xl font-extrabold leading-tight text-stone-900 sm:text-3xl">{session.name}</h2>
