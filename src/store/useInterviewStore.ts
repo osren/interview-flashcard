@@ -445,19 +445,25 @@ export const useInterviewStore = create<InterviewState>()(
     }),
     {
       name: 'interview-storage',
-      onRehydrateStorage: () => (state) => {
-        if (!state) return;
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState ?? {}) as Partial<InterviewState>;
+        let companies = Array.isArray(persisted.companies)
+          ? persisted.companies
+          : currentState.companies;
 
-        let companies = state.companies;
+        // Keep the existing first-run demo behavior, then merge bundled imports even
+        // for users whose browser already contains an empty/older interview snapshot.
         if (companies.length === 0 && !localStorage.getItem(INIT_KEY)) {
           companies = DEMO_DATA;
           localStorage.setItem(INIT_KEY, 'true');
         }
+
         const withImportedRecords = mergePreloadedInterviewRecords(companies);
-        const migratedCompanies = migratePreloadedInterviewMarkdown(withImportedRecords);
-        if (migratedCompanies !== state.companies) {
-          useInterviewStore.setState({ companies: migratedCompanies });
-        }
+        return {
+          ...currentState,
+          ...persisted,
+          companies: migratePreloadedInterviewMarkdown(withImportedRecords),
+        };
       },
     }
   )
