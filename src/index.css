@@ -250,6 +250,91 @@ h1, h2, h3, h4, h5, h6 {
   scroll-margin-top: 7rem;
 }
 
+.markdown-image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.96);
+  touch-action: none;
+}
+
+.markdown-image-viewer-toolbar {
+  position: absolute;
+  z-index: 1;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  left: max(12px, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: white;
+}
+
+.markdown-image-viewer-toolbar button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  background: rgba(40, 40, 40, 0.72);
+  color: white;
+}
+
+.markdown-image-viewer-hint {
+  margin-right: auto;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.markdown-image-viewer-zoom {
+  min-width: 42px;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.markdown-image-viewer-image {
+  width: auto;
+  height: auto;
+  max-width: min(94vw, 1400px);
+  max-height: 88dvh;
+  object-fit: contain;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .markdown-image-viewer-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100dvh;
+    height: 100vw;
+    max-width: none;
+    max-height: none;
+    translate: -50% -50%;
+    rotate: 90deg;
+  }
+
+  .markdown-image-viewer-toolbar {
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    justify-content: center;
+  }
+
+  .markdown-image-viewer-hint {
+    display: none;
+  }
+}
+
 /* Desktop sidebar offset for viewport-fixed FABs (Import/Export, etc.) */
 :root {
   --if-sidebar-width: 0px;

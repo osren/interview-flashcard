@@ -1,4 +1,6 @@
-import { lazy, Suspense, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type PointerEvent as ReactPointerEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { markdownHeadingId } from '@/utils/studyMarkdown';
 
 const MDEditorLazy = lazy(async () => {
@@ -68,6 +70,11 @@ function MarkdownImage({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageEleme
   const [nearViewport, setNearViewport] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const gesture = useRef<{ distance: number; zoom: number; x: number; y: number; offsetX: number; offsetY: number } | null>(null);
   const src = props.src;
 
   useEffect(() => {
@@ -91,6 +98,57 @@ function MarkdownImage({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageEleme
     return () => observer.disconnect();
   }, [src]);
 
+  useEffect(() => {
+    if (!viewerOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setViewerOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+      const orientation = screen.orientation as ScreenOrientation & { unlock?: () => void };
+      orientation.unlock?.();
+    };
+  }, [viewerOpen]);
+
+  const openViewer = () => {
+    const orientation = screen.orientation as ScreenOrientation & { lock?: (orientation: 'landscape') => Promise<void> };
+    void orientation.lock?.('landscape').catch(() => undefined);
+    setZoom(1);
+    setOffset({ x: 0, y: 0 });
+    setViewerOpen(true);
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLImageElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const active = [...pointers.current.values()];
+    const distance = active.length > 1 ? Math.hypot(active[0].x - active[1].x, active[0].y - active[1].y) : 0;
+    gesture.current = { distance, zoom, x: event.clientX, y: event.clientY, offsetX: offset.x, offsetY: offset.y };
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLImageElement>) => {
+    if (!pointers.current.has(event.pointerId) || !gesture.current) return;
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const active = [...pointers.current.values()];
+    if (active.length > 1 && gesture.current.distance > 0) {
+      const distance = Math.hypot(active[0].x - active[1].x, active[0].y - active[1].y);
+      setZoom(Math.min(5, Math.max(1, gesture.current.zoom * distance / gesture.current.distance)));
+    } else if (active.length === 1 && zoom > 1) {
+      setOffset({ x: gesture.current.offsetX + event.clientX - gesture.current.x, y: gesture.current.offsetY + event.clientY - gesture.current.y });
+    }
+  };
+
+  const handlePointerUp = (event: ReactPointerEvent<HTMLImageElement>) => {
+    pointers.current.delete(event.pointerId);
+    gesture.current = null;
+  };
+
+  const changeZoom = (amount: number) => setZoom((current) => Math.min(5, Math.max(1, current + amount)));
+
   return (
     <span className="relative my-5 block min-h-24 overflow-hidden rounded-xl bg-stone-100">
       {!loaded && !failed && <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-stone-100 via-stone-200 to-stone-100" aria-hidden="true" />}
@@ -107,10 +165,39 @@ function MarkdownImage({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageEleme
           fetchPriority="low"
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
-          className={`relative my-0 h-auto max-w-full rounded-xl transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'} ${props.className ?? ''}`}
+          className={`relative my-0 h-auto max-w-full cursor-zoom-in rounded-xl transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'} ${props.className ?? ''}`}
+          onClick={openViewer}
+          role="button"
+          tabIndex={0}
+          aria-label={`放大查看图片：${alt || '图片'}`}
+          onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openViewer(); } }}
         />
       ) : (
         <img ref={imageRef} alt={alt ?? ''} aria-hidden="true" className="absolute h-px w-px opacity-0" />
+      )}
+      {viewerOpen && src && createPortal(
+        <div className="markdown-image-viewer" role="dialog" aria-modal="true" aria-label="图片查看器" onClick={() => setViewerOpen(false)}>
+          <div className="markdown-image-viewer-toolbar" onClick={(event) => event.stopPropagation()}>
+            <span className="markdown-image-viewer-hint">双指缩放 · 拖动查看</span>
+            <button type="button" aria-label="缩小" onClick={() => changeZoom(-0.5)}><ZoomOut size={20} /></button>
+            <span className="markdown-image-viewer-zoom">{Math.round(zoom * 100)}%</span>
+            <button type="button" aria-label="放大" onClick={() => changeZoom(0.5)}><ZoomIn size={20} /></button>
+            <button type="button" aria-label="重置缩放" onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }); }}><RotateCcw size={19} /></button>
+            <button type="button" aria-label="关闭图片" onClick={() => setViewerOpen(false)}><X size={22} /></button>
+          </div>
+          <img
+            src={src}
+            alt={alt ?? ''}
+            className="markdown-image-viewer-image"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})` }}
+          />
+        </div>,
+        document.body,
       )}
     </span>
   );
