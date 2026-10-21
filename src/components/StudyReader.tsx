@@ -162,7 +162,7 @@ export function StudyReader({
                 本章大纲
                 <span className="ml-auto text-[11px] font-medium text-stone-400">H1–H4</span>
               </div>
-              <nav aria-label="本章大纲" className="max-h-[48vh] space-y-1 overflow-y-auto pr-1">
+              <nav aria-label="本章大纲" className="max-h-[48vh] space-y-1 overflow-y-auto overscroll-y-auto pr-1">
                 <StudyOutline sections={document.sections} favorites={favorites} onToggleFavorite={toggleFavorite} getStatus={getStatus} onToggleStatus={toggleStatus} />
               </nav>
             </section>
