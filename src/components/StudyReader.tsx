@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home } from 'lucide-react';
+import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List } from 'lucide-react';
 import type { FlashCard, ModuleType } from '@/types';
 import { useCardStore } from '@/store';
 import { resolveCardStatus } from '@/utils/cardStatus';
@@ -34,40 +34,41 @@ function StudyOutline({
   const favoriteIds = new Set(favorites.map((card) => card.id));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {sections.map((section) => (
-        <section key={`${section.headingId}-${section.category}`}>
-          <a href={`#${section.headingId}`} className="block px-2 py-1.5 text-xs font-extrabold text-stone-500 hover:text-stone-800">
+        <section key={`${section.headingId}-${section.category}`} className="min-w-0">
+          <a href={`#${section.headingId}`} className="mb-1.5 flex items-center gap-2 rounded-lg bg-[#f8f3ec] px-2.5 py-2 text-sm font-extrabold text-[#98602a] transition hover:bg-[#f3eadc]">
             {section.category}
           </a>
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {section.questions.map(({ card, number, headingId }) => {
               const isFavorite = favoriteIds.has(card.id);
               const status = getStatus(card);
               return (
-                <li key={card.id} className="group flex min-w-0 items-start gap-1 rounded-lg px-1 py-1 hover:bg-stone-100">
+                <li key={card.id} className="group flex min-w-0 items-start gap-1 rounded-lg px-1 py-1 transition hover:bg-[#f8f3ec]">
                   <a
                     href={`#${headingId}`}
-                    className="min-w-0 flex-1 py-1 text-xs leading-5 text-stone-600 hover:text-stone-950"
+                    className="min-w-0 flex-1 py-1 text-sm leading-5 text-stone-600 transition hover:text-[#98602a] line-clamp-2"
                     title={card.question}
                   >
-                    <span className="mr-1 text-stone-400">{number}.</span>
-                    <span className="line-clamp-2">{card.question}</span>
+                    <span className="mr-1 font-semibold text-[#b87935]">{number}.</span>{card.question}
                   </a>
-                  <button type="button" onClick={() => onToggleStatus(card)} className="mt-1 shrink-0 rounded p-0.5" title={status === 'remembered' ? '已掌握，点击改为待复习' : status === 'review' ? '待复习，点击清除标记' : '未标记，点击标为已掌握'} aria-label={`更新掌握状态：${card.question}`}>
-                    {status === 'remembered'
-                      ? <CheckCircle2 size={14} className="text-[#58CC02]" />
-                      : <Circle size={14} className={status === 'review' ? 'text-amber-500' : 'text-stone-300'} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onToggleFavorite(card)}
-                    className="mt-0.5 shrink-0 rounded-md p-1 text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
-                    aria-label={isFavorite ? `取消收藏：${card.question}` : `收藏问题：${card.question}`}
-                    title={isFavorite ? '取消收藏' : '收藏问题'}
-                  >
-                    <Heart size={15} className={isFavorite ? 'fill-rose-500 text-rose-500' : ''} />
-                  </button>
+                  <div className="flex shrink-0 items-center gap-0.5">
+                      <button type="button" onClick={() => onToggleStatus(card)} className="grid h-8 w-7 place-items-center rounded-md text-stone-400 transition hover:bg-white" title={status === 'remembered' ? '已掌握，点击改为待复习' : status === 'review' ? '待复习，点击清除标记' : '未标记，点击标为已掌握'} aria-label={`更新掌握状态：${card.question}`}>
+                        {status === 'remembered'
+                          ? <CheckCircle2 size={17} strokeWidth={2.4} className="text-[#58CC02]" />
+                          : <Circle size={17} strokeWidth={2} className={status === 'review' ? 'text-amber-500' : 'text-stone-400'} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onToggleFavorite(card)}
+                        className="grid h-8 w-7 place-items-center rounded-md text-stone-400 transition hover:bg-white hover:text-rose-500"
+                        aria-label={isFavorite ? `取消收藏：${card.question}` : `收藏问题：${card.question}`}
+                        title={isFavorite ? '取消收藏' : '收藏问题'}
+                      >
+                        <Heart size={17} strokeWidth={2} className={isFavorite ? 'fill-rose-500 text-rose-500' : ''} />
+                      </button>
+                  </div>
                 </li>
               );
             })}
@@ -92,6 +93,9 @@ export function StudyReader({
   const cardStatuses = useCardStore((state) => state.cardStatuses);
   const updateCardStatus = useCardStore((state) => state.updateCardStatus);
   const document = useMemo(() => buildStudyMarkdown(title, cards), [title, cards]);
+  const favoriteCardIds = useMemo(() => new Set(favorites.map((card) => card.id)), [favorites]);
+  const headingCount = document.markdown.match(/^#{1,4}\s+.+$/gm)?.length ?? 0;
+  const characterCount = document.markdown.replace(/\s/g, '').length;
 
   const toggleStatus = (card: FlashCard) => {
     const status = resolveCardStatus(card.id, cardStatuses, card.status);
@@ -135,12 +139,7 @@ export function StudyReader({
           </div>
         </details>
 
-        <div className="grid items-start gap-5 lg:grid-cols-[250px_minmax(0,1fr)]">
-          <aside className="sticky top-16 hidden max-h-[calc(100dvh-5rem)] overflow-y-auto rounded-2xl border border-stone-200 bg-white p-3 shadow-sm lg:block">
-            <div className="mb-2 px-2 text-xs font-extrabold uppercase tracking-wide text-stone-400">本章大纲</div>
-            <StudyOutline sections={document.sections} favorites={favorites} onToggleFavorite={toggleFavorite} getStatus={getStatus} onToggleStatus={toggleStatus} />
-          </aside>
-
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px] xl:gap-7">
           <main className="min-w-0">
             {cards.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center text-sm text-stone-500">
@@ -155,6 +154,31 @@ export function StudyReader({
               </article>
             )}
           </main>
+
+          <aside className="sticky top-16 hidden min-w-0 space-y-4 lg:block">
+            <section className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center gap-2 border-b border-stone-100 pb-3 text-sm font-extrabold text-stone-800">
+                <List size={16} className="text-[#b87935]" />
+                本章大纲
+                <span className="ml-auto text-[11px] font-medium text-stone-400">H1–H4</span>
+              </div>
+              <nav aria-label="本章大纲" className="max-h-[48vh] space-y-1 overflow-y-auto pr-1">
+                <StudyOutline sections={document.sections} favorites={favorites} onToggleFavorite={toggleFavorite} getStatus={getStatus} onToggleStatus={toggleStatus} />
+              </nav>
+            </section>
+
+            <section className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center gap-2 text-sm font-extrabold text-stone-800">
+                <BookOpenText size={16} className="text-[#b87935]" />
+                阅读概况
+              </div>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex items-center justify-between text-stone-500"><span>标题层级</span><span className="font-semibold text-stone-800">{headingCount}</span></div>
+                <div className="flex items-center justify-between text-stone-500"><span>字符数</span><span className="font-semibold text-stone-800">{characterCount.toLocaleString('zh-CN')}</span></div>
+                <div className="flex items-center justify-between text-stone-500"><span>已收藏题目</span><span className="font-semibold text-stone-800">{cards.filter((card) => favoriteCardIds.has(card.id)).length}</span></div>
+              </div>
+            </section>
+          </aside>
         </div>
       </div>
 
