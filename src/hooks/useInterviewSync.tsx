@@ -4,6 +4,7 @@ import { useAuth } from '@/components/Auth';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { applyInterviewSyncPayload, buildInterviewSyncPayload, fetchInterviewSync, isInterviewSyncTableMissingError, saveInterviewSync } from '@/lib/supabase/interview-sync';
 import { useInterviewStore } from '@/store/useInterviewStore';
+import { mergePreloadedInterviewRecords } from '@/data/interview/preloaded-interviews';
 
 export type InterviewSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'error' | 'local_only';
 interface InterviewSyncContextValue {
@@ -46,9 +47,13 @@ export function InterviewSyncProvider({ children }: { children: ReactNode }) {
       if (generationRef.current !== generation) return;
       if (remote) {
         // This table stores a complete per-user snapshot. Pulling the snapshot first
-        // keeps deletions consistent across devices; subsequent local edits are pushed.
+        // keeps deletions consistent across devices; bundled imports are then appended
+        // idempotently so the initial seed is included in the saved cloud snapshot.
         applyingRemoteRef.current = true;
-        applyInterviewSyncPayload(remote);
+        applyInterviewSyncPayload({
+          ...remote,
+          companies: mergePreloadedInterviewRecords(remote.companies),
+        });
         applyingRemoteRef.current = false;
       }
       const payload = buildInterviewSyncPayload();

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { Company, Department, InterviewSession, InterviewStatus, InterviewQuestion } from '@/types/interview';
 import { DEMO_DATA } from '@/data/interview/demo-data';
 import { questionsToInterviewMarkdown } from '@/utils/interviewMarkdown';
+import { mergePreloadedInterviewRecords } from '@/data/interview/preloaded-interviews';
 
 interface InterviewState {
   companies: Company[];
@@ -452,7 +453,8 @@ export const useInterviewStore = create<InterviewState>()(
           companies = DEMO_DATA;
           localStorage.setItem(INIT_KEY, 'true');
         }
-        const migratedCompanies = migratePreloadedInterviewMarkdown(companies);
+        const withImportedRecords = mergePreloadedInterviewRecords(companies);
+        const migratedCompanies = migratePreloadedInterviewMarkdown(withImportedRecords);
         if (migratedCompanies !== state.companies) {
           useInterviewStore.setState({ companies: migratedCompanies });
         }
