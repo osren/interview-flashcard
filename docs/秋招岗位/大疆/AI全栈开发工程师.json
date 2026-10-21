@@ -1,0 +1,60 @@
+{
+  "basic": {
+    "position": "AI全栈开发工程师",
+    "company": "大疆",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://apply.careers.dji.com/campus-recruitment/dji/143359?locale=zh-CN#/job/868688c0-254c-4b00-8473-c774f9abf826",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_fullstack",
+    "jd_responsibilities": [
+      "围绕研发与制造领域的数字化与智能化转型，进行全栈式 AI 应用开发，深度参与关键 IT 系统的设计、开发、部署与持续优化",
+      "负责前端、客户端、服务端等多领域业务开发工作，覆盖业务全链路，按业务需求统筹各端开发优先级，打破端侧壁垒，实现业务功能高效落地；沉淀 AI 编程最佳实践与工程方法论，提升团队通过 AI 高效交付可靠工程的整体能力",
+      "立足全栈发展趋势，明确 AI 编码工程师核心定位，短期聚焦多端 AI 辅助开发，长期向全栈方向深耕，参与业务全流程开发，推动业务从需求到上线的闭环落地",
+      "关注 AI 编码、全栈开发前沿技术与行业趋势，跟进业内最新工具与应用方案，结合业务场景提出创新思路，探索 AI 技术与全栈开发结合的最优路径，支撑业务长远发展"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机相关专业",
+      "具备扎实的计算机基础知识（数据结构、算法、计算机网络、操作系统等），了解前端（JS/TS/Vue/React 等）、客户端（iOS/Android/鸿蒙任一）、服务端（Golang/Python/Java 任一）任一领域的开发，有全栈开发经验者优先",
+      "对 AI 技术有强烈兴趣和好奇心，了解并能初步应用大语言模型（LLM）；熟练使用 Claude Code、Codex、Cursor 等任一 AI Coding 工具，维护过 Rules、MCP、Skills 并了解底层机制与技术细节的同学优先",
+      "认可 AI Coder 定位，明确自身长期全栈发展规划，具备较强的学习能力和适应能力，能快速上手新领域技术，适配业务驱动的开发模式；深度认同 AI 开发范式，坚信大语言模型会重塑软件开发，日常工作中能主动使用 AI 工具，真正用 AI 提升效率",
+      "热爱学习，勇于接受挑战，具备快速学习、主动探索和解决问题的强烈自驱力"
+    ],
+    "jd_summary": "大疆深圳 AI 全栈岗，面向研发/制造数字化进行全栈 AI 应用开发，覆盖前端/客户端/服务端全链路，沉淀 AI 编程最佳实践与 AI-Native 工程体系。要求 Cursor/Claude Code 及 Rules/MCP/Skills 维护经验优先，认可 AI Coder 定位。",
+    "requirements_summary": "本科及以上计算机相关专业，前端/客户端/服务端任一领域开发能力，全栈优先。必须熟悉 Cursor 等 AI Coding 工具；维护 Rules/MCP/Skills 并了解底层机制者优先，深度认同 AI 开发范式。",
+    "tech_stack": [
+      "JavaScript",
+      "TypeScript",
+      "Vue",
+      "React",
+      "Golang",
+      "Python",
+      "Java",
+      "LLM",
+      "Cursor",
+      "Claude Code",
+      "Codex",
+      "Rules",
+      "MCP",
+      "Skills",
+      "AI Coding"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_fullstack",
+    "batch_type": "official",
+    "confidence": 0.99,
+    "reason": "要求全栈 AI 应用开发及 Cursor/Rules/MCP/Skills 维护，沉淀 AI-Native 工程体系，与百度全栈岗及 OpenHarness 实践高度对齐，为当前最匹配 JD 之一"
+  }
+}

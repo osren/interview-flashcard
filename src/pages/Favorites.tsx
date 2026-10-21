@@ -1,23 +1,32 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, Sparkles, MessageSquare, Github } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, Sparkles, MessageSquare, Github, Rocket } from 'lucide-react';
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { TrendingCard } from '@/components/AI/TrendingCard';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { useCardStore } from '@/store';
 import { useInterviewStore } from '@/store/useInterviewStore';
-import { FlashCard, ModuleType } from '@/types';
+import { FlashCard, ModuleType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
 import { getFavorites, FavoriteItem } from '@/utils/favorites';
+import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
 import type { LucideIcon } from 'lucide-react';
+import { useInterviewSync } from '@/hooks/useInterviewSync';
 
 const moduleConfig: Record<ModuleType, { label: string; icon: LucideIcon; color: string }> = {
   core: { label: '核心考点', icon: BookOpen, color: 'bg-blue-500' },
+  mpx: { label: 'MPX 专项', icon: Rocket, color: 'bg-indigo-500' },
   projects: { label: '项目复盘', icon: Briefcase, color: 'bg-purple-500' },
   algorithms: { label: '刷题', icon: Code, color: 'bg-green-500' },
   custom: { label: '自定义', icon: Wand, color: 'bg-orange-500' },
   ai: { label: 'AI资讯', icon: Sparkles, color: 'bg-pink-500' },
   interview: { label: '面经', icon: MessageSquare, color: 'bg-cyan-500' },
 };
+
+const DEFAULT_MODULE_INFO = { label: '其他', icon: BookOpen, color: 'bg-gray-500' };
+
+function getModuleInfo(module: ModuleType) {
+  return moduleConfig[module] ?? DEFAULT_MODULE_INFO;
+}
 
 interface ChapterGroup {
   chapterId: string;
@@ -30,6 +39,7 @@ function cn(...classes: (string | boolean | undefined)[]) {
 }
 
 export function Favorites() {
+  const interviewSync = useInterviewSync();
   const { favorites } = useCardStore();
   const { favoriteQuestions, toggleFavorite: toggleInterviewFavorite } = useInterviewStore();
   const [selectedGroup, setSelectedGroup] = useState<ChapterGroup | null>(null);
@@ -99,6 +109,7 @@ export function Favorites() {
   const groupedByModule = useMemo(() => {
     const groups: Record<ModuleType, ChapterGroup[]> = {
       core: [],
+      mpx: [],
       projects: [],
       algorithms: [],
       custom: [],
@@ -117,7 +128,8 @@ export function Favorites() {
 
   const handleGroupClick = (group: ChapterGroup) => {
     setSelectedGroup(group);
-    setCurrentCardIndex(0);
+    const { cardStatuses } = useCardStore.getState();
+    setCurrentCardIndex(findFirstUnrememberedIndex(group.cards, cardStatuses));
   };
 
   const handleBack = () => {
@@ -132,7 +144,7 @@ export function Favorites() {
     }
   };
 
-  const handleStatusChange = (status: 'unvisited' | 'forgotten' | 'fuzzy' | 'mastered') => {
+  const handleStatusChange = (status: CardStatus) => {
     if (selectedGroup) {
       const card = selectedGroup.cards[currentCardIndex];
       const { updateCardStatus } = useCardStore.getState();
@@ -140,7 +152,7 @@ export function Favorites() {
 
       if (currentCardIndex < selectedGroup.cards.length - 1) {
         setTimeout(() => {
-          handleCardChange(currentCardIndex + 1);
+          setCurrentCardIndex((prev) => Math.min(prev + 1, selectedGroup.cards.length - 1));
         }, 300);
       }
     }
@@ -167,6 +179,10 @@ export function Favorites() {
   const modalModule = selectedGroup?.module || 'custom';
   const modalChapterId = selectedGroup?.chapterId || 'favorites';
 
+  if (interviewSync.status === 'loading' && interviewSync.isLoggedIn) {
+    return <div className="min-h-screen app-bg flex items-center justify-center text-sm text-gray-500">正在恢复云端收藏与面经…</div>;
+  }
+
   // 空状态判断 - 只有在加载完成后才能确定是否真的为空
   if (!isLoaded) {
     return (
@@ -191,7 +207,7 @@ export function Favorites() {
   // 显示面经卡片详情
   if (selectedInterviewIndex !== null) {
     const currentCard = interviewFavorites[selectedInterviewIndex];
-    const handleInterviewStatusChange = (_status: 'unvisited' | 'forgotten' | 'fuzzy' | 'mastered') => {
+    const handleInterviewStatusChange = (_status: CardStatus) => {
       if (selectedInterviewIndex < interviewFavorites.length - 1) {
         setTimeout(() => {
           setSelectedInterviewIndex((prev) => Math.min(interviewFavorites.length - 1, (prev ?? 0) + 1));
@@ -213,8 +229,8 @@ export function Favorites() {
     };
 
     return (
-      <div className="min-h-screen app-bg pb-20 md:pb-8">
-        <div className="sticky top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
+      <div className="min-h-screen app-bg flex flex-col pb-20 md:pb-8">
+        <div className="flex-shrink-0 bg-surface-elevated/95 border-b border-surface-border">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
@@ -241,15 +257,17 @@ export function Favorites() {
             </div>
           </div>
         </div>
-        <div className="flex justify-center px-4 pt-4">
+
+        <div className="flex-1 flex flex-col items-center px-4 pt-6 sm:pt-8 min-h-0">
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleInterviewStatusChange}
             currentIndex={selectedInterviewIndex}
             totalCards={interviewFavorites.length}
+            onJumpTo={setSelectedInterviewIndex}
+            chapterCards={interviewFavorites}
           />
-        </div>
-        <div className="flex items-center justify-center gap-8 mt-4">
+          <div className="flex items-center justify-center gap-8 mt-4">
           <button
             onClick={() => setSelectedInterviewIndex(Math.max(0, selectedInterviewIndex - 1))}
             disabled={selectedInterviewIndex === 0}
@@ -275,6 +293,7 @@ export function Favorites() {
             <ChevronRight size={24} />
           </button>
         </div>
+        </div>
       </div>
     );
   }
@@ -282,11 +301,11 @@ export function Favorites() {
   // 显示卡片详情
   if (selectedGroup) {
     const currentCard = selectedGroup.cards[currentCardIndex];
-    const moduleInfo = moduleConfig[selectedGroup.module];
+    const moduleInfo = getModuleInfo(selectedGroup.module);
 
     return (
-      <div className="min-h-screen app-bg pb-20 md:pb-8">
-        <div className="sticky top-14 md:top-20 z-10 bg-surface-elevated/80 backdrop-blur-xl border-b border-surface-border safe-area-top">
+      <div className="min-h-screen app-bg flex flex-col pb-20 md:pb-8">
+        <div className="flex-shrink-0 bg-surface-elevated/95 border-b border-surface-border">
           <div className="max-w-md mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <button
@@ -314,16 +333,17 @@ export function Favorites() {
           </div>
         </div>
 
-        <div className="w-full max-w-3xl mx-auto px-3 sm:px-4 pt-4">
+        <div className="flex-1 flex flex-col items-center px-4 pt-6 sm:pt-8 min-h-0">
           <FlashCardComponent
             card={currentCard}
             onStatusChange={handleStatusChange}
             currentIndex={currentCardIndex}
             totalCards={selectedGroup.cards.length}
+            onJumpTo={handleCardChange}
+            chapterCards={selectedGroup.cards}
           />
-        </div>
 
-        <div className="flex items-center justify-center gap-8 mt-4">
+          <div className="flex items-center justify-center gap-8 mt-4">
           <button
             onClick={() => handleCardChange(currentCardIndex - 1)}
             disabled={currentCardIndex === 0}
@@ -349,6 +369,7 @@ export function Favorites() {
             <ChevronRight size={24} />
           </button>
         </div>
+        </div>
       </div>
     );
   }
@@ -373,7 +394,10 @@ export function Favorites() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => setSelectedInterviewIndex(0)}
+                onClick={() => {
+                  const { cardStatuses } = useCardStore.getState();
+                  setSelectedInterviewIndex(findFirstUnrememberedIndex(interviewFavorites, cardStatuses));
+                }}
                 className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all text-left"
               >
                 <div className="flex items-center gap-2">
@@ -418,7 +442,7 @@ export function Favorites() {
         {/* 移动端：按章节分组 */}
         <div className="md:hidden space-y-4">
           {groupedFavorites.map((group) => {
-            const moduleInfo = moduleConfig[group.module];
+            const moduleInfo = getModuleInfo(group.module);
             const Icon = moduleInfo.icon;
 
             return (

@@ -1,0 +1,47 @@
+{
+  "basic": {
+    "position": "大前端开发工程师",
+    "company": "大疆",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://apply.careers.dji.com/campus-recruitment/dji/143359?locale=zh-CN#/job/9318543d-f926-40a6-8732-9ab0c50b5ff2",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "负责的业务方向包括但不限于：DJI Mimo、DJI Studio、DJI Fly、行业 Pilot、行业生态 SDK、大疆农服等",
+      "负责 DJI 软件在智能手机、Pad、PC 端或自研终端设备上的应用程序开发和技术实现",
+      "负责 DJI 纯软 Agent、软硬协同 Agent 的开发工作"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机相关专业",
+      "了解大前端主流框架中的一种或多种",
+      "有大前端工程化经历，了解前端开发测试发布上线整体流程",
+      "具备良好的团队沟通与协作能力，熟悉项目管理、敏捷开发流程，能够持续关注前端新的技术方向，具有良好的学习能力和进取心，较强的责任心"
+    ],
+    "jd_summary": "大疆北京校招大前端岗，负责 Mimo/Fly/Studio/Pilot 等跨端（手机/Pad/PC/自研终端）应用开发，并参与纯软 Agent 与软硬协同 Agent 开发。要求大前端框架及工程化（开发/测试/发布）经验。",
+    "requirements_summary": "本科及以上计算机相关专业，了解大前端主流框架之一及完整工程化流程（开发/测试/发布）。需良好协作与敏捷开发意识；JD 未细化 Agent/RAG 技术栈，但职责明确含 Agent 开发。",
+    "tech_stack": [
+      "大前端",
+      "Agent",
+      "跨端开发",
+      "工程化"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.88,
+    "reason": "大前端跨端开发（手机/Pad/PC）匹配前端方向，职责含纯软 Agent/软硬协同 Agent 开发；JD 未明确 RAG/MCP 细节，偏产品型大前端+Agent，与 OpenHarness 经历部分匹配"
+  }
+}

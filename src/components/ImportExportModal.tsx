@@ -130,7 +130,7 @@ export function ImportExportModal({
       {/* 切换按钮 - 固定在左侧中间 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed left-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white shadow-lg border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors"
+        className="fixed left-4 lg:left-[calc(var(--if-sidebar-width)+1rem)] top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white shadow-lg border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-[left,background-color] duration-200"
         title="导入/导出"
       >
         <FileText size={20} className="text-gray-600" />
@@ -155,7 +155,7 @@ export function ImportExportModal({
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-xl z-50 flex flex-col"
+              className="fixed left-0 lg:left-[var(--if-sidebar-width)] top-0 bottom-0 w-80 bg-white shadow-xl z-50 flex flex-col transition-[left] duration-200"
             >
               {/* 头部 */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">

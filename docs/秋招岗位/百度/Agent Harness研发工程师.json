@@ -1,0 +1,57 @@
+{
+  "basic": {
+    "position": "Agent Harness研发工程师",
+    "company": "百度",
+    "location": "上海"
+  },
+  "details": {
+    "job_url": "https://talent.baidu.com/jobs/detail/GRADUATE/74d83772-1bd0-42b9-8cc5-69eb45696b62?recommendCode=IZS1JH&s=2",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "作为 Agent Harness 核心构建者，参与设计与开发 Agent Harness 产品技术架构，打造支撑 LLM 能力在真实业务场景稳定释放的核心交互范式与系统底座",
+      "搭建 Agent 可读、可控、可验证的系统支撑体系，涵盖状态管理、沙箱环境设计、反馈闭环、执行约束、上下文交接与关键信息 compaction 优化，保障 Agent 长时间高复杂度执行的稳定性与可控性",
+      "深度参与 LLM 与 Harness 的联合优化，从 Harness 视角实现模型能力的最大化适配，分析并验证不同 Harness 设计对模型行为的真实影响",
+      "设计并实现 Agent 与人类的协作机制与反馈闭环，沉淀用户反馈并驱动产品持续迭代，在数亿用户规模的真实产品中，通过「人-模-体」协同进化探索智能上限"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、人工智能、软件工程等相关专业，技术功底扎实，学习能力突出，可在 AI 辅助下完成跨领域高质量任务交付",
+      "深入理解 AI Agent 底层机制和 ReAct、CoT、Plan-and-Execute 等主流 Agent 原理，熟练使用 PyTorch、LangChain、AutoGen 等框架，具备 Agent 系统从算法设计到工程落地的完整能力",
+      "Agent 重度用户与实践者，熟悉主流 Agent 框架的优劣差异，能清晰分析其在复杂文件读写、环境反馈、长任务执行等场景下的不足，并提出改良方案",
+      "良好的沟通协作能力和技术品味，能与模型研究员、产品经理紧密配合，共同推进 Harness 领域的前沿创新与产品落地，具备快速将学术成果落地为商业化产品的实战能力",
+      "加分项：有 AI Agent 相关开源项目贡献或 Harness 工程落地经验，智能体产品早期搭建经历，知名开源项目核心贡献、顶级会议论文发表或高水平技术竞赛获奖经历者优先"
+    ],
+    "jd_summary": "百度上海校招 Agent Harness 专岗，负责 Harness 产品架构及可读/可控/可验证体系（状态管理、沙箱、反馈闭环、执行约束、上下文 compaction），参与 LLM-Harness 联合优化与人机协作闭环。要求 ReAct/CoT/Plan-and-Execute 及 LangChain/AutoGen，Harness 工程落地经验为加分项。",
+    "requirements_summary": "本科及以上计算机/AI/软件相关专业。需深入理解 Agent 机制（ReAct/CoT/Plan-and-Execute）及 LangChain/AutoGen 等框架，Agent 重度实践者；加分项含 Harness 工程落地经验与 Agent 开源贡献。",
+    "tech_stack": [
+      "Agent Harness",
+      "ReAct",
+      "CoT",
+      "Plan-and-Execute",
+      "LangChain",
+      "AutoGen",
+      "PyTorch",
+      "状态管理",
+      "沙箱",
+      "反馈闭环",
+      "上下文 compaction",
+      "LLM"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、人工智能、软件工程等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.99,
+    "reason": "专精 Agent Harness 架构（可读/可控/可验证、执行约束、反馈闭环、compaction），加分项明确 Harness 工程落地经验，与 OpenHarness 实践高度吻合，为当前最匹配 JD 之一"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "basic": {
+    "position": "AI全栈开发工程师（游戏宣发官网方向）",
+    "company": "网易雷火",
+    "location": "杭州"
+  },
+  "details": {
+    "job_url": "https://campus.163.com/app/detail/index?id=4781&projectId=77&channel=DUbMIjn",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_fullstack",
+    "jd_responsibilities": [
+      "负责游戏宣发官网、活动专题页、小程序等前台展示类业务的开发与迭代，参与从需求理解、技术设计到上线发布的完整交付流程",
+      "基于 Vue3 + Vite + Uniapp 技术栈，完成复杂页面开发、交互实现、组件封装及跨端适配（H5 / PC / 小程序），保障视觉还原与交互体验质量",
+      "参与前后端一体化开发实践，基于 Go 构建轻量级 BFF 或接口服务，完成基础数据处理、接口设计与前后端联调，实现基础业务闭环能力",
+      "深度参与 AI 驱动研发流程，基于 OpenSpec + SDD 开发范式，使用 Claude Code / Codex / Cursor 等 AI 工具参与需求拆解、代码生成、联调测试与问题定位，提升研发效率与交付质量",
+      "参与 AI 工程体系与研发提效实践，包括 Prompt / Spec 结构化设计、Skill 能力复用、自动化开发工作流（Workflow / Agent）建设与优化",
+      "参与游戏官网工程体系建设，包括组件体系沉淀、构建发布优化、性能优化及研发流程改进，提升整体工程质量与开发效率",
+      "关注 AI 技术与前端工程前沿发展，探索 AI 在游戏官网研发与内容生产中的创新应用与落地方式"
+    ],
+    "jd_requirements": [
+      "计算机相关专业本科及以上学历，具备扎实的计算机基础（数据结构、网络、操作系统等）",
+      "熟悉 HTML、CSS、JavaScript / TypeScript，熟练使用 Vue3 或 React 等主流前端框架，理解组件化与工程化开发模式",
+      "熟悉 Vite / Webpack / Git 等前端工程化工具链，具备基础项目开发与调试能力",
+      "具备一定前端性能优化与复杂页面开发经验，能够完成中等复杂度交互系统实现",
+      "具备基础 Go 后端开发能力，了解 HTTP 协议与前后端通信机制，能够实现简单 API 服务或 BFF 接口并完成联调",
+      "具备较强的系统理解能力，能够将业务需求拆解为前后端可执行模块，并完成基础业务闭环",
+      "对 AI 技术有较强兴趣，熟悉或愿意深入使用 AI 编程工具（Claude Code / Codex / Cursor 等），并能够在实际开发中使用 AI 提升效率",
+      "了解或关注 OpenSpec / SDD 等结构化开发范式，具备一定需求拆解与工程化思维能力",
+      "具备良好的学习能力、沟通能力与责任意识，能够适应高频迭代的业务节奏并推进任务落地",
+      "具备英文技术文档阅读能力，能够独立检索并解决开发问题"
+    ],
+    "jd_summary": "负责游戏宣发官网/活动页/小程序的 Vue3+Vite+Uniapp 跨端开发与 Go BFF 全栈交付。深度实践 OpenSpec+SDD 与 Cursor 等 AI 驱动研发，建设 Prompt/Spec/Skill/Workflow/Agent 自动化工作流，并推进组件体系与性能工程化。2027 届雷火秋招，杭州，远程面试。",
+    "requirements_summary": "本科及以上计算机相关专业，熟悉 Vue3/React、TS、Vite/Webpack 及前端工程化。需具备 Go BFF/简单 API 能力与前后端联调经验；要求使用 Cursor 等 AI 编程工具，了解 OpenSpec/SDD 结构化开发范式及 Workflow/Agent 提效实践。",
+    "tech_stack": [
+      "Vue3",
+      "React",
+      "TypeScript",
+      "Vite",
+      "Uniapp",
+      "Go",
+      "Webpack",
+      "Git",
+      "OpenSpec",
+      "SDD",
+      "Cursor",
+      "Claude Code",
+      "Codex",
+      "Prompt",
+      "Skill",
+      "Workflow",
+      "Agent",
+      "H5",
+      "小程序"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_fullstack",
+    "batch_type": "official",
+    "confidence": 0.99,
+    "reason": "岗位明确要求 Vue3/React 全栈 + Go BFF、OpenSpec/SDD、Cursor/Claude Code、Skill/Workflow/Agent 研发提效，与 AI 全栈/Agent 应用及 OpenHarness 实践高度吻合，为当前最匹配 JD 之一"
+  }
+}

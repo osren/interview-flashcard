@@ -7,7 +7,8 @@ import { useCardStore } from '@/store';
 import { Badge } from '@/components/ui';
 import { ChevronLeft, ChevronRight, ArrowLeft, Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import { CardStatus, FlashCard, ModuleType } from '@/types';
-import MDEditor from '@uiw/react-md-editor';
+import { findFirstUnrememberedIndex } from '@/utils/cardStatus';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 
 interface EditingCard {
   id?: string;
@@ -47,16 +48,8 @@ const moduleOptions: { module: ModuleType; label: string; chapters: { id: string
     label: '项目复盘',
     chapters: [
       { id: 'didi', label: '滴滴企业版' },
+      { id: 'ai-monitor', label: 'AI 监控降噪工具' },
       { id: 'gresume', label: 'GResume 智能简历' },
-    ],
-  },
-  {
-    module: 'algorithms',
-    label: '刷题模块',
-    chapters: [
-      { id: 'coding', label: '手撕代码' },
-      { id: 'concept', label: '概念解释' },
-      { id: 'scenario', label: '场景设计' },
     ],
   },
 ];
@@ -64,6 +57,7 @@ const moduleOptions: { module: ModuleType; label: string; chapters: { id: string
 export function CustomCardsPage() {
   const navigate = useNavigate();
   const { customCards, addCustomCard, updateCustomCard, deleteCustomCard } = useCardStore();
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingCard, setEditingCard] = useState<EditingCard>(defaultCard);
@@ -72,16 +66,15 @@ export function CustomCardsPage() {
 
   // 练习模式状态
   const [cards, setCards] = useState<FlashCard[]>([]);
-  const [cardStates, setCardStates] = useState<Record<string, CardStatus>>({});
 
   useEffect(() => {
     // 合并自定义卡片
     const mergedCards = customCards.map((card) => ({
       ...card,
-      status: cardStates[card.id] || card.status,
+      status: cardStatuses[card.id] || card.status,
     }));
     setCards(mergedCards);
-  }, [customCards, cardStates]);
+  }, [customCards, cardStatuses]);
 
   const handleSave = () => {
     if (!editingCard.question.trim() || !editingCard.answer.trim()) {
@@ -134,7 +127,6 @@ export function CustomCardsPage() {
   const handleStatusChange = (status: CardStatus) => {
     const currentCard = cards[currentIndex];
     if (currentCard) {
-      setCardStates((prev) => ({ ...prev, [currentCard.id]: status }));
       useCardStore.getState().updateCardStatus(currentCard.id, status);
       if (currentIndex < cards.length - 1) {
         setTimeout(() => setCurrentIndex((prev) => prev + 1), 300);
@@ -209,6 +201,8 @@ export function CustomCardsPage() {
               onStatusChange={handleStatusChange}
               currentIndex={currentIndex}
               totalCards={cards.length}
+              onJumpTo={setCurrentIndex}
+              chapterCards={cards}
               showEdit={true}
             />
           </motion.div>
@@ -236,6 +230,8 @@ export function CustomCardsPage() {
               onStatusChange={handleStatusChange}
               currentIndex={currentIndex}
               totalCards={cards.length}
+              onJumpTo={setCurrentIndex}
+              chapterCards={cards}
               showEdit={true}
             />
           </motion.div>
@@ -317,7 +313,10 @@ export function CustomCardsPage() {
         {/* 开始练习按钮 */}
         {!isEditing && customCards.length > 0 && (
           <button
-            onClick={() => setPracticeMode(true)}
+            onClick={() => {
+              setCurrentIndex(findFirstUnrememberedIndex(cards, cardStatuses));
+              setPracticeMode(true);
+            }}
             className="w-full mt-4 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-md"
           >
             <span className="text-lg font-medium">开始练习</span>
@@ -376,12 +375,11 @@ export function CustomCardsPage() {
                 答案（支持 Markdown 和代码块）
               </label>
               <div data-color-mode="light">
-                <MDEditor
+                <LazyMDEditor
                   value={editingCard.answer}
                   onChange={(value) => setEditingCard({ ...editingCard, answer: value || '' })}
                   height={300}
                   preview="edit"
-                  enableScroll={true}
                 />
               </div>
             </div>
@@ -489,7 +487,7 @@ export function CustomCardsPage() {
                   </div>
                   <p className="text-gray-800 font-medium line-clamp-2">{card.question}</p>
                   <div className="mt-2 text-gray-500 text-sm line-clamp-3 prose prose-sm max-w-none" data-color-mode="light">
-                    <MDEditor.Markdown source={card.answer.slice(0, 200) + (card.answer.length > 200 ? '...' : '')} />
+                    <LazyMDMarkdown source={card.answer.slice(0, 200) + (card.answer.length > 200 ? '...' : '')} />
                   </div>
                 </div>
                 <div className="flex items-center gap-1">

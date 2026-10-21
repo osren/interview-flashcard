@@ -1,0 +1,56 @@
+{
+  "basic": {
+    "position": "系统开发工程师",
+    "company": "蔚来",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://nio.jobs.feishu.cn/referral/campus/position/7661853628286732586/detail?token=NTsxNzgyMjEyNzU3NDQ4OzczNDgyMjE4NjAzNTk3OTg3ODc7NzU0MzI4MzkwMTk2MTYzNjE0NzsxLzE",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "early",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "负责端上智能辅助驾驶基础软件的方案设计、开发、集成及测试",
+      "负责智能辅助驾驶平台相关通信链路、数据闭环及基础组件的方案设计、抽象、开发和维护工作"
+    ],
+    "jd_requirements": [
+      "C++11 及以上开发经验，熟悉常用 STL 并了解其实现原理，擅长 OOP 设计",
+      "熟悉多线程编程，熟悉常用算法及数据结构，了解常见设计模式",
+      "熟悉基于 Linux 应用开发方法，了解 Linux 系统工作原理",
+      "良好的团队精神、敬业精神和沟通协调能力，能主动钻研与工作相关的知识和技术",
+      "加分：具有 AI 辅助编程、OpenClaw 等智能工具使用经验",
+      "加分：具有智能辅助驾驶、无人机、机器人、人工智能等相关领域项目经验",
+      "加分：熟悉嵌入式系统，具备软硬件相关知识",
+      "加分：熟悉 Python 编程及常用工具使用",
+      "加分：熟悉 CMake/Bazel、Git、Docker"
+    ],
+    "jd_summary": "负责蔚来端侧智能辅助驾驶基础软件及 AD 平台通信链路、数据闭环与基础组件的 C++/Linux 开发与集成。要求 C++11/STL/多线程/Linux 系统开发，硕士及以上。2027 届技术提前批，北京。",
+    "requirements_summary": "硕士及以上，要求 C++11/STL/OOP、多线程、Linux 应用开发及算法数据结构基础。加分项含智驾/机器人/嵌入式经验及 AI 辅助编程工具使用，核心为车载 AD 基础软件而非 Web/Agent 工程。",
+    "tech_stack": [
+      "C++11",
+      "STL",
+      "Linux",
+      "多线程",
+      "Python",
+      "CMake",
+      "Bazel",
+      "Docker",
+      "Git"
+    ],
+    "education": "硕士及以上",
+    "major": ""
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "early",
+    "confidence": 0.94,
+    "reason": "主职责为智能辅助驾驶端侧基础软件（C++/Linux/通信链路/数据闭环），属车载嵌入式/系统软件方向；加分项含 AI 辅助编程但非 Agent/RAG 应用开发，与前端/AI 应用目标不匹配"
+  }
+}

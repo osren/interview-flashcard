@@ -1,0 +1,61 @@
+{
+  "basic": {
+    "position": "Agent开发工程师",
+    "company": "shopee",
+    "location": "深圳"
+  },
+  "details": {
+    "job_url": "https://app.mokahr.com/campus-recruitment/shopee/2962?recommendCode=DS4ZWqcU#/job/0a78a233-598a-408c-81c1-77481f270ef3",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "参与电商和金融场景下 AI Agent 产品与平台研发",
+      "基于大语言模型（LLM）构建具备规划、推理、工具调用及任务执行能力的智能体系统",
+      "负责 Agent 工作流、记忆管理、知识库、工具系统等核心能力研发",
+      "探索多 Agent 协同、RAG、Agentic 应用等前沿技术在电商场景中的落地",
+      "参与 AI 应用平台建设，提升 Agent 的稳定性、可扩展性及运行效率",
+      "持续关注 Agent、LLM、AIGC 等前沿技术发展，参与创新能力落地"
+    ],
+    "jd_requirements": [
+      "2027 届本科及以上学历，计算机科学、人工智能、软件工程、机器学习等相关专业",
+      "扎实掌握数据结构、算法、操作系统、计算机网络及数据库等计算机基础知识",
+      "熟悉 Python、Java、Go 等至少一种编程语言",
+      "具备良好的软件工程能力，能够独立完成系统设计与功能开发",
+      "了解机器学习、深度学习及大语言模型（LLM）基本原理",
+      "熟悉 Prompt Engineering、Embedding、向量检索等相关技术者优先",
+      "具备良好的学习能力、逻辑分析能力及问题解决能力",
+      "对 AI Agent、生成式 AI 及未来智能应用方向保持浓厚兴趣"
+    ],
+    "jd_summary": "参与 Shopee 电商/金融场景 AI Agent 产品与平台研发，基于 LLM 构建规划/推理/工具调用智能体，负责工作流、记忆、知识库、工具系统等核心能力及多 Agent 协同/RAG 落地。2027 届秋招，深圳。",
+    "requirements_summary": "2027 届本科及以上，计算机/AI/软件/机器学习相关专业。需 Python/Java/Go 之一及软件工程能力，了解 LLM 基本原理；Prompt Engineering、Embedding、向量检索经验优先。",
+    "tech_stack": [
+      "Python",
+      "Java",
+      "Go",
+      "LLM",
+      "Agent",
+      "RAG",
+      "Prompt Engineering",
+      "Embedding",
+      "向量检索",
+      "多Agent协同",
+      "AIGC"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机科学、人工智能、软件工程、机器学习等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.94,
+    "reason": "专精 AI Agent 产品与平台研发，涵盖工作流/记忆/知识库/工具调用/多 Agent/RAG 等核心能力，属于 Agent 应用开发；要求了解 LLM 原理但非模型训练，与目标高度匹配"
+  }
+}

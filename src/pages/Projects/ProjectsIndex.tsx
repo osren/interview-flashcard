@@ -10,15 +10,35 @@ import { useState } from 'react';
 import { Button } from '@/components/ui';
 
 const moduleInfo = {
+  interviewflash: {
+    icon: '⚡',
+    title: 'InterviewFlash 秋招面试一体化备战平台',
+    topics: ['性能拆包', '秋招投递闭环', '云同步'],
+  },
   didi: {
     icon: '🚗',
     title: '滴滴企业版 - 商旅体验',
     topics: ['遗留系统重构', 'AI工程化转型', '弱网性能优化'],
   },
+  'didi-performance': {
+    icon: '⚡',
+    title: '商旅 H5 / 小程序性能监控与体验优化',
+    topics: ['双端性能监控', '列表首屏优化', '小程序菜单卡顿'],
+  },
+  'ai-monitor': {
+    icon: '📡',
+    title: 'AI 监控降噪工具',
+    topics: ['LLM 告警判定', '可插拔 Domain', '评测闭环'],
+  },
   gresume: {
     icon: '📝',
     title: 'GResume 智能简历平台',
     topics: ['CRDT文档冲突', 'IndexedDB离线', 'DeepSeek ATS评分'],
+  },
+  'comprehensive-interview': {
+    icon: '🗣️',
+    title: '综合面试题与参考回答',
+    topics: ['前端基础', 'AI 项目深挖', '现场情景题'],
   },
 };
 
@@ -115,7 +135,7 @@ export function ProjectsIndex() {
       <SectionHeader
         icon={<Briefcase size={24} className="text-white" strokeWidth={2.5} />}
         title="项目针对性复盘"
-        description="针对滴滴实习和 GResume 项目进行深度复盘"
+        description="针对滴滴商旅、性能监控、AI 告警降噪和 GResume 项目进行深度复盘"
       />
 
       <div className="grid gap-5">
@@ -224,7 +244,7 @@ export function ProjectsIndex() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowAddModal(true)}
-          className="fixed bottom-8 left-8 w-14 h-14 bg-primary-500 text-white rounded-full shadow-glow flex items-center justify-center hover:bg-primary-600 transition-colors z-40"
+          className="fixed bottom-8 left-8 lg:left-[calc(var(--if-sidebar-width)+2rem)] w-14 h-14 bg-primary-500 text-white rounded-full shadow-glow flex items-center justify-center hover:bg-primary-600 transition-[left,background-color] duration-200 z-30"
         >
           <Plus size={24} />
         </motion.button>

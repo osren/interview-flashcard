@@ -81,7 +81,7 @@ export function parseFlashCardFile(
 }
 
 /**
- * Load all MPX cards from docs/Transfer
+ * Load all MPX cards from docs/Mpx
  */
 export function loadMpxCards(): { mpxCards: FlashCard[]; mpxChapters: Chapter[] } {
   // This will be populated by the actual import

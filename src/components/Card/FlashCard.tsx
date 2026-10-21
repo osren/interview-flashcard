@@ -2,10 +2,15 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FlashCard as FlashCardType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
-import { Edit, Save, X, Heart, HelpCircle } from 'lucide-react';
-import MDEditor from '@uiw/react-md-editor';
+import { Edit, Save, X, Heart, HelpCircle, Sparkles, MessageCircleQuestion } from 'lucide-react';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { useCardStore } from '@/store';
 import { cn } from '@/utils/cn';
+import { resolveCardStatus } from '@/utils/cardStatus';
+import { useAuth, LoginModal } from '@/components/Auth';
+import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
+import { AnswerImageViewer } from '@/components/Card/AnswerImageViewer';
+import { CardIndexPicker } from '@/components/Card/CardIndexPicker';
 import { CardScrollArea } from './CardScrollArea';
 
 interface FlashCardProps {
@@ -13,28 +18,36 @@ interface FlashCardProps {
   onStatusChange: (status: CardStatus) => void;
   currentIndex?: number;
   totalCards?: number;
+  onJumpTo?: (index: number) => void;
+  chapterCards?: Array<{ id: string; status?: CardStatus }>;
   showEdit?: boolean;
 }
 
 const statusConfig: Record<CardStatus, { label: string; variant: 'default' | 'primary' | 'success' | 'warning' | 'danger' }> = {
   unvisited: { label: '未开始', variant: 'default' },
-  forgotten: { label: '忘记', variant: 'danger' },
-  fuzzy: { label: '模糊', variant: 'warning' },
-  mastered: { label: '掌握', variant: 'success' },
+  review: { label: '再背背', variant: 'warning' },
+  remembered: { label: '记住了', variant: 'success' },
 };
 
-export function FlashCard({ card, onStatusChange, currentIndex, totalCards, showEdit = false }: FlashCardProps) {
+export function FlashCard({ card, onStatusChange, currentIndex, totalCards, onJumpTo, chapterCards, showEdit = false }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(card.answer);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMode, setAiMode] = useState<CardAIMode>('explain');
+  const { user } = useAuth();
 
   const { getCardWithModifications, updateCardAnswer, resetCardAnswer, modifiedCards, toggleFavorite, isFavorited } = useCardStore();
+  const cardStatuses = useCardStore((state) => state.cardStatuses);
   const displayCard = getCardWithModifications(card);
+  const currentStatus = resolveCardStatus(card.id, cardStatuses, displayCard.status);
   const hasModification = !!modifiedCards[card.id];
 
   useEffect(() => {
     setIsFlipped(false);
     setIsEditing(false);
+    setAiOpen(false);
     if (!isEditing) {
       setEditedAnswer(displayCard.answer);
     }
@@ -65,12 +78,52 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
     setEditedAnswer(card.answer);
   };
 
+  const handleOpenAI = (mode: CardAIMode) => {
+    if (!user) {
+      setLoginOpen(true);
+      return;
+    }
+    setAiMode(mode);
+    setAiOpen(true);
+  };
+
   const formattedAnswer = displayCard.answer.replace(/•/g, '-');
 
   return (
     <div className="w-full max-w-4xl mx-auto min-w-0">
+      {/* 状态按钮 */}
+      <div className="flex justify-center gap-3 mb-4">
+        {([
+          { status: 'remembered' as CardStatus, emoji: '✅', label: '记住了', cls: 'bg-[#58CC02] text-white border-b-[#46A302]' },
+          { status: 'review' as CardStatus, emoji: '📖', label: '再背背', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
+        ]).map((btn) => (
+          <button
+            key={btn.status}
+            onClick={() => onStatusChange(btn.status)}
+            className={cn(
+              'px-6 py-3 rounded-xl transition-all text-sm font-extrabold uppercase tracking-wide flex items-center gap-2 border-b-4',
+              'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
+              btn.cls,
+              currentStatus === btn.status && 'ring-2 ring-offset-2 ring-[#3c3c3c]'
+            )}
+          >
+            <span>{btn.emoji}</span>
+            <span>{btn.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {onJumpTo && currentIndex !== undefined && totalCards !== undefined && (
+        <CardIndexPicker
+          currentIndex={currentIndex}
+          totalCards={totalCards}
+          onJumpTo={onJumpTo}
+          cards={chapterCards}
+        />
+      )}
+
       <div
-        className="relative cursor-pointer w-full h-[clamp(280px,calc(100dvh-16rem),640px)] md:h-[clamp(420px,calc(100dvh-11rem),640px)]"
+        className="relative cursor-pointer w-full h-[clamp(280px,calc(100dvh-16rem),640px)] md:h-[clamp(420px,calc(100dvh-11rem),640px)] lg:h-[clamp(480px,calc(100dvh-10rem),720px)]"
         style={{ perspective: '1000px' }}
         onClick={handleFlip}
       >
@@ -78,7 +131,7 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
           className="absolute inset-0 w-full h-full"
           initial={false}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           style={{ transformStyle: 'preserve-3d' }}
         >
           {/* 正面 - 问题 */}
@@ -90,9 +143,6 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5]">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
-                {currentIndex !== undefined && totalCards !== undefined && (
-                  <Badge variant="outline">{currentIndex + 1} / {totalCards}</Badge>
-                )}
                 {hasModification && <Badge variant="warning" className="text-xs">已修改</Badge>}
               </div>
               <div className="flex items-center gap-2">
@@ -105,32 +155,31 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                     className={isFavorited(card.id) ? 'text-red-500 fill-red-500' : 'text-ink-muted'}
                   />
                 </button>
-                <Badge variant={statusConfig[displayCard.status].variant}>
-                  {statusConfig[displayCard.status].label}
+                <Badge variant={statusConfig[currentStatus].variant}>
+                  {statusConfig[currentStatus].label}
                 </Badge>
               </div>
             </div>
 
             <div className="flex-1 min-h-0 flex flex-col">
               <CardScrollArea center className="px-4 py-4 sm:px-8 sm:py-6">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center mb-4 sm:mb-6 flex-shrink-0">
-                  <HelpCircle size={32} className="text-white sm:hidden" strokeWidth={2.5} />
-                  <HelpCircle size={40} className="text-white hidden sm:block" strokeWidth={2.5} />
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center mb-4 sm:mb-6 flex-shrink-0">
+                <HelpCircle size={40} className="text-white" strokeWidth={2.5} />
+              </div>
+              <h2 className="text-lg sm:text-2xl font-extrabold text-[#3c3c3c] text-center whitespace-pre-wrap leading-relaxed break-words px-1 sm:px-2">
+                {displayCard.question}
+              </h2>
+              {displayCard.difficulty && (
+                <div className="flex justify-center gap-2 mt-4 flex-shrink-0">
+                  {displayCard.difficulty === 'easy' && <Badge variant="success">简单</Badge>}
+                  {displayCard.difficulty === 'medium' && <Badge variant="warning">中等</Badge>}
+                  {displayCard.difficulty === 'hard' && <Badge variant="danger">困难</Badge>}
                 </div>
-                <h2 className="text-lg sm:text-2xl font-extrabold text-[#3c3c3c] text-center whitespace-pre-wrap leading-relaxed break-words px-1 sm:px-2">
-                  {displayCard.question}
-                </h2>
-                {displayCard.difficulty && (
-                  <div className="flex justify-center gap-2 mt-4 flex-shrink-0">
-                    {displayCard.difficulty === 'easy' && <Badge variant="success">简单</Badge>}
-                    {displayCard.difficulty === 'medium' && <Badge variant="warning">中等</Badge>}
-                    {displayCard.difficulty === 'hard' && <Badge variant="danger">困难</Badge>}
-                  </div>
-                )}
+              )}
               </CardScrollArea>
             </div>
 
-            <div className="px-4 py-2 sm:px-5 bg-[#f7f7f7] text-center text-xs sm:text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5] flex-shrink-0">
+            <div className="px-4 py-2 sm:px-5 bg-[#f7f7f7] text-center text-xs sm:text-sm font-bold text-[#777777] border-t-2 border-[#e5e5e5]">
               点击卡片查看答案 · 可拖动查看完整内容
             </div>
           </div>
@@ -144,9 +193,12 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
             <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b-2 border-[#e5e5e5] bg-[#f0f9ff]">
               <div className="flex items-center gap-2">
                 <Badge variant="primary">{displayCard.category || displayCard.module}</Badge>
-                <Badge variant={statusConfig[displayCard.status].variant}>
-                  {statusConfig[displayCard.status].label}
+                <Badge variant={statusConfig[currentStatus].variant}>
+                  {statusConfig[currentStatus].label}
                 </Badge>
+                {displayCard.answerImage && !isEditing && (
+                  <span className="text-xs font-bold text-[#1CB0F6]">图解 · 点击放大</span>
+                )}
               </div>
               {showEdit && (
                 <div className="flex items-center gap-2" data-stop-propagation>
@@ -173,9 +225,9 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
               )}
             </div>
 
-            <CardScrollArea className="px-4 py-2.5 sm:px-5 sm:py-3" data-color-mode="light">
+            <CardScrollArea className="px-4 py-3 sm:px-5" data-color-mode="light">
               {isEditing ? (
-                <MDEditor
+                <LazyMDEditor
                   value={editedAnswer}
                   onChange={(val) => setEditedAnswer(val || '')}
                   height="100%"
@@ -183,11 +235,20 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                   style={{ height: '100%', backgroundColor: 'var(--bg-muted)' }}
                 />
               ) : (
-                <div className="card-markdown-content min-w-0">
-                  <MDEditor.Markdown
-                    source={formattedAnswer}
-                    style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
-                  />
+                <>
+                  {displayCard.answerImage && (
+                    <AnswerImageViewer
+                      src={displayCard.answerImage}
+                      alt={displayCard.question}
+                      className="mb-4"
+                    />
+                  )}
+                  {formattedAnswer.trim() && (
+                    <LazyMDMarkdown
+                      source={formattedAnswer}
+                      style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
+                    />
+                  )}
                   {displayCard.codeExample && (
                     <div className="mt-6">
                       <div className="text-sm font-medium text-ink-secondary mb-2 font-mono">代码示例</div>
@@ -196,38 +257,45 @@ export function FlashCard({ card, onStatusChange, currentIndex, totalCards, show
                       </pre>
                     </div>
                   )}
-                </div>
+                  {displayCard.extendQuestion && (
+                    <div className="mt-5 rounded-xl border-2 border-[#FFC800] bg-[#fff8dc] px-4 py-3">
+                      <div className="text-xs font-extrabold text-[#7a5c00] mb-1">延伸追问</div>
+                      <p className="text-sm font-semibold text-[#3c3c3c]">{displayCard.extendQuestion}</p>
+                    </div>
+                  )}
+                </>
               )}
             </CardScrollArea>
 
-            <div className="px-4 py-2 sm:px-5 bg-primary-50/80 dark:bg-primary-900/20 text-center text-xs sm:text-sm text-ink-muted border-t border-surface-border flex-shrink-0">
-              再次点击返回问题 · 可拖动查看完整内容
+            <div className="px-4 py-2 sm:px-5 border-t-2 border-[#e5e5e5] bg-[#f7f7f7] flex items-center justify-center gap-2" data-stop-propagation>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleOpenAI('explain'); }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#1CB0F6] bg-white border-2 border-[#e5e5e5] border-b-[#d0d0d0] hover:bg-[#f0f9ff]"
+              >
+                <Sparkles size={14} />
+                AI 解释
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleOpenAI('followup'); }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#58CC02] bg-white border-2 border-[#e5e5e5] border-b-[#d0d0d0] hover:bg-[#f0fff0]"
+              >
+                <MessageCircleQuestion size={14} />
+                AI 追问
+              </button>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* 状态按钮 */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4 sm:mt-6 px-2">
-        {([
-          { status: 'forgotten' as CardStatus, emoji: '😵', label: '忘记', cls: 'bg-[#FF4B4B] text-white border-b-[#EA2B2B]' },
-          { status: 'fuzzy' as CardStatus, emoji: '🤔', label: '模糊', cls: 'bg-[#FFC800] text-[#3c3c3c] border-b-[#E5B800]' },
-          { status: 'mastered' as CardStatus, emoji: '✅', label: '掌握', cls: 'bg-[#58CC02] text-white border-b-[#46A302]' },
-        ]).map((btn) => (
-          <button
-            key={btn.status}
-            onClick={() => onStatusChange(btn.status)}
-            className={cn(
-              'px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl transition-all text-xs sm:text-sm font-extrabold uppercase tracking-wide flex items-center gap-1.5 sm:gap-2 border-b-4',
-              'hover:brightness-105 active:border-b-2 active:translate-y-[2px]',
-              btn.cls
-            )}
-          >
-            <span>{btn.emoji}</span>
-            <span>{btn.label}</span>
-          </button>
-        ))}
-      </div>
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <CardAIPanel
+        open={aiOpen}
+        card={displayCard}
+        mode={aiMode}
+        onClose={() => setAiOpen(false)}
+      />
     </div>
   );
 }

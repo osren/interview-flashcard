@@ -1,0 +1,61 @@
+{
+  "basic": {
+    "position": "Agent开发工程师",
+    "company": "腾讯",
+    "location": ""
+  },
+  "details": {
+    "job_url": "https://join.qq.com/post_detail.html?postid=1282707395466077184",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "负责智能 Agent 系统的架构设计与开发，包括多 Agent 协作框架、任务规划与调度、工具调用与执行引擎等核心模块建设",
+      "设计并实现 Agent 的记忆系统、推理链路和决策机制，提升 Agent 在复杂业务场景下的自主性与可靠性",
+      "搭建 Agent 应用的评测与质量保障体系，建立系统性的效果评估、持续优化与性能、成本管控机制",
+      "跟踪 Agent 技术前沿发展，结合业务需求进行技术预研与落地实践"
+    ],
+    "jd_requirements": [
+      "熟练掌握至少一门主流编程语言（Python/TypeScript/Go 等），具备扎实的数据结构与算法基础，代码质量意识强",
+      "深入理解 Agent 原理与架构，包括 Planning、Memory、Tool Use、Reflection 等核心机制",
+      "熟悉主流 Agent 开发框架（如 LangGraph、AutoGen、CrewAI、MetaGPT 等），有实际搭建经验",
+      "了解大模型基本原理，熟悉 Prompt Engineering 技巧，能设计高质量的系统提示词与工具描述",
+      "对 AI Agent 技术有强烈兴趣，关注行业动态，具备独立调研与技术选型能力",
+      "具备良好的系统思维和问题解决能力，能在复杂场景中设计可靠的 Agent 方案",
+      "加分：有 Agent 系统构建（多 Agent 协作、复杂工作流编排）、Agent 评测体系建设、RAG/向量检索经验，或开源/技术博客/Agent 应用作品"
+    ],
+    "jd_summary": "负责智能 Agent 系统架构开发，涵盖多 Agent 协作、任务规划调度、工具调用执行引擎及记忆/推理/决策机制。搭建 Agent 评测与质量保障体系，跟踪前沿技术并结合业务预研落地，远程面试。",
+    "requirements_summary": "要求 Python/TypeScript/Go 之一，深入理解 Agent 原理（Planning/Memory/Tool Use/Reflection）及 LangGraph/AutoGen/CrewAI/MetaGPT 等框架实战经验。需熟悉 Prompt Engineering 与大模型基础；Agent 评测、RAG、多 Agent 协作为加分项。",
+    "tech_stack": [
+      "Python",
+      "TypeScript",
+      "Go",
+      "Agent",
+      "Planning",
+      "Memory",
+      "Tool Use",
+      "Reflection",
+      "LangGraph",
+      "AutoGen",
+      "CrewAI",
+      "MetaGPT",
+      "Prompt Engineering",
+      "RAG"
+    ],
+    "education": "",
+    "major": ""
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.98,
+    "reason": "岗位专精 Agent 系统架构（多 Agent 协作、Planning/Memory/Tool Use、LangGraph/AutoGen 等），含评测与质量体系建设，与 Agent 应用开发目标完全对齐，无模型训练或算法研究硬性要求"
+  }
+}

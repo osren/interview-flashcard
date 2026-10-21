@@ -1,0 +1,52 @@
+{
+  "basic": {
+    "position": "AI Agent工程师（引擎方向）",
+    "company": "网易互娱",
+    "location": "杭州/广州"
+  },
+  "details": {
+    "job_url": "https://campus.game.163.com/app/detail/index?id=4755&projectId=102",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "负责 AI 自动化 Agent 需求梳理、方案设计与落地实施，重点赋能游戏的研发、内容生产与运营全流程",
+      "基于大模型搭建智能体，实现引擎开发、游戏设计、内容生成、数据分析等场景的自主规划、工具调用与业务流程自动化",
+      "对接内部系统，完成 Agent 能力闭环，提升游戏研发效率与创意迭代速度",
+      "构建并维护游戏设计知识库与 RAG 能力，为 Agent 提供精准的游戏业务上下文，赋能创意生成与决策辅助",
+      "快速构建 Agent 原型，验证技术可行性，并基于主流框架搭建完整的 Agent 或 Workflow"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、软件、自动化、AI 相关专业优先",
+      "熟悉主流大模型及 Agent 工作原理",
+      "逻辑清晰，沟通顺畅，具备良好的文档撰写与方案汇报能力",
+      "计算机基础良好，有代码能力，能够检验 Agent 结果",
+      "业务理解能力强，有游戏引擎的使用和开发经验优先"
+    ],
+    "jd_summary": "负责游戏研发/内容生产/运营全流程的 AI Agent 需求设计与落地，基于大模型搭建智能体实现工具调用与业务流程自动化。建设游戏设计知识库与 RAG 能力，快速原型验证并基于主流框架构建 Agent/Workflow。2027 届校招，杭州/广州。",
+    "requirements_summary": "本科及以上，计算机/软件/自动化/AI 相关专业。需熟悉大模型与 Agent 原理，具备代码能力与文档/方案能力；游戏引擎使用或开发经验优先，强调业务理解与 Agent 结果验证能力。",
+    "tech_stack": [
+      "LLM",
+      "Agent",
+      "RAG",
+      "Workflow",
+      "工具调用",
+      "游戏引擎"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件、自动化、AI 相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.90,
+    "reason": "主职责为 Agent 方案设计/落地、工具调用与 Workflow 自动化及 RAG 知识库建设，属于 Agent 应用开发；引擎方向偏游戏业务场景，游戏引擎经验为优先项非硬性排除"
+  }
+}

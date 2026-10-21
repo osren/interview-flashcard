@@ -1,0 +1,53 @@
+{
+  "basic": {
+    "position": "软件开发工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7671976380783954195/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_app",
+    "jd_responsibilities": [
+      "基于 Android 平台参与理想汽车智能空间车载语音交互助手「理想同学」的开发与迭代",
+      "主要负责理想同学主交互应用车端需求开发，以及理想同学中心、AI 播客等业务方向的需求迭代",
+      "在导师指导下完成功能模块的方案设计、软件开发、单元测试等工作，确保交付质量符合项目要求",
+      "参与开发过程中的技术问题分析与调试，积极学习并沉淀相关经验",
+      "参与端侧 AI 应用相关基础能力的探索与建设，逐步具备独立负责功能模块的能力"
+    ],
+    "jd_requirements": [
+      "2027 届计算机、通信、自动化、电子工程等相关专业本科及以上学历，硕士优先",
+      "具备扎实的数据结构与算法基础，熟练掌握 Java 或 Kotlin，有良好的编码习惯",
+      "有 Android 应用开发经验（课程项目、实习或开源作品均可），了解 UI 渲染与常用框架原理",
+      "对大模型 / AI Agent 应用层有基本认知，了解对话系统、Function Calling / Tool Use、结构化输出、流式渲染等概念中的一项或多项",
+      "学习能力强，逻辑清晰，具备良好的沟通表达与团队协作能力；对车载 AI、智能座舱、语音助手方向有热情，愿意长期投入"
+    ],
+    "jd_summary": "基于 Android 平台开发车载语音交互助手「理想同学」，负责主交互应用、理想同学中心及 AI 播客等车端功能迭代。在导师指导下完成功能模块设计、开发与测试，并探索端侧 AI 应用基础能力建设。",
+    "requirements_summary": "2027 届本科及以上（硕士优先），计算机/通信/自动化/电子工程等相关专业。需熟练 Java/Kotlin，有 Android 开发经验，了解对话系统、Function Calling、流式渲染等 AI 应用层概念，对车载 AI 与智能座舱方向有热情。",
+    "tech_stack": [
+      "Java",
+      "Kotlin",
+      "Android",
+      "对话系统",
+      "Function Calling",
+      "流式渲染",
+      "端侧 AI"
+    ],
+    "education": "本科及以上学历，硕士优先",
+    "major": "计算机、通信、自动化、电子工程等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "ai_app",
+    "batch_type": "official",
+    "confidence": 0.84,
+    "reason": "主职责为 Android 客户端开发（Java/Kotlin）及车载语音助手应用迭代，属端侧 AI 应用但非 Web 前端或 Agent 工程方向；与目标中的前端/Agent 开发匹配度低，需 Android 开发经验"
+  }
+}

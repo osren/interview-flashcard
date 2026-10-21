@@ -1,0 +1,700 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
+.mac-os-11 { --title-bar-height: 28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { white-space: pre-wrap; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+thead, tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+svg { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  #write > p:nth-child(1) { margin-top: 0px; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+  figure { overflow-x: visible; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.reversefootnote { font-family: ui-monospace, sans-serif; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+mjx-container { break-inside: avoid; }
+.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
+.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
+.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
+.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
+.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
+.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left: 0.25em solid rgb(0, 0, 0); }
+.md-alert-text-note { color: rgb(9, 105, 218); }
+.md-alert-text-important { color: rgb(130, 80, 223); }
+.md-alert-text-warning { color: rgb(154, 103, 0); }
+.md-alert-text-tip { color: rgb(31, 136, 61); }
+.md-alert-text-caution { color: rgb(207, 34, 46); }
+.md-alert-text { font-size: 0.9rem; font-weight: 700; }
+.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
+.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow: auto hidden; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; outline: 0px; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: auto hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 10px; z-index: 3; overflow-y: hidden; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; overflow-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { overflow-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; inset: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+span.cm-underlined { text-decoration: underline; }
+span.cm-strikethrough { text-decoration: line-through; }
+.cm-tw-syntaxerror { color: rgb(255, 255, 255); background-color: rgb(153, 0, 0); }
+.cm-tw-deleted { text-decoration: line-through; }
+.cm-tw-header5 { font-weight: 700; }
+.cm-tw-listitem:first-child { padding-left: 10px; }
+.cm-tw-box { border-style: solid; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-color: inherit; border-top-width: 0px !important; }
+.cm-tw-underline { text-decoration: underline; }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+/* open-sans-regular - latin-ext_latin */
+  /* open-sans-italic - latin-ext_latin */
+    /* open-sans-700 - latin-ext_latin */
+    /* open-sans-700italic - latin-ext_latin */
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+
+@media only screen and (min-width: 1400px) {
+	#write {
+		max-width: 1024px;
+	}
+}
+
+@media only screen and (min-width: 1800px) {
+	#write {
+		max-width: 1200px;
+	}
+}
+
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+/*@media print {
+    .typora-export h1,
+    .typora-export h2 {
+        border-bottom: none;
+        padding-bottom: initial;
+    }
+
+    .typora-export h1::after,
+    .typora-export h2::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-top: -96px;
+        border-top: 1px solid #eee;
+    }
+}*/
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table th:first-child,
+table td:first-child {
+    margin-top: 0;
+}
+table th:last-child,
+table td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    pre {
+        page-break-inside: avoid;
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.mac-os #write{
+    caret-color: AccentColor;
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+/*.html-for-mac {
+    --item-hover-bg-color: #E6F0FE;
+}*/
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+    opacity: 0.4;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+.menu-item-container a.menu-style-btn {
+    background-color: #f5f8fa;
+    background-image: linear-gradient( 180deg , hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0)); 
+}
+
+
+
+</style><title>滴滴实习项目-简历备战指南</title>
+</head>
+<body class='typora-export os-windows'><div class='typora-export-content'>
+<div id='write'  class=''><h1 id='滴滴实习项目简历备战指南'><span>滴滴实习项目简历备战指南</span></h1><blockquote><p><strong><span>适用场景</span></strong><span>：秋招面试准备 · 技术面 · 项目复盘</span><br/><strong><span>核心目标</span></strong><span>：从简历项目到面试问答的完整链路</span><br/><strong><span>文档版本</span></strong><span>：2026-09-15</span></p></blockquote><hr /><h2 id='📋-目录'><span>📋 目录</span></h2><ol start='' ><li><p><a href='#项目背景与定位'><span>项目背景与定位</span></a></p></li><li><p><a href='#项目一性能监控与体验优化'><span>项目一：性能监控与体验优化</span></a></p></li><li><p><a href='#项目二ai-智能监控降噪'><span>项目二：AI 智能监控降噪</span></a></p></li><li><p><a href='#技术亮点提炼'><span>技术亮点提炼</span></a></p></li><li><p><a href='#常见面试问题清单'><span>常见面试问题清单</span></a></p></li><li><p><a href='#避坑指南'><span>避坑指南</span></a></p></li><li><p><a href='#快速复习-checklist'><span>快速复习 Checklist</span></a></p></li></ol><hr /><h2 id='项目背景与定位'><span>项目背景与定位</span></h2><h3 id='实习时间线'><span>实习时间线</span></h3><p><strong><span>滴滴出行 · 企业版商旅</span></strong><span> | 前端开发实习生 | 2026.01 — 2026.07</span></p><h3 id='业务上下文'><span>业务上下文</span></h3><ul><li><p><strong><span>业务线</span></strong><span>：商旅（机票/酒店/火车票 H5 + 小程序）</span></p></li><li><p><strong><span>用户规模</span></strong><span>：企业用户预订场景</span></p></li><li><p><strong><span>技术栈</span></strong><span>：MPX（类 Vue 小程序框架）+ H5 双端</span></p></li><li><p><strong><span>团队定位</span></strong><span>：C 端业务前端，关注预订链路体验与稳定性</span></p></li></ul><h3 id='两个项目的关系'><span>两个项目的关系</span></h3><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 44px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 36px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -36px; width: 36px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">┌─────────────────────────────────────────────┐</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│ 项目一：性能监控与体验优化 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│  定位：搭建函数级性能基础设施 + 具体页面优化 &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│  产出：LCP↓17%、卡顿↓27% &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">└─────────────────────────────────────────────┘</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ↓ 沉淀方法论</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">┌─────────────────────────────────────────────┐</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│ 项目二：AI 智能监控降噪 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│  定位：LLM 驱动的告警判定系统 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">10</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│  产出：降噪引擎 + 火车票 Domain 配置 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">11</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">└─────────────────────────────────────────────┘</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 254px;"></div><div class="CodeMirror-gutters" style="height: 254px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 35px;"></div></div></div></div></pre><p><strong><span>共性</span></strong><span>：都是「从问题定位到工程化沉淀」的完整闭环，体现前端基础设施建设能力。</span></p><hr /><h2 id='项目一性能监控与体验优化'><span>项目一：性能监控与体验优化</span></h2><h3 id='11-一句话概括'><span>1.1 一句话概括</span></h3><p><span>在商旅 H5/小程序搭建函数级性能监控体系，定位并优化列表页 LCP 和星河底部菜单卡顿，沉淀为可复用 Agent Skill。</span></p><h3 id='12-问题背景面试必讲'><span>1.2 问题背景（面试必讲）</span></h3><ul><li><p><strong><span>痛点</span></strong><span>：列表页 LCP 约 1400ms，星河底部菜单切换卡顿，用户反馈体验差</span></p></li><li><p><strong><span>缺少抓手</span></strong><span>：此前只有 FCP/LCP 数字，缺少函数级、接口级的性能数据</span></p></li><li><p><strong><span>排查困难</span></strong><span>：不知道慢在网络、渲染还是计算；优化没有优先级</span></p></li></ul><h3 id='13-技术方案架构'><span>1.3 技术方案架构</span></h3><h4 id='核心基础设施perfmonitor'><span>核心基础设施：PerfMonitor</span></h4><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>8</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">src/utils/perf-monitor.js</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── mark(label) &nbsp; &nbsp;  // 打点</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── measure(from, to) // 计算耗时</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  └── report() &nbsp; &nbsp; &nbsp; &nbsp; // 上报 Omega</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; ├── 跨页链路（home→list）</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; ├── 同页体验（LCP/FCP）</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; └── 接口维度（getHomeData 等）</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 184px;"></div><div class="CodeMirror-gutters" style="height: 184px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><p><strong><span>双端适配（技术亮点）</span></strong><span>：</span></p><ul><li><p><span>H5 环境：</span><code>PerformanceObserver</code><span> API</span></p></li><li><p><span>星河小程序：</span><code>wx.getPerformance</code><span> API</span></p></li><li><p><span>通过 </span><code>Adapter</code><span> 模式抽象统一上报，避免写两套监控代码</span></p></li></ul><h4 id='性能优化三板斧'><span>性能优化三板斧</span></h4><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>3</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">定位慢 → 找瓶颈 → 改造 → 验收</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; ↓ &nbsp; &nbsp; &nbsp;  ↓ &nbsp; &nbsp; &nbsp;  ↓ &nbsp; &nbsp; &nbsp; ↓</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> 埋点 &nbsp;  分析报告 &nbsp; 改代码 &nbsp; 看数字</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 69px;"></div><div class="CodeMirror-gutters" style="height: 69px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><h3 id='14-具体优化案例面试重点'><span>1.4 具体优化案例（面试重点）</span></h3><h4 id='案例-a列表页-lcp-优化'><span>案例 A：列表页 LCP 优化</span></h4><p><strong><span>问题定位</span></strong><span>：</span></p><ol start='' ><li><p><span>接入 </span><code>getHomeData</code><span> 接口耗时埋点</span></p></li><li><p><span>发现 </span><code>privacyPopList</code><span> 等非关键接口串在首屏关键路径</span></p></li><li><p><span>切日期场景会重复请求，缓存命中时仍触发网络请求</span></p></li></ol><p><strong><span>优化动作</span></strong><span>：</span></p><ul><li><p><strong><span>剥离非关键路径</span></strong><span>：把隐私弹窗接口移出 LCP 统计链路，defer 延后加载</span></p></li><li><p><strong><span>缓存命中直渲</span></strong><span>：增加状态机 </span><code>cacheHit → skipFetch → directRender</code><span>，避免白等</span></p></li><li><p><strong><span>修正口径</span></strong><span>：切日期重渲时，区分「接口返回」和「缓存命中」两条路径分别上报</span></p></li></ul><p><strong><span>结果</span></strong><span>：LCP </span><strong><span>1400ms → 1160ms（↓17%）</span></strong></p><p><strong><span>技术细节（面试追问）</span></strong><span>：</span></p><ul><li><p><span>Q: 为什么要剥离 privacyPopList？</span></p></li><li><p><span>A: LCP 应对应用户感知的最大内容渲染，隐私弹窗不是首屏关键内容，串进来会污染口径，让优化方向跑偏。</span></p></li></ul><h4 id='案例-b星河底部菜单卡顿'><span>案例 B：星河底部菜单卡顿</span></h4><p><strong><span>问题定位</span></strong><span>：</span></p><ul><li><p><span>用户切换底部 tab 时有明显卡顿</span></p></li><li><p><span>通过 PerfMonitor 定位到排序计算开销大</span></p></li></ul><p><strong><span>优化动作</span></strong><span>：</span></p><ul><li><p><span>用 </span><code>useMemo</code><span> 缓存已排序结果，避免每次切换重复计算</span></p></li></ul><p><strong><span>结果</span></strong><span>：卡顿改善约 </span><strong><span>27%</span></strong></p><p><strong><span>技术细节（面试追问）</span></strong><span>：</span></p><ul><li><p><span>Q: 为什么排序会导致卡顿？</span></p></li><li><p><span>A: 底部菜单数据量不大，但每次切换都触发排序 + 重渲染，累积起来拖主线程；缓存后只在数据变化时才重算。</span></p></li></ul><h3 id='15-工程化沉淀'><span>1.5 工程化沉淀</span></h3><h4 id='perf-monitorjs-设计要点'><span>perf-monitor.js 设计要点</span></h4><figure class='table-figure'><table><thead><tr><th><span>能力</span></th><th><span>实现</span></th></tr></thead><tbody><tr><td><span>三段式 API</span></td><td><code>mark</code><span> / </span><code>measure</code><span> / </span><code>report</code></td></tr><tr><td><span>双端兼容</span></td><td><span>Adapter 模式抽象 H5/星河差异</span></td></tr><tr><td><span>跨页链路</span></td><td><code>home_to_list_complete</code><span> 全链路</span></td></tr><tr><td><span>同页体验</span></td><td><span>LCP/FCP 自建监控</span></td></tr><tr><td><span>接口维度</span></td><td><span>关键接口耗时（getHomeData 等）</span></td></tr><tr><td><span>上报通道</span></td><td><span>统一经 Omega 平台</span></td></tr></tbody></table></figure><h4 id='agent-skill-固化'><span>Agent Skill 固化</span></h4><p><span>把「定位 → 诊断 → 优化 → 验收」闭环固化为 </span><code>page-performance-analysis</code><span> Skill，后续性能问题可复用分析流程。</span></p><p><strong><span>Skill 核心能力</span></strong><span>：</span></p><ul><li><p><span>读页面源码，按加载/交互/监听三阶段拆函数</span></p></li><li><p><span>估算耗时并排序（第一梯队 &gt;500ms / 第二梯队 200-500ms / 第三梯队 &lt;200ms）</span></p></li><li><p><span>识别瓶颈（串行瀑布、频繁触发、防抖节流、重复请求）</span></p></li><li><p><span>输出 P0/P1/P2 分级优化建议</span></p></li></ul><h3 id='16-面试高频问题'><span>1.6 面试高频问题</span></h3><h4 id='q1-这个-skill-是你写的吗'><span>Q1: 这个 Skill 是你写的吗？</span></h4><p><strong><span>诚实回答</span></strong><span>：</span></p><ul><li><p><span>Skill 框架是团队搭的，但我参与了监控体系搭建和性能优化的实际落地</span></p></li><li><p><span>具体问题是我定位的：接口耗时、缓存逻辑、星河端兼容</span></p></li><li><p><span>亮点在于 H5/星河双端环境抽象、统一上报链路</span></p></li></ul><h4 id='q2-项目难点是什么'><span>Q2: 项目难点是什么？</span></h4><p><strong><span>三个难点</span></strong><span>：</span></p><ol start='' ><li><p><strong><span>双端技术栈差异</span></strong><span>：星河和 H5 API 不同，需要 Adapter 抽象统一上报逻辑</span></p></li><li><p><strong><span>场景复杂性</span></strong><span>：列表页「切日期」场景，原来每次都发请求导致白屏，通过 PerfMonitor 数据发现后改成缓存命中直渲</span></p></li><li><p><strong><span>隐蔽性能瓶颈</span></strong><span>：隐私弹窗接口 </span><code>privacyPopList</code><span> 拖了 LCP，但这个接口是后加的，没人注意到</span></p></li></ol><h4 id='q3-如何验证优化效果'><span>Q3: 如何验证优化效果？</span></h4><p><strong><span>验证链路</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>1</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">本地 DevTools 验证 → 灰度小流量 → Omega 看板对比 → 全量上线</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="height: 23px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><ul><li><p><span>LCP 1400→1160ms 是线上真实数据，经 Omega 平台统计</span></p></li><li><p><span>卡顿改善约 27% 也是基于用户行为埋点的对比</span></p></li></ul><h4 id='q4-为什么要做-skill和-lighthouse-有什么区别'><span>Q4: 为什么要做 Skill？和 Lighthouse 有什么区别？</span></h4><figure class='table-figure'><table><thead><tr><th><span>维度</span></th><th><span>Lighthouse</span></th><th><span>page-performance-analysis Skill</span></th></tr></thead><tbody><tr><td><span>数据来源</span></td><td><span>真实运行测量</span></td><td><span>源码静态分析 + 类型估算</span></td></tr><tr><td><span>输出</span></td><td><span>指标与资源级建议</span></td><td><span>函数级耗时排序 + 代码侧改法</span></td></tr><tr><td><span>使用门槛</span></td><td><span>要起环境、会看面板</span></td><td><span>对话一句即可开跑</span></td></tr><tr><td><span>复用</span></td><td><span>偏个人操作</span></td><td><span>规程固化进 Agent Skill</span></td></tr></tbody></table></figure><p><strong><span>价值</span></strong><span>：把性能复盘从个人经验产品化为团队可触发流程。</span></p><hr /><h2 id='项目二ai-智能监控降噪'><span>项目二：AI 智能监控降噪</span></h2><h3 id='21-一句话概括'><span>2.1 一句话概括</span></h3><p><span>基于 LLM 的接口告警智能判定系统，每条告警走一次模型判断「该不该报、定什么级」，把噪音挡在派发之前。</span></p><h3 id='22-问题背景面试必讲'><span>2.2 问题背景（面试必讲）</span></h3><ul><li><p><strong><span>痛点</span></strong><span>：机酒火线上接口告警量大，噪音占比高</span></p><ul><li><p><span>业务正常拒绝（无票、已退改、超时未支付）占大多数</span></p></li><li><p><span>低价值展示类错误（NPS、公告、分享页）刷屏</span></p></li><li><p><span>真故障被淹没，值班容易漏看</span></p></li></ul></li><li><p><strong><span>核心矛盾</span></strong><span>：不能用简单规则过滤（会误杀真故障），需要理解业务语义</span></p></li></ul><h3 id='23-技术方案架构'><span>2.3 技术方案架构</span></h3><h4 id='系统分层'><span>系统分层</span></h4><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang="" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 44px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 36px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>16</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -36px; width: 36px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">┌──────────────────────────────────────┐</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│ 入口层（领域无关） &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│  HTTP /triage  +  Kafka consumer &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">└──────────────┬───────────────────────┘</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↓</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">┌──────────────────────────────────────┐</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│ 处理核 pipeline.js &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">│  按 DOMAIN 加载 domains/&lt;team&gt; &nbsp; &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">└──────────────┬───────────────────────┘</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">10</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;  ┌──────┼──────┐</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">11</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;  ↓ &nbsp; &nbsp;  ↓ &nbsp; &nbsp;  ↓</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">12</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  router  triage  llm</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">13</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  url归类  拼Prompt 网关调用</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">14</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;  │ &nbsp; &nbsp;  │</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">15</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;  └──────┴─────→ domains/&lt;team&gt;/</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">16</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rules.js + prompts/</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 369px;"></div><div class="CodeMirror-gutters" style="height: 369px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 35px;"></div></div></div></div></pre><p><strong><span>核心设计原则</span></strong><span>：</span></p><ul><li><p><strong><span>引擎领域无关</span></strong><span>：换团队 = 换 </span><code>DOMAIN</code><span> + 加文件夹，引擎零改动</span></p></li><li><p><strong><span>判定交给模型</span></strong><span>：工程只做路由与编排，阈值/规则全在 Prompt</span></p></li><li><p><strong><span>宁可误报不可误杀</span></strong><span>：漏报（FN）优先压到接近 0</span></p></li></ul><h4 id='单条告警处理流程'><span>单条告警处理流程</span></h4><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>3</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">收包 → 路由(url→category) → 拼Prompt → 调LLM → 解析JSON → 派发</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ↓ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ↓ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↓ &nbsp; &nbsp; &nbsp; &nbsp;  ↓</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp; 归属判别优先 &nbsp; &nbsp; &nbsp;  system+user &nbsp;  兜底P2 &nbsp;  should_report</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 69px;"></div><div class="CodeMirror-gutters" style="height: 69px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><h3 id='24-我的具体工作面试重点'><span>2.4 我的具体工作（面试重点）</span></h3><h4 id='工作-a接口发现discover-skill'><span>工作 A：接口发现（discover Skill）</span></h4><p><strong><span>目标</span></strong><span>：从业务代码仓库自动摘取核心接口清单，避免手工枚举遗漏。</span></p><p><strong><span>方法</span></strong><span>：</span></p><ol start='' ><li><p><strong><span>探技术栈</span></strong><span>：识别项目是前端/后端/原生 App，url 落法不同</span></p></li><li><p><strong><span>广召回</span></strong><span>：grep 广撒网 + Explore agent 补读内联/动态拼接</span></p></li><li><p><strong><span>正交打标</span></strong><span>：</span></p><ul><li><p><span>归属维度（是否 non-core）：纯前缀判定</span></p></li><li><p><span>核心 vs 边缘（severity 基线）：反查「挂了用户能否走完主流程」</span></p></li></ul></li><li><p><strong><span>带证据</span></strong><span>：捕获「码 → 原文 (文件:行)」，便于后续人工核验</span></p></li></ol><p><strong><span>产出</span></strong><span>：</span><code>train-urls.js</code><span> / </span><code>flight-urls.js</code><span> / </span><code>hotel-urls.js</code></p><h4 id='工作-b火车票-domain-配置'><span>工作 B：火车票 Domain 配置</span></h4><p><strong><span>目标</span></strong><span>：根据接口清单，配置路由规则、severity 基线、业务拒绝清单。</span></p><p><strong><span>配置结构</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>9</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">domains/train/</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">├── rules.js &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # url → category 路由表</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">└── prompts/</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── _base.md &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # 通用核：schema、枚举、全局规则</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── non-core.md &nbsp; &nbsp; &nbsp; &nbsp;  # 非自有接口（基线 P3）</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── query.md &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # 余票查询分类</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── payment.md &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # 支付分类</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  ├── order.md &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # 下单分类</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  └── refund-change.md &nbsp; &nbsp; # 退改分类</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 207px;"></div><div class="CodeMirror-gutters" style="height: 207px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><p><strong><span>关键决策</span></strong><span>：</span></p><ul><li><p><code>ownedPrefixes = [&#39;/esapp/&#39;]</code><span>：自有前缀</span></p></li><li><p><code>fallbackKey = &#39;order&#39;</code><span>：未命中规则时保守上报</span></p></li><li><p><span>余票查询异常判 P1（因为是下单主流程入口）</span></p></li></ul><h4 id='工作-cbusinessreject-清单技术亮点'><span>工作 C：business_reject 清单（技术亮点）</span></h4><p><strong><span>定义</span></strong><span>：接口返回了错误形态，但属于业务预期路径（无票、已退改、重复提交），不应打扰值班。</span></p><p><strong><span>落地方式</span></strong><span>：</span></p><ul><li><p><span>在各分类 Prompt 的 </span><code>business_reject</code><span> 字段列举码值与语义</span></p></li><li><p><span>discover Skill 从业务代码捕获「码 → 原文 (文件:行)」证据</span></p></li></ul><p><strong><span>上线前必做</span></strong><span>：回源码逐条核对，避免误杀真故障。</span></p><h4 id='工作-d兜底策略'><span>工作 D：兜底策略</span></h4><p><strong><span>场景</span></strong><span>：模型超时、网关报错、JSON 解析失败。</span></p><p><strong><span>处理</span></strong><span>：统一 </span><code>should_report=true, severity=P2</code><span>，永不吞告警、不卡 Kafka 消费。</span></p><p><strong><span>意义</span></strong><span>：降噪能力降级时，可用性优先于降噪率。</span></p><h4 id='工作-e评测闭环'><span>工作 E：评测闭环</span></h4><p><strong><span>目标</span></strong><span>：用漏报率 FN 作为头号指标，防止降噪过度。</span></p><p><strong><span>流程</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>1</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">拉异常 → 指纹去重 → 标gold → run/eval → score指标 → 归因改Prompt</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="height: 23px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><p><strong><span>指标体系</span></strong><span>：</span></p><figure class='table-figure'><table><thead><tr><th><span>指标</span></th><th><span>优先级</span></th></tr></thead><tbody><tr><td><span>漏报率 FN</span></td><td><span>头号，先压到 ≈0</span></td></tr><tr><td><span>误报率 FP</span></td><td><span>FN 达标后再降</span></td></tr><tr><td><span>severity 完全一致/差一级/差多级</span></td><td><span>主精度</span></td></tr></tbody></table></figure><h3 id='25-架构理解面试加分项'><span>2.5 架构理解（面试加分项）</span></h3><h4 id='为什么每条都走-llm'><span>为什么每条都走 LLM？</span></h4><p><strong><span>决策</span></strong><span>：不做规则预过滤，每条都走 LLM。</span></p><p><strong><span>理由</span></strong><span>：</span></p><ol start='' ><li><p><span>业务拒绝语义复杂（同码不同场景），硬规则容易误杀</span></p></li><li><p><span>调策略不改代码（改 Prompt = 调阈值）</span></p></li><li><p><span>性能用别的手段补（缓存、聚合、异步）</span></p></li></ol><h4 id='可插拔-domain-的价值'><span>可插拔 Domain 的价值</span></h4><p><strong><span>换团队 = 换配置不动引擎</span></strong><span>：</span></p><ul><li><p><span>机票：</span><code>DOMAIN=flight</code><span> + </span><code>domains/flight/</code></p></li><li><p><span>酒店：</span><code>DOMAIN=hotel</code><span> + </span><code>domains/hotel/</code></p></li><li><p><span>火车票：</span><code>DOMAIN=train</code><span> + </span><code>domains/train/</code></p></li></ul><p><span>引擎代码（router/triage/llm/pipeline）对所有团队通用。</span></p><h4 id='路由引擎设计'><span>路由引擎设计</span></h4><p><strong><span>四步判定</span></strong><span>：</span></p><ol start='' ><li><p><span>pathname 归一化（去 host/query）</span></p></li><li><p><span>归属判别优先（非自有前缀 → non-core）</span></p></li><li><p><span>有序匹配（特例排在宽松规则前）</span></p></li><li><p><span>未命中兜底（</span><code>fallbackKey</code><span> 保守上报）</span></p></li></ol><p><strong><span>火车票示例</span></strong><span>：</span></p><ul><li><p><span>自有前缀：</span><code>/esapp/</code></p></li><li><p><span>分类：payment / order / refund-change / query / user-auth / order-detail / display / non-core</span></p></li><li><p><span>兜底：未匹配到规则 → </span><code>order</code><span>（P1 保守上报）</span></p></li></ul><h3 id='26-面试高频问题'><span>2.6 面试高频问题</span></h3><h4 id='q1-你具体做了什么'><span>Q1: 你具体做了什么？</span></h4><p><strong><span>诚实对齐</span></strong><span>：</span></p><ul><li><p><span>我做了</span><strong><span>火车票 Domain 的路由表和 Prompt 配置</span></strong></p></li><li><p><span>比如 </span><code>/railway/train/transferLeftTicket</code><span> 这个接口，我把它路由到 </span><code>query</code><span> 分类，定义为下单主流程入口，参数错误判 P1</span></p></li></ul><h4 id='q2-工程理念怎么落地的'><span>Q2: 工程理念怎么落地的？</span></h4><p><strong><span>讲具体例子</span></strong><span>：</span></p><ol start='' ><li><p><strong><span>业务正常拒绝识别</span></strong><span>：我去源码里找 errorCode 对应的业务场景，把&quot;无票/已退改&quot;写成 Prompt 里的 business_reject 清单</span></p></li><li><p><strong><span>兜底策略</span></strong><span>：有一次模型解析 JSON 失败了，我加了个 fallback 直接保守上报 P2，保证不漏告警</span></p></li><li><p><strong><span>评测纪律</span></strong><span>：用漏报率 FN 作为头号指标，宁愿多报噪音也不能漏真故障</span></p></li></ol><h4 id='q3-你觉得这个项目难在哪'><span>Q3: 你觉得这个项目难在哪？</span></h4><p><strong><span>三个难点</span></strong><span>：</span></p><ol start='' ><li><p><strong><span>业务知识沉淀</span></strong><span>：哪些是业务正常拒绝、哪些是真故障，这个边界要产品+研发一起定义</span></p></li><li><p><strong><span>宁可误报不可误杀</span></strong><span>：宁愿多报噪音也不能漏真故障，所以调 Prompt 要保守</span></p></li><li><p><strong><span>接口清单要准</span></strong><span>：漏掉的接口可能漏报，所以后来加了 drift-check 盯清单漂移</span></p></li></ol><h4 id='q4-为什么余票查询异常判-p1'><span>Q4: 为什么余票查询异常判 P1？</span></h4><p><strong><span>回答要点</span></strong><span>：</span></p><ul><li><p><span>火车票主流程链：查询(余票) → 填单/校验 → 下单占座 → 支付 → 出票 → 退改</span></p></li><li><p><span>余票查询是下单主流程入口，挂了等于阻塞下单</span></p></li><li><p><span>不能因为名义上是「查询」就降级成 P2/P3</span></p></li></ul><h4 id='q5-接口清单过期会不会漏报'><span>Q5: 接口清单过期会不会漏报？</span></h4><p><strong><span>诚实回答</span></strong><span>：</span></p><ul><li><p><strong><span>不会漏报</span></strong><span>：自有前缀内未命中 → </span><code>fallbackKey</code><span> 保守上报；非自有 → </span><code>non-core</code><span> 兜底</span></p></li><li><p><span>清单过期只降低 severity 精度，不会造成漏报</span></p></li><li><p><span>后续加了 </span><code>drift-check.sh</code><span> 纯 grep 盯漂移，可挂 CI</span></p></li></ul><h4 id='q6-llm-方案-vs-纯规则方案'><span>Q6: LLM 方案 vs 纯规则方案？</span></h4><figure class='table-figure'><table><thead><tr><th><span>维度</span></th><th><span>LLM 方案</span></th><th><span>纯规则方案</span></th></tr></thead><tbody><tr><td><span>优势</span></td><td><span>能吃语义、策略迭代快、适合灰色地带</span></td><td><span>延迟低、可硬门禁、成本低</span></td></tr><tr><td><span>代价</span></td><td><span>延迟与成本、临界抖动</span></td><td><span>脆弱、误杀风险高</span></td></tr></tbody></table></figure><p><strong><span>为何选 LLM</span></strong><span>：噪音形态多、业务语义重，规则预过滤误杀成本高；先用 LLM 保证召回与可解释 reason。</span></p><h4 id='q7-当前落地到哪一步'><span>Q7: 当前落地到哪一步？</span></h4><p><strong><span>诚实现状</span></strong><span>：</span></p><ul><li><p><span>✅ 通用引擎（HTTP / Kafka）</span></p></li><li><p><span>✅ 火车票 Domain（business_reject 已回源核验）</span></p></li><li><p><span>✅ 机酒 url 清单已摘取（Domain 待 onboard）</span></p></li><li><p><span>⏳ 真实派发通道（接 IM / 电话 / 工单，当前为日志占位）</span></p></li><li><p><span>⏳ 频次统计、告警聚合、结果缓存</span></p></li></ul><p><strong><span>面试建议</span></strong><span>：主动说清「判定链路已通、派发与缓存是下一阶段」，体现演进意识而不夸大上线范围。</span></p><hr /><h2 id='技术亮点提炼'><span>技术亮点提炼</span></h2><h3 id='亮点-1双端性能监控架构'><span>亮点 1：双端性能监控架构</span></h3><p><strong><span>问题</span></strong><span>：H5 和星河小程序技术栈不同，监控 API 不一样。</span></p><p><strong><span>方案</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang="typescript" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="typescript"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 44px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 36px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -36px; width: 36px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// Adapter 模式抽象统一上报</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">class</span> <span class="cm-def">PerfAdapter</span> {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-keyword">static</span> <span class="cm-property">create</span>(<span class="cm-def">env</span>) {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">return</span> <span class="cm-variable-2">env</span> <span class="cm-operator">===</span> <span class="cm-string">'h5'</span> <span class="cm-operator">?</span> <span class="cm-keyword">new</span> <span class="cm-variable">H5Adapter</span>() : <span class="cm-keyword">new</span> <span class="cm-variable">StarAdapter</span>();</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">class</span> <span class="cm-def">H5Adapter</span> {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-property">mark</span>(<span class="cm-def">label</span>) { <span class="cm-variable">performance</span>.<span class="cm-property">mark</span>(<span class="cm-variable-2">label</span>); }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">10</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-property">measure</span>(<span class="cm-def">from</span>, <span class="cm-def">to</span>) { <span class="cm-variable">performance</span>.<span class="cm-property">measure</span>(<span class="cm-variable-2">from</span>, <span class="cm-variable-2">to</span>); }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">11</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">12</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">13</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">class</span> <span class="cm-def">StarAdapter</span> {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">14</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-property">mark</span>(<span class="cm-def">label</span>) { <span class="cm-variable">wx</span>.<span class="cm-property">getPerformance</span>().<span class="cm-property">mark</span>(<span class="cm-variable-2">label</span>); }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">15</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-property">measure</span>(<span class="cm-def">from</span>, <span class="cm-def">to</span>) { <span class="cm-variable">wx</span>.<span class="cm-property">getPerformance</span>().<span class="cm-property">measure</span>(<span class="cm-variable-2">from</span>, <span class="cm-variable-2">to</span>); }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">16</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 369px;"></div><div class="CodeMirror-gutters" style="height: 369px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 35px;"></div></div></div></div></pre><p><strong><span>价值</span></strong><span>：一套监控代码，双端复用。</span></p><h3 id='亮点-2缓存命中直渲状态机'><span>亮点 2：缓存命中直渲状态机</span></h3><p><strong><span>问题</span></strong><span>：列表页切日期，缓存命中时仍触发网络请求，导致白屏。</span></p><p><strong><span>方案</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang="javascript" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="javascript"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 44px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 36px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>15</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -36px; width: 36px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 状态机：cacheHit → skipFetch → directRender</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">async</span> <span class="cm-keyword">function</span> <span class="cm-def">loadList</span>(<span class="cm-def">date</span>) {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-keyword">const</span> <span class="cm-def">cached</span> <span class="cm-operator">=</span> <span class="cm-variable">getCache</span>(<span class="cm-variable-2">date</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-keyword">if</span> (<span class="cm-variable-2">cached</span>) {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-variable">mark</span>(<span class="cm-string">'cacheHit'</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-variable">renderList</span>(<span class="cm-variable-2">cached</span>); <span class="cm-comment">// 直接渲染</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-variable">mark</span>(<span class="cm-string">'directRender'</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">return</span>;</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">10</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">11</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-variable">mark</span>(<span class="cm-string">'fetchStart'</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">12</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-keyword">const</span> <span class="cm-def">data</span> <span class="cm-operator">=</span> <span class="cm-keyword">await</span> <span class="cm-variable">fetchList</span>(<span class="cm-variable-2">date</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">13</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-variable">mark</span>(<span class="cm-string">'fetchEnd'</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">14</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-variable">renderList</span>(<span class="cm-variable-2">data</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">15</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 346px;"></div><div class="CodeMirror-gutters" style="height: 346px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 35px;"></div></div></div></div></pre><p><strong><span>价值</span></strong><span>：避免无效网络请求，LCP ↓240ms。</span></p><h3 id='亮点-3可插拔-domain-架构'><span>亮点 3：可插拔 Domain 架构</span></h3><p><strong><span>问题</span></strong><span>：机酒火三个品类接口特征不同，硬编码规则难维护。</span></p><p><strong><span>方案</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang=""><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 36px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 28px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>4</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -28px; width: 28px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">换团队 = 换 DOMAIN + 加配置文件夹</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">DOMAIN=train  → domains/train/</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 19px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">DOMAIN=flight → domains/flight/</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -28px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 19px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">DOMAIN=hotel  → domains/hotel/</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 92px;"></div><div class="CodeMirror-gutters" style="height: 92px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 27px;"></div></div></div></div></pre><p><strong><span>价值</span></strong><span>：引擎代码对所有团队通用，扩展成本 ≈ 0。</span></p><h3 id='亮点-4llm-工程化兜底策略'><span>亮点 4：LLM 工程化兜底策略</span></h3><p><strong><span>问题</span></strong><span>：模型超时、网关报错、JSON 解析失败时系统会怎样？</span></p><p><strong><span>方案</span></strong><span>：</span></p><pre class="md-fences md-end-block md-fences-with-lineno ty-contain-cm modeLoaded" spellcheck="false" lang="javascript"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="javascript"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 44px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 36px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>13</div></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: -36px; width: 36px;"></div><div class="CodeMirror-gutter-wrapper CodeMirror-activeline-gutter" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">async</span> <span class="cm-keyword">function</span> <span class="cm-def">triage</span>(<span class="cm-def">alarm</span>) {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;<span class="cm-keyword">try</span> {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">const</span> <span class="cm-def">result</span> <span class="cm-operator">=</span> <span class="cm-keyword">await</span> <span class="cm-variable">llm</span>.<span class="cm-property">call</span>(<span class="cm-variable">prompt</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">return</span> <span class="cm-variable">parseJSON</span>(<span class="cm-variable-2">result</span>);</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  } <span class="cm-keyword">catch</span> (<span class="cm-def">err</span>) {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-comment">// 统一兜底：永不吞告警</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">return</span> {</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-property">should_report</span>: <span class="cm-atom">true</span>,</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-property">severity</span>: <span class="cm-string">'P2'</span>,</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">10</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-property">reason</span>: <span class="cm-string">'LLM fallback: '</span> <span class="cm-operator">+</span> <span class="cm-variable-2">err</span>.<span class="cm-property">message</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">11</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  };</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 27px;">12</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="left: -36px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt CodeMirror-linenumber-show" style="left: 0px; width: 27px;">13</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 300px;"></div><div class="CodeMirror-gutters" style="height: 300px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 35px;"></div></div></div></div></pre><p><strong><span>价值</span></strong><span>：降噪能力降级时，可用性优先于降噪率。</span></p><h3 id='亮点-5评测驱动的-prompt-调优'><span>亮点 5：评测驱动的 Prompt 调优</span></h3><p><strong><span>问题</span></strong><span>：如何保证降噪不误杀真故障？</span></p><p><strong><span>方案</span></strong><span>：</span></p><ul><li><p><strong><span>漏报率 FN 作为头号指标</span></strong><span>（先压到 ≈0）</span></p></li><li><p><strong><span>数据集冻结</span></strong><span>：一轮调优期间不动 dataset</span></p></li><li><p><strong><span>train 调 / holdout 验</span></strong><span>：holdout 不涨或下跌 = 过拟合</span></p></li><li><p><strong><span>正负样本平衡</span></strong><span>：防止「一律不报」刷高分</span></p></li></ul><p><strong><span>价值</span></strong><span>：工程化保证降噪质量。</span></p><hr /><h2 id='常见面试问题清单'><span>常见面试问题清单</span></h2><h3 id='项目一性能监控'><span>项目一：性能监控</span></h3><h4 id='基础理解'><span>基础理解</span></h4><ol start='' ><li><p><span>请介绍一下页面性能监控项目，解决什么问题？</span></p></li><li><p><span>为什么要做 Skill？和 Lighthouse 有什么区别？</span></p></li><li><p><span>PerfMonitor 监控体系具体覆盖哪些指标？</span></p></li></ol><h4 id='技术细节'><span>技术细节</span></h4><ol start='4' ><li><p><span>H5 和星河双端如何统一上报？</span></p></li><li><p><span>列表页 LCP 优化的具体步骤？</span></p></li><li><p><span>为什么要剥离 privacyPopList？</span></p></li><li><p><span>缓存命中直渲的状态机设计？</span></p></li><li><p><span>星河底部菜单卡顿的排查过程？</span></p></li></ol><h4 id='工程化'><span>工程化</span></h4><ol start='9' ><li><p><span>如何验证优化效果（LCP ↓17%）？</span></p></li><li><p><span>Skill 三阶段模型（加载/交互/监听）如何适配多技术栈？</span></p></li><li><p><span>性能优化 P0/P1/P2 怎么定优先级？</span></p></li></ol><h3 id='项目二ai-监控降噪'><span>项目二：AI 监控降噪</span></h3><h4 id='基础理解-2'><span>基础理解</span></h4><ol start='12' ><li><p><span>请介绍一下 AI 监控降噪项目，解决什么问题？</span></p></li><li><p><span>为什么每条告警都走 LLM，不做规则预过滤？</span></p></li><li><p><span>「宁可误报不可误杀」在工程上如何落地？</span></p></li></ol><h4 id='架构设计'><span>架构设计</span></h4><ol start='15' ><li><p><span>系统整体架构是怎样的？引擎和业务怎么解耦？</span></p></li><li><p><span>一条告警从进入到派发经过哪些步骤？</span></p></li><li><p><span>路由引擎怎么设计？ownedPrefixes 和 fallback 起什么作用？</span></p></li><li><p><span>可插拔 Domain 的价值是什么？</span></p></li></ol><h4 id='技术细节-2'><span>技术细节</span></h4><ol start='19' ><li><p><span>Prompt 是怎么组织的？调判定松紧改哪里？</span></p></li><li><p><span>severity（P0–P3）怎么定？为什么余票查询异常判 P1？</span></p></li><li><p><span>business_reject（业务正常拒绝）如何识别？</span></p></li><li><p><span>LLM 网关故障时系统会怎样？</span></p></li></ol><h4 id='工程化-2'><span>工程化</span></h4><ol start='23' ><li><p><span>两个 Skill（discover / onboard）分别做什么？</span></p></li><li><p><span>接口清单过期会不会漏报？drift-check 解决什么问题？</span></p></li><li><p><span>评测闭环怎么设计？为什么不看笼统准确率？</span></p></li><li><p><span>当前落地到哪一步？后续还有哪些待建设？</span></p></li></ol><h3 id='对比与综合'><span>对比与综合</span></h3><ol start='27' ><li><p><span>降噪和故障根因定位有什么区别？</span></p></li><li><p><span>LLM 方案 vs 纯规则方案的 tradeoff？</span></p></li><li><p><span>两个项目的共性和差异？</span></p></li><li><p><span>这些数字（LCP ↓17%）是你独立做的吗？</span></p></li></ol><hr /><h2 id='避坑指南'><span>避坑指南</span></h2><h3 id='❌-不要这样说'><span>❌ 不要这样说</span></h3><h4 id='坑1过度美化参与度'><span>坑1：过度美化参与度</span></h4><ul><li><p><span>❌ &quot;Skill 是我从 0 到 1 写的&quot;</span></p></li><li><p><span>✅ &quot;Skill 框架是团队搭的，我参与了监控体系搭建和性能优化落地&quot;</span></p></li></ul><h4 id='坑2夸大上线范围'><span>坑2：夸大上线范围</span></h4><ul><li><p><span>❌ &quot;AI 监控降噪已全量上线，降噪率提升 80%&quot;</span></p></li><li><p><span>✅ &quot;判定链路已通、火车票 Domain 已回源核验，派发通道与缓存是下一阶段&quot;</span></p></li></ul><h4 id='坑3对技术细节含糊其辞'><span>坑3：对技术细节含糊其辞</span></h4><ul><li><p><span>❌ &quot;就是用 AI 做了个监控&quot;</span></p></li><li><p><span>✅ &quot;基于 LLM 的告警判定系统，每条走一次模型，输出 should_report / severity / reason&quot;</span></p></li></ul><h4 id='坑4无法回答你具体做了什么'><span>坑4：无法回答「你具体做了什么」</span></h4><ul><li><p><span>❌ &quot;就是配置了一下 Prompt&quot;</span></p></li><li><p><span>✅ &quot;我做了火车票 Domain 的路由表、severity 基线、business_reject 清单，并回源码核验&quot;</span></p></li></ul><h4 id='坑5把估算当真测'><span>坑5：把估算当真测</span></h4><ul><li><p><span>❌ &quot;Skill 已经精确测出所有函数耗时&quot;</span></p></li><li><p><span>✅ &quot;Skill 用类型估算表给出优先级，P0 改动后必须用 DevTools / 真机校准&quot;</span></p></li></ul><h3 id='✅-加分表述'><span>✅ 加分表述</span></h3><h4 id='加分1主动说边界'><span>加分1：主动说边界</span></h4><ul><li><p><span>&quot;PerfMonitor 负责线上验收，Skill 负责缩小嫌疑&quot;</span></p></li><li><p><span>&quot;降噪解决注意力分配，不替代故障根因定位&quot;</span></p></li></ul><h4 id='加分2展示演进意识'><span>加分2：展示演进意识</span></h4><ul><li><p><span>&quot;阶段一内嵌验证判定效果，阶段二中心化配置推广&quot;</span></p></li><li><p><span>&quot;当前重点是压 FN 到 ≈0，下阶段再降 FP&quot;</span></p></li></ul><h4 id='加分3体现工程思维'><span>加分3：体现工程思维</span></h4><ul><li><p><span>&quot;引擎领域无关，业务知识在可插拔 Domain&quot;</span></p></li><li><p><span>&quot;每条都走 LLM 保证质量，性能靠缓存/聚合补&quot;</span></p></li></ul><h4 id='加分4量化结果-+-方法论'><span>加分4：量化结果 + 方法论</span></h4><ul><li><p><span>&quot;LCP 1400→1160ms（↓17%），通过 Omega 线上统计&quot;</span></p></li><li><p><span>&quot;漏报率 FN 作为头号指标，train 调 / holdout 验&quot;</span></p></li></ul><hr /><h2 id='快速复习-checklist'><span>快速复习 Checklist</span></h2><h3 id='面试前-30-分钟'><span>面试前 30 分钟</span></h3><h4 id='项目一性能监控-2'><span>项目一：性能监控</span></h4><ul><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能说出 LCP ↓17%、卡顿 ↓27% 的具体优化动作</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能画出 PerfMonitor 架构（三段式 API + 双端 Adapter）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能解释为什么剥离 privacyPopList</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能说出 Skill 三阶段模型（加载/交互/监听）</span></p></li></ul><h4 id='项目二ai-监控降噪-2'><span>项目二：AI 监控降噪</span></h4><ul><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能说出系统分层（入口/pipeline/router/triage/llm/domain）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能解释为什么每条都走 LLM（不做规则预过滤）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能说出火车票主流程链（查→填→下→付→票→退改）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能解释余票查询异常为什么判 P1</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能说出 FN 作为头号指标的评测纪律</span></p></li></ul><h4 id='技术亮点'><span>技术亮点</span></h4><ul><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>双端性能监控 Adapter 模式</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>缓存命中直渲状态机</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>可插拔 Domain 架构</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>LLM 兜底策略（永不吞告警）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>评测驱动 Prompt 调优</span></p></li></ul><h4 id='避坑'><span>避坑</span></h4><ul><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>不夸大参与度（&quot;团队搭的 + 我落地的&quot;）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>不夸大上线范围（&quot;判定链路已通 + 派发是下一阶段&quot;）</span></p></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><p><span>能诚实说「这块我不太清楚，但可以讲我负责的部分」</span></p></li></ul><hr /><h2 id='附录关键数字速查'><span>附录：关键数字速查</span></h2><figure class='table-figure'><table><thead><tr><th><span>指标</span></th><th><span>数值</span></th><th><span>来源</span></th></tr></thead><tbody><tr><td><span>列表页 LCP 优化</span></td><td><span>1400ms → 1160ms（↓17%）</span></td><td><span>Omega 线上统计</span></td></tr><tr><td><span>星河底部菜单卡顿</span></td><td><span>改善约 27%</span></td><td><span>用户行为埋点对比</span></td></tr><tr><td><span>实习时长</span></td><td><span>7 个月（2026.01–2026.07）</span></td><td><span>实习记录</span></td></tr><tr><td><span>监控覆盖</span></td><td><span>跨页/LCP/FCP/接口维度</span></td><td><span>perf-monitor.js</span></td></tr><tr><td><span>火车票主流程</span></td><td><span>查→填→下→付→票→退改</span></td><td><span>业务文档</span></td></tr><tr><td><span>评测头号指标</span></td><td><span>漏报率 FN ≈ 0</span></td><td><span>eval 闭环</span></td></tr></tbody></table></figure><hr /><h2 id='文档使用说明'><span>文档使用说明</span></h2><h3 id='面试前一天'><span>面试前一天</span></h3><ol start='' ><li><p><span>通读全文，重点记忆「技术亮点提炼」和「常见面试问题清单」</span></p></li><li><p><span>用「快速复习 Checklist」自查，确保核心问题都能回答</span></p></li></ol><h3 id='面试前-1-小时'><span>面试前 1 小时</span></h3><ol start='' ><li><p><span>只看「快速复习 Checklist」和「关键数字速查」</span></p></li><li><p><span>在白纸上默画两个项目的架构图</span></p></li></ol><h3 id='面试中'><span>面试中</span></h3><ol start='' ><li><p><span>优先讲「问题背景 → 技术方案 → 量化结果」</span></p></li><li><p><span>遇到不会的追问，诚实说「这块我不太清楚，但可以讲我负责的部分」</span></p></li><li><p><span>主动展示「边界意识」和「演进思维」</span></p></li></ol><hr /><p><strong><span>祝面试顺利！</span></strong><span> 🚀</span></p></div></div>
+</body>
+</html>

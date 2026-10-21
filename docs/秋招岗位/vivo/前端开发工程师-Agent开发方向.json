@@ -1,0 +1,53 @@
+{
+  "basic": {
+    "position": "前端开发工程师（Agent开发方向）",
+    "company": "vivo",
+    "location": "杭州"
+  },
+  "details": {
+    "job_url": "https://hr-campus.vivo.com/campus/detail?jobAdId=bfc2c464-94cc-42ca-911f-2a5ebc0ee574&shareId=ac02e18c-c178-4501-8330-ca2627d16558&shareSource=2&qr=1",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "参与 AI 平台产品（AI Coding、智能体）等业务系统的架构设计和功能开发工作",
+      "参与项目的需求分析、技术方案设计、代码编写、测试及上线等全流程工作，确保项目按时高质量完成",
+      "研究并应用前沿技术，持续优化现有系统性能，提升系统的稳定性与安全性，保持技术先进性",
+      "与产品、设计、后端开发团队紧密合作，确保项目开发过程中各环节的顺畅对接，共同推动项目目标的实现"
+    ],
+    "jd_requirements": [
+      "本科以上在读，计算机相关专业，对 AI 技术和大语言模型有浓厚兴趣",
+      "掌握 HTML/CSS/JavaScript 基础，了解 Vue 或 React 任一框架",
+      "熟练使用 AI 编程助手（如 Claude Code、OpenCode、Codex、Cursor 等）",
+      "能够通过 AI 工具快速学习新技术和解决问题，学习能力强，愿意尝试新工具，主动性强，善于利用 AI 提升效率"
+    ],
+    "jd_summary": "在 vivo AI 研究院参与 AI 平台产品（AI Coding、智能体）的架构设计与前端功能开发，覆盖需求分析到上线全流程。与产品、设计、后端协作，持续优化系统性能、稳定性与安全性。",
+    "requirements_summary": "本科以上计算机相关专业，掌握 HTML/CSS/JavaScript 及 Vue 或 React。需熟悉 AI 编程助手（Cursor 等），对 AI/LLM 有兴趣，学习能力强、主动性强。",
+    "tech_stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Vue",
+      "React",
+      "AI Coding",
+      "Agent",
+      "LLM",
+      "Cursor"
+    ],
+    "education": "本科以上在读",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.95,
+    "reason": "岗位为前端开发（Vue/React）且明确 Agent/AI Coding 方向，职责与目标中的前端开发、Agent 应用开发高度重合，无模型训练或算法研究要求"
+  }
+}

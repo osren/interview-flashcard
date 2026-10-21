@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>秋招简历 · 专业术语名词解释</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='44' font-family='sans-serif' font-size='36' font-weight='700' fill='%23fff' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f6fa; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --c1:#2563eb; --c2:#0d9488; --c3:#7c3aed; --c4:#ea580c; --c5:#dc2626; --c6:#16a34a; --c7:#0ea5e9;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;line-height:1.65;font-size:14px}
+.page{max-width:980px;margin:0 auto;padding:0 16px 60px}
+.page-head{padding:34px 0 8px}
+.page-head h1{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:.5px}
+.page-head .sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.meta span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:12px;color:#374151}
+.stat{display:flex;flex-wrap:wrap;gap:0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.stat div{flex:1;min-width:120px;padding:12px 16px;text-align:center;border-right:1px solid var(--line)}
+.stat div:last-child{border-right:none}
+.stat b{display:block;font-size:22px;font-weight:800;color:#111827}
+.stat i{font-style:normal;font-size:12px;color:var(--muted)}
+/* sticky search */
+.searchbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);padding:10px 0;margin:0 -16px;padding-left:16px;padding-right:16px}
+.searchbar .inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.searchbar label{font-size:13px;font-weight:700;color:#111827;white-space:nowrap}
+.searchbar input{flex:1;max-width:520px;border:1px solid #d1d5db;border-radius:8px;padding:7px 12px;font-size:13px;outline:none;background:#fff}
+.searchbar input:focus{border-color:var(--c1);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+.searchbar .res{font-size:12px;color:var(--muted);white-space:nowrap}
+.searchbar button{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:7px 12px;font-size:12px;color:#374151;cursor:pointer}
+.searchbar button:hover{background:#f3f4f6}
+/* toc */
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 6px}
+.toc a{color:#374151;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12.5px}
+.toc a:hover{border-color:var(--c1);color:var(--c1)}
+/* sections */
+section{margin-top:30px}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;border-bottom:2px solid var(--line);padding-bottom:8px}
+.sec-head .no{flex:none;width:26px;height:26px;border-radius:7px;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.sec-head h2{margin:0;font-size:18px;font-weight:800}
+.sec-head .cnt{margin-left:auto;font-size:12px;color:var(--muted)}
+/* term map */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.mcard h3{margin:0 0 10px;font-size:13.5px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
+.mcard h3 .dot{width:9px;height:9px;border-radius:50%}
+.mcard h3 .cnt{margin-left:auto;font-size:11px;color:#9ca3af;font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#f3f4f6;border:1px solid #e7e9ee;border-radius:999px;padding:2px 9px;font-size:11.5px;color:#1f2937}
+.chip i{width:7px;height:7px;border-radius:50%;flex:none}
+a.chip{text-decoration:none;cursor:pointer}
+a.chip:hover{border-color:var(--c1);background:#eef2ff}
+table.glossary tbody tr{scroll-margin-top:72px}
+table.glossary tbody tr:target{background:#e8f0fe}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#374151;margin:10px 0 14px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+/* glossary tables */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table.glossary{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;min-width:680px}
+table.glossary col.term{width:20%}
+table.glossary col.def{width:54%}
+table.glossary col.ctx{width:26%}
+table.glossary th{background:#eef0f5;text-align:left;padding:9px 12px;font-size:12.5px;color:#374151;border-bottom:1px solid var(--line);white-space:nowrap}
+table.glossary td{padding:9px 12px;border-bottom:1px solid #eff1f5;vertical-align:top;line-height:1.6}
+table.glossary tbody tr:last-child td{border-bottom:none}
+table.glossary tbody tr:hover{background:#fafbff}
+td .term{font-weight:700;color:#111827;font-size:13.5px;word-break:break-word}
+td .ctx{color:var(--muted);font-size:12px;word-break:break-word}
+td code{font-family:Consolas,"Courier New",monospace;background:#f3f4f6;border-radius:4px;padding:1px 5px;font-size:12px;color:#b45309}
+/* speed list */
+.speed{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 4px}
+.speed .row{display:flex;gap:10px;padding:9px 14px;border-bottom:1px solid #f0f1f5;align-items:baseline}
+.speed .row:last-child{border-bottom:none}
+.speed b{flex:none;width:230px;font-size:13px;color:#111827}
+.speed span{font-size:12.5px;color:#374151}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+/* RESTful 详解 */
+section h3{margin:18px 0 8px;font-size:14.5px;color:#111827}
+.lead{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13.5px;color:#374151}
+.mt{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.mt th{background:#eef0f5;text-align:left;padding:8px 10px;font-size:12.5px;color:#374151;border-bottom:1px solid var(--line);white-space:nowrap}
+.mt td{padding:8px 10px;border-bottom:1px solid #eff1f5;vertical-align:top;line-height:1.6}
+.mt tbody tr:last-child td{border-bottom:none}
+.mt tbody tr:hover{background:#fafbff}
+.meth{display:inline-block;color:#fff;border-radius:5px;padding:1px 9px;font-weight:700;font-family:Consolas,"Courier New",monospace;font-size:12.5px}
+.mx{color:var(--muted);font-size:12px;font-family:Consolas,"Courier New",monospace;word-break:break-all}
+.ok{color:#16a34a;font-weight:600}
+.no{color:#dc2626;font-weight:600}
+.qa{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.qa li{padding:9px 14px;border-bottom:1px solid #f0f1f5}
+.qa li:last-child{border-bottom:none}
+.qa .q{display:block;font-weight:700;color:var(--c7);margin-bottom:2px}
+.dl{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px 10px 30px;margin-top:10px}
+.dl li{margin:5px 0}
+@media (max-width:720px){
+  .stat div{min-width:50%}
+  .speed b{width:150px}
+  .searchbar .res{display:none}
+  .searchbar input{font-size:16px}
+  .searchbar button{min-height:40px}
+  .toc a{min-height:38px;display:inline-flex;align-items:center}
+  table.glossary{font-size:13.5px}
+  .chip{font-size:12px}
+  .page-head .sub{font-size:13.5px}
+}
+@media print{
+  .searchbar{display:none}
+  body{background:#fff}
+  .tbl-scroll{border:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="page-head">
+  <h1>秋招简历 · 专业术语名词解释</h1>
+  <p class="sub">覆盖《谭成_秋招求职简历_v2》与《滴滴实习项目-简历备战指南》中的核心专业术语，按技术域归类；语境列对应简历/指南中的原始位置，便于面试对号入座。</p>
+  <div class="meta">
+    <span>适用：秋招技术面 · 项目复盘</span>
+    <span>版本：2026-09-16</span>
+    <span>场景：性能监控 · AI 告警降噪 · InterviewFlash</span>
+  </div>
+  <div class="stat">
+    <div><b>80</b><i>组术语解释</i></div>
+    <div><b>6</b><i>大技术域</i></div>
+    <div><b>3</b><i>个项目场景</i></div>
+    <div><b>5</b><i>类高频速记</i></div>
+  </div>
+</header>
+
+<div class="searchbar"><div class="inner">
+  <label>术语速查</label>
+  <input id="kw" type="text" placeholder="输入中英文关键词过滤，如 LCP / Adapter / business_reject / 状态机">
+  <button id="clear" type="button">清空</button>
+  <span class="res" id="res"></span>
+</div></div>
+
+<nav class="toc">
+  <a href="#map">术语全景图</a>
+  <a href="#s1">一、性能监控与 Web 指标</a>
+  <a href="#s2">二、前端框架与工程化</a>
+  <a href="#s3">三、LLM 与 AI 工程</a>
+  <a href="#s4">四、告警降噪</a>
+  <a href="#s5">五、评测方法论与后端数据</a>
+  <a href="#s6">六、RESTful API 详解</a>
+  <a href="#speed">高频速记</a>
+</nav>
+
+<section id="map">
+  <div class="sec-head"><span class="no" style="background:var(--c1)">图</span><h2>术语全景图</h2><span class="cnt">色点 = 术语所属项目</span></div>
+  <div class="legend">
+    <span><i style="background:var(--c1)"></i>项目一 · 性能监控</span>
+    <span><i style="background:var(--c4)"></i>项目二 · 告警降噪</span>
+    <span><i style="background:var(--c6)"></i>InterviewFlash</span>
+    <span><i style="background:#6b7280"></i>通用技能</span>
+  </div>
+  <div class="map-grid">
+    <div class="mcard"><h3><span class="dot" style="background:var(--c1)"></span>性能监控与 Web 指标<span class="cnt">24 项</span></h3><div class="chips">
+      <a class="chip" href="#t-lcp"><i style="background:var(--c1)"></i>LCP</a><a class="chip" href="#t-fcp"><i style="background:var(--c1)"></i>FCP</a><a class="chip" href="#t-tti"><i style="background:var(--c1)"></i>TTI</a><a class="chip" href="#t-webvitals"><i style="background:#6b7280"></i>Web Vitals</a><a class="chip" href="#t-perfobs"><i style="background:var(--c1)"></i>PerformanceObserver</a><a class="chip" href="#t-wxperf"><i style="background:var(--c1)"></i>wx.getPerformance</a><a class="chip" href="#t-adapter"><i style="background:var(--c1)"></i>Adapter 模式</a><a class="chip" href="#t-mark"><i style="background:var(--c1)"></i>mark/measure/report</a><a class="chip" href="#t-tracking"><i style="background:var(--c1)"></i>埋点</a><a class="chip" href="#t-mainthread"><i style="background:var(--c1)"></i>主线程</a><a class="chip" href="#t-crp"><i style="background:var(--c1)"></i>关键渲染路径</a><a class="chip" href="#t-threebucket"><i style="background:var(--c1)"></i>三桶拆分</a><a class="chip" href="#t-cachehit"><i style="background:var(--c1)"></i>cacheHit 状态机</a><a class="chip" href="#t-defer"><i style="background:var(--c1)"></i>defer 延后加载</a><a class="chip" href="#t-usememo"><i style="background:var(--c1)"></i>useMemo</a><a class="chip" href="#t-lighthouse"><i style="background:#6b7280"></i>Lighthouse</a><a class="chip" href="#t-devtools"><i style="background:#6b7280"></i>DevTools</a><a class="chip" href="#t-canary"><i style="background:#6b7280"></i>灰度发布</a><a class="chip" href="#t-codesplitting"><i style="background:var(--c6)"></i>Code Splitting</a><a class="chip" href="#t-codesplitting"><i style="background:var(--c6)"></i>懒加载</a><a class="chip" href="#t-waterfall"><i style="background:#6b7280"></i>串行瀑布</a><a class="chip" href="#t-metric"><i style="background:var(--c1)"></i>统计口径</a><a class="chip" href="#t-omega"><i style="background:var(--c1)"></i>Omega 平台</a><a class="chip" href="#t-omega"><i style="background:var(--c1)"></i>星河小程序</a>
+    </div></div>
+    <div class="mcard"><h3><span class="dot" style="background:var(--c2)"></span>前端框架与工程化<span class="cnt">17 项</span></h3><div class="chips">
+      <a class="chip" href="#t-react"><i style="background:var(--c6)"></i>React 18</a><a class="chip" href="#t-ts"><i style="background:var(--c6)"></i>TypeScript</a><a class="chip" href="#t-es6"><i style="background:#6b7280"></i>ES6+</a><a class="chip" href="#t-vite"><i style="background:var(--c6)"></i>Vite</a><a class="chip" href="#t-webpack"><i style="background:#6b7280"></i>Webpack</a><a class="chip" href="#t-tailwind"><i style="background:var(--c6)"></i>Tailwind CSS</a><a class="chip" href="#t-antd"><i style="background:#6b7280"></i>Ant Design</a><a class="chip" href="#t-redux"><i style="background:#6b7280"></i>Redux</a><a class="chip" href="#t-zustand"><i style="background:var(--c6)"></i>Zustand</a><a class="chip" href="#t-framer"><i style="background:var(--c6)"></i>Framer Motion</a><a class="chip" href="#t-recharts"><i style="background:var(--c6)"></i>Recharts</a><a class="chip" href="#t-mpx"><i style="background:var(--c1)"></i>MPX 框架</a><a class="chip" href="#t-h5"><i style="background:var(--c1)"></i>H5/小程序双端</a><a class="chip" href="#t-keepalive"><i style="background:var(--c6)"></i>keep-alive</a><a class="chip" href="#t-debounce"><i style="background:var(--c6)"></i>debounce 防抖</a><a class="chip" href="#t-debounce"><i style="background:var(--c6)"></i>merge 合并</a><a class="chip" href="#t-git"><i style="background:#6b7280"></i>Git 发版</a>
+    </div></div>
+    <div class="mcard"><h3><span class="dot" style="background:var(--c3)"></span>LLM 与 AI 工程<span class="cnt">14 项</span></h3><div class="chips">
+      <a class="chip" href="#t-llm"><i style="background:var(--c4)"></i>LLM</a><a class="chip" href="#t-prompt"><i style="background:var(--c4)"></i>Prompt Engineering</a><a class="chip" href="#t-bizreject"><i style="background:var(--c4)"></i>business_reject</a><a class="chip" href="#t-rag"><i style="background:var(--c6)"></i>RAG</a><a class="chip" href="#t-edgefn"><i style="background:var(--c6)"></i>Edge Function</a><a class="chip" href="#t-jwt"><i style="background:var(--c6)"></i>JWT 鉴权</a><a class="chip" href="#t-rpc"><i style="background:var(--c6)"></i>RPC 原子扣减</a><a class="chip" href="#t-sse"><i style="background:var(--c6)"></i>SSE 流式输出</a><a class="chip" href="#t-deepseek"><i style="background:#6b7280"></i>DeepSeek/Claude</a><a class="chip" href="#t-agentskill"><i style="background:var(--c4)"></i>Agent Skill</a><a class="chip" href="#t-claudecode"><i style="background:#6b7280"></i>Claude Code/Cursor</a><a class="chip" href="#t-ast"><i style="background:var(--c4)"></i>AST 扫描</a><a class="chip" href="#t-axios"><i style="background:var(--c4)"></i>Axios 实例</a><a class="chip" href="#t-explore"><i style="background:var(--c4)"></i>Explore Agent</a>
+    </div></div>
+    <div class="mcard"><h3><span class="dot" style="background:var(--c4)"></span>告警与降噪<span class="cnt">14 项</span></h3><div class="chips">
+      <a class="chip" href="#t-severity"><i style="background:var(--c4)"></i>severity 分级</a><a class="chip" href="#t-fallback"><i style="background:var(--c4)"></i>fallback 兜底</a><a class="chip" href="#t-denois"><i style="background:var(--c4)"></i>告警降噪</a><a class="chip" href="#t-kafka"><i style="background:var(--c4)"></i>Kafka</a><a class="chip" href="#t-triage"><i style="background:var(--c4)"></i>/triage 分流</a><a class="chip" href="#t-triage"><i style="background:var(--c4)"></i>/judge 单判</a><a class="chip" href="#t-triage"><i style="background:var(--c4)"></i>/eval 回归</a><a class="chip" href="#t-domain"><i style="background:var(--c4)"></i>DOMAIN 可插拔</a><a class="chip" href="#t-fingerprint"><i style="background:var(--c4)"></i>指纹去重</a><a class="chip" href="#t-drift"><i style="background:var(--c4)"></i>drift-check</a><a class="chip" href="#t-owned"><i style="background:var(--c4)"></i>ownedPrefixes</a><a class="chip" href="#t-owned"><i style="background:var(--c4)"></i>fallbackKey</a><a class="chip" href="#t-noncore"><i style="background:var(--c4)"></i>non-core</a><a class="chip" href="#t-pipeline"><i style="background:var(--c4)"></i>pipeline 编排</a>
+    </div></div>
+    <div class="mcard"><h3><span class="dot" style="background:var(--c5)"></span>评测与路由方法论<span class="cnt">10 项</span></h3><div class="chips">
+      <a class="chip" href="#t-fnfp"><i style="background:var(--c4)"></i>FN 漏报率</a><a class="chip" href="#t-fnfp"><i style="background:var(--c4)"></i>FP 误报率</a><a class="chip" href="#t-gold"><i style="background:var(--c4)"></i>gold 标注</a><a class="chip" href="#t-trainholdout"><i style="background:var(--c4)"></i>train/holdout</a><a class="chip" href="#t-sample"><i style="background:var(--c4)"></i>正负样本平衡</a><a class="chip" href="#t-recall"><i style="background:var(--c4)"></i>召回率 Recall</a><a class="chip" href="#t-eval"><i style="background:var(--c4)"></i>评测闭环</a><a class="chip" href="#t-mainflow"><i style="background:var(--c4)"></i>主流程链路</a><a class="chip" href="#t-normalize"><i style="background:var(--c4)"></i>路径归一化</a><a class="chip" href="#t-severity"><i style="background:var(--c4)"></i>P0–P3 优先级</a>
+    </div></div>
+    <div class="mcard"><h3><span class="dot" style="background:var(--c6)"></span>后端、数据与业务工具<span class="cnt">10 项</span></h3><div class="chips">
+      <a class="chip" href="#t-supabase"><i style="background:var(--c6)"></i>Supabase</a><a class="chip" href="#t-postgres"><i style="background:var(--c6)"></i>PostgreSQL</a><a class="chip" href="#t-restful"><i style="background:var(--c6)"></i>RESTful API</a><a class="chip" href="#t-sync"><i style="background:var(--c6)"></i>云同步 merge</a><a class="chip" href="#t-jd"><i style="background:var(--c6)"></i>JD 解析</a><a class="chip" href="#t-sab"><i style="background:var(--c6)"></i>S/A/B 分级看板</a><a class="chip" href="#t-prc"><i style="background:var(--c6)"></i>ProgressRaceChart</a><a class="chip" href="#t-seo"><i style="background:var(--c1)"></i>SEO</a><a class="chip" href="#t-python"><i style="background:#6b7280"></i>Python</a><a class="chip" href="#t-git"><i style="background:#6b7280"></i>Git</a>
+    </div></div>
+  </div>
+</section>
+
+<section id="s1">
+  <div class="sec-head"><span class="no" style="background:var(--c1)">01</span><h2>性能监控与 Web 指标</h2><span class="cnt">22 组 · 项目一核心</span></div>
+  <div class="tbl-scroll"><table class="glossary"><colgroup><col class="term"><col class="def"><col class="ctx"></colgroup>
+    <thead><tr><th>术语</th><th>专业释义</th><th>材料中的语境</th></tr></thead>
+    <tbody>
+      <tr id="t-lcp"><td class="term">LCP</td><td>Largest Contentful Paint，最大内容绘制：首屏视口内最大可见内容元素完成渲染的时刻，衡量“用户感知加载速度”的核心 Web Vitals 指标，优秀阈值 ≤2.5s</td><td class="ctx">列表页 LCP 1400→1160ms（↓17%）</td></tr>
+      <tr id="t-fcp"><td class="term">FCP</td><td>First Contentful Paint，首次内容绘制：页面首次绘制出任何可见内容的时间，先于 LCP 发生</td><td class="ctx">perf-monitor.js 监控 LCP/FCP</td></tr>
+      <tr id="t-tti"><td class="term">TTI</td><td>Time to Interactive，可交互时间：页面到能稳定响应交互所需的时间，依赖主线程空闲、长任务结束</td><td class="ctx">首屏取舍：平衡 LCP 与 SEO/TTI</td></tr>
+      <tr id="t-webvitals"><td class="term">Web Vitals</td><td>Google 提出的标准化网页体验指标集，核心为 LCP、INP、CLS</td><td class="ctx">专业技能“Web Vitals 监控与优化”</td></tr>
+      <tr id="t-perfobs"><td class="term">PerformanceObserver</td><td>W3C Performance API 的观察者接口，异步订阅性能条目（LCP/FCP 的 entry），比轮询高效精准</td><td class="ctx">H5 端性能采集方案</td></tr>
+      <tr id="t-wxperf"><td class="term">wx.getPerformance</td><td>小程序端性能 API，提供 mark/measure 等能力返回运行性能数据</td><td class="ctx">星河小程序端采集方案</td></tr>
+      <tr id="t-adapter"><td class="term">Adapter 模式</td><td>适配器设计模式：以统一接口封装不同环境差异，调用方无感知，一套监控代码双端复用</td><td class="ctx">H5/星河双端抽象统一上报</td></tr>
+      <tr id="t-mark"><td class="term">mark / measure / report</td><td>性能打点三段式 API：mark 打标记、measure 计算两标记间耗时、report 上报</td><td class="ctx">PerfMonitor 核心 API</td></tr>
+      <tr id="t-tracking"><td class="term">埋点</td><td>在代码中埋设采集点，记录行为/性能数据并上报，是一切观测的原始手段</td><td class="ctx">用户行为埋点对比卡顿改善</td></tr>
+      <tr id="t-mainthread"><td class="term">主线程</td><td>Main Thread：浏览器执行 JS、样式计算、布局、绘制的线程；长任务（Long Task）会阻塞交互</td><td class="ctx">排序计算累积拖慢主线程</td></tr>
+      <tr id="t-crp"><td class="term">关键渲染路径</td><td>Critical Rendering Path：从 HTML/CSS/JS 到首屏像素的必经步骤链</td><td class="ctx">首屏关键/非关键路径取舍</td></tr>
+      <tr id="t-threebucket"><td class="term">三桶拆分</td><td>把耗时按 render（渲染）/ fetch（接口）/ paint（绘制）三类分别上报，定位瓶颈在网络、渲染还是计算</td><td class="ctx">重渲染耗时曾误计入接口耗时</td></tr>
+      <tr id="t-cachehit"><td class="term">cacheHit → skipFetch → directRender</td><td>缓存命中→跳过请求→直接渲染的状态机，避免命中缓存仍发请求导致白等</td><td class="ctx">列表页切日期优化</td></tr>
+      <tr id="t-defer"><td class="term">defer 延后加载</td><td>把非关键逻辑推迟到主流程之后（动态 import / 空闲执行），不阻塞首屏</td><td class="ctx">privacyPopList 延后</td></tr>
+      <tr id="t-usememo"><td class="term">useMemo</td><td>React Hook：缓存计算结果，依赖不变时跳过重复计算</td><td class="ctx">星河底部菜单排序缓存</td></tr>
+      <tr id="t-lighthouse"><td class="term">Lighthouse</td><td>Google 开源自动化审计工具，对页面性能/可访问性/SEO 评分，属“测量式”工具</td><td class="ctx">与自建 Skill 对比（实测 vs 静态分析）</td></tr>
+      <tr id="t-devtools"><td class="term">DevTools</td><td>Chrome 开发者工具，Performance 面板可录制主线程火焰图</td><td class="ctx">本地验证优化效果</td></tr>
+      <tr id="t-canary"><td class="term">灰度发布</td><td>Canary Release：先小流量验证再逐步全量，降低上线风险</td><td class="ctx">本地验证→灰度小流量→Omega→全量</td></tr>
+      <tr id="t-codesplitting"><td class="term">Code Splitting / 懒加载</td><td>代码分割：按路由/依赖拆包按需加载；懒加载延迟非首屏资源，配合减小首包体积</td><td class="ctx">路由/章节懒加载 + Vite 拆包</td></tr>
+      <tr id="t-waterfall"><td class="term">串行瀑布</td><td>请求瀑布（Waterfall）：网络请求时序图，用于发现串行请求与阻塞</td><td class="ctx">Skill 识别瓶颈（串行瀑布、防抖节流等）</td></tr>
+      <tr id="t-metric"><td class="term">统计口径</td><td>指标的统计范围与定义，口径错则归因错</td><td class="ctx">上报口径修正</td></tr>
+      <tr id="t-omega"><td class="term">Omega / 星河</td><td>Omega：滴滴内部监控/性能数据平台；星河：滴滴内部小程序运行环境（wx.* API 体系）</td><td class="ctx">统一经 Omega 上报；星河底部菜单</td></tr>
+    </tbody>
+  </table></div>
+</section>
+<section id="s2">
+  <div class="sec-head"><span class="no" style="background:var(--c2)">02</span><h2>前端框架与工程化</h2><span class="cnt">16 组 · InterviewFlash / 通用技能</span></div>
+  <div class="tbl-scroll"><table class="glossary"><colgroup><col class="term"><col class="def"><col class="ctx"></colgroup>
+    <thead><tr><th>术语</th><th>专业释义</th><th>材料中的语境</th></tr></thead>
+    <tbody>
+      <tr id="t-react"><td class="term">React 18</td><td>引入并发特性（createRoot、自动批处理、useTransition 等）的 UI 库版本</td><td class="ctx">InterviewFlash 技术栈</td></tr>
+      <tr id="t-ts"><td class="term">TypeScript</td><td>JavaScript 超集，静态类型检查，大型前端工程标配</td><td class="ctx">技术栈</td></tr>
+      <tr id="t-es6"><td class="term">ES6+</td><td>ECMAScript 2015 起的现代 JS 语法（模块化、箭头函数、Promise、async/await）</td><td class="ctx">专业技能</td></tr>
+      <tr id="t-vite"><td class="term">Vite</td><td>基于原生 ESM 的开发服务器与构建工具，按需编译、启动快，支持拆包</td><td class="ctx">Vite 构建优化 + 拆包</td></tr>
+      <tr id="t-webpack"><td class="term">Webpack</td><td>传统模块打包器，loader/plugin 生态成熟，配置较重</td><td class="ctx">构建优化（与 Vite 并列）</td></tr>
+      <tr id="t-tailwind"><td class="term">Tailwind CSS</td><td>原子化（utility-first）CSS 框架，类名组合构建样式</td><td class="ctx">技术栈</td></tr>
+      <tr id="t-antd"><td class="term">Ant Design</td><td>React 企业级组件库</td><td class="ctx">专业技能</td></tr>
+      <tr id="t-redux"><td class="term">Redux</td><td>经典集中式状态管理：单向数据流 + action/reducer，配中间件处理副作用</td><td class="ctx">状态管理方案</td></tr>
+      <tr id="t-zustand"><td class="term">Zustand</td><td>轻量 React 状态管理：API 简洁、无 Provider 嵌套、支持选择性订阅</td><td class="ctx">InterviewFlash 状态管理</td></tr>
+      <tr id="t-framer"><td class="term">Framer Motion</td><td>React 声明式动画库</td><td class="ctx">InterviewFlash</td></tr>
+      <tr id="t-recharts"><td class="term">Recharts</td><td>基于 SVG 的 React 图表库</td><td class="ctx">ProgressRaceChart 底层</td></tr>
+      <tr id="t-mpx"><td class="term">MPX</td><td>滴滴开源的类 Vue 语法小程序跨端框架</td><td class="ctx">商旅小程序技术栈</td></tr>
+      <tr id="t-h5"><td class="term">H5 / 小程序双端</td><td>H5 指移动 Web（WebView 页面），小程序指微信等平台轻应用；多端开发需做环境抽象</td><td class="ctx">商旅双端监控与优化</td></tr>
+      <tr id="t-keepalive"><td class="term">keep-alive</td><td>组件/页面缓存机制，切换时保留状态避免重建</td><td class="ctx">Campus Tab 切换体验</td></tr>
+      <tr id="t-debounce"><td class="term">debounce / merge</td><td>debounce 防抖：高频触发合并为一次执行；merge：云同步时本地与远端数据合并而非覆盖</td><td class="ctx">进度/投递数据防抖同步</td></tr>
+      <tr id="t-git"><td class="term">Git 发版</td><td>版本控制与分支/评审/上线发布流程</td><td class="ctx">协作与发版流程</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <div class="sec-head"><span class="no" style="background:var(--c3)">03</span><h2>LLM 与 AI 工程</h2><span class="cnt">14 组 · 项目二 / InterviewFlash</span></div>
+  <div class="tbl-scroll"><table class="glossary"><colgroup><col class="term"><col class="def"><col class="ctx"></colgroup>
+    <thead><tr><th>术语</th><th>专业释义</th><th>材料中的语境</th></tr></thead>
+    <tbody>
+      <tr id="t-llm"><td class="term">LLM</td><td>Large Language Model，大语言模型：海量语料预训练、以文本生成/理解为核心能力的模型</td><td class="ctx">项目二判定引擎；InterviewFlash 讲解</td></tr>
+      <tr id="t-prompt"><td class="term">Prompt Engineering</td><td>提示词工程：设计 system/user 提示词引导模型行为，改 Prompt 即调策略/阈值，无需改代码</td><td class="ctx">判定 Prompt、business_reject 约束</td></tr>
+      <tr id="t-bizreject"><td class="term">business_reject</td><td>业务正常拒绝清单：接口返回错误形态但属预期业务路径（无票/已退改/重复提交），不应打扰值班</td><td class="ctx">项目二核心设计（防误过滤）</td></tr>
+      <tr id="t-rag"><td class="term">RAG</td><td>Retrieval-Augmented Generation，检索增强生成：先检索相关资料拼入上下文再让模型生成，降低幻觉</td><td class="ctx">技能项“RAG 检索增强”</td></tr>
+      <tr id="t-edgefn"><td class="term">Edge Function</td><td>边缘函数：部署在 CDN 边缘的 Serverless 函数，就近执行低延迟；可做模型代理、鉴权，隐藏密钥</td><td class="ctx">统一代理模型、API Key 不暴露前端</td></tr>
+      <tr id="t-jwt"><td class="term">JWT</td><td>JSON Web Token：无状态身份令牌（Header.Payload.Signature 三段），服务端验签即信任，免会话存储</td><td class="ctx">Edge Function 鉴权</td></tr>
+      <tr id="t-rpc"><td class="term">RPC 原子扣减</td><td>RPC 远程过程调用；原子扣减指用数据库原子更新（如 quota&gt;0 才减）防止并发超扣</td><td class="ctx">日额度扣减</td></tr>
+      <tr id="t-sse"><td class="term">SSE</td><td>Server-Sent Events：基于 HTTP 的单向服务端推送协议，天然支持 LLM 流式逐字输出</td><td class="ctx">AI 讲解流式输出</td></tr>
+      <tr id="t-deepseek"><td class="term">DeepSeek / Claude</td><td>两家大模型服务商（国产/海外）</td><td class="ctx">LLM 应用接入</td></tr>
+      <tr id="t-agentskill"><td class="term">Agent Skill</td><td>可复用的 AI 能力封装（提示词+流程+工具），让 Agent 按固定流程执行任务</td><td class="ctx">perf-debug-loop / page-performance-analysis</td></tr>
+      <tr id="t-claudecode"><td class="term">Claude Code / Cursor</td><td>AI 编程工具：代码生成与代理式编程</td><td class="ctx">AI 辅助开发工具</td></tr>
+      <tr id="t-ast"><td class="term">AST</td><td>Abstract Syntax Tree，抽象语法树：代码结构的树形表示，用于静态分析、自动生成接口清单</td><td class="ctx">以 api/ 目录 + axios 实例做 AST 扫描</td></tr>
+      <tr id="t-axios"><td class="term">Axios 实例</td><td>主流 HTTP 客户端，集中配置的实例声明可作为接口清单的扫描线索</td><td class="ctx">接口清单自动生成</td></tr>
+      <tr id="t-explore"><td class="term">Explore Agent</td><td>自动探索代码的智能体，补充读取内联/动态拼接的接口定义，提升召回</td><td class="ctx">discover Skill 广召回</td></tr>
+    </tbody>
+  </table></div>
+</section>
+<section id="s4">
+  <div class="sec-head"><span class="no" style="background:var(--c4)">04</span><h2>告警降噪</h2><span class="cnt">11 组 · 项目二</span></div>
+  <div class="tbl-scroll"><table class="glossary"><colgroup><col class="term"><col class="def"><col class="ctx"></colgroup>
+    <thead><tr><th>术语</th><th>专业释义</th><th>材料中的语境</th></tr></thead>
+    <tbody>
+      <tr id="t-severity"><td class="term">severity 分级</td><td>告警严重级别（P0–P3，P0 最高）：P1 核心链路、P2 兜底、P3 展示类</td><td class="ctx">severity 路由 + 优先级基线</td></tr>
+      <tr id="t-fallback"><td class="term">fallback 兜底</td><td>异常保守路径：模型超时/解析失败 → should_report=true、severity=P2，永不吞告警</td><td class="ctx">兜底保守上报</td></tr>
+      <tr id="t-denois"><td class="term">告警降噪</td><td>过滤低价值/业务预期告警，让真故障显形；解决“注意力分配”而非故障根因定位</td><td class="ctx">项目二整体目标</td></tr>
+      <tr id="t-kafka"><td class="term">Kafka</td><td>Apache Kafka：分布式消息队列/流平台，用于解耦、削峰、异步消费</td><td class="ctx">告警经 Kafka consumer 进入处理</td></tr>
+      <tr id="t-triage"><td class="term">/triage · /judge · /eval</td><td>三个服务接口：triage 分流判定；judge 单条 case 判定；eval 批量回归评测</td><td class="ctx">评测闭环</td></tr>
+      <tr id="t-domain"><td class="term">DOMAIN 可插拔</td><td>引擎领域无关：按 domains/&lt;team&gt;/ 配置隔离，换业务 = 换配置，引擎零改动</td><td class="ctx">机酒火三个 Domain</td></tr>
+      <tr id="t-fingerprint"><td class="term">指纹去重</td><td>对告警内容归一化哈希，合并重复/相似告警</td><td class="ctx">评测拉异常去重</td></tr>
+      <tr id="t-drift"><td class="term">drift-check</td><td>漂移检测脚本（grep 比对接口清单与代码），防止清单过期；过期只降精度、不漏报</td><td class="ctx">清单维护</td></tr>
+      <tr id="t-owned"><td class="term">ownedPrefixes / fallbackKey</td><td>自有接口前缀（如 /esapp/）与未命中规则时的兜底分类键</td><td class="ctx">路由引擎设计</td></tr>
+      <tr id="t-noncore"><td class="term">non-core</td><td>非自有/非核心接口，按 P3 低优先级处理</td><td class="ctx">正交打标</td></tr>
+      <tr id="t-pipeline"><td class="term">pipeline 编排</td><td>处理流水线：收包→路由→拼 Prompt→调 LLM→解析→派发，各环节解耦</td><td class="ctx">处理核 pipeline.js</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5">
+  <div class="sec-head"><span class="no" style="background:var(--c5)">05</span><h2>评测方法论与后端数据</h2><span class="cnt">17 组 · 项目二 / InterviewFlash</span></div>
+  <div class="tbl-scroll"><table class="glossary"><colgroup><col class="term"><col class="def"><col class="ctx"></colgroup>
+    <thead><tr><th>术语</th><th>专业释义</th><th>材料中的语境</th></tr></thead>
+    <tbody>
+      <tr id="t-fnfp"><td class="term">FN / FP</td><td>False Negative 漏报（真故障未告警，最危险）；False Positive 误报（非故障却告警）。FN 是头号指标，先压到 ≈0 再降 FP</td><td class="ctx">评测头号指标</td></tr>
+      <tr id="t-gold"><td class="term">gold 标注</td><td>人工标注的正确标签（ground truth），作为评测基准</td><td class="ctx">构造评测集 + gold</td></tr>
+      <tr id="t-trainholdout"><td class="term">train / holdout</td><td>训练集 / 留出验证集：在 train 上调 Prompt，用未参与调优的 holdout 验证，防过拟合</td><td class="ctx">数据集冻结、train 调 / holdout 验</td></tr>
+      <tr id="t-sample"><td class="term">正负样本平衡</td><td>正负例比例失衡会让模型“一律不报”刷高分，需控制比例</td><td class="ctx">评测集构建</td></tr>
+      <tr id="t-recall"><td class="term">召回率 Recall</td><td>TP/(TP+FN)，正样本中被检出的比例；FN_rate = 1 − Recall</td><td class="ctx">FN_rate 核心监控</td></tr>
+      <tr id="t-eval"><td class="term">评测闭环</td><td>拉异常→指纹去重→标 gold→run/eval→看指标→归因改 Prompt 的迭代循环</td><td class="ctx">工程化保障</td></tr>
+      <tr id="t-normalize"><td class="term">路径归一化</td><td>pathname 归一化：去除 host/query 后按路径匹配路由规则</td><td class="ctx">路由四步判定</td></tr>
+      <tr id="t-mainflow"><td class="term">主流程链路</td><td>用户核心路径：查(余票)→填单→下单→支付→出票→退改；链路入口异常判 P1</td><td class="ctx">余票查询判 P1 依据</td></tr>
+      <tr id="t-supabase"><td class="term">Supabase</td><td>开源 BaaS（PostgreSQL + Auth + Storage + Edge Functions），可替代 Firebase</td><td class="ctx">InterviewFlash 后端</td></tr>
+      <tr id="t-postgres"><td class="term">PostgreSQL</td><td>开源关系型数据库，功能全面、生态成熟</td><td class="ctx">数据库基础</td></tr>
+      <tr id="t-restful"><td class="term">RESTful API</td><td>以资源为中心的 HTTP API 设计风格（方法 + 状态码 + 资源路径）</td><td class="ctx">API 设计</td></tr>
+      <tr id="t-sync"><td class="term">云同步</td><td>本地与云端数据合并同步：离线本地优先，联网后 merge 合并</td><td class="ctx">岗位库云同步</td></tr>
+      <tr id="t-jd"><td class="term">JD</td><td>Job Description，职位描述</td><td class="ctx">AI 解析 JD、按 JD 自查背诵</td></tr>
+      <tr id="t-sab"><td class="term">S/A/B 分级看板</td><td>按岗位匹配度/进度分级的看板</td><td class="ctx">秋招投递管理</td></tr>
+      <tr id="t-prc"><td class="term">ProgressRaceChart</td><td>自定义进度可视化组件（Recharts 实现）</td><td class="ctx">秋招闭环追踪</td></tr>
+      <tr id="t-seo"><td class="term">SEO</td><td>Search Engine Optimization，搜索引擎优化；与 TTI 同为取舍约束</td><td class="ctx">首屏关键路径取舍</td></tr><tr id="t-python"><td class="term">Python</td><td>脚本语言，常用于自动化脚本、数据处理与工具链开发</td><td class="ctx">专业技能</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <div class="sec-head"><span class="no" style="background:var(--c7)">06</span><h2>RESTful API 详解</h2><span class="cnt">面试向深讲 · 附商旅实例</span></div>
+  <p class="lead">REST（Representational State Transfer，表述性状态转移）是 Roy Fielding 2000 年博士论文提出的架构风格。<b>RESTful API</b> 即遵循该约束、以“资源”为中心的 HTTP API 设计：<b>用 URI 标识资源、用 HTTP 方法表达操作、用状态码表达结果、服务端不保存客户端状态</b>。</p>
+
+  <h3>核心约束（面试常考 5 条）</h3>
+  <div class="dl"><ul>
+    <li><b>资源化（统一接口）</b>：一切皆资源，URI 用名词复数、禁动词 —— <code>/api/v1/orders</code> 而非 <code>/api/v1/getOrders</code>。</li>
+    <li><b>无状态（Stateless）</b>：请求自带完整信息、服务端不存会话；鉴权靠 Token（如 JWT），任意节点可处理请求，方便水平扩展。</li>
+    <li><b>可缓存（Cacheable）</b>：GET 响应可声明缓存，减少重复请求。</li>
+    <li><b>分层（Layered System）</b>：客户端不感知网关、负载均衡、下游服务。</li>
+    <li><b>统一接口语义</b>：方法 + 状态码 + 内容协商（JSON/XML），接口自描述。</li>
+  </ul></div>
+
+  <h3>URL 设计规范</h3>
+  <div class="dl"><ul>
+    <li>名词复数 + 层级嵌套表达从属：<code>/api/v1/orders/{id}/items</code></li>
+    <li>过滤 / 分页 / 排序走 query：<code>?status=paid&amp;page=2&amp;page_size=20&amp;sort=-created_at</code></li>
+    <li>版本号放路径：<code>/v1/</code></li>
+    <li>动作语义用 POST 表达（退款更 REST 的做法是 <code>PATCH /orders/{id}</code> 改 status，而非 <code>POST /orders/{id}/refund</code>）</li>
+  </ul></div>
+
+  <h3>HTTP 方法与状态码对照</h3>
+  <div class="tbl-scroll"><table class="mt"><colgroup><col style="width:13%"><col style="width:10%"><col style="width:20%"><col style="width:11%"><col style="width:11%"><col style="width:35%"></colgroup>
+    <thead><tr><th>方法</th><th>CRUD</th><th>语义</th><th>幂等</th><th>成功码</th><th>商旅示例</th></tr></thead>
+    <tbody>
+      <tr><td><span class="meth" style="background:#16a34a">GET</span></td><td>读</td><td>读取资源，无副作用</td><td class="ok">幂等</td><td>200 OK</td><td class="mx">GET /api/v1/flights?from=CTU&amp;to=PEK&amp;date=2026-10-01</td></tr>
+      <tr><td><span class="meth" style="background:#ea580c">POST</span></td><td>新建</td><td>创建资源 / 触发动作</td><td class="no">非幂等</td><td>201 Created</td><td class="mx">POST /api/v1/orders（下单占座）</td></tr>
+      <tr><td><span class="meth" style="background:#2563eb">PUT</span></td><td>整替</td><td>整体替换资源</td><td class="ok">幂等</td><td>200 / 204</td><td class="mx">PUT /api/v1/orders/10086</td></tr>
+      <tr><td><span class="meth" style="background:#7c3aed">PATCH</span></td><td>局部更新</td><td>部分修改字段</td><td class="no">通常非幂等</td><td>200 / 204</td><td class="mx">PATCH /api/v1/orders/10086（改乘机人）</td></tr>
+      <tr><td><span class="meth" style="background:#dc2626">DELETE</span></td><td>删除</td><td>删除资源</td><td class="ok">幂等</td><td>204 No Content</td><td class="mx">DELETE /api/v1/orders/10086（退票）</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>常见状态码速记</h3>
+  <div class="dl"><ul>
+    <li><b>2xx（成功）</b>：200 成功 · 201 创建成功 · 204 无内容（删除）</li>
+    <li><b>4xx（客户端问题）</b>：400 参数格式错 · 401 未认证 · 403 无权限 · 404 资源不存在 · 409 冲突（重复下单 / 无票） · 422 业务校验不通过 · 429 限流</li>
+    <li><b>5xx（服务端问题）</b>：500 内部错误 · 502 网关错误 · 503 服务不可用 · 504 超时</li>
+  </ul></div>
+
+  <h3>完整例子：商旅机票下单链路（对应简历业务）</h3>
+  <div class="tbl-scroll"><table class="mt"><colgroup><col style="width:16%"><col style="width:56%"><col style="width:28%"></colgroup>
+    <thead><tr><th>步骤</th><th>请求与结果</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="term">1. 查余票</td><td><code>GET /api/v1/flights?from=CTU&amp;to=PEK&amp;date=2026-10-01</code> → 200</td><td class="ctx">返回航班列表</td></tr>
+      <tr><td class="term">2. 下单占座</td><td><code>POST /api/v1/orders</code>，body 带航班 + 乘客 → 201 Created，<code>Location</code> 指向新订单</td><td class="ctx">创建资源</td></tr>
+      <tr><td class="term">3. 无票失败</td><td>同 2，但余票不足 → <code>409 Conflict</code> <code>{code:"NO_TICKET"}</code></td><td class="ctx">即 business_reject 里的“无票”</td></tr>
+      <tr><td class="term">4. 查订单</td><td><code>GET /api/v1/orders/20261001-001</code> → 200</td><td class="ctx">按 id 读资源</td></tr>
+      <tr><td class="term">5. 改签</td><td><code>PATCH /api/v1/orders/20261001-001</code> <code>{new_flight_id}</code> → 200</td><td class="ctx">局部更新</td></tr>
+      <tr><td class="term">6. 退票</td><td><code>DELETE /api/v1/orders/20261001-001</code> → 204 No Content</td><td class="ctx">删除资源</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:12.5px;color:var(--muted);margin-top:8px">项目二里的 <code>POST /api/v1/alarms/triage</code>、<code>/judge</code>、<code>/eval</code> 同样是标准 RESTful 风格：资源是“告警 / 评测用例”，动作靠 POST 触发。</p>
+
+  <h3>面试高频追问速答</h3>
+  <ul class="qa">
+    <li><span class="q">REST vs RPC？</span>REST 面向资源、语义来自 HTTP，适合对外 / 跨团队开放接口；RPC（gRPC、JSON-RPC）面向“方法调用”，强类型、性能好，常见于内部服务间。</li>
+    <li><span class="q">PUT vs PATCH？</span>PUT 整体替换（缺字段会被清空），PATCH 只改传入字段；PUT 幂等，PATCH 通常不幂等。</li>
+    <li><span class="q">为什么无状态？</span>任意节点可处理请求 → 易水平扩展、易缓存、故障恢复简单；代价是每次请求携带更多信息。</li>
+    <li><span class="q">幂等性怎么理解？</span>GET/PUT/DELETE 幂等（重试结果一致），POST 不幂等 —— 所以“重复提交”要用幂等键（Idempotency-Key）或数据库唯一约束兜住，正好对应 business_reject 里的“重复提交”场景。</li>
+    <li><span class="q">400 和 422 怎么选？</span>400 是语法 / 格式错误，422 是语义 / 业务校验不通过（如无票）。</li>
+    <li><span class="q">鉴权怎么做？</span>JWT Bearer Token：放 <code>Authorization</code> 头，服务端验签；401 未认证、403 无权限。</li>
+  </ul>
+</section>
+
+<section id="speed">
+  <div class="sec-head"><span class="no" style="background:var(--c6)">记</span><h2>面试高频速记</h2><span class="cnt">每句一个要点，临场够用</span></div>
+  <div class="speed">
+    <div class="row"><b>LCP</b><span>首屏最大内容绘制时间，衡量加载感知，≤2.5s 优秀</span></div>
+    <div class="row"><b>Adapter 模式</b><span>统一接口抽象双端差异，一套监控代码多端复用</span></div>
+    <div class="row"><b>cacheHit→skipFetch→directRender</b><span>缓存命中直渲，避免白等请求</span></div>
+    <div class="row"><b>business_reject</b><span>业务正常拒绝清单，防止降噪误过滤真故障</span></div>
+    <div class="row"><b>severity</b><span>告警分级 P0–P3，主流程入口异常判 P1</span></div>
+    <div class="row"><b>FN / FP</b><span>漏报/误报，FN 是头号指标（宁可误报不可误杀）</span></div>
+    <div class="row"><b>DOMAIN 可插拔</b><span>换业务 = 换配置，引擎零改动</span></div>
+    <div class="row"><b>SSE + Edge Function</b><span>流式输出 + 边缘代理鉴权，密钥不落地前端</span></div>
+  </div>
+</section>
+
+<footer>
+  术语来源：《谭成_秋招求职简历_v2》与《滴滴实习项目-简历备战指南》（2026-09-15 版）。页面可离线打开，支持关键词过滤检索。
+</footer>
+
+</div>
+<script>
+(function(){
+  var input = document.getElementById('kw');
+  var clearBtn = document.getElementById('clear');
+  var res = document.getElementById('res');
+  var rows = document.querySelectorAll('.glossary tbody tr');
+  var total = rows.length;
+  function filter(){
+    var q = input.value.trim().toLowerCase();
+    var hit = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var show = !q || rows[i].textContent.toLowerCase().indexOf(q) !== -1;
+      rows[i].style.display = show ? '' : 'none';
+      if (show) hit++;
+    }
+    res.textContent = q ? '命中 ' + hit + ' / ' + total + ' 条' : '共 ' + total + ' 条术语';
+  }
+  input.addEventListener('input', filter);
+  clearBtn.addEventListener('click', function(){
+    input.value = '';
+    filter();
+    input.focus();
+  });
+  filter();
+})();
+</script>
+<script>
+document.addEventListener('click', function(e){
+  var a = e.target && e.target.closest ? e.target.closest('a.chip') : null;
+  if (!a) return;
+  var kw = document.getElementById('kw');
+  if (kw && kw.value.trim()) {
+    kw.value = '';
+    kw.dispatchEvent(new Event('input'));
+  }
+});
+</script>
+</body>
+</html>

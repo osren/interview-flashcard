@@ -1,0 +1,147 @@
+# Supabase Phase 0 部署与验证
+
+## 1. 本地环境变量
+
+复制模板并填写真实值：
+
+```bash
+cp .env.example .env
+```
+
+`.env` 内容：
+
+```env
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon-key>
+```
+
+## 2. 设置 DeepSeek Secret
+
+```powershell
+supabase secrets set DEEPSEEK_API_KEY=sk-你的新密钥
+```
+
+或在 Dashboard → **Edge Functions → Secrets** 添加 `DEEPSEEK_API_KEY`。
+
+## 3. 部署 Edge Functions
+
+```powershell
+cd F:\InterviewFlash
+supabase functions deploy llm-proxy --no-verify-jwt
+supabase functions deploy fetch-jd-url --no-verify-jwt
+supabase functions deploy parse-jd --no-verify-jwt
+supabase functions deploy optimize-resume --no-verify-jwt
+```
+
+## 4. 启动前端
+
+```powershell
+pnpm install
+pnpm dev
+```
+
+## 5. 验证流程
+
+1. 打开 http://localhost:5173 ，点击 Header 右上角 **登录**
+2. 注册/登录测试账号
+3. 浏览器 Console 执行：
+
+```javascript
+const { data: { session } } = await (await import('/src/lib/supabase/client.ts')).supabase.auth.getSession()
+console.log(session?.access_token?.slice(0, 20))
+```
+
+4. 或用 curl 测试流式：
+
+```powershell
+curl -N -X POST "https://<project-ref>.supabase.co/functions/v1/llm-proxy" `
+  -H "Authorization: Bearer <access_token>" `
+  -H "Content-Type: application/json" `
+  -d "{\"model\":\"deepseek-chat\",\"messages\":[{\"role\":\"user\",\"content\":\"说你好\"}],\"stream\":true}"
+```
+
+## 6. Vercel 环境变量
+
+在 Vercel 项目 Settings → Environment Variables 添加：
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+修改后需 Redeploy。
+
+## 7. 头像 Storage（用户名 / 头像功能）
+
+在 Supabase Dashboard → **SQL Editor** 执行：
+
+`supabase/migrations/20260818000000_avatars_storage.sql`
+
+或在 Storage 页面手动创建 **public** bucket：`avatars`（2MB，允许 image/*）。
+
+用户资料保存在 Auth `user_metadata`：
+
+- `username` — 显示名（必填，2-16 字符）
+- `avatar_url` — 头像 URL（上传后自动生成，或手动填外链）
+
+首次登录若未设置用户名，会自动弹出「完善个人资料」。
+
+## 8. 秋招投递云端同步
+
+在 Supabase Dashboard → **SQL Editor** 执行：
+
+`supabase/migrations/20260831000000_campus_job_sync.sql`
+
+自定义岗位表（手动新增 / AI 解析，一行一岗）：
+
+`supabase/migrations/20260831100000_campus_user_jobs.sql`
+
+内置岗位目录（51 岗，全员可读）：
+
+`supabase/migrations/20260831120000_campus_job_catalog.sql`
+`supabase/migrations/20260831120001_seed_campus_job_catalog.sql`
+
+更新内置岗位 JSON 后重新生成种子：
+
+```bash
+node scripts/generate-campus-catalog-seed.mjs
+supabase db push
+```
+
+登录后会自动：
+
+1. 拉取云端投递记录（自定义岗位、投递进度、自定义公司）
+2. 与本地 localStorage 合并（按岗位进度 `updatedAt` 取较新）
+3. 自定义岗位写入 `campus_user_jobs` 表（一行一岗，换设备可恢复）
+4. 写回云端；之后本地变更会 debounce 自动上传（新增岗位立即上传）
+
+未登录时仍使用本地存储；登录后记录会跟着账号走。
+
+## 9. 面经 Markdown 导入与云端持久化
+
+PDF 转换后的示例面经：
+
+`docs/面经/途虎养车全栈开发工程师_面试问答整理.md`
+
+导入步骤：在面经模块创建或打开一个场次，进入 Markdown 阅读页，点击“从 Markdown 文件导入”（编辑时按钮为“导入 .md”），选中 `.md`/`.mdown` 文件，预览确认后点击保存。
+
+首次启用面经云同步前，在 Supabase Dashboard → **SQL Editor** 执行：
+
+`supabase/migrations/20261020120000_interview_sync.sql`
+
+登录后会把面经公司、部门、场次、Markdown 内容和收藏问题保存为该用户的一份云端快照。已有云端快照时登录会先以云端内容恢复本机，后续改动自动上传；首次云端无记录时上传本机内容。表启用了 RLS，用户只能读取和修改自己的记录。尚未执行迁移时，页面会提示当前仅保存在本机。
+
+## 文件清单
+
+| 路径 | 说明 |
+|------|------|
+| `src/lib/supabase/client.ts` | Supabase 客户端 |
+| `src/lib/llm/call.ts` | LLM 调用封装 |
+| `src/components/Auth/*` | 登录注册 |
+| `src/lib/supabase/campus-job-sync.ts` | 秋招投递进度云端同步 |
+| `src/lib/supabase/campus-user-jobs.ts` | 自定义岗位云端同步（独立表） |
+| `src/lib/supabase/campus-job-catalog.ts` | 内置岗位目录拉取 |
+| `src/hooks/useCampusJobSync.tsx` | 登录后自动同步 hook |
+| `supabase/migrations/20260831000000_campus_job_sync.sql` | 投递记录表 + RLS |
+| `supabase/migrations/20260831100000_campus_user_jobs.sql` | 自定义岗位表 + RLS |
+| `supabase/migrations/20260831120000_campus_job_catalog.sql` | 内置岗位目录表 + RLS |
+| `supabase/migrations/20260831120001_seed_campus_job_catalog.sql` | 内置 51 岗种子数据 |
+| `supabase/functions/llm-proxy/index.ts` | Edge Function 代理 |

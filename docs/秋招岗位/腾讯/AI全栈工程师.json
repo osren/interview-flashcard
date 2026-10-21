@@ -1,0 +1,60 @@
+{
+  "basic": {
+    "position": "AI全栈工程师",
+    "company": "腾讯",
+    "location": ""
+  },
+  "details": {
+    "job_url": "https://join.qq.com/post_detail.html?postid=1282707398326592512",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_fullstack",
+    "jd_responsibilities": [
+      "负责产品业务系统的全栈开发，涵盖前端交互、后端服务、数据存储等，参与需求分析、架构设计、开发交付与迭代优化",
+      "构建基于大模型的全链路应用系统，包括 AI 能力接入、Agent 架构设计、RAG 系统搭建、业务知识库建设等，实现端到端的 AI 应用落地",
+      "跟踪 AI 与全栈技术的前沿发展，关注行业前沿动态，并结合业务场景进行落地实践"
+    ],
+    "jd_requirements": [
+      "熟练掌握主流前后端技术栈，具备扎实的计算机基础知识和全栈工程能力，能够完成需求分析、方案设计、开发交付及迭代优化的完整流程",
+      "熟练使用 AI 编程工具（如 Cursor、Claude Code 等），能通过 AI 完成业务开发与应用搭建",
+      "了解大模型基本原理与推理部署方式，熟悉 RAG 技术、Agent 原理（包括 Tool Use、Planning、Memory 等），有相关实践经验",
+      "具备系统设计能力，了解分布式系统、微服务架构、消息队列、缓存等后端核心技术",
+      "对 AI 前沿技术有浓厚兴趣，愿意主动探索 AI 在业务场景的创新应用",
+      "具备良好的沟通协作与问题解决能力，有较强的责任心，能高效配合团队完成项目交付",
+      "加分：有全栈/AI 应用平台项目经验，RAG 及 LangGraph/AutoGen 等 Agent 框架经验，复杂 Agent 构建与质量评估能力，开源/技术博客/竞赛经历"
+    ],
+    "jd_summary": "负责业务系统全栈开发（前端/后端/数据存储），并构建基于大模型的全链路 AI 应用，涵盖 AI 能力接入、Agent 架构、RAG 与业务知识库。面向 CDG/CSIG/IEG/PCG/TEG/WXG 等多事业群招聘，远程面试。",
+    "requirements_summary": "要求全栈工程能力及 Cursor/Claude Code 等 AI 编程工具使用经验，熟悉 RAG、Agent（Tool Use/Planning/Memory）并有实践。需了解分布式/微服务/消息队列/缓存；LangGraph/AutoGen、复杂 Agent 构建与全栈项目为加分项。",
+    "tech_stack": [
+      "全栈",
+      "RAG",
+      "Agent",
+      "Tool Use",
+      "Planning",
+      "Memory",
+      "Cursor",
+      "Claude Code",
+      "LangGraph",
+      "AutoGen",
+      "微服务",
+      "消息队列",
+      "缓存",
+      "分布式系统"
+    ],
+    "education": "",
+    "major": ""
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_fullstack",
+    "batch_type": "official",
+    "confidence": 0.97,
+    "reason": "岗位为 AI 全栈工程师，职责涵盖前端/后端全栈开发与 Agent/RAG 全链路落地，明确要求 Cursor/Claude Code 及 Agent 实践经验，与目标中的 AI 全栈、Agent 应用开发高度匹配；加分项含算法调优但非主要求"
+  }
+}

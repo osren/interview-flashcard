@@ -2,15 +2,18 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface PomodoroState {
-  timeLeft: number; // 剩余秒数
+  timeLeft: number;
   isRunning: boolean;
-  isBreak: boolean; // false=学习中, true=休息中
-  completedCount: number; // 完成的番茄钟次数
-  workDuration: number; // 工作时长（秒）
-  breakDuration: number; // 休息时长（秒）
+  isBreak: boolean;
+  isSessionActive: boolean;
+  completedCount: number;
+  workDuration: number;
+  breakDuration: number;
 
-  // Actions
-  toggle: () => void;
+  start: () => void;
+  pause: () => void;
+  cancel: () => void;
+  restart: () => void;
   reset: () => void;
   tick: () => void;
   complete: () => void;
@@ -22,24 +25,48 @@ export const usePomodoroStore = create<PomodoroState>()(
       timeLeft: 25 * 60,
       isRunning: false,
       isBreak: false,
+      isSessionActive: false,
       completedCount: 0,
       workDuration: 25 * 60,
       breakDuration: 5 * 60,
 
-      toggle: () => set((state) => ({ isRunning: !state.isRunning })),
+      start: () =>
+        set({
+          isRunning: true,
+          isSessionActive: true,
+        }),
 
-      reset: () => set({
-        isRunning: false,
-        isBreak: false,
-        timeLeft: get().workDuration,
-      }),
+      pause: () => set({ isRunning: false }),
+
+      cancel: () =>
+        set({
+          isRunning: false,
+          isSessionActive: false,
+          isBreak: false,
+          timeLeft: get().workDuration,
+        }),
+
+      restart: () =>
+        set({
+          isRunning: true,
+          isSessionActive: true,
+          isBreak: false,
+          timeLeft: get().workDuration,
+        }),
+
+      reset: () =>
+        set({
+          isRunning: false,
+          isSessionActive: false,
+          isBreak: false,
+          timeLeft: get().workDuration,
+        }),
 
       tick: () => {
         const { timeLeft, isRunning, isBreak, workDuration, breakDuration, completedCount } = get();
         if (!isRunning) return;
 
         if (timeLeft <= 1) {
-          // 时间到，切换状态
           const willBeBreak = !isBreak;
           const newTimeLeft = willBeBreak ? breakDuration : workDuration;
           const newCompletedCount = willBeBreak ? completedCount + 1 : completedCount;
@@ -47,6 +74,7 @@ export const usePomodoroStore = create<PomodoroState>()(
             timeLeft: newTimeLeft,
             isBreak: willBeBreak,
             isRunning: false,
+            isSessionActive: false,
             completedCount: newCompletedCount,
           });
         } else {
@@ -61,6 +89,7 @@ export const usePomodoroStore = create<PomodoroState>()(
           isBreak: newIsBreak,
           timeLeft: newIsBreak ? breakDuration : workDuration,
           isRunning: false,
+          isSessionActive: false,
           completedCount: isBreak ? completedCount : completedCount + 1,
         });
       },

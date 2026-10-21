@@ -13,7 +13,7 @@ export function Footer() {
             </div>
           </div>
           <p className="text-sm text-[#afafaf] font-bold">
-            专为谭成同学面试准备
+            专注为你的秋招、春招、面试提供面试准备方案！
           </p>
         </div>
       </div>

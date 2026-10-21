@@ -13,6 +13,6 @@ export interface LearningProgress {
 export interface FilterOptions {
   module?: 'core' | 'projects' | 'algorithms';
   difficulty?: 'easy' | 'medium' | 'hard';
-  status?: 'unvisited' | 'forgotten' | 'fuzzy' | 'mastered';
+  status?: 'unvisited' | 'remembered' | 'review';
   search?: string;
 }

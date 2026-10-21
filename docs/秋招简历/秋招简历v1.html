@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>谭成 - 秋招简历</title>
+  <style>
+    @page { size: A4; margin: 14mm 16mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      color: #1a1a1a;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1.5px solid #222;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .name { font-size: 20pt; font-weight: 700; letter-spacing: 2px; }
+    .meta { text-align: right; font-size: 9.5pt; color: #333; line-height: 1.6; }
+    h2 {
+      font-size: 11pt;
+      font-weight: 700;
+      margin: 10px 0 5px;
+      padding-left: 6px;
+      border-left: 3px solid #222;
+    }
+    .entry-title {
+      font-weight: 700;
+      margin: 6px 0 3px;
+      font-size: 10.5pt;
+    }
+    ul { padding-left: 1.2em; margin: 2px 0 4px; }
+    li { margin-bottom: 2px; }
+    .edu { margin-bottom: 2px; }
+    .sub { color: #444; font-size: 10pt; margin-bottom: 4px; }
+    .awards { margin-top: 8px; font-size: 10pt; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="name">谭成</div>
+    <div class="meta">
+      2001.05 | 四川省成都市<br />
+      15281070525 | 1529924810@qq.com
+    </div>
+  </div>
+
+  <h2>教育背景</h2>
+  <div class="edu"><strong>2020.09 — 2024.06</strong>　西南石油大学　数据科学与大数据技术（本科）　专业排名：前 5%</div>
+  <div class="edu"><strong>2024.09 — 2027.06</strong>　重庆邮电大学　计算机科学与技术（硕士）　专业排名：前 10%</div>
+
+  <h2>专业技能</h2>
+  <ul>
+    <li><strong>语言基础</strong>：JavaScript / TypeScript、HTML5 / CSS3</li>
+    <li><strong>框架与多端</strong>：熟练掌握 React，熟悉 Vue；小程序 / H5 多端开发</li>
+    <li><strong>UI 与状态</strong>：Ant Design、Tailwind CSS；Redux / Zustand</li>
+    <li><strong>工程与 AI</strong>：熟悉 Vite、Webpack、Git 协作发版；了解 Node.js、Supabase；熟悉 LLM 接入、Prompt 工程与 AI 辅助开发（AI Coding Spec / Agent Skills / Eval）</li>
+  </ul>
+
+  <h2>实习经历</h2>
+  <div class="entry-title">滴滴出行 · 企业版商旅 | 前端开发实习生 | 2026.01 — 2026.07</div>
+  <ul>
+    <li><strong>双端交付</strong>：参与 C 端预订端（小程序/H5）与 B 端配置中台开发，累计交付 20+ 项需求，随 15 次 release 上线</li>
+    <li><strong>业务覆盖</strong>：C 端含分享转化、超标管控、代订选号；B 端含机票政策、用车、供应商等配置模块</li>
+    <li><strong>AI 协同开发</strong>：按团队 AI Coding Spec，用 Cooper / 工作流 Skill / 页面脚手架辅助需求分析与编码</li>
+    <li><strong>质量保障</strong>：沉淀表单、列表等通用组件；参与 CR 与发版流程，把关样式兼容与上线质量</li>
+  </ul>
+
+  <h2>实习产出</h2>
+  <div class="sub"><strong>性能监控与体验优化</strong> | PerfMonitor / Omega / Agent Skill | 实习产出</div>
+  <ul>
+    <li><strong>监控体系</strong>：搭建跨页链路与 Web Vitals 统一监控，覆盖 H5/星河双端</li>
+    <li><strong>体验优化</strong>：优化首页与列表首屏，列表 LCP 1400→1160ms（↓17%），菜单切换卡顿约 ↓27%</li>
+    <li><strong>分析闭环</strong>：沉淀 page-performance-analysis Skill，形成「定位 → 改造 → 验收」闭环</li>
+  </ul>
+  <div class="sub"><strong>商旅接口错误告警智能降噪（error-triage）</strong> | Prompt 工程 · Agent Skills · Eval | 实习产出</div>
+  <ul>
+    <li><strong>工程理念</strong>：判定交给模型，工程只做路由与编排；调优聚焦 Prompt 而非规则旁路</li>
+    <li><strong>Skills 产品化</strong>：探针发现核心链路、接入生成 Domain 骨架、清单漂移检测，降低业务 onboarding 成本</li>
+    <li><strong>数据驱动</strong>：Eval 批量对比 gold 集，人机协作迭代 Prompt；漏报优先，火车 Domain 已接入</li>
+    <li><strong>技术实现</strong>：动态 Prompt 按 category 按需拼装（<code>_base</code> + 分类规则）；<code>/judge</code>/<code>/eval</code> 支持 gold 对比与 Prompt 回归，解析失败保守上报</li>
+  </ul>
+
+  <h2>项目经历</h2>
+  <div class="entry-title">GResume · 智能简历创作与求职管理平台 | React19 / TipTap / CRDT / LLM | 个人项目 | 2025.10 — 2026.06　Github: https://github.com/506-FETL/resume</div>
+  <ul>
+    <li><strong>全链路产品</strong>：独立设计并实现「编辑 → 模板 → AI 优化 → 协作 → 投递追踪 → 导出」一站式平台，离线优先、登录后云同步</li>
+    <li><strong>编辑与导出</strong>：TipTap 富文本 + Zod/RHF 多模块表单；模板 Manifest 与内容解耦；预览与 PDF 共用运行时保证所见即所得</li>
+    <li><strong>AI 应用</strong>：经 Edge Function 代理 DeepSeek，落地 ATS 结构化诊断（扫描与写入分离）、划词多候选改写、JD 两阶段派生与血缘管理</li>
+    <li><strong>实时协作</strong>：基于 Automerge CRDT + Supabase Realtime，支持分享链接、远程光标与离线合并</li>
+  </ul>
+
+  <div class="awards">英语四级 · 英语六级 · 校二等奖学金 · 校三等奖学金</div>
+</body>
+</html>

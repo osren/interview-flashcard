@@ -1,0 +1,56 @@
+{
+  "basic": {
+    "position": "客户端开发工程师",
+    "company": "得物",
+    "location": "上海"
+  },
+  "details": {
+    "job_url": "https://poizon.jobs.feishu.cn/578078/position/7672230323358779654/detail?share_token=MzsxNzg2MzU3MjQ2ODU1Ozc0Nzc1NTgyMTY5NjUwNDg2MDI7MDsxLzI",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "负责得物 App 及相关产品的 iOS、Android 客户端迭代和新产品研发，为用户交付稳定、流畅的移动端体验",
+      "参与客户端性能、稳定性和体验优化及相关评估体系建设",
+      "参与客户端架构、基础组件和工程体系建设，持续提升代码质量、研发效率与可维护性",
+      "参与容器化、跨平台、插件化、直播、AR/VR 等技术方案调研",
+      "将 AI 应用于客户端方案分析、开发、测试和问题定位，沉淀可复用的工程实践，提升研发质量与效率"
+    ],
+    "jd_requirements": [
+      "2027 届毕业生，本科及以上学历，计算机、软件、通信等相关专业优先，具备 iOS 或 Android 开发经验者优先",
+      "具备扎实的计算机基础，熟练掌握至少一门编程语言，包括但不限于 Objective-C、Swift、Java、Kotlin、C、C++",
+      "热爱计算机科学和互联网技术，对移动端产品有浓厚兴趣，关注用户体验，能够运用技术解决实际问题",
+      "能够运用 AI 快速理解新技术栈、解决实际开发问题，并具备验证和修正 AI 产出的能力",
+      "具备较强的责任心、自驱力和学习能力，积极主动"
+    ],
+    "jd_summary": "负责得物 App iOS/Android 客户端迭代与新产品研发，参与性能/稳定性/体验优化及客户端架构与工程体系建设。调研跨平台、插件化、直播、AR/VR 等方案，并将 AI 用于研发流程提效。",
+    "requirements_summary": "2027 届本科及以上，计算机/软件/通信相关专业，iOS 或 Android 开发经验优先。需掌握 Objective-C/Swift/Java/Kotlin/C/C++ 等，关注移动端体验；能运用 AI 辅助开发，具备自驱力与学习能力。",
+    "tech_stack": [
+      "iOS",
+      "Android",
+      "Objective-C",
+      "Swift",
+      "Java",
+      "Kotlin",
+      "C",
+      "C++",
+      "跨平台",
+      "AR/VR"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件、通信等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.90,
+    "reason": "主职责为 iOS/Android 移动端客户端开发，非 Web 前端或 AI/Agent 工程岗；AI 仅作为研发提效工具（分析/开发/测试辅助），不构成 AI 应用开发匹配"
+  }
+}

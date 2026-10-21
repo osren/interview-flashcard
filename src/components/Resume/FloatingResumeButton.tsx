@@ -2,15 +2,27 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useResumeStore, Resume } from '@/store/useResumeStore';
 import { FileText, X, Download, ChevronRight, Sparkles } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 export function FloatingResumeButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);
+  const [mountedPdfIds, setMountedPdfIds] = useState<Set<string>>(() => new Set());
   const { resumes } = useResumeStore();
+
+  const openPreview = (resume: Resume) => {
+    setPreviewResume(resume);
+    setIsOpen(false);
+    setMountedPdfIds((prev) => {
+      if (prev.has(resume.id)) return prev;
+      const next = new Set(prev);
+      next.add(resume.id);
+      return next;
+    });
+  };
 
   return (
     <>
-      {/* 悬浮按钮 */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -26,7 +38,6 @@ export function FloatingResumeButton() {
         )}
       </motion.button>
 
-      {/* 简历列表弹窗 */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -36,7 +47,6 @@ export function FloatingResumeButton() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed right-6 bottom-24 z-40 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100/50 overflow-hidden"
           >
-            {/* 标题 */}
             <div className="px-4 py-3 border-b border-gray-100/50 flex items-center justify-between bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-blue-500" />
@@ -47,7 +57,6 @@ export function FloatingResumeButton() {
               </span>
             </div>
 
-            {/* 简历列表 */}
             <div className="overflow-y-auto max-h-80">
               {resumes.length === 0 ? (
                 <div className="py-10 text-center">
@@ -62,7 +71,7 @@ export function FloatingResumeButton() {
                   {resumes.map((resume) => (
                     <button
                       key={resume.id}
-                      onClick={() => setPreviewResume(resume)}
+                      onClick={() => openPreview(resume)}
                       className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 text-left group"
                     >
                       <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -79,7 +88,10 @@ export function FloatingResumeButton() {
                           })}
                         </p>
                       </div>
-                      <ChevronRight size={16} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+                      <ChevronRight
+                        size={16}
+                        className="text-gray-300 group-hover:text-blue-500 transition-colors"
+                      />
                     </button>
                   ))}
                 </div>
@@ -89,63 +101,60 @@ export function FloatingResumeButton() {
         )}
       </AnimatePresence>
 
-      {/* PDF 预览弹窗 */}
-      <AnimatePresence>
-        {previewResume && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setPreviewResume(null)}
+      {previewResume && (
+        <div
+          className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setPreviewResume(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* 标题栏 */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-red-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{previewResume.name}</h3>
-                    <p className="text-xs text-gray-400">PDF 文档</p>
-                  </div>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-red-500" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={previewResume.data}
-                    download={`${previewResume.name}.pdf`}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                  >
-                    <Download size={16} />
-                    下载
-                  </a>
-                  <button
-                    onClick={() => setPreviewResume(null)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{previewResume.name}</h3>
+                  <p className="text-xs text-gray-400">PDF 文档</p>
                 </div>
               </div>
-              {/* PDF 预览 */}
-              <div className="flex-1 overflow-hidden bg-gray-100">
-                <iframe
-                  src={previewResume.data}
-                  className="w-full h-full"
-                  title="PDF Preview"
-                />
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewResume.data}
+                  download={`${previewResume.name}.pdf`}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                >
+                  <Download size={16} />
+                  下载
+                </a>
+                <button
+                  onClick={() => setPreviewResume(null)}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+            <div className="relative flex-1 overflow-hidden bg-gray-100">
+              {resumes
+                .filter((r) => mountedPdfIds.has(r.id))
+                .map((r) => (
+                  <iframe
+                    key={r.id}
+                    src={r.data}
+                    className={cn(
+                      'absolute inset-0 w-full h-full',
+                      previewResume.id === r.id ? 'z-0' : 'invisible pointer-events-none'
+                    )}
+                    title={`PDF Preview ${r.name}`}
+                  />
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

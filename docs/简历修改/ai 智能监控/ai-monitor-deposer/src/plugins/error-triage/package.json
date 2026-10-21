@@ -1,0 +1,10 @@
+{
+  "name": "error-triage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "接口错误上报判定服务（引擎 + 各团队 domain）",
+  "engines": {
+    "node": ">=18"
+  }
+}

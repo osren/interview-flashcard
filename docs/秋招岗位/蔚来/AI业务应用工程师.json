@@ -1,0 +1,51 @@
+{
+  "basic": {
+    "position": "AI业务应用工程师",
+    "company": "蔚来",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://nio.jobs.feishu.cn/referral/campus/position/7661853687945431359/detail?token=NTsxNzgyMjEyNzU3NDQ4OzczNDgyMjE4NjAzNTk3OTg3ODc7NzU0MzI4MzkwMTk2MTYzNjE0NzsxLzE",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "early",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "理解智能辅助驾驶业务应用场景，设计和开发 AI Agent 在业务场景中进行落地",
+      "支持 AD 通用能力的 AI 提效业务场景、数据闭环提效场景、模型训练场景、实车 issue 闭环"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，2027 届应届毕业生，计算机、人工智能、软件工程、大数据、自动化等相关专业",
+      "熟练使用至少一种编程语言，了解基础语法、数据结构，有实习项目经验优先",
+      "了解大模型基础概念，了解 Prompt、RAG、AI Agent 基本原理，有相关课程设计、课设、毕设优先",
+      "加分：蒸馏过模型的实践经验、熟悉微调、LoRA、向量检索、多模态等相关技术",
+      "加分：AIGC 竞赛、科创比赛、开源项目贡献经历"
+    ],
+    "jd_summary": "负责智能辅助驾驶业务场景中 AI Agent 落地，覆盖 AD 提效、数据闭环、模型训练场景及实车 issue 闭环。要求 Prompt/RAG/Agent 基础，加分项含微调/LoRA/蒸馏/多模态。2027 届技术提前批，北京。",
+    "requirements_summary": "2027 届本科及以上，计算机/AI/软件等相关专业。需编程与 Prompt/RAG/Agent 基础；加分项明确要求微调/LoRA/模型蒸馏经验，职责含模型训练场景，偏智驾业务而非通用 Agent 工程。",
+    "tech_stack": [
+      "Prompt",
+      "RAG",
+      "Agent",
+      "LoRA",
+      "微调",
+      "模型蒸馏",
+      "向量检索",
+      "多模态"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、人工智能、软件工程、大数据、自动化等相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "early",
+    "confidence": 0.85,
+    "reason": "虽含 Agent 业务落地与 Prompt/RAG，但职责明确含模型训练场景，加分项要求微调/LoRA/蒸馏，属智驾业务+模型训练方向，命中排除项；不如蔚来 Agent 应用开发岗对口"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "basic": {
+    "position": "AI软件工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7672237968027797779/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "负责基于大语言模型（LLM）的 AI Coding 工作流架构设计、系统实现与持续优化，推动 AI 能力在汽车电子嵌入式软件研发中的落地应用",
+      "面向汽车电子相关嵌入式软件开发场景，设计并实现 AI 辅助需求分析、代码生成、代码理解、测试生成、代码审查、缺陷修复等研发工作流",
+      "负责各类 Agent、Skills 和约束规则的设计与实现，构建适用于嵌入式软件开发的智能体协作体系",
+      "将 AI Coding 能力串联到完整软件开发流程中，包括需求、设计、编码、测试、集成、交付等环节，提升研发效率与代码质量",
+      "结合汽车电子软件开发特点，设计面向代码规范、功能安全、可追溯性、质量门禁等要求的 AI 约束机制与评估策略",
+      "参与 Prompt 工程、工具调用、RAG、知识库构建、工作流编排等能力建设，提升 AI 在专业软件工程场景中的准确性、稳定性和可控性",
+      "负责 AI Coding 平台的原型开发、工程化落地与效果评估，持续优化模型能力、任务流程和用户体验",
+      "与软件研发、测试、平台、工具链等团队协作，推动 AI 能力与现有研发体系、工具链和流程深度融合",
+      "跟踪 LLM、Agent、代码大模型及软件工程智能化领域的前沿技术，探索适用于汽车电子研发的创新应用方案"
+    ],
+    "jd_requirements": [
+      "计算机、软件工程、自动化、电子信息、通信工程等相关专业硕士及以上学历",
+      "扎实的编程基础，熟悉 Python，具备良好的软件工程能力；熟悉 C/C++ 者优先，有嵌入式软件开发背景者优先",
+      "了解大语言模型（LLM）基本原理及应用方式，熟悉 Prompt 工程、RAG、Agent、函数调用/工具调用、工作流编排等相关概念",
+      "有 LLM 应用开发经验者优先，熟悉 LangChain、LlamaIndex、AutoGen、CrewAI、OpenAI API 或其他主流 AI 应用开发框架者优先",
+      "了解软件开发全流程，对代码生成、代码评审、测试生成、质量门禁、CI/CD 等研发工程实践有一定认知",
+      "对汽车电子、嵌入式软件开发过程有一定了解者优先，了解代码规范、功能安全、可追溯性等要求者优先",
+      "具备良好的系统设计能力和抽象建模能力，能够将复杂研发场景拆解为可执行的 Agent、Skills 和规则流程",
+      "具备较强的问题分析与落地能力，能够结合业务场景评估 AI 方案效果，并持续迭代优化",
+      "关注 AI 生成结果的准确性、稳定性、安全性和可控性，对 AI 工程化和产业落地有浓厚兴趣",
+      "具备良好的沟通协作能力、学习能力和创新意识，能够在跨团队合作中推动项目落地"
+    ],
+    "jd_summary": "负责基于 LLM 的 AI Coding 工作流架构设计与工程化落地，面向汽车电子嵌入式研发场景构建 Agent/Skills 协作体系。覆盖需求分析、代码生成/审查/测试、缺陷修复等全流程 AI 辅助能力，并建设 RAG、Prompt、工具调用与工作流编排等平台能力。",
+    "requirements_summary": "要求硕士及以上，计算机/软件工程等相关专业，熟悉 Python（C/C++ 优先）。需了解 LLM 应用、Prompt/RAG/Agent/工具调用，有 LangChain、AutoGen、CrewAI 等框架经验者优先。强调软件工程全流程认知、系统设计与 AI 工程化落地能力。",
+    "tech_stack": [
+      "Python",
+      "C/C++",
+      "LLM",
+      "Prompt工程",
+      "RAG",
+      "Agent",
+      "LangChain",
+      "LlamaIndex",
+      "AutoGen",
+      "CrewAI",
+      "OpenAI API",
+      "工具调用",
+      "工作流编排",
+      "CI/CD"
+    ],
+    "education": "硕士及以上学历",
+    "major": "计算机、软件工程、自动化、电子信息、通信工程等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.93,
+    "reason": "主职责为 LLM/Agent 驱动的 AI Coding 工作流与平台工程化，涵盖 RAG、Prompt、Agent/Skills 设计与研发流程集成，属于 Agent 应用开发方向；不涉及模型预训练/算法研究，与目标岗位高度匹配"
+  }
+}

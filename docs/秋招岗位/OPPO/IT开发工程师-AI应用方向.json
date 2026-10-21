@@ -1,0 +1,55 @@
+{
+  "basic": {
+    "position": "IT开发工程师（AI应用方向）",
+    "company": "OPPO",
+    "location": "东莞"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1807?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "负责营销/供应链/研发/财务/HR/办公等 IT 产品 AI 升级重构中的技术方案设计及落地，主要包含相关 AI/Agent 智能体的技术设计、工程实现与效果测试等工作",
+      "协助产品经理完成 AI 场景落地可行性分析，主要包含场景落地关键 AI 相关技术难点识别、技术预研等工作",
+      "参与营销/供应链/研发/财务/HR/办公等 IT 产品的建设工作，主要包含系统架构设计、方案设计、开发实现等工作"
+    ],
+    "jd_requirements": [
+      "计算机、人工智能、通信、电子信息、通信工程、软件工程等相关专业",
+      "熟悉 Java/Python 编程语言，编程功底扎实，熟悉 Web 网络编程及常用中间件的使用（Redis/RocketMQ/MySQL）",
+      "对大模型使用/应用有一定的了解，了解 MCP、A2A 协议，具备良好提示词撰写/优化思路",
+      "逻辑清晰，独立思考，乐于学习了解新事物；具备一定的 AI 思维，善于利用 AI 解决问题",
+      "懂 AI 功能实现，懂 AI 的基本原理，掌握编程能力，能调用，能做算法复现",
+      "AI 能力要求：掌握 AI 功能的工程化实现，了解 AI 基本原理，具备编程与 API 调用能力，可完成算法复现与功能落地（不涉及模型训练）"
+    ],
+    "jd_summary": "负责 OPPO 内部 IT 系统（营销/供应链/财务/HR/办公等）的 AI/Agent 智能体升级，涵盖技术设计、工程实现与效果测试，并参与 AI 场景可行性分析与系统架构开发。要求 Java/Python、MCP/A2A 及 Prompt 工程能力。2027 届校招，东莞。",
+    "requirements_summary": "计算机/AI/软件等相关专业，Java/Python 扎实，熟悉 Redis/RocketMQ/MySQL 及 Web 网络编程。需了解大模型应用、MCP/A2A 协议与 Prompt 优化；AI 为 API 调用与功能工程化，不涉及模型训练。",
+    "tech_stack": [
+      "Java",
+      "Python",
+      "Redis",
+      "RocketMQ",
+      "MySQL",
+      "LLM",
+      "Agent",
+      "MCP",
+      "A2A",
+      "Prompt Engineering"
+    ],
+    "education": "",
+    "major": "计算机、人工智能、通信、电子信息、通信工程、软件工程等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.91,
+    "reason": "主职责为内部 IT 系统 AI/Agent 智能体技术设计与工程实现，明确要求 MCP/A2A/Prompt 及 Java/Python 后端，属于 Agent 应用开发；偏企业 IT/B 端场景，无 Web 前端硬性要求"
+  }
+}

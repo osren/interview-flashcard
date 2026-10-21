@@ -1,0 +1,53 @@
+{
+  "basic": {
+    "position": "前端开发工程师（代驾事业部）",
+    "company": "滴滴",
+    "location": "杭州"
+  },
+  "details": {
+    "job_url": "https://app.mokahr.com/campus_apply/didiglobal/96064?recommendCode=DSxT6zRN#/job/ee6eabcb-2c90-4d54-9d43-9e0332059525",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "参与滴滴代驾业务的小程序、App，以及运营工作台（PC Web）的开发、维护、升级工作",
+      "参与业务日常需求的开发和迭代工作，完成相关代码的编写和测试",
+      "参与相关项目性能优化，优化加载、执行和渲染时间，提升用户体验",
+      "参与相关模块的稳定性建设工作"
+    ],
+    "jd_requirements": [
+      "2027届毕业生，本科及以上学历，计算机相关专业优先",
+      "扎实的计算机理论基础，熟练使用 JS/TS 语言，掌握 Vue、React 开发框架，熟悉前端工程化、组件化思想",
+      "有跨端开发经验的优先，对 MPX、ReactNative、UniApp 有了解的优先",
+      "对技术有进取心，有自驱力，有良好的沟通能力和快速的学习能力"
+    ],
+    "jd_summary": "负责滴滴代驾业务小程序、App 及运营工作台（PC Web）的前端开发、迭代与性能优化，参与稳定性建设。代驾事业部，杭州。2027 届秋招允许投递 3 次。",
+    "requirements_summary": "2027 届本科及以上计算机相关专业，熟练 JS/TS，掌握 Vue/React 及前端工程化组件化。跨端经验优先，了解 MPX/ReactNative/UniApp 者优先。",
+    "tech_stack": [
+      "JavaScript",
+      "TypeScript",
+      "Vue",
+      "React",
+      "MPX",
+      "React Native",
+      "UniApp",
+      "小程序",
+      "前端工程化"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.94,
+    "reason": "标准前端岗（小程序/App/PC Web），JS/TS+Vue/React+工程化；JD 明确 MPX/跨端优先，与滴滴实习 MPX 商旅经验高度契合"
+  }
+}

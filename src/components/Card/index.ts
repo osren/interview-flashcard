@@ -1,2 +1,3 @@
 export { FlashCard } from './FlashCard';
-export { CardScrollArea } from './CardScrollArea';
+export { AnswerImageViewer } from './AnswerImageViewer';
+export { CardIndexPicker } from './CardIndexPicker';

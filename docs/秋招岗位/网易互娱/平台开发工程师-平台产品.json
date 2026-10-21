@@ -1,0 +1,52 @@
+{
+  "basic": {
+    "position": "平台开发工程师（平台产品）",
+    "company": "网易互娱",
+    "location": "广州/新加坡"
+  },
+  "details": {
+    "job_url": "https://campus.game.163.com/app/detail/index?id=4752&projectId=102",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "other",
+    "jd_responsibilities": [
+      "负责新产品的研发，从 0 开始打造用户喜爱的全球化互联网应用，接触项目开发全流程；或加入业界领先的产品团队（UU 加速器、MuMu 模拟器、BUFF 交易平台等），学习成熟项目的开发和运维经验",
+      "负责互联网应用和平台类产品的服务端架构设计、核心业务开发和系统运维",
+      "构建支撑产品稳定运行的底层系统、基础服务、云平台和开发者工具",
+      "对系统进行持续改进，研究和应用新技术，使产品能承载亿万用户访问，提供快速响应、高可用的稳定服务"
+    ],
+    "jd_requirements": [
+      "计算机或相关专业，本科及以上学历",
+      "扎实的计算机专业基础，熟悉常用的数据结构与算法",
+      "熟悉以下至少一种编程语言：C/C++/Python/Java",
+      "熟悉 TCP/UDP 网络协议，了解网络编程",
+      "良好的沟通能力，动手能力强，有探索精神，热爱互联网开发"
+    ],
+    "jd_summary": "负责全球化互联网应用或 UU/MuMu/BUFF 等平台产品的服务端架构设计、核心业务开发与系统运维，构建底层系统、基础服务、云平台与开发者工具，支撑高并发高可用服务。2027 届校招，广州/新加坡。",
+    "requirements_summary": "本科及以上计算机相关专业，算法与数据结构基础扎实。需熟悉 C/C++/Python/Java 之一及 TCP/UDP 网络编程，动手能力强，热爱互联网开发。",
+    "tech_stack": [
+      "C++",
+      "Python",
+      "Java",
+      "TCP/UDP",
+      "网络编程",
+      "服务端架构",
+      "云平台"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机或相关专业"
+  },
+  "match": {
+    "qualified": false,
+    "category": "other",
+    "batch_type": "official",
+    "confidence": 0.91,
+    "reason": "主职责为服务端架构/平台产品开发与系统运维（C++/Python/Java 后端），非 Web 前端或 AI/Agent 工程方向，与目标岗位不匹配"
+  }
+}

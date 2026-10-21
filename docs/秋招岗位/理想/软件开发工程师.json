@@ -1,0 +1,56 @@
+{
+  "basic": {
+    "position": "软件开发工程师",
+    "company": "理想",
+    "location": "北京"
+  },
+  "details": {
+    "job_url": "https://li.jobs.feishu.cn/referral/campus/position/7671978719292377386/detail?token=NTsxNzg0Nzk0NjAyNzM3Ozc1MjkzNDI0MzQ4OTIwMDUzNzc7NzUzNDY1NjMwNDc3NTg5MTIzOTsx",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "agent_dev",
+    "jd_responsibilities": [
+      "参与 DataAgent 研发，基于大模型 Agent 框架，支持理想同学全场景业务指标看板开发与智能数据分析能力建设，快速响应业务数据探查需求",
+      "参与训练数据标准化管理平台建设，负责数据采集、清洗、版本管理等全链路数据工程模块的设计与开发，为模型训练提供标准化、可追溯的数据生产流水线",
+      "在导师指导下完成功能模块的方案设计、数据开发、单元测试等工作，确保交付质量符合项目要求",
+      "参与数据质量监控、元数据管理、数据血缘追溯等数据治理相关工作，提升数据可用性与规范性",
+      "积极学习大模型、Agent、数据工程等前沿技术，逐步具备独立负责功能模块的能力"
+    ],
+    "jd_requirements": [
+      "2027 届计算机、软件工程、数据科学、统计学等相关专业本科及以上学历，硕士优先",
+      "具备扎实的数据结构与算法基础，熟练掌握 Python 或 Java，有良好的编码习惯",
+      "熟悉 SQL，了解数据仓库基本概念（ODS/DWD/ADS 分层、ETL/ELT 等），有数据处理或分析相关项目经验",
+      "对大模型 / AI Agent 应用层有基本认知，了解 Function Calling / Tool Use、Text2SQL、RAG、结构化输出等概念中的一项或多项",
+      "学习能力强，逻辑清晰，具备良好的沟通表达与团队协作能力；对 AI 数据工程、智能数据分析方向有热情，愿意长期投入"
+    ],
+    "jd_summary": "参与基于大模型 Agent 框架的 DataAgent 研发，建设理想同学业务指标看板与智能数据分析能力。同步负责训练数据标准化管理平台及数据采集/清洗/版本管理等数据工程模块，并参与数据质量监控、元数据管理与数据血缘等数据治理工作。",
+    "requirements_summary": "2027 届本科及以上（硕士优先），计算机/软件工程/数据科学等相关专业。需熟练 Python 或 Java、SQL 及数据仓库分层/ETL 概念，了解 Agent 应用层技术（Function Calling、Text2SQL、RAG 等），有数据处理项目经验者优先。",
+    "tech_stack": [
+      "Python",
+      "Java",
+      "SQL",
+      "Agent",
+      "RAG",
+      "Function Calling",
+      "Text2SQL",
+      "ETL",
+      "数据仓库",
+      "ODS/DWD/ADS"
+    ],
+    "education": "本科及以上学历，硕士优先",
+    "major": "计算机、软件工程、数据科学、统计学等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "agent_dev",
+    "batch_type": "official",
+    "confidence": 0.82,
+    "reason": "核心职责含 DataAgent 与大模型 Agent 框架驱动的智能数据分析（RAG/Function Calling/Text2SQL），属于 Agent 应用开发；但工作偏重数据工程与训练数据流水线，无前端要求，与纯前端/AI 全栈方向部分匹配"
+  }
+}

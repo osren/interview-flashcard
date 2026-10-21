@@ -1,0 +1,55 @@
+{
+  "basic": {
+    "position": "前端开发工程师",
+    "company": "百度",
+    "location": "上海"
+  },
+  "details": {
+    "job_url": "https://talent.baidu.com/jobs/detail/GRADUATE/ff5a2fbf-b169-41cd-8a9d-56fa5b01267a?recommendCode=IZS1JH&s=2",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "frontend",
+    "jd_responsibilities": [
+      "负责百度各产品 Web 前端研发",
+      "百度各产品易用性改进和界面技术优化",
+      "持续优化前端性能（加载速度、渲染效率），提升用户体验",
+      "关注前端技术演进，推动工程规范与开发效率提升",
+      "探索 AI 辅助前端开发（低代码生成、智能补全）的应用"
+    ],
+    "jd_requirements": [
+      "本科及以上学历，计算机、软件工程等相关专业优先",
+      "精通 HTML、CSS 及 JavaScript 等 Web 前端技术",
+      "具备跨浏览器、跨终端的前端开发经验",
+      "了解至少一种 Server 端语言（Node.JS/PHP/Python/Java 等）",
+      "具备扎实的计算机基础，对数据结构和算法设计有充分理解",
+      "热爱互联网，对互联网产品和技术有浓厚的兴趣，热衷于追求技术极致与创新",
+      "具有良好的沟通能力和团队合作精神、优秀的分析问题和解决问题的能力"
+    ],
+    "jd_summary": "负责百度各产品 Web 前端研发、易用性/界面优化及性能调优，推动工程规范建设，并探索 AI 辅助前端（低代码/智能补全）。要求 HTML/CSS/JS 及跨端经验，了解 Node/Python/Java 等后端语言之一。",
+    "requirements_summary": "本科及以上计算机/软件相关专业，精通 HTML/CSS/JS，有跨浏览器/跨终端经验及算法基础。需了解 Node/PHP/Python/Java 之一；AI 为辅助前端探索方向，非 Agent/RAG 工程要求。",
+    "tech_stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Node.js",
+      "Python",
+      "Java",
+      "PHP"
+    ],
+    "education": "本科及以上学历",
+    "major": "计算机、软件工程等相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "frontend",
+    "batch_type": "official",
+    "confidence": 0.90,
+    "reason": "标准 Web 前端开发岗（HTML/CSS/JS/性能优化/跨端），匹配前端开发目标；AI 仅为低代码/智能补全探索项，不如百度全栈（MCP/Skills/Agent）岗对口"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "basic": {
+    "position": "AI全栈工程师",
+    "company": "OPPO",
+    "location": "南京/深圳/成都"
+  },
+  "details": {
+    "job_url": "https://careers.oppo.com/university/oppo/campus/post/1849?shareId=17996&recommendChannel=CAMPUS_AMBASSADOR_REFERRAL&recommendCode=X6267602",
+    "company_logo": null,
+    "salaryMin": null,
+    "salaryMax": null
+  },
+  "extended": {
+    "graduation_year": "2027",
+    "recruitment_batch": "official",
+    "employment_type": "校招",
+    "job_category": "ai_fullstack",
+    "jd_responsibilities": [
+      "功能开发与交付：在导师指导下独立完成单一功能模块从技术方案到上线发布的全流程，参与需求评审并按时交付",
+      "AI 辅助研发：将 Copilot、Cursor 等 AI 编程工具融入日常开发，评审 AI 生成代码的安全性/可维护性，积累提示词与工程实践并参与团队知识库建设",
+      "端云基础开发：参与移动端（Android/iOS）应用功能开发或服务端 API 开发，理解端云交互链路并具备跨层协作与问题排查能力",
+      "数据跟踪与反馈：完成功能上线后的数据埋点，跟踪核心指标，了解 A/B 实验原理并汇报关键结论",
+      "工程规范执行：遵守代码规范，完成 Code Review 和单元测试，参与线上问题排查与 Bug 修复"
+    ],
+    "jd_requirements": [
+      "本科及以上，计算机、软件工程或相关专业，熟悉数据结构、算法、操作系统、计算机网络",
+      "具备全栈开发实践经验：前端（HTML/CSS/JavaScript、React/Vue）或后端（Go/Java/Python/Node.js）均可，课程项目、实习、个人项目或开源贡献均可",
+      "有 AI 编程工具的实际使用经验，能有效利用 AI 工具提升开发效率",
+      "加分：有 Android/iOS 原生或 Flutter/React Native 跨平台开发经验",
+      "加分：了解 SQL 基础，理解 A/B 测试基本原理",
+      "加分：有使用 AI 工具独立构建完整小型应用的经历",
+      "AI 能力要求：掌握 AI 功能的工程化实现，了解 AI 基本原理，具备编程与 API 调用能力，可完成算法复现与功能落地（不涉及模型训练）"
+    ],
+    "jd_summary": "OPPO AI 全栈工程师偏校招培养岗，负责单一功能模块全链路交付，将 Cursor/Copilot 融入日常研发，并参与移动端或服务端 API 开发及数据埋点/A/B 实验。要求 React/Vue 或 Go/Java/Python 全栈经验及 AI 编程工具使用能力。",
+    "requirements_summary": "本科及以上计算机相关专业，需 React/Vue 前端或 Go/Java/Python 后端全栈实践经验，以及 Cursor/Copilot 等 AI 编程工具使用经验。加分项含跨平台移动端、SQL/A/B 测试及用 AI 构建小型应用经历。",
+    "tech_stack": [
+      "React",
+      "Vue",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Go",
+      "Java",
+      "Python",
+      "Node.js",
+      "Cursor",
+      "Copilot",
+      "Android",
+      "iOS"
+    ],
+    "education": "本科及以上",
+    "major": "计算机、软件工程或相关专业"
+  },
+  "match": {
+    "qualified": true,
+    "category": "ai_fullstack",
+    "batch_type": "official",
+    "confidence": 0.80,
+    "reason": "要求 React/Vue 全栈及 Cursor 等 AI 编程工具实战，匹配 AI 全栈/前端方向；但 AI 侧重研发提效而非 Agent/RAG 应用构建，且含 Android/iOS 端云开发路径，匹配度中等"
+  }
+}
