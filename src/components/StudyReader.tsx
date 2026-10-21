@@ -104,8 +104,8 @@ export function StudyReader({
   const getStatus = (card: FlashCard) => resolveCardStatus(card.id, cardStatuses, card.status);
 
   return (
-    <div className="min-h-screen app-bg">
-      <header className="sticky top-14 z-20 border-b border-stone-200 bg-white/95 backdrop-blur-sm lg:top-0">
+    <div className="h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-y-auto app-bg lg:h-[100dvh]">
+      <header className="sticky top-0 z-20 border-b border-stone-200 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-5">
           <Link to={backPath} className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-bold text-sky-600 hover:bg-stone-100">
             <ArrowLeft size={17} />
