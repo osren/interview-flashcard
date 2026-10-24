@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker><style>text{font-family:"Microsoft YaHei","Noto Sans CJK SC",sans-serif;fill:#172033}.title{font-size:30px;font-weight:700}.label{font-size:20px;font-weight:600}.small{font-size:16px;fill:#475569}.box{rx:18;stroke-width:2}.arrow{stroke:#64748b;stroke-width:3;fill:none;marker-end:url(#a)}</style></defs>
+<rect width="1100" height="640" rx="28" fill="#f8fafc"/><text x="550" y="55" text-anchor="middle" class="title">AI 应用评估：离线验证与线上反馈形成闭环</text>
+<rect x="60" y="140" width="220" height="115" class="box" fill="#eef2ff" stroke="#818cf8"/><text x="170" y="183" text-anchor="middle" class="label">评测集</text><text x="170" y="215" text-anchor="middle" class="small">真实场景 + 边界案例</text>
+<rect x="335" y="140" width="220" height="115" class="box" fill="#ede9fe" stroke="#a78bfa"/><text x="445" y="183" text-anchor="middle" class="label">离线评测</text><text x="445" y="215" text-anchor="middle" class="small">准确 / 忠实 / 安全</text>
+<rect x="610" y="140" width="220" height="115" class="box" fill="#dbeafe" stroke="#60a5fa"/><text x="720" y="183" text-anchor="middle" class="label">灰度与 A/B</text><text x="720" y="215" text-anchor="middle" class="small">任务完成 / 采纳 / 延迟</text>
+<rect x="885" y="140" width="160" height="115" class="box" fill="#dcfce7" stroke="#4ade80"/><text x="965" y="183" text-anchor="middle" class="label">线上监控</text><text x="965" y="215" text-anchor="middle" class="small">质量 / 成本 / 安全</text>
+<path d="M280 198H325 M555 198H600 M830 198H875" class="arrow"/>
+<rect x="335" y="370" width="220" height="105" class="box" fill="#fff7ed" stroke="#fb923c"/><text x="445" y="412" text-anchor="middle" class="label">定位失败案例</text><text x="445" y="443" text-anchor="middle" class="small">检索、提示词、模型或产品</text>
+<rect x="610" y="370" width="220" height="105" class="box" fill="#fef3c7" stroke="#fbbf24"/><text x="720" y="412" text-anchor="middle" class="label">修复并回归</text><text x="720" y="443" text-anchor="middle" class="small">版本对比 + 护栏检查</text>
+<path d="M965 255V315H445V360 M555 422H600 M720 360V290H445V265" class="arrow"/><text x="700" y="320" class="small">线上问题回灌评测集</text>
+<rect x="60" y="525" width="985" height="65" rx="14" fill="#e2e8f0"/><text x="552" y="565" text-anchor="middle" class="label">发布判断同时看：质量 ↑　延迟 ↓　成本可控　安全护栏达标</text></svg>
