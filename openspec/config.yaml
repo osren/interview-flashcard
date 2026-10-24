@@ -1,20 +1,12 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  InterviewFlash is an existing React + TypeScript interview-preparation and job-search application.
+  The frontend is built with Vite and uses Tailwind CSS, Zustand, and React Router DOM.
+  Supabase is an active managed backend dependency for authentication, user-data sync,
+  database migrations, and Edge Functions. Local persistence uses both localStorage and IndexedDB.
+  Verify actual behavior and boundaries in src/, supabase/, package.json, and pnpm-lock.yaml;
+  do not assume this is a frontend-only or localStorage-only application.
+  Keep behavior specifications independent of implementation details; put technical choices in design.md.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+# Per-artifact rules can be added when the project develops stable, specific needs.

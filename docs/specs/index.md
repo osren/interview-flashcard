@@ -1,53 +1,8 @@
-# 需求执行工作区
+# 历史需求记录
 
-本目录包含 OpenHarness 需求执行的所有工作文件。
+本目录保存早期 OpenHarness 工作流生成的需求材料，供历史追溯。新需求与功能变更统一使用根目录 `openspec/` 中的 OpenSpec 工作区；不要在本目录创建新的 active/completed 工作项。
 
-## 目录结构
+- `active/` — 旧工作区中尚未整理的历史记录
+- `completed/` — 已完成的旧工作流记录
 
-```
-specs/
-├── index.md       # 本文件 - 工作区总入口
-├── active/        # 进行中的需求
-│   └── index.md   # 进行中需求索引
-└── completed/     # 已完成的需求归档
-    └── index.md   # 已完成需求索引
-```
-
-## 使用说明
-
-### 创建新需求
-
-```bash
-/oh:propose <feature-name>
-```
-
-### 执行需求
-
-```bash
-/oh:apply <feature>
-```
-
-### 验收需求
-
-```bash
-/oh:verify
-```
-
-### 归档需求
-
-```bash
-/oh:archive
-```
-
-## 状态流转
-
-```
-propose → active → apply → verify → archive → completed
-```
-
-每个需求在 `active/` 下创建独立目录，包含：
-- `proposal.md` - 需求提案
-- `spec.md` - 需求规格
-- `design.md` - 技术设计
-- `tasks.md` - 任务拆解
-- `verification.md` - 验收证据
+新变更流程见 [`docs/knowledge/prd/index.md`](../knowledge/prd/index.md) 和 [`docs/guides/OpenSpec工作流程指南.md`](../guides/OpenSpec工作流程指南.md)。

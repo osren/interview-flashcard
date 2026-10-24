@@ -1,17 +1,11 @@
-# 需求文档索引
+# 需求与变更索引
 
-> 本目录用于沉淀提案和需求文档
+新功能和重要行为变更统一使用仓库根目录的 OpenSpec 工作区：
 
-## 活跃需求
+- `openspec/changes/` — 进行中的变更
+- `openspec/specs/` — 当前能力规格（逐步随变更归档建立）
+- `openspec/changes/archive/` — 已完成变更的历史记录
 
-- `docs/specs/active/` - 正在开发的需求
+使用 Claude Code 时，从 `/opsx:explore`（需求尚未收敛时）或 `/opsx:propose` 开始，随后用 `/opsx:apply` 实施，并在完成核验后 `/opsx:archive`。
 
-## 归档需求
-
-- `docs/specs/completed/` - 已完成的需求
-
-## 使用说明
-
-1. `/oh:propose <feature-name>` 生成新需求
-2. `/oh:apply <feature>` 执行需求
-3. `/oh:archive` 归档已完成需求
+`docs/specs/` 仅保存旧流程的历史记录，不再创建新需求。

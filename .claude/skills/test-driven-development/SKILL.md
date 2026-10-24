@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: 用 specs 和 verification case 驱动 RED-GREEN-REFACTOR 循环来实现行为。适用于 OpenHarness 或 Claude Code 中可以先写测试的功能开发或缺陷修复。
+description: 用行为规格和验证场景驱动 RED-GREEN-REFACTOR 循环来实现功能或修复缺陷。
 ---
 
 # 测试驱动开发
@@ -19,8 +19,8 @@ description: 用 specs 和 verification case 驱动 RED-GREEN-REFACTOR 循环来
 
 1. 选择一个最小行为切片。
    来源可以是：
-   - `spec.md`
-   - `verification.md`
+   - OpenSpec change 的 `specs/` 行为要求
+   - 可复现的缺陷场景
    - a reproduced bug scenario
 
 2. 先写失败测试。
@@ -37,9 +37,9 @@ description: 用 specs 和 verification case 驱动 RED-GREEN-REFACTOR 循环来
 
 7. 跑相关回归检查。
 
-## OpenHarness 对应关系
+## OpenSpec 对应关系
 
-- `/oh:apply --tdd` 应显式使用这个 skill
+- `/opsx:apply` 实施有可测试行为要求的任务时，可显式使用这个 skill
 - 对 bugfix，应该从已复现的失败场景开始
 - 一次处理一个任务切片，不要把整个 feature 变成一个巨大的 RED 步骤
 

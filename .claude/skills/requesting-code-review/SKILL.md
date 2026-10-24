@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: 在发起评审前，用自检清单、证据包和清晰上下文整理代码或设计变更。适用于调用 OpenHarness review 或请其他 agent / 人工评审前。
+description: 在发起评审前，用自检清单、证据包和清晰上下文整理代码或设计变更。适用于 OpenSpec 变更或请其他 agent / 人工评审前。
 ---
 
 # 发起代码评审
@@ -16,23 +16,23 @@ description: 在发起评审前，用自检清单、证据包和清晰上下文�
 ## 工作流
 
 1. 说明这次 review 的目标。
-   - Design approval
+   - specification/design review
    - code final review
    - focused follow-up after fixes
 
 2. 总结范围。
    至少包括：
-   - feature name
+   - change name
    - files changed
    - intended behavior
    - known risks
 
 3. 先自检。
    检查：
-   - matches `spec.md`
+   - matches the relevant OpenSpec requirement
    - matches `design.md`
    - tasks/verification are up to date
-   - obvious harness violations are addressed
+   - relevant engineering constraints are addressed
 
 4. 附上证据。
    优先附：
@@ -50,10 +50,10 @@ description: 在发起评审前，用自检清单、证据包和清晰上下文�
 6. 明确列出仍未解决的问题。
    不要把不确定性藏在模糊表述里。
 
-## OpenHarness 对应关系
+## OpenSpec 对应关系
 
-- 在 `/oh:review` 的 Phase 1 / Design 审批前：整理 `proposal.md / spec.md / design.md`
-- 在 `/oh:review` 的 apply 后综合 review 前：整理 spec / design / code / test 证据
+- 评审 proposal/design 前：整理 change 内的 `proposal.md`、`specs/` 和 `design.md`
+- 实现评审前：整理规格、设计、代码和验证证据
 - 在交给人工 review 前：给出范围清晰的摘要，而不是只说一句“帮我看看”
 
 ## 约束

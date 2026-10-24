@@ -1,14 +1,14 @@
 ---
 name: receiving-code-review
-description: 用有纪律的分流、接受决策、定向修复和重新验证来处理评审反馈。适用于 OpenHarness review、verify 或人工 review 返回 finding / 问题的场景。
+description: 用有纪律的分流、接受决策、定向修复和重新验证来处理评审反馈。适用于 OpenSpec 验收或人工评审返回 finding / 问题的场景。
 ---
 
 # 处理代码评审反馈
 
 当以下来源返回 finding 后，使用这个 skill：
 
-- `/oh:review`
-- `/oh:verify`
+- OpenSpec change verification
+- code review
 - human review
 - another agent's review pass
 
@@ -51,11 +51,11 @@ description: 用有纪律的分流、接受决策、定向修复和重新验证�
    - where it changed
    - what verification was rerun
 
-## OpenHarness 对应关系
+## OpenSpec 对应关系
 
-- 设计评审反馈：可能需要在审批前更新 `design.md`
-- apply 后综合 review 的 finding：可能需要在归档前同时更新代码和验证
-- verify 的 finding：通常既要修代码，也要修正 spec / design 的一致性
+- 规格或设计评审反馈：根据决策更新 change 内的 `specs/` 或 `design.md`
+- 实现评审 finding：修正代码及相应的 `tasks.md` / 验证证据
+- 归档前核验发现的问题：确认实现与行为规格一致，再完成修复和验证
 
 ## 约束
 

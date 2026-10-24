@@ -1,38 +1,5 @@
-# 写后自动检查
+# 写后检查
 
-## invariant-check.sh
+`.claude/settings.json` 为 `Write`、`Edit` 和 `MultiEdit` 工具配置 PostToolUse hook，调用 `docs/engineering/linters/invariant-check.sh`，快速扫描 TypeScript 的 `any` 使用并运行 `npx tsc --noEmit`。
 
-在文件写入后自动检查代码是否符合不变量规则。
-
-### 检查内容
-
-1. **TypeScript 类型检查**: 禁止 `any` 类型
-2. **编译检查**: TypeScript 编译错误
-
-### 执行方式
-
-通过 `.claude/settings.json` 中的 PostToolUse hooks 自动触发。
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash docs/harness/linters/invariant-check.sh 2>&1 | head -30"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-## spec-sync-check.sh
-
-检查代码改动与 specs/verification 一致性。
-
-> 前端项目此检查自动跳过
+该脚本输出仅作即时提示；它不替代 `pnpm lint`、`pnpm build` 或按变更规格执行的验收。OpenSpec 变更的完成核验和归档使用 OpenSpec 工作流，不再运行旧的 `spec-sync-check.sh`。
