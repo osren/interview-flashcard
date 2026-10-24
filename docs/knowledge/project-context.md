@@ -2,28 +2,26 @@
 
 ## 基本信息
 
-- **project-mode**: brownfield
-- **业务领域**: 面试刷题/学习工具
-- **架构风格**: 前端 SPA 单体应用
-- **技术栈**: TypeScript / React 18 / Vite 5 / Tailwind CSS 3
+- **项目模式**：brownfield，已有完整前端产品和 Supabase 云端能力。
+- **业务领域**：面试准备、简历辅助和校招求职管理。
+- **架构**：React 单页应用 + Supabase 托管后端服务。
+- **主要技术**：TypeScript、React、Vite、Tailwind CSS、Zustand、React Router DOM、Supabase。
+- 依赖版本以根目录 `package.json` 和 `pnpm-lock.yaml` 为准。
 
-## 判定说明
+## 业务模块
 
-- **brownfield**: 当前仓库已有完整业务代码，包括卡片数据、页面路由、状态管理
-- 评审以现有系统兼容性、影响范围、迁移成本为主
+- 闪卡学习：前端基础、项目经历、算法和 MPX。
+- 面经管理：公司、部门、面试场次、题目与答案。
+- 简历工具：简历资料、JD 优化和 AI 辅助功能。
+- 校招岗位：岗位浏览、投递跟踪和用户岗位管理。
+- AI 资源：AI 内容及 GitHub Trending。
 
-## 业务概述
+## 数据与服务
 
-InterviewFlash 是一个交互式面试刷题系统，包含：
-- 前端基础 (JavaScript, TypeScript, React, Browser, 工程化)
-- 项目deep dive (滴滴实习、GResume)
-- 算法题目
-- 真实面试问答
+- 浏览器本地状态按功能使用 `localStorage` 或 IndexedDB。
+- Supabase 提供认证、数据同步和 Edge Functions；实际使用的表和函数见 `supabase/migrations/`、`supabase/functions/` 与对应前端 provider。
+- 部分功能支持未登录或未配置云服务时本地使用，具体降级行为以实现为准。
 
-## 技术选型说明
+## 变更工作流
 
-- React 18: 函数组件 + Hooks
-- TypeScript: 严格模式
-- Zustand: 轻量级状态管理 + localStorage 持久化
-- Framer Motion: 页面过渡动画
-- Tailwind CSS: 原子化 CSS 框架
+使用根目录 `openspec/` 统一管理功能变更。`docs/specs/` 仅保留旧流程历史记录，不再作为活跃需求区。

@@ -8,3 +8,7 @@
 | projects | 项目经历、项目deep dive | 面试项目经验 |
 | algorithms | 算法、代码题、算法题 | 算法与数据结构 |
 | interview | 面试、问答、面经 | 真实面试题目 |
+| mpx | MPX、小程序框架 | MPX 语法与架构学习资料 |
+| campus | 校招、岗位、投递 | 岗位浏览与投递跟踪 |
+| resume | 简历、JD 优化 | 简历管理与求职辅助 |
+| ai | AI 资讯、LLM | AI 内容与辅助功能 |

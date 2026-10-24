@@ -1,36 +1,11 @@
-# Hooks 机制
+# Claude Code Hooks 与代码评审清单
 
-## 概述
+## 写后检查
 
-本目录包含 Claude Code hooks 配置，用于自动化检查和验证。
+`.claude/settings.json` 配置 PostToolUse 写后检查，运行 `docs/engineering/linters/invariant-check.sh`。该脚本是快速提示；提交前仍应根据改动运行 `pnpm lint`、`pnpm build` 等相关命令。
 
-## 目录结构
+详细说明见 [`post-action.md`](./post-action.md)。
 
-```
-hooks/
-├── index.md           # 本文件 - Hook 机制总览
-├── post-action.md     # 写后的自动检查
-└── cr-checklist.md  # CR 检查清单
-```
+## 代码评审
 
-## Hook 类型
-
-### PostToolUse Hooks
-
-在文件写入后自动触发检查：
-- invariant-check.sh - 不变量规则检查
-- spec-sync-check.sh - 规范一致性检查
-
-### 运行时 Hooks
-
-暂无后端运行时依赖
-
-### 工作流门禁
-
-- `/oh:apply` - 执行时验证
-- `/oh:verify` - 独立验收
-- `/oh:review` - 综合 review
-
-### 检查清单
-
-- `.claude/settings.json` 中配置的 CR 触发器
+提交前自查见 [`cr-checklist.md`](./cr-checklist.md)。新需求工作流统一使用 OpenSpec，见 [`docs/guides/OpenSpec工作流程指南.md`](../guides/OpenSpec工作流程指南.md)。

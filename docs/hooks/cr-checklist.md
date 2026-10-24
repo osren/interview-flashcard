@@ -36,14 +36,6 @@ Code Review 检查清单，用于代码提交前自查。
 
 ## 提交前自检
 
-1. 运行 `npm run lint`
-2. 运行 `npm run build`
+1. 运行 `pnpm lint`
+2. 运行 `pnpm build`
 3. 检查无警告
-
-## OpenHarness 命令
-
-- `/oh:propose` - 新需求提案
-- `/oh:apply` - 执行需求
-- `/oh:verify` - 独立验收
-- `/oh:review` - 综合 review
-- `/oh:archive` - 归档需求

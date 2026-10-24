@@ -1,25 +1,20 @@
-# 服务元数据
-
-> 本项目为纯前端 SPA，无后端服务。此文件保留用于文档一致性。
-
-service: interviewflash-frontend
-display_name: InterviewFlash 前端应用
-domain: frontend-education
-role: frontend-spa
-repo: <!-- TODO: 补充仓库地址 -->
-owners:
-  - <!-- TODO: 补充负责人 -->
-upstreams: []
-downstreams: []
-owned_data:
-  - localStorage: card-storage (用户卡片进度)
-  - localStorage: theme (主题偏好)
-published_events: []
-consumed_events: []
+# 仓库与运行时关系摘要；具体数据模型以代码和数据库迁移为准。
+service: interviewflash-web
+display_name: InterviewFlash Web 应用
+domain: interview-preparation-and-job-search
+role: react-spa
+runtime:
+  frontend: Vite static application
+  backend: Supabase managed services
 capabilities:
-  - 闪卡练习与复习
-  - 进度跟踪与统计
-  - 面试文档导入
-  - 主题切换（亮色/暗色）
-status_entities:
-  - FlashCard.status: unvisited | forgotten | fuzzy | mastered
+  - 闪卡练习与学习进度
+  - 面经记录与同步
+  - 简历与 AI 辅助工具
+  - 校招岗位浏览与跟踪
+local_persistence:
+  - Zustand stores using localStorage
+  - Interview records using IndexedDB with a localStorage fallback
+cloud_capabilities:
+  - Supabase Auth
+  - User data synchronization
+  - Edge Functions for AI and server-side operations

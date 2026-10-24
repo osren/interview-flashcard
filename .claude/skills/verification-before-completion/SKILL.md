@@ -1,6 +1,6 @@
 ---
 name: verification-before-completion
-description: 在声称任务已完成、已修复、已通过或已可交付前，强制补齐最新验证证据。适用于 OpenHarness 或 Claude Code 中的实现、review、独立验收和收尾场景。
+description: 在声称任务已完成、已修复、已通过或已可交付前，强制补齐最新验证证据。适用于 OpenSpec 实现、代码评审和交付收尾。
 ---
 
 # 完成前先验证
@@ -33,11 +33,10 @@ description: 在声称任务已完成、已修复、已通过或已可交付前�
 
 2. 把这个声明映射到对应的验证面。
    常见验证面包括：
-   - `spec.md`
-   - `verification.md`
+   - OpenSpec change 的 `specs/`
    - `tasks.md`
    - `design.md`
-   - 相关 harness 约束
+   - 相关项目工程约束
    - 编译 / 测试 / lint / 运行时检查
 
 3. 执行最新验证。
@@ -55,12 +54,11 @@ description: 在声称任务已完成、已修复、已通过或已可交付前�
    - `BLOCKED`: verification failed
    - `NEEDS_CONTEXT`: cannot choose the right verification because requirements are unclear
 
-## OpenHarness 对应关系
+## OpenSpec 对应关系
 
-- 在 `/oh:apply` 中：更新 `tasks.md` 前，先验证 task 级完成声明
-- 在 `/oh:review` 中：没有直接证据，不接受“已经实现”
-- 在 `/oh:verify` 中：独立验收结论必须基于重新运行的检查与当前代码/工件
-- 在 `/oh:archive` 中：归档前必须确认轻量交付门禁与证据门禁已满足
+- 在 `/opsx:apply` 中：勾选 `tasks.md` 前，验证对应任务已完成
+- 在变更验收中：没有直接证据，不接受“已经实现”
+- 在 `/opsx:archive` 前：确认相关行为规格已满足，并记录需要的验证证据
 
 ## 约束
 
