@@ -22,6 +22,7 @@ import {
   Check,
   X,
   Sparkles,
+  Search,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { campusStrings } from '../strings';
@@ -50,6 +51,7 @@ export function JobsTab({ jobs }: JobsTabProps) {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [statusPanelJob, setStatusPanelJob] = useState<CampusJobData | null>(null);
   const [filterTier, setFilterTier] = useState<'all' | 'qualified'>('qualified');
+  const [companyQuery, setCompanyQuery] = useState('');
 
   const [isAddingCompany, setIsAddingCompany] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState('');
@@ -89,8 +91,12 @@ export function JobsTab({ jobs }: JobsTabProps) {
       ...customCompanies.map((c) => c.name),
       ...customJobs.map((job) => job.basic.company),
     ]);
-    return Array.from(names).sort((a, b) => a.localeCompare(b, 'zh-CN'));
-  }, [jobsByCompany, customCompanies, customJobs]);
+    const query = companyQuery.trim().toLowerCase();
+    const matched = query
+      ? [...names].filter((name) => name.toLowerCase().includes(query))
+      : [...names];
+    return matched.sort((a, b) => a.localeCompare(b, 'zh-CN'));
+  }, [jobsByCompany, customCompanies, customJobs, companyQuery]);
 
   const selectedJob = useCampusJobStore((state) =>
     selectedJobId ? state.getJobById(selectedJobId) : undefined
@@ -237,6 +243,18 @@ export function JobsTab({ jobs }: JobsTabProps) {
               </button>
             ))}
           </div>
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-secondary pointer-events-none"
+            />
+            <input
+              value={companyQuery}
+              onChange={(e) => setCompanyQuery(e.target.value)}
+              placeholder="搜索公司名"
+              className="w-full pl-8 pr-2 py-1.5 text-xs rounded-lg border-2 border-[#e5e5e5] focus:outline-none focus:border-[#58CC02]"
+            />
+          </div>
         </div>
 
         {isAddingCompany && (
@@ -285,7 +303,10 @@ export function JobsTab({ jobs }: JobsTabProps) {
         <div className="overflow-y-auto flex-1 p-2 space-y-1">
           {companyNames.map((companyName) => {
             const companyJobs = jobsByCompany.get(companyName) ?? [];
-            const expanded = expandedCompanies.has(companyName);
+            // 搜索时自动展开，方便直接看到命中公司下的职位
+            const expanded = companyQuery.trim()
+              ? true
+              : expandedCompanies.has(companyName);
             const color = getCompanyColor(companyName);
             const customCo = customCompanies.find((c) => c.name === companyName);
 

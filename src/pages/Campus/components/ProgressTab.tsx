@@ -15,7 +15,7 @@ import {
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ProgressRaceChart } from './ProgressRaceChart';
 import { RaceChartReminders } from './RaceChartReminders';
-import { ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { RejectReason } from '@/types/campus-job';
 
@@ -27,6 +27,7 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
   const jobProgress = useCampusJobStore((s) => s.jobProgress);
   const { getProgress, getTrackedJobs } = useCampusJobStore();
   const [showRejected, setShowRejected] = useState(false);
+  const [progressQuery, setProgressQuery] = useState('');
 
   const trackedJobs = useMemo(
     () => getTrackedJobs(),
@@ -79,6 +80,12 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
   }, [trackedJobs]);
 
   const sortedForChart = useMemo(() => {
+    const query = progressQuery.trim().toLowerCase();
+    const matchesQuery = (job: CampusJobData) =>
+      !query ||
+      job.basic.company.toLowerCase().includes(query) ||
+      job.basic.position.toLowerCase().includes(query);
+
     const sorted = [...trackedJobs].sort((a, b) => {
       const pA = getProgress(a.id);
       const pB = getProgress(b.id);
@@ -87,17 +94,21 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
       if (idxA !== idxB) return idxB - idxA;
       return a.basic.company.localeCompare(b.basic.company, 'zh-CN');
     });
-    
-    // 如果未展开已终止岗位，则过滤掉
+
+    // 按公司名 / 职位关键词过滤后，再按「是否展开已终止」过滤
+    const filtered = query
+      ? sorted.filter(matchesQuery)
+      : sorted;
+
     if (!showRejected) {
-      return sorted.filter(job => {
+      return filtered.filter(job => {
         const p = getProgress(job.id);
         return p?.status !== 'rejected';
       });
     }
-    
-    return sorted;
-  }, [trackedJobs, getProgress, showRejected]);
+
+    return filtered;
+  }, [trackedJobs, getProgress, showRejected, progressQuery]);
 
   return (
     <div className="space-y-6">
@@ -137,7 +148,21 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
           <p className="text-sm text-ink-secondary">
             {'\u6a2a\u5411\u5c55\u793a\u5404\u5c97\u4f4d\u5f53\u524d\u8fdb\u5ea6\uff0c\u7eb5\u8f74\u4e3a\u516c\u53f8/\u5c97\u4f4d\uffc9\u6a2a\u8f74\u4e3a\u6295\u9012\u9636\u6bb5'}
           </p>
-          <RaceChartReminders jobs={sortedForChart} getProgress={getProgress} />
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search
+                size={14}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-secondary pointer-events-none"
+              />
+              <input
+                value={progressQuery}
+                onChange={(e) => setProgressQuery(e.target.value)}
+                placeholder="搜索公司 / 职位关键词"
+                className="w-48 pl-8 pr-2 py-1.5 text-xs rounded-xl border-2 border-[#e5e5e5] bg-white focus:outline-none focus:border-[#58CC02]"
+              />
+            </div>
+            <RaceChartReminders jobs={sortedForChart} getProgress={getProgress} />
+          </div>
         </div>
         <ProgressRaceChart jobs={sortedForChart} getProgress={getProgress} />
         
