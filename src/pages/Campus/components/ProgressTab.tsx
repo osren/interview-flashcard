@@ -4,6 +4,7 @@ import {
   APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_COLORS,
   APPLICATION_STATUS_ALL,
+  APPLICATION_STATUS_ORDER,
   JOB_CATEGORY_LABELS,
   JOB_CATEGORY_ORDER,
   REJECT_REASON_LABELS,
@@ -120,14 +121,10 @@ export function ProgressTab({ jobs }: ProgressTabProps) {
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-extrabold text-lg text-ink-primary">{'\u8fdb\u5ea6\u7ade\u8d5b\u56fe'}</h3>
           {(() => {
-            const inProgress =
-              (stats.applied ?? 0) +
-              (stats.written_aptitude ?? 0) +
-              (stats.written_tech ?? 0) +
-              (stats.interview_1 ?? 0) +
-              (stats.interview_2 ?? 0) +
-              (stats.interview_3 ?? 0) +
-              (stats.interview_hr ?? 0);
+            // 「在进度中」= 除已录用/已终止外的所有阶段，新增阶段自动计入
+            const inProgress = APPLICATION_STATUS_ORDER.filter(
+              (status) => status !== 'offer'
+            ).reduce((sum, status) => sum + (stats[status] ?? 0), 0);
             return inProgress > 0 ? (
               <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1CB0F6] bg-[#1CB0F6]/8 px-2.5 py-1 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1CB0F6] inline-block" />
