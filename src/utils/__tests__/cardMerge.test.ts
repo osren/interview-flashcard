@@ -14,13 +14,13 @@ const card = (id: string, chapterId = 'javascript', module = 'core'): FlashCard 
 });
 
 describe('mergeChapterCards', () => {
-  it('页面已合并过时不重复追加', () => {
+  it('页面已合并过时不重复追加，且返回原数组', () => {
     const cards = [card('static-1'), card('ai-1')];
-    expect(mergeChapterCards(cards, [card('ai-1')], 'core', 'javascript')).toBe(cards);
+    expect(mergeChapterCards(cards, [card('ai-1')], {}, 'core', 'javascript')).toBe(cards);
   });
 
   it('页面还没刷新到新卡片时补在末尾', () => {
-    const merged = mergeChapterCards([card('static-1')], [card('ai-1')], 'core', 'javascript');
+    const merged = mergeChapterCards([card('static-1')], [card('ai-1')], {}, 'core', 'javascript');
     expect(merged).toHaveLength(2);
     expect(merged[1].id).toBe('ai-1');
   });
@@ -29,9 +29,35 @@ describe('mergeChapterCards', () => {
     const merged = mergeChapterCards(
       [card('static-1')],
       [card('ai-2', 'react'), card('ai-3', 'javascript', 'mpx')],
+      {},
       'core',
       'javascript'
     );
     expect(merged).toHaveLength(1);
+  });
+
+  it('改过的题目立刻以修改后的内容出现', () => {
+    const merged = mergeChapterCards(
+      [card('static-1')],
+      [],
+      { 'static-1': { question: '改过的问题', answer: '改过的答案' } },
+      'core',
+      'javascript'
+    );
+    expect(merged[0].question).toBe('改过的问题');
+    expect(merged[0].answer).toBe('改过的答案');
+    // 未修改的字段保留
+    expect(merged[0].category).toBe('基础');
+  });
+
+  it('自定义卡也能应用修改', () => {
+    const merged = mergeChapterCards(
+      [],
+      [card('ai-1')],
+      { 'ai-1': { answer: '重写后的答案' } },
+      'core',
+      'javascript'
+    );
+    expect(merged[0].answer).toBe('重写后的答案');
   });
 });

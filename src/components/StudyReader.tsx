@@ -1,13 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, Loader2, MessageCircleQuestion, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, Loader2, MessageCircleQuestion, PenLine, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import type { FlashCard, ModuleType } from '@/types';
 import { useCardStore } from '@/store';
 import { mergeChapterCards } from '@/utils/cardMerge';
 import { studyChatBusyKey, useChatBusyStore } from '@/store/useChatBusyStore';
 import { resolveCardStatus } from '@/utils/cardStatus';
 import { ImportExportModal } from '@/components/ImportExportModal';
-import { LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
+import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { buildStudyMarkdown, type StudyOutlineSection } from '@/utils/studyMarkdown';
 import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
 import { StudyChatPanel } from '@/components/AI/StudyChatPanel';
@@ -101,10 +101,15 @@ export function StudyReader({
   const cardStatuses = useCardStore((state) => state.cardStatuses);
   const updateCardStatus = useCardStore((state) => state.updateCardStatus);
   const customCards = useCardStore((state) => state.customCards);
-  // 闭环兜底：AI 追加的卡片即使页面自己还没重算，也会立刻出现在阅读区
+  const modifiedCards = useCardStore((state) => state.modifiedCards);
+  const updateCardAnswer = useCardStore((state) => state.updateCardAnswer);
+  const resetCardAnswer = useCardStore((state) => state.resetCardAnswer);
+  const updateCustomCard = useCardStore((state) => state.updateCustomCard);
+  const deleteCustomCard = useCardStore((state) => state.deleteCustomCard);
+  // 闭环兜底：AI 追加的卡片、以及改过的题目，即使页面自己还没重算，也会立刻生效
   const chapterCards = useMemo(
-    () => mergeChapterCards(cards, customCards, module, chapterId),
-    [cards, customCards, module, chapterId]
+    () => mergeChapterCards(cards, customCards, modifiedCards, module, chapterId),
+    [cards, customCards, modifiedCards, module, chapterId]
   );
   const document = useMemo(() => buildStudyMarkdown(title, chapterCards), [title, chapterCards]);
   const favoriteCardIds = useMemo(() => new Set(favorites.map((card) => card.id)), [favorites]);
@@ -119,6 +124,45 @@ export function StudyReader({
   const [loginOpen, setLoginOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const chatBusy = useChatBusyStore((state) => state.busy[studyChatBusyKey(module, chapterId)] ?? false);
+
+  // 单题编辑
+  const [editCard, setEditCard] = useState<FlashCard | null>(null);
+  const [editDraft, setEditDraft] = useState({ question: '', answer: '', category: '' });
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const openEdit = (card: FlashCard) => {
+    setEditCard(card);
+    setConfirmDelete(false);
+    setEditDraft({
+      question: card.question,
+      answer: card.answer ?? '',
+      category: card.category ?? title,
+    });
+  };
+
+  const closeEdit = () => {
+    setEditCard(null);
+    setConfirmDelete(false);
+  };
+
+  const isCustomCard = editCard
+    ? customCards.some((card) => card.id === editCard.id)
+    : false;
+
+  const saveEdit = () => {
+    if (!editCard || !editDraft.question.trim()) return;
+    const payload = {
+      question: editDraft.question.trim(),
+      answer: editDraft.answer,
+      category: editDraft.category.trim() || title,
+    };
+    if (isCustomCard) {
+      updateCustomCard(editCard.id, payload);
+    } else {
+      updateCardAnswer(editCard.id, payload);
+    }
+    closeEdit();
+  };
 
   const openChat = () => {
     if (!user) {
@@ -165,6 +209,15 @@ export function StudyReader({
     if (!matched) return null;
     return (
       <span className="ml-2 inline-flex shrink-0 translate-y-[-2px] items-center gap-1 align-middle">
+        <button
+          type="button"
+          onClick={() => openEdit(matched)}
+          title="编辑这道题（问题与答案都可改）"
+          aria-label={`编辑：${matched.question}`}
+          className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-1.5 py-1 text-[11px] font-extrabold leading-none text-stone-500 hover:border-stone-400 hover:text-stone-700"
+        >
+          <PenLine size={12} />
+        </button>
         <button
           type="button"
           onClick={() => openAi(matched, 'explain')}
@@ -287,6 +340,117 @@ export function StudyReader({
       </div>
 
       <ImportExportModal cards={chapterCards} module={module} chapterId={chapterId} title={title} />
+
+      {editCard && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={closeEdit}
+        >
+          <div
+            className="surface-panel w-full max-w-2xl p-5 sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg font-extrabold text-stone-800">编辑这道题</h2>
+                <p className="mt-0.5 text-xs text-stone-500">
+                  {isCustomCard ? '自定义题：直接改这张卡' : '内置题：只改你本地这份，原始题目不会被覆盖'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeEdit}
+                className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-stone-500 hover:bg-stone-100"
+              >
+                关闭
+              </button>
+            </div>
+
+            <label className="block text-sm font-bold text-stone-600">
+              问题
+              <input
+                value={editDraft.question}
+                onChange={(event) => setEditDraft({ ...editDraft, question: event.target.value })}
+                className="input-field mt-1"
+                placeholder="输入面试问题"
+                autoFocus
+              />
+            </label>
+
+            <label className="mt-3 block text-sm font-bold text-stone-600">
+              答案
+              <LazyMDEditor
+                value={editDraft.answer}
+                onChange={(value) => setEditDraft({ ...editDraft, answer: value || '' })}
+                height={260}
+                preview="edit"
+              />
+            </label>
+
+            <label className="mt-3 block text-sm font-bold text-stone-600">
+              所属小节
+              <input
+                value={editDraft.category}
+                onChange={(event) => setEditDraft({ ...editDraft, category: event.target.value })}
+                className="input-field mt-1"
+                placeholder="留空则用章节标题"
+              />
+            </label>
+
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={saveEdit}
+                disabled={!editDraft.question.trim()}
+                className="rounded-xl bg-[#58CC02] px-4 py-2 text-sm font-extrabold text-white disabled:opacity-60"
+              >
+                保存
+              </button>
+              <button
+                type="button"
+                onClick={closeEdit}
+                className="rounded-xl border border-stone-200 px-4 py-2 text-sm font-extrabold text-stone-600"
+              >
+                取消
+              </button>
+
+              {isCustomCard ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!confirmDelete) {
+                      setConfirmDelete(true);
+                      return;
+                    }
+                    deleteCustomCard(editCard.id);
+                    closeEdit();
+                  }}
+                  className={
+                    confirmDelete
+                      ? 'ml-auto rounded-xl bg-[#FF4B4B] px-3 py-2 text-sm font-extrabold text-white'
+                      : 'ml-auto inline-flex items-center gap-1 rounded-xl border border-stone-200 px-3 py-2 text-sm font-extrabold text-stone-500 hover:border-[#FF4B4B] hover:text-[#FF4B4B]'
+                  }
+                >
+                  <Trash2 size={15} />
+                  {confirmDelete ? '确认删除？' : '删除'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetCardAnswer(editCard.id);
+                    closeEdit();
+                  }}
+                  className="ml-auto inline-flex items-center gap-1 rounded-xl border border-stone-200 px-3 py-2 text-sm font-extrabold text-stone-500 hover:border-[#58CC02] hover:text-[#58CC02]"
+                >
+                  <Undo2 size={15} />
+                  恢复原文
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {panelCard && (
         <CardAIPanel
