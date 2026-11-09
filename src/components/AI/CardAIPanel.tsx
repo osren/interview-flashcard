@@ -34,13 +34,15 @@ interface CardAIPanelProps {
   card: FlashCard;
   mode: CardAIMode;
   onClose: () => void;
+  /** 项目背景资料（Markdown 原文），传入后 AI 解释与追问会以此为事实依据 */
+  projectContext?: string;
 }
 
 function sessionKey(cardId: string, mode: CardAIMode): string {
   return `${cardId}:${mode}`;
 }
 
-export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
+export function CardAIPanel({ open, card, mode, onClose, projectContext }: CardAIPanelProps) {
   const [content, setContent] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -213,8 +215,8 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
 
   const runInitial = async (nextMode: CardAIMode) => {
     const messages = nextMode === 'explain'
-      ? buildExplainMessages(card)
-      : buildFollowupMessages(card);
+      ? buildExplainMessages(card, projectContext)
+      : buildFollowupMessages(card, projectContext);
     await runStream(messages);
   };
 
@@ -223,7 +225,7 @@ export function CardAIPanel({ open, card, mode, onClose }: CardAIPanelProps) {
     const question = followup.trim();
     if (!question || streaming) return;
     setFollowup('');
-    const messages = buildContinueMessages(historyRef.current, question);
+    const messages = buildContinueMessages(historyRef.current, question, projectContext);
     await runStream(messages);
   };
 

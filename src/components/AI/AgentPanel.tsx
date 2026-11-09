@@ -3,7 +3,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Check, Loader2, Send, Sparkles, Wrench, X } from 'lucide-react';
 import { useAgentChat } from '@/hooks/useAgentChat';
 import { AGENT_SCOPE_LABEL } from '@/lib/agent/feature';
+import { formatLlmQuotaLabel } from '@/lib/llm/quota';
 import { cn } from '@/utils/cn';
+import { LlmQuotaBadge } from './LlmQuotaBadge';
 import { StreamMarkdown } from './StreamMarkdown';
 
 interface AgentPanelProps {
@@ -29,12 +31,22 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
     running,
     error,
     quota,
+    quotaLoading,
+    quotaError,
+    canUseAi,
+    quotaReady,
+    isQuotaExhausted,
     send,
     confirmPending,
     confirmAllPending,
     dismissPending,
     reset,
+    refreshQuota,
   } = useAgentChat({ enabled: open });
+
+  const quotaEmpty = quota !== null && quota.remaining <= 0;
+  const quotaLow = quota !== null && quota.remaining > 0 && quota.remaining <= 5;
+  const inputLocked = quotaReady && !canUseAi;
 
   useEffect(() => {
     if (!open) return;
@@ -76,8 +88,17 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-extrabold text-[#1f1f1f]">{AGENT_SCOPE_LABEL}</p>
-                <p className="truncate text-xs font-bold text-[#777777]">
-                  {quota ? `今日剩余 ${quota.remaining}/${quota.dailyLimit} 次` : '正在读取额度…'}
+                <p
+                  className={cn(
+                    'truncate text-xs font-bold',
+                    quotaEmpty ? 'text-[#FF4B4B]' : quotaLow ? 'text-[#FF9600]' : 'text-[#777777]'
+                  )}
+                >
+                  {quota
+                    ? formatLlmQuotaLabel(quota)
+                    : quotaError
+                      ? '额度读取失败'
+                      : '正在读取额度…'}
                 </p>
               </div>
               <button
@@ -226,11 +247,21 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
               )}
             </div>
 
-            <form onSubmit={submit} className="border-t border-[#e5e5e5] p-3">
+            <div className="border-t border-[#e5e5e5] bg-[#fbfbfb] px-3 py-2">
+              <LlmQuotaBadge
+                quota={quota}
+                loading={quotaLoading}
+                error={quotaError}
+                onRefresh={refreshQuota}
+              />
+            </div>
+
+            <form onSubmit={submit} className="p-3">
               <div className="flex items-end gap-2">
                 <textarea
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
+                  disabled={inputLocked}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' && !event.shiftKey) {
                       event.preventDefault();
@@ -238,12 +269,18 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
                     }
                   }}
                   rows={2}
-                  placeholder="问岗位、问进度，或让我改某个岗位的阶段"
-                  className="min-h-[44px] flex-1 resize-none rounded-xl border border-[#e5e5e5] px-3 py-2 text-sm font-bold text-[#3c3c3c] outline-none focus:border-[#58CC02]"
+                  placeholder={
+                    inputLocked
+                      ? isQuotaExhausted
+                        ? '今日额度已用完，明日再来'
+                        : '请先登录后再使用 AI'
+                      : '问岗位、问进度，或让我改某个岗位的阶段'
+                  }
+                  className="min-h-[44px] flex-1 resize-none rounded-xl border border-[#e5e5e5] px-3 py-2 text-sm font-bold text-[#3c3c3c] outline-none focus:border-[#58CC02] disabled:bg-[#f4f4f4] disabled:text-[#999999]"
                 />
                 <button
                   type="submit"
-                  disabled={running || !input.trim()}
+                  disabled={running || !input.trim() || inputLocked}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#58CC02] text-white disabled:opacity-50"
                   aria-label="发送"
                 >

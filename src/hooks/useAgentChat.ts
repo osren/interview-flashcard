@@ -60,6 +60,8 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
     canUseAi,
     quotaReady,
     isQuotaExhausted,
+    loading: quotaLoading,
+    error: quotaError,
   } = useLlmQuota({ enabled });
 
   const send = useCallback(
@@ -269,7 +271,10 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
     running,
     error,
     quota,
+    quotaLoading,
+    quotaError,
     canUseAi,
+    quotaReady,
     isQuotaExhausted,
     send,
     confirmPending,

@@ -1,12 +1,14 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List } from 'lucide-react';
+import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, MessageCircleQuestion, Sparkles } from 'lucide-react';
 import type { FlashCard, ModuleType } from '@/types';
 import { useCardStore } from '@/store';
 import { resolveCardStatus } from '@/utils/cardStatus';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { buildStudyMarkdown, type StudyOutlineSection } from '@/utils/studyMarkdown';
+import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
+import { LoginModal, useAuth } from '@/components/Auth';
 
 interface StudyReaderProps {
   title: string;
@@ -16,6 +18,8 @@ interface StudyReaderProps {
   chapterId: string;
   cards: FlashCard[];
   actions?: ReactNode;
+  /** 项目背景资料，透传给 AI 面板作为回答依据 */
+  projectContext?: string;
 }
 
 function StudyOutline({
@@ -87,6 +91,7 @@ export function StudyReader({
   chapterId,
   cards,
   actions,
+  projectContext,
 }: StudyReaderProps) {
   const favorites = useCardStore((state) => state.favorites);
   const toggleFavorite = useCardStore((state) => state.toggleFavorite);
@@ -96,6 +101,72 @@ export function StudyReader({
   const favoriteCardIds = useMemo(() => new Set(favorites.map((card) => card.id)), [favorites]);
   const headingCount = document.markdown.match(/^#{1,4}\s+.+$/gm)?.length ?? 0;
   const characterCount = document.markdown.replace(/\s/g, '').length;
+
+  // Markdown 阅读模式下的 AI 入口：按标题 id / 题号把 h3 对回具体卡片
+  const { user } = useAuth();
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiCard, setAiCard] = useState<FlashCard | null>(null);
+  const [aiMode, setAiMode] = useState<CardAIMode>('explain');
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  const cardByHeading = useMemo(() => {
+    const map = new Map<string, FlashCard>();
+    for (const section of document.sections) {
+      for (const question of section.questions) {
+        map.set(question.headingId, question.card);
+      }
+    }
+    return map;
+  }, [document]);
+
+  const cardByNumber = useMemo(() => {
+    const map = new Map<number, FlashCard>();
+    for (const section of document.sections) {
+      for (const question of section.questions) {
+        map.set(question.number, question.card);
+      }
+    }
+    return map;
+  }, [document]);
+
+  const openAi = (card: FlashCard, mode: CardAIMode) => {
+    if (!user) {
+      setLoginOpen(true);
+      return;
+    }
+    setAiMode(mode);
+    setAiCard(card);
+    setAiOpen(true);
+  };
+
+  const renderH3Action = (headingId: string, text: string): ReactNode => {
+    const matched =
+      cardByHeading.get(headingId) ??
+      cardByNumber.get(Number(text.match(/^(\d+)\./)?.[1] ?? 0));
+    if (!matched) return null;
+    return (
+      <span className="ml-2 inline-flex shrink-0 translate-y-[-2px] items-center gap-1 align-middle">
+        <button
+          type="button"
+          onClick={() => openAi(matched, 'explain')}
+          className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-extrabold leading-none text-[#1CB0F6] hover:bg-[#f0f9ff]"
+        >
+          <Sparkles size={12} />
+          AI 解释
+        </button>
+        <button
+          type="button"
+          onClick={() => openAi(matched, 'followup')}
+          className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-extrabold leading-none text-[#58CC02] hover:bg-[#f0fff0]"
+        >
+          <MessageCircleQuestion size={12} />
+          AI 追问
+        </button>
+      </span>
+    );
+  };
+
+  const panelCard = aiCard ?? cards[0] ?? null;
 
   const toggleStatus = (card: FlashCard) => {
     const status = resolveCardStatus(card.id, cardStatuses, card.status);
@@ -149,6 +220,7 @@ export function StudyReader({
               <article className="min-w-0 rounded-2xl border border-stone-200 bg-white px-5 py-6 shadow-sm sm:px-8 sm:py-9 lg:px-12">
                 <LazyMDMarkdown
                   source={document.markdown}
+                  h3Action={renderH3Action}
                   className="study-reader-markdown prose prose-stone max-w-none prose-headings:font-extrabold prose-h1:mb-8 prose-h1:border-b prose-h1:border-stone-100 prose-h1:pb-4 prose-h2:mt-10 prose-h2:border-b prose-h2:border-stone-100 prose-h2:pb-3 prose-h2:text-xl prose-h3:mt-8 prose-h3:scroll-mt-24 prose-h3:text-lg prose-h4:mt-5 prose-h4:text-base prose-p:leading-8 prose-li:leading-8 prose-a:text-sky-700 prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-stone-900 prose-code:text-rose-700"
                 />
               </article>
@@ -183,6 +255,17 @@ export function StudyReader({
       </div>
 
       <ImportExportModal cards={cards} module={module} chapterId={chapterId} title={title} />
+
+      {panelCard && (
+        <CardAIPanel
+          open={aiOpen}
+          card={panelCard}
+          mode={aiMode}
+          onClose={() => setAiOpen(false)}
+          projectContext={projectContext}
+        />
+      )}
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type PointerEvent as ReactPointerEvent } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactNode, type PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { markdownHeadingId } from '@/utils/studyMarkdown';
@@ -46,6 +46,11 @@ interface LazyMDMarkdownProps {
   style?: React.CSSProperties;
   className?: string;
   onRendered?: () => void;
+  /**
+   * 在 h3（每道题）标题后注入一段操作区，用于 Markdown 阅读模式恢复「AI 解释 / AI 追问」。
+   * 入参是标题 id 与纯文本，返回 null 表示该标题不注入。
+   */
+  h3Action?: (headingId: string, text: string) => ReactNode;
 }
 
 function childrenToText(children: ReactNode): string {
@@ -208,18 +213,41 @@ const MarkdownHeading2 = createHeading(2);
 const MarkdownHeading3 = createHeading(3);
 const MarkdownHeading4 = createHeading(4);
 
-function MarkdownPreviewContent({ onRendered, ...props }: LazyMDMarkdownProps) {
+/** 带操作区的 h3：id 生成规则与 createHeading 保持一致，避免锚点错位 */
+function createHeading3WithAction(action: NonNullable<LazyMDMarkdownProps['h3Action']>) {
+  return function MarkdownHeading3WithAction({
+    children,
+    ...props
+  }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
+    const text = childrenToText(children);
+    const base = markdownHeadingId(text) || 'heading-3';
+    const extra = action(base, text);
+    return (
+      <h3 {...props} id={base} className={`scroll-mt-24 ${props.className ?? ''}`}>
+        <span>{children}</span>
+        {extra}
+      </h3>
+    );
+  };
+}
+
+function MarkdownPreviewContent({ onRendered, h3Action, ...props }: LazyMDMarkdownProps) {
   useEffect(() => {
     const frame = requestAnimationFrame(() => onRendered?.());
     return () => cancelAnimationFrame(frame);
   }, [props.source, onRendered]);
+
+  const heading3 = useMemo(
+    () => (h3Action ? createHeading3WithAction(h3Action) : MarkdownHeading3),
+    [h3Action]
+  );
 
   return (
     <MarkdownRendererLazy
       options={{ overrides: {
         h1: { component: MarkdownHeading1 },
         h2: { component: MarkdownHeading2 },
-        h3: { component: MarkdownHeading3 },
+        h3: { component: heading3 },
         h4: { component: MarkdownHeading4 },
           img: { component: MarkdownImage },
       } }}

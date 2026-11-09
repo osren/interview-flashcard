@@ -148,6 +148,7 @@ export function ProjectDetail() {
         module="projects"
         chapterId={projectId}
         cards={cards}
+        projectContext={backgroundMarkdown}
         actions={(
           <div className="flex shrink-0 items-center gap-1.5">
             {backgroundMarkdown && <Button variant="outline" onClick={() => setActiveView('background')} className="gap-1.5 px-2 sm:gap-2 sm:px-4"><BookOpen size={16} /><span className="hidden sm:inline">{readingButtonLabel}</span></Button>}
