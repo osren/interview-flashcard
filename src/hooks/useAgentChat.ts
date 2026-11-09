@@ -5,18 +5,14 @@ import { runTool } from '@/lib/agent/registry';
 import { agentTools } from '@/lib/agent/tools';
 import { recordAgentTrace, type AgentTraceStep } from '@/lib/agent/trace';
 import type { AgentEvent } from '@/lib/agent/types';
-import type { ChatMessage } from '@/lib/llm/types';
 import { buildCampusAgentMessages } from '@/lib/llm/prompts/campus-agent';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
+import { toAgentHistory, useAgentChatStore } from '@/store/useAgentChatStore';
 
 const MAX_STEPS = 6;
 const QUOTA_MSG = '今日 AI 额度已用完，请明日再试';
 
-export interface AgentChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-}
+export type { AgentChatMessage } from '@/store/useAgentChatStore';
 
 export interface AgentToolTrace {
   step: number;
@@ -39,31 +35,21 @@ function newId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/**
- * 多轮历史只保留「用户提问 + 模型正文」：
- * 工具往返属于本轮内部过程，跨轮携带会撑大请求体，也容易留下无法配对的 tool 消息。
- */
-function compactHistory(messages: ChatMessage[]): ChatMessage[] {
-  return messages.slice(1).filter((message) => {
-    if (message.role === 'user') return true;
-    if (message.role === 'assistant') return Boolean(message.content);
-    return false;
-  });
-}
-
 export interface UseAgentChatOptions {
   enabled?: boolean;
 }
 
 export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
-  const [messages, setMessages] = useState<AgentChatMessage[]>([]);
+  // 消息存在持久化 store：关抽屉、刷新页面都还在，只滚动保留最近 20 条
+  const messages = useAgentChatStore((state) => state.messages);
+  const appendMessage = useAgentChatStore((state) => state.appendMessage);
+  const clearMessages = useAgentChatStore((state) => state.clearMessages);
+
   const [traces, setTraces] = useState<AgentToolTrace[]>([]);
   const [pending, setPending] = useState<AgentPendingAction | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 只保存对话本身（不含 system），系统提示在每次请求时由 buildCampusAgentMessages 拼上
-  const historyRef = useRef<ChatMessage[]>([]);
   const runningRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -92,10 +78,12 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
       setPending(null);
       setTraces([]);
 
+      // 先取历史（不含本轮输入），再落用户消息，避免同一条被拼两次
+      const historyBefore = toAgentHistory(useAgentChatStore.getState().messages);
       const turnId = newId('turn');
-      setMessages((prev) => [...prev, { id: newId('user'), role: 'user', content: input }]);
+      appendMessage({ id: newId('user'), role: 'user', content: input });
 
-      const workingHistory = buildCampusAgentMessages(historyRef.current, input);
+      const workingHistory = buildCampusAgentMessages(historyBefore, input);
       const stepLog: AgentTraceStep[] = [];
       const toolNames: string[] = [];
       const startedAt = Date.now();
@@ -116,7 +104,12 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
                 stepLog.push({ step: event.step, tool: event.name, args: event.args.slice(0, 500) });
                 setTraces((prev) => [
                   ...prev,
-                  { step: event.step, name: event.name, args: event.args.slice(0, 500), summary: '执行中…' },
+                  {
+                    step: event.step,
+                    name: event.name,
+                    args: event.args.slice(0, 500),
+                    summary: '执行中…',
+                  },
                 ]);
                 return;
               }
@@ -152,25 +145,21 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
           workingHistory
         );
 
-        historyRef.current = compactHistory(result.messages);
-
         if (result.answer) {
-          setMessages((prev) => [
-            ...prev,
-            { id: newId('assistant'), role: 'assistant', content: result.answer ?? '' },
-          ]);
+          appendMessage({
+            id: newId('assistant'),
+            role: 'assistant',
+            content: result.answer ?? '',
+          });
         }
 
         if (result.reason === 'max_steps') {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: newId('assistant'),
-              role: 'assistant',
-              content:
-                '这轮查得有点久，我先停下。你可以把问题说得更具体一些，比如「我在 AI 面的岗位有哪些」。',
-            },
-          ]);
+          appendMessage({
+            id: newId('assistant'),
+            role: 'assistant',
+            content:
+              '这轮查得有点久，我先停下。你可以把问题说得更具体一些，比如「我在 AI 面的岗位有哪些」。',
+          });
         }
 
         void recordAgentTrace({
@@ -182,14 +171,13 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
         void refreshQuota();
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : 'AI 请求失败');
-        historyRef.current = compactHistory(workingHistory);
       } finally {
         abortRef.current = null;
         runningRef.current = false;
         setRunning(false);
       }
     },
-    [canUseAi, isQuotaExhausted, quotaReady, refreshQuota]
+    [appendMessage, canUseAi, isQuotaExhausted, quotaReady, refreshQuota]
   );
 
   const confirmPending = useCallback(async () => {
@@ -215,9 +203,11 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
           isError: result.isError,
         },
       ]);
-      const text = result.isError ? `没改成：${result.summary}` : `已更新：${result.summary}`;
-      setMessages((prev) => [...prev, { id: newId('assistant'), role: 'assistant', content: text }]);
-      historyRef.current = [...historyRef.current, { role: 'assistant', content: text }];
+      appendMessage({
+        id: newId('assistant'),
+        role: 'assistant',
+        content: result.isError ? `没改成：${result.summary}` : `已更新：${result.summary}`,
+      });
       setPending(null);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '执行失败');
@@ -225,7 +215,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
       runningRef.current = false;
       setRunning(false);
     }
-  }, [pending]);
+  }, [appendMessage, pending]);
 
   const dismissPending = useCallback(() => setPending(null), []);
 
@@ -235,12 +225,11 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
-    historyRef.current = [];
-    setMessages([]);
+    clearMessages();
     setTraces([]);
     setPending(null);
     setError(null);
-  }, []);
+  }, [clearMessages]);
 
   return {
     messages,
