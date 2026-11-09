@@ -4,6 +4,10 @@ import { useResumeStore, Resume } from '@/store/useResumeStore';
 import { FileText, X, Download, ChevronRight, Sparkles } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
+/**
+ * 已停用：右下角浮动入口与「秋招助手」按钮重叠。
+ * 上传与预览统一走 /resume 页面内的上传区与列表，这里保留组件仅为需要时恢复。
+ */
 export function FloatingResumeButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [previewResume, setPreviewResume] = useState<Resume | null>(null);

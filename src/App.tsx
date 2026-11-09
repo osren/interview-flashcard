@@ -3,7 +3,6 @@ import { Routes, Route, Link } from 'react-router-dom';
 import { AppShell, Footer } from '@/components/Layout';
 import { Home } from '@/pages/Home';
 import { CampusIndex } from '@/pages/Campus';
-import { FloatingResumeButton } from '@/components/Resume/FloatingResumeButton';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
 import { LearningSyncProvider } from '@/hooks/useLearningSync';
@@ -61,7 +60,7 @@ function App() {
         <InterviewSyncProvider>
           <ResumeSyncProvider>
           <AppShell>
-            <FloatingResumeButton />
+            {/* 简历上传入口固定在 /resume 页面内，不再全局挂右下角浮动按钮（会与 AI 助手入口重叠） */}
             <Routes>
               <Route path="/" element={<Home />} />
 
