@@ -1,94 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ApplicationStatus, CampusJobData, JobProgress } from '@/types/campus-job';
-import {
-  APPLICATION_STATUS_LABELS,
-  STAGE_DETAIL_STATUSES,
-} from '@/data/campus-jobs';
+import type { CampusJobData, JobProgress } from '@/types/campus-job';
+import { APPLICATION_STATUS_LABELS } from '@/data/campus-jobs';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import {
+  collectStageReminders,
+  type StageReminderKind,
+} from '@/utils/stage-reminders';
 import { formatStageScheduledAt } from './StageDetailEditor';
-
-/** 待办/过期/已完成提醒覆盖的阶段（不含 Offer） */
-const REMINDER_STATUSES: ApplicationStatus[] = STAGE_DETAIL_STATUSES.filter(
-  (s) => s !== 'offer'
-);
-
-export type StageReminderKind = 'expired' | 'todo' | 'completed';
-
-export interface StageReminderItem {
-  key: string;
-  jobId: string;
-  company: string;
-  position: string;
-  status: ApplicationStatus;
-  link?: string;
-  scheduledAt?: string;
-  kind: StageReminderKind;
-}
-
-function parseStageTime(value?: string): number | null {
-  if (!value) return null;
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)) {
-    const t = Date.parse(value.slice(0, 16));
-    return Number.isNaN(t) ? null : t;
-  }
-  const t = Date.parse(value);
-  return Number.isNaN(t) ? null : t;
-}
-
-const KIND_ORDER: Record<StageReminderKind, number> = {
-  expired: 0,
-  todo: 1,
-  completed: 2,
-};
-
-export function collectStageReminders(
-  jobs: CampusJobData[],
-  getProgress: (jobId: string) => JobProgress | undefined,
-  now = Date.now()
-): StageReminderItem[] {
-  const items: StageReminderItem[] = [];
-
-  for (const job of jobs) {
-    const progress = getProgress(job.id);
-    // 已终止：不进入过期/待办/已完成，仅由终止原因分布统计
-    if (!progress || progress.status === 'rejected') continue;
-    if (!REMINDER_STATUSES.includes(progress.status)) continue;
-
-    const detail = progress.stageDetails?.[progress.status];
-    if (!detail?.link && !detail?.scheduledAt && !detail?.completed) continue;
-
-    const timeMs = parseStageTime(detail.scheduledAt);
-    let kind: StageReminderKind;
-    if (detail.completed) {
-      kind = 'completed';
-    } else if (timeMs !== null && timeMs < now) {
-      kind = 'expired';
-    } else {
-      kind = 'todo';
-    }
-
-    items.push({
-      key: `${job.id}-${progress.status}`,
-      jobId: job.id,
-      company: job.basic.company,
-      position: job.basic.position,
-      status: progress.status,
-      link: detail.link,
-      scheduledAt: detail.scheduledAt,
-      kind,
-    });
-  }
-
-  return items.sort((a, b) => {
-    if (a.kind !== b.kind) return KIND_ORDER[a.kind] - KIND_ORDER[b.kind];
-    const ta = parseStageTime(a.scheduledAt) ?? Number.MAX_SAFE_INTEGER;
-    const tb = parseStageTime(b.scheduledAt) ?? Number.MAX_SAFE_INTEGER;
-    if (ta !== tb) return ta - tb;
-    return a.company.localeCompare(b.company, 'zh-CN');
-  });
-}
 
 interface RaceChartRemindersProps {
   jobs: CampusJobData[];

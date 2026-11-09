@@ -18,9 +18,10 @@ describe('buildCampusAgentMessages', () => {
     expect(messages).toHaveLength(4);
   });
 
-  it('系统提示里点名了全部五个工具', () => {
+  it('系统提示里点名了全部六个工具', () => {
     for (const name of [
       'getProgressStats',
+      'getStageReminders',
       'searchJobs',
       'getJobDetail',
       'getApplicationProgress',

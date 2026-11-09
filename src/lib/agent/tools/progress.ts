@@ -5,6 +5,13 @@ import {
   APPLICATION_STATUS_ORDER,
   REJECT_REASON_LABELS,
 } from '@/data/campus-jobs';
+import {
+  collectStageReminders,
+  parseStageTime,
+  STAGE_REMINDER_LABELS,
+  stageOverdueDays,
+  type StageReminderKind,
+} from '@/utils/stage-reminders';
 import type { ApplicationStatus, JobProgress, StageDetail } from '@/types/campus-job';
 import type { AgentToolDefinition, ToolResult } from '../types';
 
@@ -25,22 +32,113 @@ function isApplicationStatus(value: string): value is ApplicationStatus {
   return (APPLICATION_STATUS_ALL as string[]).includes(value);
 }
 
+function isReminderKind(value: string): value is StageReminderKind {
+  return value === 'expired' || value === 'todo' || value === 'completed';
+}
+
+/** 与页面 RaceChartReminders 同一口径：完成 > 过期 > 待办 */
+function stageKind(detail: StageDetail, now: number): StageReminderKind {
+  if (detail.completed) return 'completed';
+  const timeMs = parseStageTime(detail.scheduledAt);
+  return timeMs !== null && timeMs < now ? 'expired' : 'todo';
+}
+
 /** 只输出有时间/链接的阶段，避免把空对象塞给模型 */
-function compactStageDetails(details?: JobProgress['stageDetails']): Record<string, StageDetail> {
-  if (!details) return {};
-  const result: Record<string, StageDetail> = {};
+function compactStageDetails(
+  details: JobProgress['stageDetails'],
+  now: number
+): Record<string, StageDetail & { kind: StageReminderKind; kindLabel: string }> {
+  const result: Record<string, StageDetail & { kind: StageReminderKind; kindLabel: string }> = {};
+  if (!details) return result;
   for (const [status, detail] of Object.entries(details)) {
     if (!detail) continue;
     if (!detail.link && !detail.scheduledAt && !detail.completed) continue;
-    result[APPLICATION_STATUS_LABELS[status as ApplicationStatus] ?? status] = detail;
+    const kind = stageKind(detail, now);
+    result[APPLICATION_STATUS_LABELS[status as ApplicationStatus] ?? status] = {
+      ...detail,
+      kind,
+      kindLabel: STAGE_REMINDER_LABELS[kind],
+    };
   }
   return result;
 }
 
+export const getStageRemindersTool: AgentToolDefinition = {
+  name: 'getStageReminders',
+  description:
+    '查询「测评 / 面试提醒」：与进度竞赛图右上角「x 个已过期 · x 个待办 · x 个已完成」完全同一口径（只看岗位当前阶段的测评/面试安排，已终止岗位不计入）。返回当前时间、每条提醒的状态与链接。用户问“有哪些已过期的测评面试提醒 / 还有什么要做的 / 哪些面试已经过了”时用。是否过期一律以返回的 kind、kindLabel 为准，不要自己按日期推算。',
+  parameters: {
+    type: 'object',
+    properties: {
+      kind: {
+        type: 'string',
+        enum: ['expired', 'todo', 'completed'],
+        description: '按提醒状态筛选：expired 已过期、todo 待办、completed 已完成；不传返回全部',
+      },
+      query: { type: 'string', description: '公司名或职位关键词，支持部分匹配' },
+      limit: { type: 'number', description: '返回条数，默认 8，最多 20' },
+    },
+    additionalProperties: false,
+  },
+  execute: (args): ToolResult => {
+    const kindRaw = readString(args.kind);
+    const kind = kindRaw && isReminderKind(kindRaw) ? kindRaw : undefined;
+    const query = readString(args.query)?.toLowerCase();
+    const limit = readLimit(args.limit);
+    const now = Date.now();
+
+    const store = useCampusJobStore.getState();
+    const all = collectStageReminders(
+      store.getTrackedJobs(),
+      (jobId) => store.getProgress(jobId),
+      now
+    );
+
+    const counts: Record<StageReminderKind, number> = { expired: 0, todo: 0, completed: 0 };
+    for (const item of all) counts[item.kind] += 1;
+
+    const filtered = all.filter((item) => {
+      if (kind && item.kind !== kind) return false;
+      if (!query) return true;
+      return (
+        item.company.toLowerCase().includes(query) ||
+        item.position.toLowerCase().includes(query)
+      );
+    });
+
+    const items = filtered.slice(0, limit).map((item) => ({
+      jobId: item.jobId,
+      company: item.company,
+      position: item.position,
+      stage: APPLICATION_STATUS_LABELS[item.status],
+      kind: item.kind,
+      kindLabel: STAGE_REMINDER_LABELS[item.kind],
+      scheduledAt: item.scheduledAt,
+      overdueDays: item.kind === 'expired' ? stageOverdueDays(item.scheduledAt, now) : null,
+      link: item.link,
+    }));
+
+    return {
+      content: JSON.stringify({
+        now: new Date(now).toISOString(),
+        timezone: 'Asia/Shanghai',
+        expiredCount: counts.expired,
+        todoCount: counts.todo,
+        completedCount: counts.completed,
+        matched: filtered.length,
+        returned: items.length,
+        items,
+        note: items.length === 0 ? '没有符合条件的提醒' : undefined,
+      }),
+      summary: `已过期 ${counts.expired} 个、待办 ${counts.todo} 个、已完成 ${counts.completed} 个，本次返回 ${items.length} 条`,
+    };
+  },
+};
+
 export const getApplicationProgressTool: AgentToolDefinition = {
   name: 'getApplicationProgress',
   description:
-    '查询秋招投递进度：按公司名/职位关键词/当前状态筛选，返回每个岗位的当前阶段、拒信原因、最近状态变更时间与测评面试时间链接。用户问“我投了哪些/某公司到哪一步了/进度如何”时使用。',
+    '查询秋招投递进度：按公司名/职位关键词/当前状态筛选，返回每个岗位的当前阶段、拒信原因、各阶段测评面试时间与链接（含该阶段是否已过期），以及当前时间。用户问“我投了哪些/某公司到哪一步了/进度如何”时使用；问“过期/待办提醒”优先用 getStageReminders。',
   parameters: {
     type: 'object',
     properties: {
@@ -58,6 +156,7 @@ export const getApplicationProgressTool: AgentToolDefinition = {
     const statusRaw = readString(args.status);
     const status = statusRaw && isApplicationStatus(statusRaw) ? statusRaw : undefined;
     const limit = readLimit(args.limit);
+    const now = Date.now();
 
     const store = useCampusJobStore.getState();
     const tracked = store.getTrackedJobs();
@@ -94,13 +193,19 @@ export const getApplicationProgressTool: AgentToolDefinition = {
           ? REJECT_REASON_LABELS[progress.rejectReason] ?? progress.rejectReason
           : undefined,
         updatedAt: progress?.updatedAt,
-        stageDetails: compactStageDetails(progress?.stageDetails),
+        stageDetails: compactStageDetails(progress?.stageDetails, now),
         historyCount: progress?.statusHistory.length ?? 0,
       };
     });
 
     return {
-      content: JSON.stringify({ total: matched.length, returned: items.length, items }),
+      content: JSON.stringify({
+        now: new Date(now).toISOString(),
+        timezone: 'Asia/Shanghai',
+        total: matched.length,
+        returned: items.length,
+        items,
+      }),
       summary: `投递记录命中 ${matched.length} 条，返回 ${items.length} 条`,
     };
   },
@@ -135,6 +240,14 @@ export const getProgressStatsTool: AgentToolDefinition = {
     );
     const rejected = counts.rejected ?? 0;
 
+    const reminders = collectStageReminders(
+      tracked,
+      (jobId) => store.getProgress(jobId),
+      Date.now()
+    );
+    const reminderCounts = { expired: 0, todo: 0, completed: 0 };
+    for (const item of reminders) reminderCounts[item.kind] += 1;
+
     return {
       content: JSON.stringify({
         total: tracked.length,
@@ -142,8 +255,13 @@ export const getProgressStatsTool: AgentToolDefinition = {
         offer: counts.offer ?? 0,
         rejected,
         byStage: byLabel,
+        reminders: {
+          expired: reminderCounts.expired,
+          todo: reminderCounts.todo,
+          completed: reminderCounts.completed,
+        },
       }),
-      summary: `共 ${tracked.length} 条投递，在进度 ${inProgress}，已终止 ${rejected}`,
+      summary: `共 ${tracked.length} 条投递，在进度 ${inProgress}，已终止 ${rejected}，已过期提醒 ${reminderCounts.expired} 个`,
     };
   },
 };

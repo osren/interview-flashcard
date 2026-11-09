@@ -9,7 +9,7 @@ import { buildCampusAgentMessages } from '@/lib/llm/prompts/campus-agent';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { toAgentHistory, useAgentChatStore } from '@/store/useAgentChatStore';
 
-const MAX_STEPS = 6;
+const MAX_STEPS = 8;
 const QUOTA_MSG = '今日 AI 额度已用完，请明日再试';
 
 export type { AgentChatMessage } from '@/store/useAgentChatStore';

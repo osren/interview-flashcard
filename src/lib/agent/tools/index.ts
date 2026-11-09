@@ -1,11 +1,16 @@
-import { getApplicationProgressTool, getProgressStatsTool } from './progress';
+import {
+  getApplicationProgressTool,
+  getProgressStatsTool,
+  getStageRemindersTool,
+} from './progress';
 import { getJobDetailTool, searchJobsTool } from './jobs';
 import { setJobStatusTool } from './actions';
 import type { AgentToolDefinition } from '../types';
 
-/** 只读工具：查岗位库与投递进度 */
+/** 只读工具：查岗位库、投递进度与测评面试提醒 */
 export const campusJobTools: AgentToolDefinition[] = [
   getProgressStatsTool,
+  getStageRemindersTool,
   searchJobsTool,
   getJobDetailTool,
   getApplicationProgressTool,

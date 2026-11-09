@@ -99,12 +99,13 @@ describe('工具集合', () => {
   it('只读与写工具分开暴露，并合并为 agentTools', () => {
     expect(campusJobTools.map((tool) => tool.name)).toEqual([
       'getProgressStats',
+      'getStageReminders',
       'searchJobs',
       'getJobDetail',
       'getApplicationProgress',
     ]);
     expect(campusJobWriteTools.map((tool) => tool.name)).toEqual(['setJobStatus']);
-    expect(agentTools).toHaveLength(5);
+    expect(agentTools).toHaveLength(6);
     expect(agentTools.filter((tool) => tool.requiresConfirm)).toHaveLength(1);
   });
 
