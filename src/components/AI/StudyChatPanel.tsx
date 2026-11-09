@@ -6,6 +6,7 @@ import { streamLlm } from '@/lib/llm/call';
 import { buildStudyChatMessages, buildStudyChatSystem } from '@/lib/llm/prompts/study-chat';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { useCardStore } from '@/store';
+import { studyChatBusyKey, useChatBusyStore } from '@/store/useChatBusyStore';
 import { studyChatKey, toStudyHistory, useStudyChatStore } from '@/store/useStudyChatStore';
 import { cn } from '@/utils/cn';
 import { LlmQuotaBadge } from './LlmQuotaBadge';
@@ -43,6 +44,8 @@ export function StudyChatPanel({ open, onClose, module, chapterId, title, cards 
 
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
+  // 正在生成的正文：面板关掉时不丢，重开还能看到它继续往下写
+  const [streamText, setStreamText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<CardDraft | null>(null);
   const [savedTip, setSavedTip] = useState<string | null>(null);
@@ -95,6 +98,8 @@ export function StudyChatPanel({ open, onClose, module, chapterId, title, cards 
     });
 
     setStreaming(true);
+    setStreamText('');
+    useChatBusyStore.getState().setBusy(studyChatBusyKey(module, chapterId), true);
     let assembled = '';
     try {
       for await (const chunk of streamLlm({
@@ -103,6 +108,7 @@ export function StudyChatPanel({ open, onClose, module, chapterId, title, cards 
         max_tokens: 1600,
       })) {
         assembled += chunk;
+        setStreamText(assembled);
       }
       if (assembled) {
         appendMessage(key, {
@@ -120,6 +126,8 @@ export function StudyChatPanel({ open, onClose, module, chapterId, title, cards 
       await refreshQuota();
     } finally {
       setStreaming(false);
+      setStreamText('');
+      useChatBusyStore.getState().setBusy(studyChatBusyKey(module, chapterId), false);
     }
   };
 
@@ -256,7 +264,15 @@ export function StudyChatPanel({ open, onClose, module, chapterId, title, cards 
                 ))}
               </div>
 
-              {streaming && (
+              {streaming && streamText && (
+                <div className="mt-3 flex justify-start">
+                  <div className="max-w-[88%] rounded-2xl bg-[#f7f7f7] px-3 py-2 text-sm text-[#3c3c3c]">
+                    <StreamMarkdown content={streamText} />
+                  </div>
+                </div>
+              )}
+
+              {streaming && !streamText && (
                 <p className="mt-3 flex items-center gap-2 text-xs font-bold text-[#777777]">
                   <Loader2 size={14} className="animate-spin" /> 正在回答…
                 </p>

@@ -1,8 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, MessageCircleQuestion, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, Loader2, MessageCircleQuestion, Sparkles } from 'lucide-react';
 import type { FlashCard, ModuleType } from '@/types';
 import { useCardStore } from '@/store';
+import { studyChatBusyKey, useChatBusyStore } from '@/store/useChatBusyStore';
 import { resolveCardStatus } from '@/utils/cardStatus';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
@@ -110,6 +111,7 @@ export function StudyReader({
   const [aiMode, setAiMode] = useState<CardAIMode>('explain');
   const [loginOpen, setLoginOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const chatBusy = useChatBusyStore((state) => state.busy[studyChatBusyKey(module, chapterId)] ?? false);
 
   const openChat = () => {
     if (!user) {
@@ -202,11 +204,15 @@ export function StudyReader({
           <button
             type="button"
             onClick={openChat}
-            className="flex shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 px-2 py-1.5 text-xs font-extrabold text-[#1CB0F6] transition hover:border-[#1CB0F6] hover:bg-[#f0f9ff] sm:px-3 sm:text-sm"
-            title="围绕本章提问，满意的回答可追加到本章文档"
+            className={
+              chatBusy
+                ? "flex shrink-0 items-center gap-1.5 rounded-xl border border-[#FF9600] bg-[#FFF7ED] px-2 py-1.5 text-xs font-extrabold text-[#FF9600] sm:px-3 sm:text-sm"
+                : "flex shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 px-2 py-1.5 text-xs font-extrabold text-[#1CB0F6] transition hover:border-[#1CB0F6] hover:bg-[#f0f9ff] sm:px-3 sm:text-sm"
+            }
+            title={chatBusy ? '本章对话正在后台生成，点开查看进度' : '围绕本章提问，满意的回答可追加到本章文档'}
           >
-            <Sparkles size={15} />
-            <span className="hidden sm:inline">AI 对话</span>
+            {chatBusy ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+            <span className="hidden sm:inline">{chatBusy ? '生成中…' : 'AI 对话'}</span>
           </button>
           {actions}
         </div>

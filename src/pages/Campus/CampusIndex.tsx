@@ -5,10 +5,11 @@ import type { CampusTab } from '@/types/campus-job';
 import { ProgressTab } from './components/ProgressTab';
 import { CampusJobSyncBadge } from './components/CampusJobSyncBadge';
 import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
-import { LayoutDashboard, Briefcase, Table2, TrendingUp, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Loader2, Table2, TrendingUp, Sparkles } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
 import { shouldMountAgentPanel } from '@/lib/agent/feature';
+import { AGENT_CHAT_BUSY_KEY, useChatBusyStore } from '@/store/useChatBusyStore';
 
 const DashboardTab = lazy(() =>
   import('./components/DashboardTab').then((m) => ({ default: m.DashboardTab }))
@@ -34,6 +35,9 @@ const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
 export function CampusIndex() {
   const [activeTab, setActiveTab] = useState<CampusTab>('progress');
   const [agentOpen, setAgentOpen] = useState(false);
+  // 打开过一次就常驻：关闭只收起面板，正在跑的一轮仍在后台继续，重开即可看到结果
+  const [agentMounted, setAgentMounted] = useState(false);
+  const agentBusy = useChatBusyStore((state) => state.busy[AGENT_CHAT_BUSY_KEY] ?? false);
   const [visitedTabs, setVisitedTabs] = useState<Set<CampusTab>>(
     () => new Set<CampusTab>(['progress'])
   );
@@ -148,14 +152,20 @@ export function CampusIndex() {
           <>
             <button
               type="button"
-              onClick={() => setAgentOpen(true)}
-              className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-[#58CC02] px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_24px_rgba(88,204,2,0.35)] transition-transform hover:-translate-y-0.5"
-              aria-label="打开秋招 AI 助手"
+              onClick={() => {
+                setAgentMounted(true);
+                setAgentOpen(true);
+              }}
+              className={cn(
+                'fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_24px_rgba(88,204,2,0.35)] transition-transform hover:-translate-y-0.5',
+                agentBusy ? 'bg-[#FF9600]' : 'bg-[#58CC02]'
+              )}
+              aria-label={agentBusy ? '秋招 AI 助手正在后台处理，点击查看' : '打开秋招 AI 助手'}
             >
-              <Sparkles size={18} />
-              秋招助手
+              {agentBusy ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+              {agentBusy ? '处理中…' : '秋招助手'}
             </button>
-            {agentOpen && (
+            {agentMounted && (
               <Suspense fallback={null}>
                 <AgentPanel open={agentOpen} onClose={() => setAgentOpen(false)} />
               </Suspense>

@@ -7,6 +7,7 @@ import { recordAgentTrace, type AgentTraceStep } from '@/lib/agent/trace';
 import type { AgentEvent } from '@/lib/agent/types';
 import { buildCampusAgentMessages } from '@/lib/llm/prompts/campus-agent';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
+import { AGENT_CHAT_BUSY_KEY, useChatBusyStore } from '@/store/useChatBusyStore';
 import { toAgentHistory, useAgentChatStore } from '@/store/useAgentChatStore';
 
 const MAX_STEPS = 8;
@@ -77,6 +78,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
 
       runningRef.current = true;
       setRunning(true);
+      useChatBusyStore.getState().setBusy(AGENT_CHAT_BUSY_KEY, true);
       setError(null);
       setPending([]);
       setTraces([]);
@@ -180,6 +182,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
       } finally {
         abortRef.current = null;
         runningRef.current = false;
+        useChatBusyStore.getState().setBusy(AGENT_CHAT_BUSY_KEY, false);
         setRunning(false);
       }
     },
@@ -190,6 +193,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
     async (actions: AgentPendingAction[]) => {
       runningRef.current = true;
       setRunning(true);
+      useChatBusyStore.getState().setBusy(AGENT_CHAT_BUSY_KEY, true);
       const lines: string[] = [];
 
       for (const action of actions) {
@@ -225,6 +229,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
       }
 
       runningRef.current = false;
+      useChatBusyStore.getState().setBusy(AGENT_CHAT_BUSY_KEY, false);
       setRunning(false);
     },
     [appendMessage]
