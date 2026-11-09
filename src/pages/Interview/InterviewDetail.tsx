@@ -154,7 +154,7 @@ function InterviewAiPanel({ context }: { context: string }) {
         )}
         {messages.map((message, index) => (
           <div key={`${index}-${message.role}`} className={`rounded-xl px-3 py-2.5 text-sm ${message.role === 'user' ? 'ml-5 bg-stone-100 text-stone-700' : 'mr-2 bg-violet-50/70 text-stone-700'}`}>
-            {message.role === 'assistant' ? <StreamMarkdown content={message.content} /> : <p className="whitespace-pre-wrap">{message.content}</p>}
+            {message.role === 'assistant' ? <StreamMarkdown content={message.content ?? ''} /> : <p className="whitespace-pre-wrap">{message.content}</p>}
           </div>
         ))}
         {isStreaming && <div className="mr-2 rounded-xl bg-violet-50/70 px-3 py-2.5"><StreamMarkdown content={streamingText} streaming /></div>}

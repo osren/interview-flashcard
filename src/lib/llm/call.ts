@@ -1,7 +1,22 @@
 import { getSupabaseAnonKey, getSupabaseUrl, supabase } from '@/lib/supabase/client';
-import type { ChatMessage, LlmCallOptions, LlmProxyErrorBody } from './types';
+import type {
+  ChatMessage,
+  LlmCallOptions,
+  LlmChatResponse,
+  LlmProxyErrorBody,
+  LlmTool,
+  LlmToolChoice,
+  ToolCall,
+} from './types';
 
-export type { ChatMessage, LlmCallOptions };
+export type {
+  ChatMessage,
+  LlmCallOptions,
+  LlmChatResponse,
+  LlmTool,
+  LlmToolChoice,
+  ToolCall,
+};
 
 async function parseLlmError(response: Response): Promise<string> {
   try {
@@ -43,6 +58,9 @@ export async function callLlm(options: LlmCallOptions): Promise<Response> {
         stream: options.stream ?? false,
         max_tokens: options.max_tokens,
         response_format: options.response_format,
+        // 仅在有工具声明时透传，保持普通对话请求体与改造前一致
+        ...(options.tools?.length ? { tools: options.tools } : {}),
+        ...(options.tool_choice !== undefined ? { tool_choice: options.tool_choice } : {}),
       }),
     });
   } catch (error) {
