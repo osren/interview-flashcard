@@ -5,6 +5,13 @@ import { migratePersistedCardStatuses } from './migrateCardStatuses';
 import { recordLearningCheckIn } from './useStreakStore';
 import { isRemembered, resolveCardStatus, normalizeCardStatus } from '@/utils/cardStatus';
 
+function safeCardId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `card-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 interface CardState {
   // 当前卡片状态
   isFlipped: boolean;
@@ -145,7 +152,8 @@ export const useCardStore = create<CardState>()(
 
       // 自定义卡片 Actions
       addCustomCard: (card) => set((state) => ({
-        customCards: [...state.customCards, { ...card, id: crypto.randomUUID() }],
+        // 非安全上下文（http 非 localhost）没有 crypto.randomUUID，直接调会抛错让按钮像"没反应"
+        customCards: [...state.customCards, { ...card, id: safeCardId() }],
       })),
 
       updateCustomCard: (cardId, updates) => set((state) => ({

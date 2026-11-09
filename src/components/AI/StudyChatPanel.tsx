@@ -142,16 +142,21 @@ export function StudyChatPanel({ open, onClose, module, chapterId, title, cards 
   const saveDraft = () => {
     if (!draft || !draft.question.trim()) return;
     const category = draft.category.trim() || title;
-    addCustomCard({
-      id: '',
-      module,
-      chapterId,
-      question: draft.question.trim(),
-      answer: draft.answer,
-      tags: ['AI对话'],
-      status: 'unvisited',
-      category,
-    });
+    try {
+      addCustomCard({
+        id: '',
+        module,
+        chapterId,
+        question: draft.question.trim(),
+        answer: draft.answer,
+        tags: ['AI对话'],
+        status: 'unvisited',
+        category,
+      });
+    } catch (err) {
+      setError(`追加失败：${err instanceof Error ? err.message : '未知错误'}`);
+      return;
+    }
     setDraft(null);
     setSavedTip(`已追加到「${category}」小节末尾`);
   };

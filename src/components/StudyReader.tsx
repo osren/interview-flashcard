@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, Loader2, MessageCircleQuestion, Sparkles } from 'lucide-react';
 import type { FlashCard, ModuleType } from '@/types';
 import { useCardStore } from '@/store';
+import { mergeChapterCards } from '@/utils/cardMerge';
 import { studyChatBusyKey, useChatBusyStore } from '@/store/useChatBusyStore';
 import { resolveCardStatus } from '@/utils/cardStatus';
 import { ImportExportModal } from '@/components/ImportExportModal';
@@ -99,7 +100,13 @@ export function StudyReader({
   const toggleFavorite = useCardStore((state) => state.toggleFavorite);
   const cardStatuses = useCardStore((state) => state.cardStatuses);
   const updateCardStatus = useCardStore((state) => state.updateCardStatus);
-  const document = useMemo(() => buildStudyMarkdown(title, cards), [title, cards]);
+  const customCards = useCardStore((state) => state.customCards);
+  // 闭环兜底：AI 追加的卡片即使页面自己还没重算，也会立刻出现在阅读区
+  const chapterCards = useMemo(
+    () => mergeChapterCards(cards, customCards, module, chapterId),
+    [cards, customCards, module, chapterId]
+  );
+  const document = useMemo(() => buildStudyMarkdown(title, chapterCards), [title, chapterCards]);
   const favoriteCardIds = useMemo(() => new Set(favorites.map((card) => card.id)), [favorites]);
   const headingCount = document.markdown.match(/^#{1,4}\s+.+$/gm)?.length ?? 0;
   const characterCount = document.markdown.replace(/\s/g, '').length;
@@ -178,7 +185,7 @@ export function StudyReader({
     );
   };
 
-  const panelCard = aiCard ?? cards[0] ?? null;
+  const panelCard = aiCard ?? chapterCards[0] ?? null;
 
   const toggleStatus = (card: FlashCard) => {
     const status = resolveCardStatus(card.id, cardStatuses, card.status);
@@ -221,14 +228,14 @@ export function StudyReader({
       <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-7">
         <div className="mb-4 flex items-center gap-2 text-xs text-stone-500">
           <BookOpenText size={15} className="text-[#58CC02]" />
-          <span>{cards.length} 道问题</span>
+          <span>{chapterCards.length} 道问题</span>
           <span>·</span>
           <span>点击大纲跳转，点红心收藏单题</span>
         </div>
 
         <details className="mb-4 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm lg:hidden">
           <summary className="cursor-pointer list-none text-sm font-bold text-stone-700">
-            本章大纲 <span className="ml-1 text-xs font-normal text-stone-400">{cards.length} 道题</span>
+            本章大纲 <span className="ml-1 text-xs font-normal text-stone-400">{chapterCards.length} 道题</span>
           </summary>
           <div className="mt-3 max-h-[55vh] overflow-y-auto border-t border-stone-100 pt-3">
             <StudyOutline sections={document.sections} favorites={favorites} onToggleFavorite={toggleFavorite} getStatus={getStatus} onToggleStatus={toggleStatus} />
@@ -237,7 +244,7 @@ export function StudyReader({
 
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px] xl:gap-7">
           <main className="min-w-0">
-            {cards.length === 0 ? (
+            {chapterCards.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center text-sm text-stone-500">
                 当前章节还没有问题，可以从左侧导入 Markdown 问答。
               </div>
@@ -272,14 +279,14 @@ export function StudyReader({
               <div className="space-y-2.5 text-sm">
                 <div className="flex items-center justify-between text-stone-500"><span>标题层级</span><span className="font-semibold text-stone-800">{headingCount}</span></div>
                 <div className="flex items-center justify-between text-stone-500"><span>字符数</span><span className="font-semibold text-stone-800">{characterCount.toLocaleString('zh-CN')}</span></div>
-                <div className="flex items-center justify-between text-stone-500"><span>已收藏题目</span><span className="font-semibold text-stone-800">{cards.filter((card) => favoriteCardIds.has(card.id)).length}</span></div>
+                <div className="flex items-center justify-between text-stone-500"><span>已收藏题目</span><span className="font-semibold text-stone-800">{chapterCards.filter((card) => favoriteCardIds.has(card.id)).length}</span></div>
               </div>
             </section>
           </aside>
         </div>
       </div>
 
-      <ImportExportModal cards={cards} module={module} chapterId={chapterId} title={title} />
+      <ImportExportModal cards={chapterCards} module={module} chapterId={chapterId} title={title} />
 
       {panelCard && (
         <CardAIPanel
@@ -296,7 +303,7 @@ export function StudyReader({
         module={module}
         chapterId={chapterId}
         title={title}
-        cards={cards}
+        cards={chapterCards}
       />
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
