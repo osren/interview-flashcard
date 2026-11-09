@@ -8,6 +8,7 @@ import { ImportExportModal } from '@/components/ImportExportModal';
 import { LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { buildStudyMarkdown, type StudyOutlineSection } from '@/utils/studyMarkdown';
 import { CardAIPanel, type CardAIMode } from '@/components/AI/CardAIPanel';
+import { StudyChatPanel } from '@/components/AI/StudyChatPanel';
 import { LoginModal, useAuth } from '@/components/Auth';
 
 interface StudyReaderProps {
@@ -108,6 +109,15 @@ export function StudyReader({
   const [aiCard, setAiCard] = useState<FlashCard | null>(null);
   const [aiMode, setAiMode] = useState<CardAIMode>('explain');
   const [loginOpen, setLoginOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const openChat = () => {
+    if (!user) {
+      setLoginOpen(true);
+      return;
+    }
+    setChatOpen(true);
+  };
 
   const cardByHeading = useMemo(() => {
     const map = new Map<string, FlashCard>();
@@ -189,6 +199,15 @@ export function StudyReader({
             <h1 className="truncate text-sm font-extrabold text-stone-800 sm:text-base">{title}</h1>
             <p className="hidden truncate text-[11px] text-stone-500 sm:block">{subtitle || 'Markdown 阅读 · 收藏题目后可在收藏页翻卡复习'}</p>
           </div>
+          <button
+            type="button"
+            onClick={openChat}
+            className="flex shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 px-2 py-1.5 text-xs font-extrabold text-[#1CB0F6] transition hover:border-[#1CB0F6] hover:bg-[#f0f9ff] sm:px-3 sm:text-sm"
+            title="围绕本章提问，满意的回答可追加到本章文档"
+          >
+            <Sparkles size={15} />
+            <span className="hidden sm:inline">AI 对话</span>
+          </button>
           {actions}
         </div>
       </header>
@@ -265,6 +284,14 @@ export function StudyReader({
           projectContext={projectContext}
         />
       )}
+      <StudyChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        module={module}
+        chapterId={chapterId}
+        title={title}
+        cards={cards}
+      />
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );

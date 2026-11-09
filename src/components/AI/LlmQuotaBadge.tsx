@@ -12,6 +12,8 @@ interface LlmQuotaBadgeProps {
   error?: string | null;
   className?: string;
   onRefresh?: () => void | Promise<void>;
+  /** full：额度行 + 余额行 + 提示 + 管理员重置；extra：只留提示与管理员重置（额度行已在别处展示） */
+  variant?: 'full' | 'extra';
 }
 
 export function LlmQuotaBadge({
@@ -20,6 +22,7 @@ export function LlmQuotaBadge({
   error = null,
   className,
   onRefresh,
+  variant = 'full',
 }: LlmQuotaBadgeProps) {
   const { user } = useAuth();
   const [resetting, setResetting] = useState(false);
@@ -63,6 +66,31 @@ export function LlmQuotaBadge({
   const low = quota.remaining > 0 && quota.remaining <= 5;
   const balanceLabel = formatLlmBalanceLabel(quota);
   const platformUnavailable = quota.balance?.isAvailable === false;
+
+  // 额度与余额已在面板顶部展示时，这里只补「耗尽提示 + 管理员重置」
+  if (variant === 'extra') {
+    const hasExtra = empty || isAdmin || resetMessage || resetError;
+    if (!hasExtra) return null;
+    return (
+      <div className={cn('space-y-1', className)}>
+        {empty && <p className="text-[11px] font-bold text-[#FF4B4B]">今日额度已用完，请明日再试</p>}
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => void handleReset()}
+            disabled={resetting}
+            className="inline-flex items-center gap-1 rounded-lg border border-[#e5e5e5] bg-white px-2 py-1 text-[11px] font-bold text-[#777777] hover:border-[#1CB0F6] hover:text-[#1CB0F6] disabled:opacity-50"
+            title="开发者：清除全部用户的今日 AI 用量记录"
+          >
+            {resetting ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
+            重置今日额度
+          </button>
+        )}
+        {resetMessage && <p className="text-[11px] font-semibold text-[#58CC02]">{resetMessage}</p>}
+        {resetError && <p className="text-[11px] font-semibold text-[#FF4B4B]">{resetError}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className={cn('space-y-1', className)}>

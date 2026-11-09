@@ -2,8 +2,10 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Check, Loader2, Send, Sparkles, Wrench, X } from 'lucide-react';
 import { useAgentChat } from '@/hooks/useAgentChat';
+import { useAuth } from '@/components/Auth';
 import { AGENT_SCOPE_LABEL } from '@/lib/agent/feature';
-import { formatLlmQuotaLabel } from '@/lib/llm/quota';
+import { formatLlmBalanceLabel, formatLlmQuotaLabel } from '@/lib/llm/quota';
+import { isAiQuotaAdmin } from '@/lib/llm/quota-admin';
 import { cn } from '@/utils/cn';
 import { LlmQuotaBadge } from './LlmQuotaBadge';
 import { StreamMarkdown } from './StreamMarkdown';
@@ -24,6 +26,7 @@ const QUICK_PROMPTS = ['我整体投递情况怎么样', '我在 AI 面试的岗
 export function AgentPanel({ open, onClose }: AgentPanelProps) {
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   const {
     messages,
     traces,
@@ -47,6 +50,11 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
   const quotaEmpty = quota !== null && quota.remaining <= 0;
   const quotaLow = quota !== null && quota.remaining > 0 && quota.remaining <= 5;
   const inputLocked = quotaReady && !canUseAi;
+  const balanceLabel = quota ? formatLlmBalanceLabel(quota) : null;
+  const balanceUnavailable = quota?.balance?.isAvailable === false;
+  const isQuotaAdmin = isAiQuotaAdmin(user?.email);
+  // 额度与余额都移到头部后，底部只在「耗尽提示」或「管理员重置」时出现
+  const showQuotaFooter = isQuotaAdmin || (quotaReady && isQuotaExhausted);
 
   useEffect(() => {
     if (!open) return;
@@ -100,6 +108,17 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
                       ? '额度读取失败'
                       : '正在读取额度…'}
                 </p>
+                {balanceLabel && (
+                  <p
+                    className={cn(
+                      'truncate text-[11px] font-semibold',
+                      balanceUnavailable ? 'text-[#FF4B4B]' : 'text-[#999999]'
+                    )}
+                  >
+                    {balanceLabel}
+                    {balanceUnavailable ? ' · 余额不足' : ''}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
@@ -247,14 +266,17 @@ export function AgentPanel({ open, onClose }: AgentPanelProps) {
               )}
             </div>
 
-            <div className="border-t border-[#e5e5e5] bg-[#fbfbfb] px-3 py-2">
-              <LlmQuotaBadge
-                quota={quota}
-                loading={quotaLoading}
-                error={quotaError}
-                onRefresh={refreshQuota}
-              />
-            </div>
+            {showQuotaFooter && (
+              <div className="border-t border-[#e5e5e5] bg-[#fbfbfb] px-3 py-2">
+                <LlmQuotaBadge
+                  quota={quota}
+                  loading={quotaLoading}
+                  error={quotaError}
+                  onRefresh={refreshQuota}
+                  variant="extra"
+                />
+              </div>
+            )}
 
             <form onSubmit={submit} className="p-3">
               <div className="flex items-end gap-2">
