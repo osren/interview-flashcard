@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useCampusJobStore } from '@/store/useCampusJobStore';
 import type { CampusJobData, JobTier } from '@/types/campus-job';
-import { setJobStatusTool } from '../tools/actions';
+import { completeStageTool, setJobStatusTool } from '../tools/actions';
 import { agentTools, campusJobTools, campusJobWriteTools } from '../tools';
 import type { ToolResult } from '../types';
 
@@ -95,6 +95,64 @@ describe('setJobStatus（确认式写操作）', () => {
   });
 });
 
+describe('completeStage（确认式写操作）', () => {
+  async function complete(args: Record<string, unknown>): Promise<ToolResult> {
+    return completeStageTool.execute(args, {});
+  }
+
+  it('声明为需要用户确认', () => {
+    expect(completeStageTool.requiresConfirm).toBe(true);
+  });
+
+  it('标记当前阶段完成后，保留原有时间与链接', async () => {
+    await run({ jobId: 'j1', status: 'interview_1' });
+    useCampusJobStore.getState().setStageDetail('j1', 'interview_1', {
+      scheduledAt: '2026-11-06T17:00',
+      link: 'https://meeting.example.com/a',
+    });
+
+    const result = await complete({ jobId: 'j1' });
+    expect(result.isError).toBeFalsy();
+    const detail = useCampusJobStore.getState().getProgress('j1')?.stageDetails?.interview_1;
+    expect(detail).toMatchObject({
+      scheduledAt: '2026-11-06T17:00',
+      link: 'https://meeting.example.com/a',
+      completed: true,
+    });
+    expect(result.summary).toContain('已标记完成');
+  });
+
+  it('可以取消完成', async () => {
+    await run({ jobId: 'j1', status: 'written_tech' });
+    useCampusJobStore.getState().setStageDetail('j1', 'written_tech', {
+      scheduledAt: '2026-11-08T10:00',
+      completed: true,
+    });
+
+    const result = await complete({ jobId: 'j1', status: 'written_tech', completed: false });
+    expect(result.isError).toBeFalsy();
+    const detail = useCampusJobStore.getState().getProgress('j1')?.stageDetails?.written_tech;
+    expect(detail).toMatchObject({ scheduledAt: '2026-11-08T10:00' });
+    expect(detail?.completed).toBeUndefined();
+  });
+
+  it('没有投递记录时报错', async () => {
+    const result = await complete({ jobId: 'j1' });
+    expect(result.isError).toBe(true);
+    expect(result.content).toContain('还没有投递记录');
+  });
+
+  it('岗位不存在时报错', async () => {
+    const result = await complete({ jobId: 'no-such-job' });
+    expect(result.isError).toBe(true);
+  });
+
+  it('缺少 jobId 时报错', async () => {
+    const result = await complete({});
+    expect(result.isError).toBe(true);
+  });
+});
+
 describe('工具集合', () => {
   it('只读与写工具分开暴露，并合并为 agentTools', () => {
     expect(campusJobTools.map((tool) => tool.name)).toEqual([
@@ -104,9 +162,12 @@ describe('工具集合', () => {
       'getJobDetail',
       'getApplicationProgress',
     ]);
-    expect(campusJobWriteTools.map((tool) => tool.name)).toEqual(['setJobStatus']);
-    expect(agentTools).toHaveLength(6);
-    expect(agentTools.filter((tool) => tool.requiresConfirm)).toHaveLength(1);
+    expect(campusJobWriteTools.map((tool) => tool.name)).toEqual([
+      'setJobStatus',
+      'completeStage',
+    ]);
+    expect(agentTools).toHaveLength(7);
+    expect(agentTools.filter((tool) => tool.requiresConfirm)).toHaveLength(2);
   });
 
   it('所有工具都有 name、description 和 object 类型的 parameters', () => {

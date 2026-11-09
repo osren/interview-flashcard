@@ -46,7 +46,8 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
   const clearMessages = useAgentChatStore((state) => state.clearMessages);
 
   const [traces, setTraces] = useState<AgentToolTrace[]>([]);
-  const [pending, setPending] = useState<AgentPendingAction | null>(null);
+  // 一轮里模型可能提多条写操作（如批量标记完成），这里按队列收集、逐条确认
+  const [pending, setPending] = useState<AgentPendingAction[]>([]);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,7 +76,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
       runningRef.current = true;
       setRunning(true);
       setError(null);
-      setPending(null);
+      setPending([]);
       setTraces([]);
 
       // 先取历史（不含本轮输入），再落用户消息，避免同一条被拼两次
@@ -138,7 +139,10 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
               }
 
               if (event.type === 'pending_action') {
-                setPending({ name: event.name, args: event.args, summary: event.summary });
+                setPending((prev) => [
+                  ...prev,
+                  { name: event.name, args: event.args, summary: event.summary },
+                ]);
               }
             },
           },
@@ -180,44 +184,71 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
     [appendMessage, canUseAi, isQuotaExhausted, quotaReady, refreshQuota]
   );
 
-  const confirmPending = useCallback(async () => {
-    if (!pending || runningRef.current) return;
-    const tool = agentTools.find((item) => item.name === pending.name);
-    if (!tool) {
-      setError(`工具「${pending.name}」不存在`);
-      setPending(null);
-      return;
-    }
+  const runPendingActions = useCallback(
+    async (actions: AgentPendingAction[]) => {
+      runningRef.current = true;
+      setRunning(true);
+      const lines: string[] = [];
 
-    runningRef.current = true;
-    setRunning(true);
-    try {
-      const result = await runTool(tool, JSON.stringify(pending.args));
-      setTraces((prev) => [
-        ...prev,
-        {
-          step: prev.length + 1,
-          name: tool.name,
-          args: JSON.stringify(pending.args),
-          summary: result.summary,
-          isError: result.isError,
-        },
-      ]);
-      appendMessage({
-        id: newId('assistant'),
-        role: 'assistant',
-        content: result.isError ? `没改成：${result.summary}` : `已更新：${result.summary}`,
-      });
-      setPending(null);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : '执行失败');
-    } finally {
+      for (const action of actions) {
+        const tool = agentTools.find((item) => item.name === action.name);
+        if (!tool) {
+          lines.push(`工具「${action.name}」不存在`);
+          continue;
+        }
+        try {
+          const result = await runTool(tool, JSON.stringify(action.args));
+          setTraces((prev) => [
+            ...prev,
+            {
+              step: prev.length + 1,
+              name: tool.name,
+              args: JSON.stringify(action.args),
+              summary: result.summary,
+              isError: result.isError,
+            },
+          ]);
+          lines.push(result.isError ? `没改成：${result.summary}` : `已更新：${result.summary}`);
+        } catch (caught) {
+          lines.push(caught instanceof Error ? caught.message : '执行失败');
+        }
+      }
+
+      if (lines.length > 0) {
+        appendMessage({
+          id: newId('assistant'),
+          role: 'assistant',
+          content: lines.map((line) => `- ${line}`).join('\n'),
+        });
+      }
+
       runningRef.current = false;
       setRunning(false);
-    }
-  }, [appendMessage, pending]);
+    },
+    [appendMessage]
+  );
 
-  const dismissPending = useCallback(() => setPending(null), []);
+  /** 确认队列里的第 index 条，其余继续留在队列里 */
+  const confirmPending = useCallback(
+    (index: number) => {
+      if (runningRef.current) return;
+      const action = pending[index];
+      if (!action) return;
+      setPending((prev) => prev.filter((_, i) => i !== index));
+      void runPendingActions([action]);
+    },
+    [pending, runPendingActions]
+  );
+
+  /** 一次确认队列里的全部写操作 */
+  const confirmAllPending = useCallback(() => {
+    if (runningRef.current || pending.length === 0) return;
+    const actions = pending;
+    setPending([]);
+    void runPendingActions(actions);
+  }, [pending, runPendingActions]);
+
+  const dismissPending = useCallback(() => setPending([]), []);
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
@@ -227,7 +258,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
     abortRef.current?.abort();
     clearMessages();
     setTraces([]);
-    setPending(null);
+    setPending([]);
     setError(null);
   }, [clearMessages]);
 
@@ -242,6 +273,7 @@ export function useAgentChat({ enabled = true }: UseAgentChatOptions = {}) {
     isQuotaExhausted,
     send,
     confirmPending,
+    confirmAllPending,
     dismissPending,
     cancel,
     reset,

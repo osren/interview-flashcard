@@ -4,7 +4,7 @@ import {
   getStageRemindersTool,
 } from './progress';
 import { getJobDetailTool, searchJobsTool } from './jobs';
-import { setJobStatusTool } from './actions';
+import { completeStageTool, setJobStatusTool } from './actions';
 import type { AgentToolDefinition } from '../types';
 
 /** 只读工具：查岗位库、投递进度与测评面试提醒 */
@@ -17,7 +17,7 @@ export const campusJobTools: AgentToolDefinition[] = [
 ];
 
 /** 写工具：统一 requiresConfirm，由 UI 二次确认后执行 */
-export const campusJobWriteTools: AgentToolDefinition[] = [setJobStatusTool];
+export const campusJobWriteTools: AgentToolDefinition[] = [setJobStatusTool, completeStageTool];
 
 /** Agent 面板实际注册的工具集合 */
 export const agentTools: AgentToolDefinition[] = [...campusJobTools, ...campusJobWriteTools];
