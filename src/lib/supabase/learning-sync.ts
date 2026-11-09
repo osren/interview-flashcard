@@ -2,7 +2,7 @@ import type { CardStatus, FlashCard } from '@/types';
 import type { CheckInDateKey } from '@/types/streak';
 import { mergeCheckInDates } from '@/utils/streak';
 import { migrateCardStatusRecord, normalizeCardStatus } from '@/utils/cardStatus';
-import { useCardStore } from '@/store/useCardStore';
+import { useCardStore, type HiddenCardEntry } from '@/store/useCardStore';
 import { useStreakStore } from '@/store/useStreakStore';
 import { supabase } from '@/lib/supabase/client';
 
@@ -11,6 +11,8 @@ export interface LearningSyncPayload {
   cardProgress: Record<string, number>;
   customCards: FlashCard[];
   modifiedCards: Record<string, Partial<FlashCard>>;
+  /** 删除/隐藏台账，多端按 at 取较新的一条 */
+  hiddenCards: Record<string, HiddenCardEntry>;
   favorites: FlashCard[];
   checkInDates: Record<CheckInDateKey, true>;
 }
@@ -26,6 +28,7 @@ const EMPTY_PAYLOAD: LearningSyncPayload = {
   cardProgress: {},
   customCards: [],
   modifiedCards: {},
+  hiddenCards: {},
   favorites: [],
   checkInDates: {},
 };
@@ -64,6 +67,41 @@ function mergePartialCards(
   return merged;
 }
 
+function normalizeHiddenCards(raw: unknown): Record<string, HiddenCardEntry> {
+  if (!isRecord(raw)) return {};
+  const result: Record<string, HiddenCardEntry> = {};
+  for (const [cardId, value] of Object.entries(raw)) {
+    if (!isRecord(value)) continue;
+    if (typeof value.hidden !== 'boolean') continue;
+    result[cardId] = {
+      hidden: value.hidden,
+      at: typeof value.at === 'number' ? value.at : 0,
+    };
+  }
+  return result;
+}
+
+/** 同一张卡两边都有记录时，取时间较新的一条（同时间以本地为准） */
+function mergeHiddenCards(
+  local: Record<string, HiddenCardEntry>,
+  remote: Record<string, HiddenCardEntry>
+): Record<string, HiddenCardEntry> {
+  const merged: Record<string, HiddenCardEntry> = { ...remote };
+  for (const [cardId, entry] of Object.entries(local)) {
+    const remoteEntry = remote[cardId];
+    if (!remoteEntry || entry.at >= remoteEntry.at) merged[cardId] = entry;
+  }
+  return merged;
+}
+
+function hiddenIdSet(hiddenCards: Record<string, HiddenCardEntry>): Set<string> {
+  return new Set(
+    Object.entries(hiddenCards)
+      .filter(([, entry]) => entry.hidden)
+      .map(([cardId]) => cardId)
+  );
+}
+
 function normalizePayload(raw: unknown): LearningSyncPayload {
   if (!isRecord(raw)) return { ...EMPTY_PAYLOAD };
 
@@ -74,19 +112,20 @@ function normalizePayload(raw: unknown): LearningSyncPayload {
         : undefined
     ),
     cardProgress: isRecord(raw.cardProgress)
-      ? Object.fromEntries(
+      ? (Object.fromEntries(
           Object.entries(raw.cardProgress).filter(([, v]) => typeof v === 'number')
-        )
+        ) as Record<string, number>)
       : {},
     customCards: Array.isArray(raw.customCards) ? (raw.customCards as FlashCard[]) : [],
     modifiedCards: isRecord(raw.modifiedCards)
       ? (raw.modifiedCards as Record<string, Partial<FlashCard>>)
       : {},
+    hiddenCards: normalizeHiddenCards(raw.hiddenCards),
     favorites: Array.isArray(raw.favorites) ? (raw.favorites as FlashCard[]) : [],
     checkInDates: isRecord(raw.checkInDates)
-      ? Object.fromEntries(
+      ? (Object.fromEntries(
           Object.entries(raw.checkInDates).filter(([, v]) => v === true)
-        )
+        ) as Record<CheckInDateKey, true>)
       : {},
   };
 }
@@ -109,12 +148,21 @@ export function mergeLearningPayload(
     cardProgress[key] = Math.max(index, remote.cardProgress[key] ?? 0);
   }
 
+  const hiddenCards = mergeHiddenCards(local.hiddenCards, remote.hiddenCards);
+  const deleted = hiddenIdSet(hiddenCards);
+
   return {
     cardStatuses,
     cardProgress,
-    customCards: mergeFlashCardsById(local.customCards, remote.customCards),
+    // 并集合并会让"本地已删除、云端还在"的卡片复活，这里用删除台账把它们压住
+    customCards: mergeFlashCardsById(local.customCards, remote.customCards).filter(
+      (card) => !deleted.has(card.id)
+    ),
     modifiedCards: mergePartialCards(local.modifiedCards, remote.modifiedCards),
-    favorites: mergeFlashCardsById(local.favorites, remote.favorites),
+    hiddenCards,
+    favorites: mergeFlashCardsById(local.favorites, remote.favorites).filter(
+      (card) => !deleted.has(card.id)
+    ),
     checkInDates: mergeCheckInDates(local.checkInDates, remote.checkInDates),
   };
 }
@@ -189,6 +237,7 @@ export function buildLearningSyncPayload(): LearningSyncPayload {
     cardProgress: cardState.cardProgress,
     customCards: cardState.customCards,
     modifiedCards: cardState.modifiedCards,
+    hiddenCards: cardState.hiddenCards,
     favorites: cardState.favorites,
     checkInDates: streakState.checkInDates,
   };
@@ -200,6 +249,7 @@ export function applyLearningSyncPayload(payload: LearningSyncPayload): void {
     cardProgress: payload.cardProgress,
     customCards: payload.customCards,
     modifiedCards: payload.modifiedCards,
+    hiddenCards: payload.hiddenCards,
     favorites: payload.favorites,
   });
   useStreakStore.getState().importSyncedState(payload.checkInDates);

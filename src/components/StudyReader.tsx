@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, BookOpenText, CheckCircle2, Circle, Heart, Home, List, Loader2, MessageCircleQuestion, PenLine, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import type { FlashCard, ModuleType } from '@/types';
 import { useCardStore } from '@/store';
-import { mergeChapterCards } from '@/utils/cardMerge';
+import { countHiddenInChapter, mergeChapterCards } from '@/utils/cardMerge';
 import { studyChatBusyKey, useChatBusyStore } from '@/store/useChatBusyStore';
 import { resolveCardStatus } from '@/utils/cardStatus';
 import { ImportExportModal } from '@/components/ImportExportModal';
@@ -106,11 +106,27 @@ export function StudyReader({
   const resetCardAnswer = useCardStore((state) => state.resetCardAnswer);
   const updateCustomCard = useCardStore((state) => state.updateCustomCard);
   const deleteCustomCard = useCardStore((state) => state.deleteCustomCard);
-  // 闭环兜底：AI 追加的卡片、以及改过的题目，即使页面自己还没重算，也会立刻生效
-  const chapterCards = useMemo(
-    () => mergeChapterCards(cards, customCards, modifiedCards, module, chapterId),
-    [cards, customCards, modifiedCards, module, chapterId]
+  const hiddenCards = useCardStore((state) => state.hiddenCards);
+  const hiddenCardIds = useMemo(
+    () => Object.keys(hiddenCards).filter((cardId) => hiddenCards[cardId]?.hidden === true),
+    [hiddenCards]
   );
+  const hideCard = useCardStore((state) => state.hideCard);
+  const restoreHiddenCards = useCardStore((state) => state.restoreHiddenCards);
+  // 闭环兜底：AI 追加的卡片、改过的题目、删掉的题目，即使页面自己还没重算，也会立刻生效
+  const chapterCards = useMemo(
+    () => mergeChapterCards(cards, customCards, modifiedCards, module, chapterId, hiddenCardIds),
+    [cards, customCards, modifiedCards, module, chapterId, hiddenCardIds]
+  );
+  const hiddenInChapter = useMemo(
+    () => countHiddenInChapter(cards, customCards, chapterId, hiddenCardIds),
+    [cards, customCards, chapterId, hiddenCardIds]
+  );
+  const hiddenIdsInChapter = useMemo(() => {
+    const hidden = new Set(hiddenCardIds);
+    const ids = cards.filter((card) => hidden.has(card.id)).map((card) => card.id);
+    return ids;
+  }, [cards, hiddenCardIds]);
   const document = useMemo(() => buildStudyMarkdown(title, chapterCards), [title, chapterCards]);
   const favoriteCardIds = useMemo(() => new Set(favorites.map((card) => card.id)), [favorites]);
   const headingCount = document.markdown.match(/^#{1,4}\s+.+$/gm)?.length ?? 0;
@@ -283,6 +299,18 @@ export function StudyReader({
           <BookOpenText size={15} className="text-[#58CC02]" />
           <span>{chapterCards.length} 道问题</span>
           <span>·</span>
+          {hiddenInChapter > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-lg bg-stone-100 px-2 py-0.5 text-[11px] font-extrabold text-stone-500">
+              已隐藏 {hiddenInChapter} 道
+              <button
+                type="button"
+                onClick={() => restoreHiddenCards(hiddenIdsInChapter)}
+                className="rounded px-1 text-[#58CC02] underline-offset-2 hover:underline"
+              >
+                恢复
+              </button>
+            </span>
+          )}
           <span>点击大纲跳转，点红心收藏单题</span>
         </div>
 
@@ -414,39 +442,47 @@ export function StudyReader({
                 取消
               </button>
 
-              {isCustomCard ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!confirmDelete) {
-                      setConfirmDelete(true);
-                      return;
-                    }
-                    deleteCustomCard(editCard.id);
-                    closeEdit();
-                  }}
-                  className={
-                    confirmDelete
-                      ? 'ml-auto rounded-xl bg-[#FF4B4B] px-3 py-2 text-sm font-extrabold text-white'
-                      : 'ml-auto inline-flex items-center gap-1 rounded-xl border border-stone-200 px-3 py-2 text-sm font-extrabold text-stone-500 hover:border-[#FF4B4B] hover:text-[#FF4B4B]'
-                  }
-                >
-                  <Trash2 size={15} />
-                  {confirmDelete ? '确认删除？' : '删除'}
-                </button>
-              ) : (
+              {!isCustomCard && (
                 <button
                   type="button"
                   onClick={() => {
                     resetCardAnswer(editCard.id);
                     closeEdit();
                   }}
-                  className="ml-auto inline-flex items-center gap-1 rounded-xl border border-stone-200 px-3 py-2 text-sm font-extrabold text-stone-500 hover:border-[#58CC02] hover:text-[#58CC02]"
+                  className="inline-flex items-center gap-1 rounded-xl border border-stone-200 px-3 py-2 text-sm font-extrabold text-stone-500 hover:border-[#58CC02] hover:text-[#58CC02]"
                 >
                   <Undo2 size={15} />
                   恢复原文
                 </button>
               )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (!confirmDelete) {
+                    setConfirmDelete(true);
+                    return;
+                  }
+                  if (isCustomCard) {
+                    deleteCustomCard(editCard.id);
+                  } else {
+                    // 内置题不真删数据文件，只在本机隐藏，随时可恢复
+                    hideCard(editCard.id);
+                  }
+                  closeEdit();
+                }}
+                className={
+                  confirmDelete
+                    ? 'ml-auto rounded-xl bg-[#FF4B4B] px-3 py-2 text-sm font-extrabold text-white'
+                    : 'ml-auto inline-flex items-center gap-1 rounded-xl border border-stone-200 px-3 py-2 text-sm font-extrabold text-stone-500 hover:border-[#FF4B4B] hover:text-[#FF4B4B]'
+                }
+              >
+                <Trash2 size={15} />
+                {confirmDelete
+                  ? isCustomCard
+                    ? '确认删除？'
+                    : '确认删除？（可恢复）'
+                  : '删除'}
+              </button>
             </div>
           </div>
         </div>

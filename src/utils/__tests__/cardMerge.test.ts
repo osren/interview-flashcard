@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FlashCard } from '@/types';
-import { mergeChapterCards } from '../cardMerge';
+import { countHiddenInChapter, mergeChapterCards } from '../cardMerge';
 
 const card = (id: string, chapterId = 'javascript', module = 'core'): FlashCard => ({
   id,
@@ -59,5 +59,36 @@ describe('mergeChapterCards', () => {
       'javascript'
     );
     expect(merged[0].answer).toBe('重写后的答案');
+  });
+
+  it('被删除（隐藏）的题目不再出现，包括自定义卡', () => {
+    const merged = mergeChapterCards(
+      [card('static-1'), card('static-2')],
+      [card('ai-1')],
+      {},
+      'core',
+      'javascript',
+      ['static-1', 'ai-1']
+    );
+    expect(merged.map((item) => item.id)).toEqual(['static-2']);
+  });
+
+  it('隐藏后不影响其他章节', () => {
+    const hidden = ['react-1'];
+    const merged = mergeChapterCards([card('static-1')], [], {}, 'core', 'javascript', hidden);
+    expect(merged).toHaveLength(1);
+  });
+});
+
+describe('countHiddenInChapter', () => {
+  it('统计本章隐藏数量，且父页面已合并时不会重复计数', () => {
+    // cards 里已含自定义卡（父页面 getMergedCards 的结果）
+    const cards = [card('static-1'), card('ai-1')];
+    const customCards = [card('ai-1')];
+    expect(countHiddenInChapter(cards, customCards, 'javascript', ['static-1', 'ai-1'])).toBe(2);
+  });
+
+  it('没有隐藏时返回 0', () => {
+    expect(countHiddenInChapter([card('static-1')], [], 'javascript', [])).toBe(0);
   });
 });

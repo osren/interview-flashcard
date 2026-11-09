@@ -242,6 +242,7 @@ function useLearningSync(enabled: boolean): LearningSyncContextValue {
         state.cardProgress !== prevState.cardProgress ||
         state.customCards !== prevState.customCards ||
         state.modifiedCards !== prevState.modifiedCards ||
+        state.hiddenCards !== prevState.hiddenCards ||
         state.favorites !== prevState.favorites;
 
       if (progressChanged) schedulePush(user.id);

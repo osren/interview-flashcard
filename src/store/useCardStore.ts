@@ -5,6 +5,12 @@ import { migratePersistedCardStatuses } from './migrateCardStatuses';
 import { recordLearningCheckIn } from './useStreakStore';
 import { isRemembered, resolveCardStatus, normalizeCardStatus } from '@/utils/cardStatus';
 
+/** 删除/隐藏记录：hidden 为 true 表示不显示；at 是变更时间，多端合并时取较新的一条 */
+export interface HiddenCardEntry {
+  hidden: boolean;
+  at: number;
+}
+
 function safeCardId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -29,6 +35,9 @@ interface CardState {
 
   // 修改过的卡片（用户编辑过答案的）
   modifiedCards: Record<string, Partial<FlashCard>>;
+
+  // 删除/隐藏台账（内置题隐藏 + 自定义题删除墓碑），云端按 at 取较新一条
+  hiddenCards: Record<string, HiddenCardEntry>;
 
   // 筛选状态
   filter: string;
@@ -56,6 +65,10 @@ interface CardState {
   updateCustomCard: (cardId: string, updates: Partial<FlashCard>) => void;
   deleteCustomCard: (cardId: string) => void;
 
+  // 隐藏 / 恢复题目（内置题隐藏只影响显示，可随时恢复）
+  hideCard: (cardId: string) => void;
+  restoreHiddenCards: (cardIds: string[]) => void;
+
   // 修改卡片 Actions
   updateCardAnswer: (cardId: string, updates: Partial<FlashCard>) => void;
   resetCardAnswer: (cardId: string) => void;
@@ -74,6 +87,7 @@ interface CardState {
     cardProgress: Record<string, number>;
     customCards: FlashCard[];
     modifiedCards: Record<string, Partial<FlashCard>>;
+    hiddenCards: Record<string, HiddenCardEntry>;
     favorites: FlashCard[];
   }) => void;
 }
@@ -88,6 +102,7 @@ export const useCardStore = create<CardState>()(
       cardProgress: {},
       customCards: [],
       modifiedCards: {},
+      hiddenCards: {},
       filter: 'all',
       searchQuery: '',
 
@@ -164,7 +179,21 @@ export const useCardStore = create<CardState>()(
 
       deleteCustomCard: (cardId) => set((state) => ({
         customCards: state.customCards.filter((card) => card.id !== cardId),
+        // 必须留一条删除墓碑：云端合并是并集，不留墓碑这张卡下次同步会"复活"
+        hiddenCards: { ...state.hiddenCards, [cardId]: { hidden: true, at: Date.now() } },
       })),
+
+      hideCard: (cardId) => set((state) => ({
+        hiddenCards: { ...state.hiddenCards, [cardId]: { hidden: true, at: Date.now() } },
+      })),
+
+      restoreHiddenCards: (cardIds) => set((state) => {
+        // 恢复也写时间戳，否则云端还留着旧的"隐藏"记录，合并时又会把题拉回来
+        const at = Date.now();
+        const next = { ...state.hiddenCards };
+        for (const cardId of cardIds) next[cardId] = { hidden: false, at };
+        return { hiddenCards: next };
+      }),
 
       // 修改卡片 Actions
       updateCardAnswer: (cardId, updates) => set((state) => ({
@@ -234,6 +263,7 @@ export const useCardStore = create<CardState>()(
           cardProgress: payload.cardProgress,
           customCards: payload.customCards,
           modifiedCards: payload.modifiedCards,
+          hiddenCards: payload.hiddenCards,
           favorites: payload.favorites,
         })),
     }),
@@ -243,6 +273,7 @@ export const useCardStore = create<CardState>()(
         cardStatuses: state.cardStatuses,
         customCards: state.customCards,
         modifiedCards: state.modifiedCards,
+        hiddenCards: state.hiddenCards,
         favorites: state.favorites,
         cardProgress: state.cardProgress,
       }),
@@ -251,9 +282,17 @@ export const useCardStore = create<CardState>()(
           cards?: Array<{ id?: string; status?: CardStatus }>;
         };
         const { cards: legacyCards, ...rest } = persisted;
+        // 兼容老版本持久化里的 hiddenCardIds 数组
+        const legacyHidden = (persistedState as { hiddenCardIds?: string[] } | null)?.hiddenCardIds;
+        const hiddenCards =
+          rest.hiddenCards ??
+          Object.fromEntries(
+            (legacyHidden ?? []).map((id) => [id, { hidden: true, at: 0 }])
+          );
         return {
           ...currentState,
           ...rest,
+          hiddenCards,
           cards: currentState.cards,
           cardStatuses: migratePersistedCardStatuses({
             cardStatuses: rest.cardStatuses,
