@@ -5,9 +5,10 @@ import type { CampusTab } from '@/types/campus-job';
 import { ProgressTab } from './components/ProgressTab';
 import { CampusJobSyncBadge } from './components/CampusJobSyncBadge';
 import { useCampusJobSyncContext } from '@/hooks/useCampusJobSync';
-import { LayoutDashboard, Briefcase, Table2, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Table2, TrendingUp, Sparkles } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { ensureLocalCampusCatalog } from '@/data/campus-jobs/loadJobs';
+import { shouldMountAgentPanel } from '@/lib/agent/feature';
 
 const DashboardTab = lazy(() =>
   import('./components/DashboardTab').then((m) => ({ default: m.DashboardTab }))
@@ -17,6 +18,10 @@ const JobsTab = lazy(() =>
 );
 const JobPoolTab = lazy(() =>
   import('./components/JobPoolTab').then((m) => ({ default: m.JobPoolTab }))
+);
+// Agent 面板按需加载：开关关闭时不会进主包，也不会发起任何 LLM 请求
+const AgentPanel = lazy(() =>
+  import('@/components/AI/AgentPanel').then((m) => ({ default: m.AgentPanel }))
 );
 
 const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
@@ -28,6 +33,7 @@ const TABS: { id: CampusTab; label: string; icon: typeof LayoutDashboard }[] = [
 
 export function CampusIndex() {
   const [activeTab, setActiveTab] = useState<CampusTab>('progress');
+  const [agentOpen, setAgentOpen] = useState(false);
   const [visitedTabs, setVisitedTabs] = useState<Set<CampusTab>>(
     () => new Set<CampusTab>(['progress'])
   );
@@ -136,6 +142,25 @@ export function CampusIndex() {
           <div className={cn(activeTab !== 'progress' && 'hidden')}>
             <ProgressTab jobs={jobs} />
           </div>
+        )}
+
+        {shouldMountAgentPanel() && (
+          <>
+            <button
+              type="button"
+              onClick={() => setAgentOpen(true)}
+              className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-[#58CC02] px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_24px_rgba(88,204,2,0.35)] transition-transform hover:-translate-y-0.5"
+              aria-label="打开秋招 AI 助手"
+            >
+              <Sparkles size={18} />
+              秋招助手
+            </button>
+            {agentOpen && (
+              <Suspense fallback={null}>
+                <AgentPanel open={agentOpen} onClose={() => setAgentOpen(false)} />
+              </Suspense>
+            )}
+          </>
         )}
       </div>
     </PageShell>

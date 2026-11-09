@@ -45,6 +45,8 @@ export interface LlmCallOptions {
   response_format?: { type: string };
   tools?: LlmTool[];
   tool_choice?: LlmToolChoice;
+  /** Agent 一轮对话的幂等标识：同一轮多次调用只扣一次额度 */
+  turnId?: string;
 }
 
 export interface LlmProxyErrorBody {

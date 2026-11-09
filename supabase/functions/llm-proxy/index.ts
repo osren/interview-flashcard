@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     }
 
     const admin = createServiceClient();
-    const quotaResult = await consumeUserQuota(admin, user.id);
+    const quotaResult = await consumeUserQuota(admin, user.id, body.turnId);
     if (!quotaResult.ok) {
       return quotaExceededResponse(quotaResult);
     }

@@ -8,6 +8,8 @@ export interface AiQuotaSnapshot {
 
 export interface AiQuotaConsumeResult extends AiQuotaSnapshot {
   ok: boolean;
+  /** 同一 turn_id 的重复调用命中幂等分支时为 true */
+  deduplicated?: boolean;
 }
 
 export interface DeepSeekBalanceSnapshot {
@@ -67,12 +69,15 @@ export async function getUserQuota(
 
 export async function consumeUserQuota(
   admin: SupabaseClient,
-  userId: string
+  userId: string,
+  turnId?: string
 ): Promise<AiQuotaConsumeResult> {
   const limit = getDailyLimit();
+  const turn = typeof turnId === 'string' && turnId.trim() ? turnId.trim() : null;
   const { data, error } = await admin.rpc('try_consume_ai_quota', {
     p_user_id: userId,
     p_limit: limit,
+    p_turn_id: turn,
   });
 
   if (error || !data) {
@@ -87,6 +92,7 @@ export async function consumeUserQuota(
     used,
     limit: effectiveLimit,
     remaining: Math.max(0, effectiveLimit - used),
+    deduplicated: Boolean(payload.deduplicated),
   };
 }
 

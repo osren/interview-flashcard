@@ -1,11 +1,18 @@
 import { getApplicationProgressTool, getProgressStatsTool } from './progress';
 import { getJobDetailTool, searchJobsTool } from './jobs';
+import { setJobStatusTool } from './actions';
 import type { AgentToolDefinition } from '../types';
 
-/** 秋招模块当前对外开放的只读工具集合 */
+/** 只读工具：查岗位库与投递进度 */
 export const campusJobTools: AgentToolDefinition[] = [
   getProgressStatsTool,
   searchJobsTool,
   getJobDetailTool,
   getApplicationProgressTool,
 ];
+
+/** 写工具：统一 requiresConfirm，由 UI 二次确认后执行 */
+export const campusJobWriteTools: AgentToolDefinition[] = [setJobStatusTool];
+
+/** Agent 面板实际注册的工具集合 */
+export const agentTools: AgentToolDefinition[] = [...campusJobTools, ...campusJobWriteTools];

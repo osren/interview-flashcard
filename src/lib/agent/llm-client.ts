@@ -6,6 +6,8 @@ interface LlmClientOptions {
   model?: string;
   temperature?: number;
   maxTokens?: number;
+  /** 同一轮 Agent 对话共享，用于后端配额幂等 */
+  turnId?: string;
 }
 
 /**
@@ -22,6 +24,7 @@ export function createLlmClient(options: LlmClientOptions = {}): AgentLlmClient 
         model: options.model,
         temperature: options.temperature ?? 0.3,
         max_tokens: options.maxTokens ?? 1024,
+        turnId: options.turnId,
       });
 
       const choice = response.choices?.[0];

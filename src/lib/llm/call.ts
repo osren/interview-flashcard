@@ -61,6 +61,7 @@ export async function callLlm(options: LlmCallOptions): Promise<Response> {
         // 仅在有工具声明时透传，保持普通对话请求体与改造前一致
         ...(options.tools?.length ? { tools: options.tools } : {}),
         ...(options.tool_choice !== undefined ? { tool_choice: options.tool_choice } : {}),
+        ...(options.turnId ? { turnId: options.turnId } : {}),
       }),
     });
   } catch (error) {

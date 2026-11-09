@@ -28,6 +28,8 @@ export interface LlmProxyRequestBody {
   response_format?: unknown;
   tools?: unknown[];
   tool_choice?: unknown;
+  /** Agent 一轮对话的幂等标识，只用于配额去重，不会转发给上游 */
+  turnId?: string;
 }
 
 /** 真正发给上游的请求体：只包含白名单字段，避免把任意字段透传过去 */
