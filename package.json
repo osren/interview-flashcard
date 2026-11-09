@@ -9,6 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "seed:campus-catalog": "node scripts/generate-campus-catalog-seed.mjs",
     "supabase": "supabase",
     "supabase:login": "supabase login",
@@ -22,8 +24,8 @@
     "@rjsf/core": "^6.5.2",
     "@rjsf/validator-ajv8": "^6.5.2",
     "@supabase/supabase-js": "^2.112.3",
-    "@uiw/react-md-editor": "^4.1.0",
     "@uiw/react-markdown-preview": "^5.2.0",
+    "@uiw/react-md-editor": "^4.1.0",
     "antd": "^6.3.7",
     "clsx": "^2.1.0",
     "diff": "^9.0.0",
@@ -55,6 +57,7 @@
     "supabase": "^2.116.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
-    "vite": "^5.4.21"
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9"
   }
 }
