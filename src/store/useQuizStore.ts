@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { QuizAttempt, QuizItem } from '@/types';
+import type { QuizAttempt, QuizItem, QuizMastery } from '@/types';
 
 /** 只保留最近多少条作答记录，避免 payload 无限膨胀 */
 export const MAX_STORED_ATTEMPTS = 200;
@@ -10,11 +10,18 @@ interface QuizState {
   items: Record<string, QuizItem>;
   /** 最近的作答记录，新的在前 */
   attempts: QuizAttempt[];
+  /** cardId -> 掌握度与下次到期时间 */
+  mastery: Record<string, QuizMastery>;
 
   upsertItems: (items: QuizItem[]) => void;
   recordAttempts: (attempts: QuizAttempt[]) => void;
+  applyMastery: (records: QuizMastery[]) => void;
   getItemForCard: (cardId: string) => QuizItem | undefined;
-  importSyncedState: (payload: { items: Record<string, QuizItem>; attempts: QuizAttempt[] }) => void;
+  importSyncedState: (payload: {
+    items: Record<string, QuizItem>;
+    attempts: QuizAttempt[];
+    mastery: Record<string, QuizMastery>;
+  }) => void;
 }
 
 function sortByAtDesc(attempts: QuizAttempt[]): QuizAttempt[] {
@@ -26,6 +33,7 @@ export const useQuizStore = create<QuizState>()(
     (set, get) => ({
       items: {},
       attempts: [],
+      mastery: {},
 
       upsertItems: (items) => set((state) => {
         if (items.length === 0) return {};
@@ -44,6 +52,17 @@ export const useQuizStore = create<QuizState>()(
         };
       }),
 
+      applyMastery: (records) => set((state) => {
+        if (records.length === 0) return {};
+        const next = { ...state.mastery };
+        for (const record of records) {
+          const existing = next[record.cardId];
+          // 两处同时更新时以作答时间较新的为准，避免一轮测验里的旧结果盖掉新结果
+          if (!existing || record.lastAt >= existing.lastAt) next[record.cardId] = record;
+        }
+        return { mastery: next };
+      }),
+
       getItemForCard: (cardId) => get().items[cardId],
 
       importSyncedState: (payload) => set((state) => {
@@ -58,9 +77,16 @@ export const useQuizStore = create<QuizState>()(
         for (const attempt of state.attempts) attemptMap.set(attempt.id, attempt);
         for (const attempt of payload.attempts) attemptMap.set(attempt.id, attempt);
 
+        const mastery = { ...state.mastery };
+        for (const [cardId, entry] of Object.entries(payload.mastery)) {
+          const existing = mastery[cardId];
+          if (!existing || entry.lastAt >= existing.lastAt) mastery[cardId] = entry;
+        }
+
         return {
           items: merged,
           attempts: sortByAtDesc([...attemptMap.values()]).slice(0, MAX_STORED_ATTEMPTS),
+          mastery,
         };
       }),
     }),
@@ -69,6 +95,7 @@ export const useQuizStore = create<QuizState>()(
       partialize: (state) => ({
         items: state.items,
         attempts: state.attempts,
+        mastery: state.mastery,
       }),
     }
   )

@@ -1,4 +1,4 @@
-import type { CardStatus, FlashCard, ModuleType, QuizAttempt, QuizItem } from '@/types';
+import type { CardStatus, FlashCard, ModuleType, QuizAttempt, QuizItem, QuizMastery } from '@/types';
 import type { CheckInDateKey } from '@/types/streak';
 import { mergeCheckInDates } from '@/utils/streak';
 import { migrateCardStatusRecord, normalizeCardStatus } from '@/utils/cardStatus';
@@ -20,6 +20,8 @@ export interface LearningSyncPayload {
   quizItems: Record<string, QuizItem>;
   /** 测验作答记录，按 id 并集去重后只留最近若干条 */
   quizAttempts: QuizAttempt[];
+  /** 每题掌握度与下次到期时间，按 lastAt 取较新的一条 */
+  quizMastery: Record<string, QuizMastery>;
 }
 
 interface LearningSyncRow {
@@ -38,6 +40,7 @@ const EMPTY_PAYLOAD: LearningSyncPayload = {
   checkInDates: {},
   quizItems: {},
   quizAttempts: [],
+  quizMastery: {},
 };
 
 const STATUS_PRIORITY: Record<CardStatus, number> = {
@@ -189,6 +192,41 @@ function mergeQuizAttempts(local: QuizAttempt[], remote: QuizAttempt[]): QuizAtt
   return [...map.values()].sort((a, b) => b.at - a.at).slice(0, MAX_STORED_ATTEMPTS);
 }
 
+function normalizeQuizMastery(raw: unknown): Record<string, QuizMastery> {
+  if (!isRecord(raw)) return {};
+  const result: Record<string, QuizMastery> = {};
+
+  for (const [cardId, value] of Object.entries(raw)) {
+    if (!isRecord(value)) continue;
+    const strength = typeof value.strength === 'number'
+      ? Math.max(0, Math.min(3, Math.floor(value.strength)))
+      : 0;
+
+    result[cardId] = {
+      cardId,
+      strength,
+      dueAt: typeof value.dueAt === 'number' ? value.dueAt : 0,
+      lastAt: typeof value.lastAt === 'number' ? value.lastAt : 0,
+      lastCorrect: value.lastCorrect === true,
+    };
+  }
+
+  return result;
+}
+
+function mergeQuizMastery(
+  local: Record<string, QuizMastery>,
+  remote: Record<string, QuizMastery>
+): Record<string, QuizMastery> {
+  const merged = { ...remote };
+  for (const [cardId, entry] of Object.entries(local)) {
+    const remoteEntry = remote[cardId];
+    // 掌握度是有方向的（会升降级），不能像作答记录那样简单并集，只能按时间取新
+    if (!remoteEntry || entry.lastAt >= remoteEntry.lastAt) merged[cardId] = entry;
+  }
+  return merged;
+}
+
 function normalizePayload(raw: unknown): LearningSyncPayload {
   if (!isRecord(raw)) return { ...EMPTY_PAYLOAD };
 
@@ -216,6 +254,7 @@ function normalizePayload(raw: unknown): LearningSyncPayload {
       : {},
     quizItems: normalizeQuizItems(raw.quizItems),
     quizAttempts: normalizeQuizAttempts(raw.quizAttempts),
+    quizMastery: normalizeQuizMastery(raw.quizMastery),
   };
 }
 
@@ -255,6 +294,7 @@ export function mergeLearningPayload(
     checkInDates: mergeCheckInDates(local.checkInDates, remote.checkInDates),
     quizItems: mergeQuizItems(local.quizItems, remote.quizItems),
     quizAttempts: mergeQuizAttempts(local.quizAttempts, remote.quizAttempts),
+    quizMastery: mergeQuizMastery(local.quizMastery, remote.quizMastery),
   };
 }
 
@@ -334,6 +374,7 @@ export function buildLearningSyncPayload(): LearningSyncPayload {
     checkInDates: streakState.checkInDates,
     quizItems: quizState.items,
     quizAttempts: quizState.attempts,
+    quizMastery: quizState.mastery,
   };
 }
 
@@ -350,5 +391,6 @@ export function applyLearningSyncPayload(payload: LearningSyncPayload): void {
   useQuizStore.getState().importSyncedState({
     items: payload.quizItems,
     attempts: payload.quizAttempts,
+    mastery: payload.quizMastery,
   });
 }

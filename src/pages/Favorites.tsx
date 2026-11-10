@@ -5,6 +5,8 @@ import { TrendingCard } from '@/components/AI/TrendingCard';
 import { ImportExportModal } from '@/components/ImportExportModal';
 import { QuizRunner } from '@/components/Quiz/QuizRunner';
 import { useCardStore } from '@/store';
+import { useQuizStore } from '@/store/useQuizStore';
+import { computeMasteryStats, countDueMastery } from '@/lib/quiz/mastery';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { FlashCard, ModuleType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
@@ -92,6 +94,19 @@ export function Favorites() {
   const quizCards = useMemo(
     () => favorites.filter((card) => card.answer.trim().length >= 20),
     [favorites]
+  );
+
+  const quizMastery = useQuizStore((state) => state.mastery);
+
+  const quizStats = useMemo(
+    () => computeMasteryStats(quizCards, quizMastery),
+    [quizCards, quizMastery]
+  );
+
+  // 页面打开时算一次「今天到期几题」，这就是回来看收藏页的理由
+  const dueCount = useMemo(
+    () => countDueMastery(quizCards, quizMastery, Date.now()),
+    [quizCards, quizMastery]
   );
 
   // 按模块和章节分组（排除面经）
@@ -415,20 +430,42 @@ export function Favorites() {
         {quizCards.length > 0 && (
           <button
             onClick={() => setQuizOpen(true)}
-            className="w-full mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-[#58CC02] bg-[#f7fee7] dark:bg-green-900/20 hover:brightness-105 transition-all text-left"
+            className={cn(
+              'w-full mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border-2 hover:brightness-105 transition-all text-left',
+              dueCount > 0
+                ? 'border-[#FF9600] bg-[#fff7ed] dark:bg-orange-900/20'
+                : 'border-[#58CC02] bg-[#f7fee7] dark:bg-green-900/20'
+            )}
           >
-            <span className="shrink-0 w-9 h-9 rounded-lg bg-[#58CC02] flex items-center justify-center">
+            <span
+              className={cn(
+                'shrink-0 w-9 h-9 rounded-lg flex items-center justify-center',
+                dueCount > 0 ? 'bg-[#FF9600]' : 'bg-[#58CC02]'
+              )}
+            >
               <Sparkles size={18} className="text-white" />
             </span>
-            <span className="flex-1">
+            <span className="flex-1 min-w-0">
               <span className="block text-sm font-black text-gray-900 dark:text-white">
-                AI 出题 · 抽 {Math.min(10, quizCards.length)} 题测验
+                {dueCount > 0
+                  ? `今日到期 ${dueCount} 题 · 开始复习`
+                  : `AI 出题 · 抽 ${Math.min(10, quizCards.length)} 题测验`}
               </span>
-              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                把 {quizCards.length} 道收藏题变成单选题，答错的题会记下来
+              <span className="mt-1 flex items-center gap-2">
+                <span className="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                  <span
+                    className="block h-full rounded-full bg-[#58CC02] transition-all"
+                    style={{ width: `${quizStats.ratio}%` }}
+                  />
+                </span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                  {quizStats.ratio === 0
+                    ? '还没测过'
+                    : `掌握度 ${quizStats.ratio}% · 已掌握 ${quizStats.mastered}/${quizStats.total}`}
+                </span>
               </span>
             </span>
-            <ChevronRight size={18} className="text-[#58CC02]" />
+            <ChevronRight size={18} className={dueCount > 0 ? 'text-[#FF9600]' : 'text-[#58CC02]'} />
           </button>
         )}
 

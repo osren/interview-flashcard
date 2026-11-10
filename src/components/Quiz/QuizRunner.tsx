@@ -13,6 +13,7 @@ import { Button } from '@/components/ui';
 import { useQuizStore } from '@/store/useQuizStore';
 import { recordLearningCheckIn } from '@/store/useStreakStore';
 import { generateQuizItems } from '@/lib/quiz/generate';
+import { nextMastery, masteryLabel } from '@/lib/quiz/mastery';
 import { buildRoundPlan } from '@/lib/quiz/round';
 import { scoreRound, toAttemptRecords } from '@/lib/quiz/scoring';
 import { cn } from '@/utils/cn';
@@ -46,12 +47,19 @@ function createSessionId(): string {
 }
 
 function accuracyTone(accuracy: number): { color: string; label: string } {
-  if (accuracy >= 80) return { color: 'text-[#58CC02]', label: '掌握得不错' };
-  if (accuracy >= 60) return { color: 'text-[#1CB0F6]', label: '还有几个盲点' };
-  return { color: 'text-[#FF9600]', label: '这几道建议回去再看一遍' };
+  if (accuracy >= 80) return { color: '#58CC02', label: '掌握得不错' };
+  if (accuracy >= 60) return { color: '#1CB0F6', label: '还有几个盲点' };
+  return { color: '#FF9600', label: '这几道建议回去再看一遍' };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysUntil(dueAt: number): number {
+  return Math.max(1, Math.round((dueAt - Date.now()) / DAY_MS));
 }
 
 export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
+  const mastery = useQuizStore((state) => state.mastery);
   const [roundKey, setRoundKey] = useState(0);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'result' | 'error'>('loading');
   const [items, setItems] = useState<QuizItem[]>([]);
@@ -78,6 +86,7 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
         cards,
         items: state.items,
         attempts: state.attempts,
+        mastery: state.mastery,
       });
 
       if (plan.total === 0) {
@@ -140,7 +149,21 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
       setNotice('');
 
       const sessionId = createSessionId();
-      useQuizStore.getState().recordAttempts(toAttemptRecords(scored, sessionId, Date.now()));
+      const now = Date.now();
+      const store = useQuizStore.getState();
+
+      // 掌握度要在写记录之前算：nextMastery 需要上一轮的强度
+      const masteryRecords = scored.details.map((detail) =>
+        nextMastery(
+          store.mastery[detail.item.cardId],
+          detail.item.cardId,
+          detail.correct,
+          now
+        )
+      );
+
+      store.recordAttempts(toAttemptRecords(scored, sessionId, now));
+      store.applyMastery(masteryRecords);
       recordLearningCheckIn();
       return;
     }
@@ -197,7 +220,9 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 px-6 py-8 text-center shadow-sm">
-            <div className={cn('text-5xl font-black', tone.color)}>{result.accuracy}%</div>
+            <div className="text-5xl font-black" style={{ color: tone.color }}>
+              {result.accuracy}%
+            </div>
             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               答对 {result.correct} / {result.total} 题
             </div>
@@ -234,6 +259,12 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
                         </div>
                       )}
                     </div>
+                    {mastery[detail.item.cardId] && (
+                      <div className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
+                        掌握度 {masteryLabel(mastery[detail.item.cardId].strength)} · 约{' '}
+                        {daysUntil(mastery[detail.item.cardId].dueAt)} 天后再复习
+                      </div>
+                    )}
                     <button
                       onClick={() => onOpenCard(detail.item.cardId)}
                       className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#1CB0F6] hover:underline"

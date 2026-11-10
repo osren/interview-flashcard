@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { FlashCard, QuizAttempt, QuizItem } from '@/types';
+import type { FlashCard, QuizAttempt, QuizItem, QuizMastery } from '@/types';
 import type { LearningSyncPayload } from '../learning-sync';
 
 vi.mock('@/lib/supabase/client', () => ({
@@ -17,7 +17,7 @@ vi.mock('@/store/useStreakStore', () => ({
 
 vi.mock('@/store/useQuizStore', () => ({
   MAX_STORED_ATTEMPTS: 200,
-  useQuizStore: { getState: () => ({ items: {}, attempts: [] }) },
+  useQuizStore: { getState: () => ({ items: {}, attempts: [], mastery: {} }) },
 }));
 
 import { mergeLearningPayload } from '../learning-sync';
@@ -43,6 +43,7 @@ const payload = (overrides: Partial<LearningSyncPayload> = {}): LearningSyncPayl
   checkInDates: {},
   quizItems: {},
   quizAttempts: [],
+  quizMastery: {},
   ...overrides,
 });
 
@@ -131,5 +132,20 @@ describe('mergeLearningPayload', () => {
     expect(merged.quizAttempts).toHaveLength(2);
     // 新的排前面，方便结果页和后续掌握度直接取最近记录
     expect(merged.quizAttempts[0].at).toBe(2000);
+  });
+
+  it('掌握度会升降级，合并时只能取较新的一条，不能并集', () => {
+    const mastery = (strength: number, lastAt: number): QuizMastery => ({
+      cardId: 'core-1',
+      strength,
+      dueAt: lastAt + 1000,
+      lastAt,
+      lastCorrect: strength > 0,
+    });
+
+    const local = payload({ quizMastery: { 'core-1': mastery(3, 3000) } });
+    const remote = payload({ quizMastery: { 'core-1': mastery(1, 1000) } });
+
+    expect(mergeLearningPayload(local, remote).quizMastery['core-1'].strength).toBe(3);
   });
 });

@@ -97,4 +97,27 @@ describe('buildRoundPlan', () => {
     expect(plan.toGenerate).toHaveLength(1);
     expect(plan.toGenerate[0].id).toBe('a');
   });
+
+  it('到期题优先于未到期题，同时给新题留位置', () => {
+    const cards = [card('a'), card('b'), card('c'), card('d')];
+    const now = 1_800_000_000_000;
+    const mastery = {
+      a: { cardId: 'a', strength: 1, dueAt: now - 1000, lastAt: now - 2000, lastCorrect: true },
+      b: { cardId: 'b', strength: 1, dueAt: now + 1000, lastAt: now - 2000, lastCorrect: true },
+      d: { cardId: 'd', strength: 0, dueAt: now - 1000, lastAt: now - 2000, lastCorrect: false },
+    };
+
+    // size 3：到期配额 2 道（a、d），新题配额 1 道（c），未到期的 b 让位
+    const plan = buildRoundPlan({
+      cards,
+      items: {},
+      attempts: [],
+      mastery,
+      size: 3,
+      now,
+      random: noRandom,
+    });
+
+    expect(plan.toGenerate.map((c) => c.id).sort()).toEqual(['a', 'c', 'd']);
+  });
 });
