@@ -274,9 +274,13 @@ export function PlannerPage() {
 
   const jobHistory = useMemo(
     () =>
-      Object.values(jobProgress)
-        .flatMap((progress) => progress?.statusHistory ?? [])
-        .map((entry) => ({ status: String(entry.status), at: entry.at })),
+      Object.entries(jobProgress).flatMap(([jobId, progress]) =>
+        (progress?.statusHistory ?? []).map((entry) => ({
+          jobId,
+          status: String(entry.status),
+          at: entry.at,
+        }))
+      ),
     [jobProgress]
   );
 

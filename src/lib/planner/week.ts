@@ -106,7 +106,7 @@ export function clampTaskTarget(value: number): number {
 export function buildAutoStats(input: {
   dateKeys: string[];
   attempts: { at: number }[];
-  jobHistory: { status: string; at: string }[];
+  jobHistory: { jobId: string; status: string; at: string }[];
   mastery: Record<string, { strength: number; lastAt: number }>;
 }): PlannerAutoStats {
   const { dateKeys, attempts, jobHistory, mastery } = input;
@@ -126,11 +126,25 @@ export function buildAutoStats(input: {
     bump(formatDateKey(new Date(attempt.at)), 'quiz');
   }
 
-  for (const entry of jobHistory) {
-    if (entry.status !== 'applied' || !entry.at) continue;
-    const parsed = new Date(entry.at);
-    if (Number.isNaN(parsed.getTime())) continue;
-    bump(formatDateKey(parsed), 'job');
+  /**
+   * 投递按「岗位」计数，不按事件计数：
+   * 同一岗位先挂再重投会留下两条 applied，那是状态回退，不是又投了一家。
+   * 所以先只留本周的 applied，再按 jobId 取最早一条。
+   */
+  const appliedThisWeek = jobHistory
+    .filter((entry) => entry.status === 'applied' && entry.jobId && entry.at)
+    .map((entry) => {
+      const parsed = new Date(entry.at);
+      return { jobId: entry.jobId, at: parsed.getTime(), key: formatDateKey(parsed) };
+    })
+    .filter((entry) => Number.isFinite(entry.at) && byDay[entry.key])
+    .sort((a, b) => a.at - b.at);
+
+  const seenJobs = new Set<string>();
+  for (const entry of appliedThisWeek) {
+    if (seenJobs.has(entry.jobId)) continue;
+    seenJobs.add(entry.jobId);
+    bump(entry.key, 'job');
   }
 
   for (const record of Object.values(mastery)) {
@@ -183,7 +197,7 @@ export function computePlanProgress(
 export function buildPlannerWeek(input: {
   tasks: PlannerTask[];
   attempts: { at: number }[];
-  jobHistory: { status: string; at: string }[];
+  jobHistory: { jobId: string; status: string; at: string }[];
   mastery: Record<string, { strength: number; lastAt: number }>;
   checkInDates: Record<string, true>;
   now?: Date;

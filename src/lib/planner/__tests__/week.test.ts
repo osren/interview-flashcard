@@ -150,9 +150,9 @@ describe('buildPlannerWeek', () => {
       tasks: [],
       attempts: [],
       jobHistory: [
-        { status: 'applied', at: '2026-11-09T10:00' },
-        { status: 'applied', at: '2026-11-10T10:00' },
-        { status: 'interview', at: '2026-11-10T11:00' },
+        { jobId: 'ja', status: 'applied', at: '2026-11-09T10:00' },
+        { jobId: 'jb', status: 'applied', at: '2026-11-10T10:00' },
+        { jobId: 'jb', status: 'interview', at: '2026-11-10T11:00' },
       ],
       mastery: {
         c1: { strength: 3, lastAt: new Date(2026, 10, 10, 12, 0, 0).getTime() },
