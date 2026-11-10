@@ -1,8 +1,9 @@
-import type { CardStatus, FlashCard } from '@/types';
+import type { CardStatus, FlashCard, ModuleType, QuizAttempt, QuizItem } from '@/types';
 import type { CheckInDateKey } from '@/types/streak';
 import { mergeCheckInDates } from '@/utils/streak';
 import { migrateCardStatusRecord, normalizeCardStatus } from '@/utils/cardStatus';
 import { useCardStore, type HiddenCardEntry } from '@/store/useCardStore';
+import { MAX_STORED_ATTEMPTS, useQuizStore } from '@/store/useQuizStore';
 import { useStreakStore } from '@/store/useStreakStore';
 import { supabase } from '@/lib/supabase/client';
 
@@ -15,6 +16,10 @@ export interface LearningSyncPayload {
   hiddenCards: Record<string, HiddenCardEntry>;
   favorites: FlashCard[];
   checkInDates: Record<CheckInDateKey, true>;
+  /** 收藏题派生出的选择题缓存，按 cardId 存 */
+  quizItems: Record<string, QuizItem>;
+  /** 测验作答记录，按 id 并集去重后只留最近若干条 */
+  quizAttempts: QuizAttempt[];
 }
 
 interface LearningSyncRow {
@@ -31,6 +36,8 @@ const EMPTY_PAYLOAD: LearningSyncPayload = {
   hiddenCards: {},
   favorites: [],
   checkInDates: {},
+  quizItems: {},
+  quizAttempts: [],
 };
 
 const STATUS_PRIORITY: Record<CardStatus, number> = {
@@ -102,6 +109,86 @@ function hiddenIdSet(hiddenCards: Record<string, HiddenCardEntry>): Set<string> 
   );
 }
 
+function normalizeQuizItems(raw: unknown): Record<string, QuizItem> {
+  if (!isRecord(raw)) return {};
+  const result: Record<string, QuizItem> = {};
+
+  for (const [cardId, value] of Object.entries(raw)) {
+    if (!isRecord(value)) continue;
+
+    const stem = typeof value.stem === 'string' ? value.stem : '';
+    const options = Array.isArray(value.options)
+      ? value.options.filter((option): option is string => typeof option === 'string')
+      : [];
+    const answerIndex = typeof value.answerIndex === 'number' ? value.answerIndex : -1;
+    const cardVersion = typeof value.cardVersion === 'string' ? value.cardVersion : '';
+
+    // 云端数据可能来自旧版本或被截断，缺关键字段的题目直接丢掉，宁可重新生成
+    if (!stem || options.length < 2 || !cardVersion) continue;
+    if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= options.length) continue;
+
+    result[cardId] = {
+      id: typeof value.id === 'string' ? value.id : `quiz:${cardId}`,
+      cardId,
+      module: (typeof value.module === 'string' ? value.module : 'custom') as ModuleType,
+      chapterId: typeof value.chapterId === 'string' ? value.chapterId : '',
+      question: typeof value.question === 'string' ? value.question : '',
+      stem,
+      options,
+      answerIndex,
+      explanation: typeof value.explanation === 'string' ? value.explanation : '',
+      point: typeof value.point === 'string' ? value.point : '',
+      cardVersion,
+      generatedAt: typeof value.generatedAt === 'number' ? value.generatedAt : 0,
+    };
+  }
+
+  return result;
+}
+
+function normalizeQuizAttempts(raw: unknown): QuizAttempt[] {
+  if (!Array.isArray(raw)) return [];
+  const map = new Map<string, QuizAttempt>();
+
+  for (const entry of raw) {
+    if (!isRecord(entry)) continue;
+    const id = entry.id;
+    const cardId = entry.cardId;
+    if (typeof id !== 'string' || !id || typeof cardId !== 'string' || !cardId) continue;
+
+    map.set(id, {
+      id,
+      sessionId: typeof entry.sessionId === 'string' ? entry.sessionId : '',
+      itemId: typeof entry.itemId === 'string' ? entry.itemId : '',
+      cardId,
+      correct: entry.correct === true,
+      selectedIndex: typeof entry.selectedIndex === 'number' ? entry.selectedIndex : -1,
+      at: typeof entry.at === 'number' ? entry.at : 0,
+    });
+  }
+
+  return [...map.values()].sort((a, b) => b.at - a.at).slice(0, MAX_STORED_ATTEMPTS);
+}
+
+function mergeQuizItems(
+  local: Record<string, QuizItem>,
+  remote: Record<string, QuizItem>
+): Record<string, QuizItem> {
+  const merged = { ...remote };
+  for (const [cardId, item] of Object.entries(local)) {
+    const remoteItem = remote[cardId];
+    if (!remoteItem || item.generatedAt >= remoteItem.generatedAt) merged[cardId] = item;
+  }
+  return merged;
+}
+
+function mergeQuizAttempts(local: QuizAttempt[], remote: QuizAttempt[]): QuizAttempt[] {
+  const map = new Map<string, QuizAttempt>();
+  for (const attempt of remote) map.set(attempt.id, attempt);
+  for (const attempt of local) map.set(attempt.id, attempt);
+  return [...map.values()].sort((a, b) => b.at - a.at).slice(0, MAX_STORED_ATTEMPTS);
+}
+
 function normalizePayload(raw: unknown): LearningSyncPayload {
   if (!isRecord(raw)) return { ...EMPTY_PAYLOAD };
 
@@ -127,6 +214,8 @@ function normalizePayload(raw: unknown): LearningSyncPayload {
           Object.entries(raw.checkInDates).filter(([, v]) => v === true)
         ) as Record<CheckInDateKey, true>)
       : {},
+    quizItems: normalizeQuizItems(raw.quizItems),
+    quizAttempts: normalizeQuizAttempts(raw.quizAttempts),
   };
 }
 
@@ -164,6 +253,8 @@ export function mergeLearningPayload(
       (card) => !deleted.has(card.id)
     ),
     checkInDates: mergeCheckInDates(local.checkInDates, remote.checkInDates),
+    quizItems: mergeQuizItems(local.quizItems, remote.quizItems),
+    quizAttempts: mergeQuizAttempts(local.quizAttempts, remote.quizAttempts),
   };
 }
 
@@ -231,6 +322,7 @@ export function isLearningSyncTableMissingError(error: unknown): boolean {
 export function buildLearningSyncPayload(): LearningSyncPayload {
   const cardState = useCardStore.getState();
   const streakState = useStreakStore.getState();
+  const quizState = useQuizStore.getState();
 
   return {
     cardStatuses: cardState.cardStatuses,
@@ -240,6 +332,8 @@ export function buildLearningSyncPayload(): LearningSyncPayload {
     hiddenCards: cardState.hiddenCards,
     favorites: cardState.favorites,
     checkInDates: streakState.checkInDates,
+    quizItems: quizState.items,
+    quizAttempts: quizState.attempts,
   };
 }
 
@@ -253,4 +347,8 @@ export function applyLearningSyncPayload(payload: LearningSyncPayload): void {
     favorites: payload.favorites,
   });
   useStreakStore.getState().importSyncedState(payload.checkInDates);
+  useQuizStore.getState().importSyncedState({
+    items: payload.quizItems,
+    attempts: payload.quizAttempts,
+  });
 }

@@ -3,3 +3,4 @@ export { useProgressStore } from './useProgressStore';
 export { usePomodoroStore } from './usePomodoroStore';
 export { useStreakStore } from './useStreakStore';
 export { useCardAiStore } from './useCardAiStore';
+export { useQuizStore } from './useQuizStore';

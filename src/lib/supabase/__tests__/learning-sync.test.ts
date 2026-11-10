@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { FlashCard } from '@/types';
+import type { FlashCard, QuizAttempt, QuizItem } from '@/types';
 import type { LearningSyncPayload } from '../learning-sync';
 
 vi.mock('@/lib/supabase/client', () => ({
@@ -13,6 +13,11 @@ vi.mock('@/store/useCardStore', () => ({
 
 vi.mock('@/store/useStreakStore', () => ({
   useStreakStore: { getState: () => ({ checkInDates: {} }) },
+}));
+
+vi.mock('@/store/useQuizStore', () => ({
+  MAX_STORED_ATTEMPTS: 200,
+  useQuizStore: { getState: () => ({ items: {}, attempts: [] }) },
 }));
 
 import { mergeLearningPayload } from '../learning-sync';
@@ -36,6 +41,8 @@ const payload = (overrides: Partial<LearningSyncPayload> = {}): LearningSyncPayl
   hiddenCards: {},
   favorites: [],
   checkInDates: {},
+  quizItems: {},
+  quizAttempts: [],
   ...overrides,
 });
 
@@ -80,5 +87,49 @@ describe('mergeLearningPayload', () => {
     const remote = payload();
 
     expect(mergeLearningPayload(local, remote).customCards).toHaveLength(1);
+  });
+
+  it('同一张卡的题目两端都有时，取生成时间较新的一份', () => {
+    const quizItem = (generatedAt: number, stem: string): QuizItem => ({
+      id: 'quiz:core-1',
+      cardId: 'core-1',
+      module: 'core',
+      chapterId: 'javascript',
+      question: '题目',
+      stem,
+      options: ['甲', '乙'],
+      answerIndex: 0,
+      explanation: '解析',
+      point: '考点',
+      cardVersion: 'v1',
+      generatedAt,
+    });
+
+    const local = payload({ quizItems: { 'core-1': quizItem(2000, '本地新题') } });
+    const remote = payload({ quizItems: { 'core-1': quizItem(1000, '云端旧题') } });
+
+    expect(mergeLearningPayload(local, remote).quizItems['core-1'].stem).toBe('本地新题');
+  });
+
+  it('作答记录按 id 并集去重，两端做的题都留得下来', () => {
+    const attempt = (id: string, at: number): QuizAttempt => ({
+      id,
+      sessionId: 's',
+      itemId: 'quiz:core-1',
+      cardId: 'core-1',
+      correct: true,
+      selectedIndex: 0,
+      at,
+    });
+
+    const local = payload({ quizAttempts: [attempt('s1:quiz:core-1', 1000)] });
+    const remote = payload({
+      quizAttempts: [attempt('s1:quiz:core-1', 1000), attempt('s2:quiz:core-1', 2000)],
+    });
+
+    const merged = mergeLearningPayload(local, remote);
+    expect(merged.quizAttempts).toHaveLength(2);
+    // 新的排前面，方便结果页和后续掌握度直接取最近记录
+    expect(merged.quizAttempts[0].at).toBe(2000);
   });
 });

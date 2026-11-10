@@ -11,6 +11,7 @@ import {
   saveLearningSync,
 } from '@/lib/supabase/learning-sync';
 import { useCardStore } from '@/store/useCardStore';
+import { useQuizStore } from '@/store/useQuizStore';
 import { useStreakStore } from '@/store/useStreakStore';
 
 export type LearningSyncStatus = 'idle' | 'loading' | 'syncing' | 'synced' | 'error' | 'local_only';
@@ -67,7 +68,10 @@ export function useLearningSyncContext(): LearningSyncContextValue {
 
 function useStoresHydrated(): boolean {
   const [hydrated, setHydrated] = useState(
-    () => useCardStore.persist.hasHydrated() && useStreakStore.persist.hasHydrated()
+    () =>
+      useCardStore.persist.hasHydrated() &&
+      useStreakStore.persist.hasHydrated() &&
+      useQuizStore.persist.hasHydrated()
   );
 
   useEffect(() => {
@@ -75,9 +79,10 @@ function useStoresHydrated(): boolean {
 
     let cardReady = useCardStore.persist.hasHydrated();
     let streakReady = useStreakStore.persist.hasHydrated();
+    let quizReady = useQuizStore.persist.hasHydrated();
 
     const check = () => {
-      if (cardReady && streakReady) setHydrated(true);
+      if (cardReady && streakReady && quizReady) setHydrated(true);
     };
 
     const unsubCard = cardReady
@@ -94,11 +99,19 @@ function useStoresHydrated(): boolean {
           check();
         });
 
+    const unsubQuiz = quizReady
+      ? undefined
+      : useQuizStore.persist.onFinishHydration(() => {
+          quizReady = true;
+          check();
+        });
+
     check();
 
     return () => {
       unsubCard?.();
       unsubStreak?.();
+      unsubQuiz?.();
     };
   }, [hydrated]);
 
@@ -255,9 +268,17 @@ function useLearningSync(enabled: boolean): LearningSyncContextValue {
       }
     });
 
+    const unsubQuiz = useQuizStore.subscribe((state, prevState) => {
+      if (applyingRemoteRef.current) return;
+      if (state.items !== prevState.items || state.attempts !== prevState.attempts) {
+        schedulePush(user.id);
+      }
+    });
+
     return () => {
       unsubCard();
       unsubStreak();
+      unsubQuiz();
       if (pushTimerRef.current) {
         clearTimeout(pushTimerRef.current);
         pushTimerRef.current = null;

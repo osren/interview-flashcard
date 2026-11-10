@@ -3,6 +3,7 @@ import { Heart, ChevronLeft, ChevronRight, X, BookOpen, Briefcase, Code, Wand, S
 import { FlashCard as FlashCardComponent } from '@/components/Card';
 import { TrendingCard } from '@/components/AI/TrendingCard';
 import { ImportExportModal } from '@/components/ImportExportModal';
+import { QuizRunner } from '@/components/Quiz/QuizRunner';
 import { useCardStore } from '@/store';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { FlashCard, ModuleType, CardStatus } from '@/types';
@@ -48,6 +49,7 @@ export function Favorites() {
   const [trendingFavorites, setTrendingFavorites] = useState<FavoriteItem[]>([]);
   const [trendingExpanded, setTrendingExpanded] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
 
   // 等待 store 数据从 localStorage 加载
   useEffect(() => {
@@ -85,6 +87,12 @@ export function Favorites() {
   const allFavorites = useMemo(() => {
     return [...favorites, ...interviewFavorites];
   }, [favorites, interviewFavorites]);
+
+  // 能用来出题的收藏：答案是「一段解释」才值得出选择题，太短的直接跳过
+  const quizCards = useMemo(
+    () => favorites.filter((card) => card.answer.trim().length >= 20),
+    [favorites]
+  );
 
   // 按模块和章节分组（排除面经）
   const groupedFavorites = useMemo(() => {
@@ -130,6 +138,15 @@ export function Favorites() {
     setSelectedGroup(group);
     const { cardStatuses } = useCardStore.getState();
     setCurrentCardIndex(findFirstUnrememberedIndex(group.cards, cardStatuses));
+  };
+
+  /** 从测验结果页回到原卡片 */
+  const handleOpenQuizCard = (cardId: string) => {
+    setQuizOpen(false);
+    const group = groupedFavorites.find((item) => item.cards.some((card) => card.id === cardId));
+    if (!group) return;
+    setSelectedGroup(group);
+    setCurrentCardIndex(Math.max(0, group.cards.findIndex((card) => card.id === cardId)));
   };
 
   const handleBack = () => {
@@ -201,6 +218,17 @@ export function Favorites() {
         <h2 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">暂无收藏</h2>
         <p className="text-gray-400 dark:text-gray-500 text-sm">在卡片或 GitHub Trending 页面点击红心即可收藏</p>
       </div>
+    );
+  }
+
+  // 收藏题测验
+  if (quizOpen) {
+    return (
+      <QuizRunner
+        cards={quizCards}
+        onExit={() => setQuizOpen(false)}
+        onOpenCard={handleOpenQuizCard}
+      />
     );
   }
 
@@ -383,6 +411,26 @@ export function Favorites() {
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">我的收藏</h1>
           <Badge variant="secondary">{allFavorites.length}</Badge>
         </div>
+
+        {quizCards.length > 0 && (
+          <button
+            onClick={() => setQuizOpen(true)}
+            className="w-full mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-[#58CC02] bg-[#f7fee7] dark:bg-green-900/20 hover:brightness-105 transition-all text-left"
+          >
+            <span className="shrink-0 w-9 h-9 rounded-lg bg-[#58CC02] flex items-center justify-center">
+              <Sparkles size={18} className="text-white" />
+            </span>
+            <span className="flex-1">
+              <span className="block text-sm font-black text-gray-900 dark:text-white">
+                AI 出题 · 抽 {Math.min(10, quizCards.length)} 题测验
+              </span>
+              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                把 {quizCards.length} 道收藏题变成单选题，答错的题会记下来
+              </span>
+            </span>
+            <ChevronRight size={18} className="text-[#58CC02]" />
+          </button>
+        )}
 
         {/* 面经收藏（如果有） */}
         {interviewFavorites.length > 0 && (
