@@ -14,13 +14,16 @@ import { useQuizStore } from '@/store/useQuizStore';
 import { recordLearningCheckIn } from '@/store/useStreakStore';
 import { generateQuizItems } from '@/lib/quiz/generate';
 import { nextMastery, masteryLabel } from '@/lib/quiz/mastery';
-import { buildRoundPlan } from '@/lib/quiz/round';
+import { buildReviewQueue, buildRoundPlan } from '@/lib/quiz/round';
 import { scoreRound, toAttemptRecords } from '@/lib/quiz/scoring';
 import { cn } from '@/utils/cn';
 import type { FlashCard, QuizItem, QuizRoundResult } from '@/types';
+import type { RoundMode } from '@/lib/quiz/round';
 
 interface QuizRunnerProps {
   cards: FlashCard[];
+  /** mixed：常规测验；review：只练最近答错的题 */
+  mode?: RoundMode;
   onExit: () => void;
   /** 结果页「去看原题」：把用户带回原卡片 */
   onOpenCard: (cardId: string) => void;
@@ -63,8 +66,10 @@ function findDiagnosis(item: QuizItem, selectedIndex: number) {
   return item.distractors?.find((note) => note.optionIndex === selectedIndex);
 }
 
-export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
+export function QuizRunner({ cards, mode = 'mixed', onExit, onOpenCard }: QuizRunnerProps) {
   const mastery = useQuizStore((state) => state.mastery);
+  const attemptsState = useQuizStore((state) => state.attempts);
+  const [sessionMode, setSessionMode] = useState<RoundMode>(mode);
   const [roundKey, setRoundKey] = useState(0);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'result' | 'error'>('loading');
   const [items, setItems] = useState<QuizItem[]>([]);
@@ -92,10 +97,15 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
         items: state.items,
         attempts: state.attempts,
         mastery: state.mastery,
+        mode: sessionMode,
       });
 
       if (plan.total === 0) {
-        setError('收藏里还没有题目，先去收藏几道题再来。');
+        setError(
+          sessionMode === 'review'
+            ? '错题已经清空了，没有需要重练的题。'
+            : '收藏里还没有题目，先去收藏几道题再来。'
+        );
         setPhase('error');
         return;
       }
@@ -131,7 +141,7 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
     return () => {
       cancelled = true;
     };
-  }, [cards, roundKey]);
+  }, [cards, roundKey, sessionMode]);
 
   const currentItem = items[index];
   const currentAnswer = currentItem ? answers[currentItem.id] : undefined;
@@ -214,6 +224,11 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
   if (phase === 'result' && result) {
     const tone = accuracyTone(result.accuracy);
     const wrongDetails = result.details.filter((detail) => !detail.correct);
+    // 错题队列由作答记录现算，所以这里显示的是「练完之后还剩多少」
+    const remainingReview =
+      sessionMode === 'review'
+        ? buildReviewQueue({ cards, attempts: attemptsState, mastery }).length
+        : 0;
 
     return (
       <div className="min-h-screen app-bg pb-24">
@@ -226,7 +241,9 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
               <X size={18} />
               关闭
             </button>
-            <span className="text-sm font-bold text-gray-700 dark:text-gray-200">本轮结果</span>
+            <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+              {sessionMode === 'review' ? '错题重练' : '本轮结果'}
+            </span>
             <span className="text-xs text-gray-400">{items.length} 道</span>
           </div>
 
@@ -239,6 +256,14 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
             </div>
             <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">{tone.label}</div>
           </div>
+
+          {sessionMode === 'review' && (
+            <div className="mt-3 rounded-lg bg-gray-50 dark:bg-gray-800/60 px-4 py-2 text-center text-xs text-gray-500 dark:text-gray-400">
+              {remainingReview > 0
+                ? `错题队列还剩 ${remainingReview} 道，答对一次就移出`
+                : '错题队列已清空'}
+            </div>
+          )}
 
           {wrongDetails.length > 0 && (
             <div className="mt-6">
@@ -308,6 +333,17 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
           )}
 
           <div className="mt-8 flex flex-col gap-3">
+            {sessionMode === 'mixed' && wrongDetails.length > 0 && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setSessionMode('review');
+                  setRoundKey((prev) => prev + 1);
+                }}
+              >
+                只练这 {wrongDetails.length} 道错题
+              </Button>
+            )}
             <Button variant="primary" size="lg" onClick={restart}>
               <RotateCcw size={18} />
               再来一轮

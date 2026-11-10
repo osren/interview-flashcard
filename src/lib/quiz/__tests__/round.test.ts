@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FlashCard, QuizAttempt, QuizItem } from '@/types';
 import { cardFingerprint, QUIZ_SCHEMA_VERSION } from '../fingerprint';
-import { buildRoundPlan, freshQuotaFor } from '../round';
+import { buildReviewQueue, buildRoundPlan, freshQuotaFor } from '../round';
 
 const card = (id: string, question = `问题 ${id}`, answer = `答案 ${id} 的一段解释`): FlashCard => ({
   id,
@@ -154,5 +154,78 @@ describe('freshQuotaFor', () => {
 
   it('没有新题可出时配额为 0，不会占位置', () => {
     expect(freshQuotaFor(10, 10, 0)).toBe(0);
+  });
+});
+
+describe('错题重练', () => {
+  const now = 1_800_000_000_000;
+  const entry = (cardId: string, strength: number, dueAt: number, lastCorrect: boolean) => ({
+    cardId,
+    strength,
+    dueAt,
+    lastAt: now - 2000,
+    lastCorrect,
+  });
+
+  it('只从最近答错的题里组卷，答对过的和没测过的都不掺', () => {
+    const cards = [card('a'), card('b'), card('c')];
+    const mastery = {
+      a: entry('a', 0, now - 1000, false),
+      b: entry('b', 2, now - 1000, true),
+      // c 从没测过
+    };
+
+    const plan = buildRoundPlan({
+      cards,
+      items: {},
+      attempts: [],
+      mastery,
+      mode: 'review',
+      now,
+      random: noRandom,
+    });
+
+    expect(plan.total).toBe(1);
+    expect(plan.toGenerate.map((c) => c.id)).toEqual(['a']);
+  });
+
+  it('错题超过默认上限时只取 5 道，避免一轮压得太重', () => {
+    const cards = Array.from({ length: 8 }, (_, index) => card(`c${index}`));
+    const mastery = Object.fromEntries(
+      cards.map((source, index) => [
+        source.id,
+        entry(source.id, 0, now - index * 1000, false),
+      ])
+    );
+
+    const plan = buildRoundPlan({
+      cards,
+      items: {},
+      attempts: [],
+      mastery,
+      mode: 'review',
+      now,
+      random: noRandom,
+    });
+
+    expect(plan.total).toBe(5);
+  });
+
+  it('错题队列按到期时间从早到晚排，并带上错误次数', () => {
+    const cards = [card('a'), card('b')];
+    const attempts = [
+      attempt('a', false, now - 3000),
+      attempt('a', false, now - 2000),
+      attempt('b', false, now - 1000),
+    ];
+    const mastery = {
+      a: entry('a', 0, now - 5000, false),
+      b: entry('b', 0, now - 1000, false),
+    };
+
+    const queue = buildReviewQueue({ cards, attempts, mastery, now });
+
+    expect(queue.map((item) => item.cardId)).toEqual(['a', 'b']);
+    expect(queue[0].wrongCount).toBe(2);
   });
 });

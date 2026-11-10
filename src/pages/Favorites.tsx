@@ -9,6 +9,8 @@ import { useQuizStore } from '@/store/useQuizStore';
 import { computeMasteryStats, countDueMastery } from '@/lib/quiz/mastery';
 import { buildWeeklyReport } from '@/lib/quiz/report';
 import { WeeklySummary } from '@/components/Quiz/WeeklySummary';
+import { buildReviewQueue } from '@/lib/quiz/round';
+import type { RoundMode } from '@/lib/quiz/round';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { FlashCard, ModuleType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
@@ -54,6 +56,7 @@ export function Favorites() {
   const [trendingExpanded, setTrendingExpanded] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
+  const [quizMode, setQuizMode] = useState<RoundMode>('mixed');
 
   // 等待 store 数据从 localStorage 加载
   useEffect(() => {
@@ -113,6 +116,12 @@ export function Favorites() {
 
   const quizItems = useQuizStore((state) => state.items);
   const quizAttempts = useQuizStore((state) => state.attempts);
+
+  // 错题队列每次现算：最近一次作答是错的题
+  const reviewQueue = useMemo(
+    () => buildReviewQueue({ cards: quizCards, attempts: quizAttempts, mastery: quizMastery }),
+    [quizCards, quizAttempts, quizMastery]
+  );
 
   const weeklyReport = useMemo(
     () =>
@@ -257,6 +266,7 @@ export function Favorites() {
     return (
       <QuizRunner
         cards={quizCards}
+        mode={quizMode}
         onExit={() => setQuizOpen(false)}
         onOpenCard={handleOpenQuizCard}
       />
@@ -445,7 +455,10 @@ export function Favorites() {
 
         {quizCards.length > 0 && (
           <button
-            onClick={() => setQuizOpen(true)}
+            onClick={() => {
+              setQuizMode('mixed');
+              setQuizOpen(true);
+            }}
             className={cn(
               'w-full mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border-2 hover:brightness-105 transition-all text-left',
               dueCount > 0
@@ -486,6 +499,29 @@ export function Favorites() {
         )}
 
         <WeeklySummary report={weeklyReport} onOpenPoint={handleOpenQuizCard} />
+
+        {reviewQueue.length > 0 && (
+          <button
+            onClick={() => {
+              setQuizMode('review');
+              setQuizOpen(true);
+            }}
+            className="w-full mb-6 flex items-center gap-3 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#FF4B4B] transition-colors text-left"
+          >
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[#FF4B4B] text-white text-[11px] font-black flex items-center justify-center">
+              {reviewQueue.length}
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-xs font-bold text-gray-700 dark:text-gray-200">
+                错题重练 · 还有 {reviewQueue.length} 道
+              </span>
+              <span className="block text-[11px] text-gray-400 mt-0.5">
+                只练最近答错的题，不掺新题，答对一次就移出
+              </span>
+            </span>
+            <ChevronRight size={16} className="text-gray-400" />
+          </button>
+        )}
 
         {/* 面经收藏（如果有） */}
         {interviewFavorites.length > 0 && (
