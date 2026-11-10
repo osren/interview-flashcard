@@ -1,4 +1,4 @@
-import type { CardStatus, FlashCard, ModuleType, QuizAttempt, QuizItem, QuizMastery } from '@/types';
+import type { CardStatus, DistractorNote, FlashCard, ModuleType, QuizAttempt, QuizItem, QuizMastery } from '@/types';
 import type { CheckInDateKey } from '@/types/streak';
 import { mergeCheckInDates } from '@/utils/streak';
 import { migrateCardStatusRecord, normalizeCardStatus } from '@/utils/cardStatus';
@@ -112,6 +112,40 @@ function hiddenIdSet(hiddenCards: Record<string, HiddenCardEntry>): Set<string> 
   );
 }
 
+/**
+ * 误解诊断也要跟着题目一起同步。
+ * 只接受指向真实错误选项的条目，其余丢弃——跨端数据同样不可信。
+ */
+function normalizeDistractors(
+  raw: unknown,
+  answerIndex: number,
+  optionCount: number
+): DistractorNote[] {
+  if (!Array.isArray(raw)) return [];
+
+  const notes: DistractorNote[] = [];
+  const used = new Set<number>();
+
+  for (const entry of raw) {
+    if (!isRecord(entry)) continue;
+
+    const optionIndex = typeof entry.optionIndex === 'number' ? entry.optionIndex : NaN;
+    if (!Number.isInteger(optionIndex)) continue;
+    if (optionIndex < 0 || optionIndex >= optionCount) continue;
+    if (optionIndex === answerIndex || used.has(optionIndex)) continue;
+
+    const misconception = typeof entry.misconception === 'string' ? entry.misconception.trim() : '';
+    if (misconception.length < 4) continue;
+
+    const correction = typeof entry.correction === 'string' ? entry.correction.trim() : '';
+
+    used.add(optionIndex);
+    notes.push({ optionIndex, misconception, ...(correction ? { correction } : {}) });
+  }
+
+  return notes;
+}
+
 function normalizeQuizItems(raw: unknown): Record<string, QuizItem> {
   if (!isRecord(raw)) return {};
   const result: Record<string, QuizItem> = {};
@@ -130,6 +164,9 @@ function normalizeQuizItems(raw: unknown): Record<string, QuizItem> {
     if (!stem || options.length < 2 || !cardVersion) continue;
     if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= options.length) continue;
 
+    const storedVersion = typeof value.schemaVersion === 'number' ? value.schemaVersion : undefined;
+    const distractors = normalizeDistractors(value.distractors, answerIndex, options.length);
+
     result[cardId] = {
       id: typeof value.id === 'string' ? value.id : `quiz:${cardId}`,
       cardId,
@@ -141,6 +178,9 @@ function normalizeQuizItems(raw: unknown): Record<string, QuizItem> {
       answerIndex,
       explanation: typeof value.explanation === 'string' ? value.explanation : '',
       point: typeof value.point === 'string' ? value.point : '',
+      ...(distractors.length > 0 ? { distractors } : {}),
+      // 丢掉这个版本号的话，同步回来的题会被当成旧版反复重生成
+      ...(storedVersion !== undefined ? { schemaVersion: storedVersion } : {}),
       cardVersion,
       generatedAt: typeof value.generatedAt === 'number' ? value.generatedAt : 0,
     };
@@ -227,7 +267,11 @@ function mergeQuizMastery(
   return merged;
 }
 
-function normalizePayload(raw: unknown): LearningSyncPayload {
+/**
+ * 校验云端拿到的 payload。
+ * 结构不完整的字段一律降级为空，不让脏数据污染本地 store。
+ */
+export function normalizePayload(raw: unknown): LearningSyncPayload {
   if (!isRecord(raw)) return { ...EMPTY_PAYLOAD };
 
   return {

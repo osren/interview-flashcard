@@ -1,11 +1,11 @@
-import type { FlashCard, QuizItem } from '@/types';
+import type { DistractorNote, FlashCard, QuizItem } from '@/types';
 import { callLlmJson } from '@/lib/llm/call';
 import {
   MAX_CARDS_PER_REQUEST,
   buildQuizMessages,
   parseQuizPayload,
 } from '@/lib/llm/prompts/quiz';
-import { cardFingerprint } from './fingerprint';
+import { QUIZ_SCHEMA_VERSION, cardFingerprint } from './fingerprint';
 
 interface RawQuizItem {
   cardId?: unknown;
@@ -14,6 +14,13 @@ interface RawQuizItem {
   options?: unknown;
   answerIndex?: unknown;
   explanation?: unknown;
+  distractors?: unknown;
+}
+
+interface RawDistractor {
+  optionIndex?: unknown;
+  misconception?: unknown;
+  correction?: unknown;
 }
 
 /** 选项归一化：去掉空白和标点后比较，防止「a、」和「a」被当成两个选项 */
@@ -26,6 +33,46 @@ function normalizeOption(text: string): string {
 
 function asText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+/**
+ * 清洗误解诊断。
+ * 只保留「指向真实错误选项」的条目：下标越界、指到正确答案、重复指向同一项、
+ * 文案空泛（少于 4 字）的一律丢掉。诊断缺失不影响题目可用，只是答错时少一句解释。
+ */
+function parseDistractors(
+  raw: unknown,
+  optionCount: number,
+  answerIndex: number
+): DistractorNote[] {
+  if (!Array.isArray(raw)) return [];
+
+  const notes: DistractorNote[] = [];
+  const used = new Set<number>();
+
+  for (const entry of raw) {
+    const note = entry as RawDistractor;
+    const optionIndex = typeof note.optionIndex === 'number' ? note.optionIndex : NaN;
+
+    if (!Number.isInteger(optionIndex)) continue;
+    if (optionIndex < 0 || optionIndex >= optionCount) continue;
+    if (optionIndex === answerIndex) continue;
+    if (used.has(optionIndex)) continue;
+
+    const misconception = asText(note.misconception);
+    if (misconception.length < 4) continue;
+
+    const correction = asText(note.correction);
+
+    used.add(optionIndex);
+    notes.push({
+      optionIndex,
+      misconception,
+      ...(correction ? { correction } : {}),
+    });
+  }
+
+  return notes;
 }
 
 /**
@@ -83,6 +130,7 @@ export function sanitizeQuizItems(
 
     const explanation = asText(item.explanation) || `正确答案：${options[answerIndex]}`;
     const point = asText(item.point) || '本卡片核心考点';
+    const distractors = parseDistractors(item.distractors, options.length, answerIndex);
 
     used.add(cardId);
     items.push({
@@ -96,6 +144,8 @@ export function sanitizeQuizItems(
       answerIndex,
       explanation,
       point,
+      ...(distractors.length > 0 ? { distractors } : {}),
+      schemaVersion: QUIZ_SCHEMA_VERSION,
       cardVersion: cardFingerprint(card),
       generatedAt,
     });

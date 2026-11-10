@@ -20,7 +20,7 @@ vi.mock('@/store/useQuizStore', () => ({
   useQuizStore: { getState: () => ({ items: {}, attempts: [], mastery: {} }) },
 }));
 
-import { mergeLearningPayload } from '../learning-sync';
+import { mergeLearningPayload, normalizePayload } from '../learning-sync';
 
 const card = (id: string): FlashCard => ({
   id,
@@ -110,6 +110,37 @@ describe('mergeLearningPayload', () => {
     const remote = payload({ quizItems: { 'core-1': quizItem(1000, '云端旧题') } });
 
     expect(mergeLearningPayload(local, remote).quizItems['core-1'].stem).toBe('本地新题');
+  });
+
+  it('云端归一化保留结构版本与误解诊断，否则每端都会把题重新生成一遍', () => {
+    const payload = normalizePayload({
+      quizItems: {
+        'core-1': {
+          id: 'quiz:core-1',
+          cardId: 'core-1',
+          module: 'core',
+          chapterId: 'javascript',
+          question: '题目',
+          stem: '关于闭包，以下哪个说法正确？',
+          options: ['闭包持有外层变量引用', '闭包每次调用都重建作用域链'],
+          answerIndex: 0,
+          explanation: '解析',
+          point: '闭包捕获变量引用',
+          schemaVersion: 2,
+          distractors: [
+            { optionIndex: 1, misconception: '把作用域链当成调用栈' },
+            { optionIndex: 0, misconception: '指到正确答案，应丢掉' },
+          ],
+          cardVersion: 'v1',
+          generatedAt: 1000,
+        },
+      },
+    });
+
+    const item = payload.quizItems['core-1'];
+    expect(item.schemaVersion).toBe(2);
+    expect(item.distractors).toHaveLength(1);
+    expect(item.distractors?.[0].optionIndex).toBe(1);
   });
 
   it('作答记录按 id 并集去重，两端做的题都留得下来', () => {

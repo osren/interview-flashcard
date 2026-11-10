@@ -7,6 +7,8 @@ import { QuizRunner } from '@/components/Quiz/QuizRunner';
 import { useCardStore } from '@/store';
 import { useQuizStore } from '@/store/useQuizStore';
 import { computeMasteryStats, countDueMastery } from '@/lib/quiz/mastery';
+import { buildWeeklyReport } from '@/lib/quiz/report';
+import { WeeklySummary } from '@/components/Quiz/WeeklySummary';
 import { useInterviewStore } from '@/store/useInterviewStore';
 import { FlashCard, ModuleType, CardStatus } from '@/types';
 import { Badge } from '@/components/ui';
@@ -107,6 +109,20 @@ export function Favorites() {
   const dueCount = useMemo(
     () => countDueMastery(quizCards, quizMastery, Date.now()),
     [quizCards, quizMastery]
+  );
+
+  const quizItems = useQuizStore((state) => state.items);
+  const quizAttempts = useQuizStore((state) => state.attempts);
+
+  const weeklyReport = useMemo(
+    () =>
+      buildWeeklyReport({
+        cards: quizCards,
+        items: quizItems,
+        attempts: quizAttempts,
+        mastery: quizMastery,
+      }),
+    [quizCards, quizItems, quizAttempts, quizMastery]
   );
 
   // 按模块和章节分组（排除面经）
@@ -468,6 +484,8 @@ export function Favorites() {
             <ChevronRight size={18} className={dueCount > 0 ? 'text-[#FF9600]' : 'text-[#58CC02]'} />
           </button>
         )}
+
+        <WeeklySummary report={weeklyReport} onOpenPoint={handleOpenQuizCard} />
 
         {/* 面经收藏（如果有） */}
         {interviewFavorites.length > 0 && (

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FlashCard, QuizAttempt, QuizItem } from '@/types';
-import { cardFingerprint } from '../fingerprint';
-import { buildRoundPlan } from '../round';
+import { cardFingerprint, QUIZ_SCHEMA_VERSION } from '../fingerprint';
+import { buildRoundPlan, freshQuotaFor } from '../round';
 
 const card = (id: string, question = `问题 ${id}`, answer = `答案 ${id} 的一段解释`): FlashCard => ({
   id,
@@ -24,6 +24,7 @@ const itemFor = (source: FlashCard, generatedAt = 1): QuizItem => ({
   answerIndex: 0,
   explanation: '解析',
   point: '考点',
+  schemaVersion: QUIZ_SCHEMA_VERSION,
   cardVersion: cardFingerprint(source),
   generatedAt,
 });
@@ -119,5 +120,39 @@ describe('buildRoundPlan', () => {
     });
 
     expect(plan.toGenerate.map((c) => c.id).sort()).toEqual(['a', 'c', 'd']);
+  });
+
+  it('上一代题目（没有结构版本）即使卡片没改过也重生成', () => {
+    const source = card('a');
+    const legacy = { ...itemFor(source), schemaVersion: undefined };
+
+    const plan = buildRoundPlan({
+      cards: [source],
+      items: { a: legacy },
+      attempts: [],
+      size: 10,
+      random: noRandom,
+    });
+
+    expect(plan.reuse).toHaveLength(0);
+    expect(plan.toGenerate.map((c) => c.id)).toEqual(['a']);
+  });
+});
+
+describe('freshQuotaFor', () => {
+  it('到期积压重时只留 1 道新题，先把欠账还完', () => {
+    expect(freshQuotaFor(10, 10, 8)).toBe(1);
+  });
+
+  it('积压中等时保留 20%', () => {
+    expect(freshQuotaFor(10, 4, 8)).toBe(2);
+  });
+
+  it('积压很轻时多给新题，最多 40%', () => {
+    expect(freshQuotaFor(10, 1, 8)).toBe(4);
+  });
+
+  it('没有新题可出时配额为 0，不会占位置', () => {
+    expect(freshQuotaFor(10, 10, 0)).toBe(0);
   });
 });

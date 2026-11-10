@@ -58,6 +58,11 @@ function daysUntil(dueAt: number): number {
   return Math.max(1, Math.round((dueAt - Date.now()) / DAY_MS));
 }
 
+/** 找出用户选中的那个错误选项对应的误解诊断 */
+function findDiagnosis(item: QuizItem, selectedIndex: number) {
+  return item.distractors?.find((note) => note.optionIndex === selectedIndex);
+}
+
 export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
   const mastery = useQuizStore((state) => state.mastery);
   const [roundKey, setRoundKey] = useState(0);
@@ -133,6 +138,12 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
   const answered = typeof currentAnswer === 'number';
   const isLast = index === items.length - 1;
   const answeredCount = Object.keys(answers).length;
+
+  // 选错时找出这个干扰项对应的误解，用来当场说「你把什么和什么混了」
+  const wrongDiagnosis =
+    currentItem && typeof currentAnswer === 'number' && currentAnswer !== currentItem.answerIndex
+      ? currentItem.distractors?.find((note) => note.optionIndex === currentAnswer)
+      : undefined;
 
   function chooseOption(optionIndex: number) {
     if (!currentItem || answered) return;
@@ -238,7 +249,9 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
                 </h2>
               </div>
               <div className="space-y-3">
-                {wrongDetails.map((detail) => (
+                {wrongDetails.map((detail) => {
+                  const diagnosis = findDiagnosis(detail.item, detail.selectedIndex);
+                  return (
                   <div
                     key={detail.item.id}
                     className="bg-white dark:bg-gray-800 rounded-xl border border-red-100 dark:border-red-900/40 p-4"
@@ -272,8 +285,17 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
                       <BookOpen size={14} />
                       去看原卡片
                     </button>
+                    {diagnosis && (
+                      <div className="mt-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs">
+                        <div className="font-bold text-amber-700 dark:text-amber-300">误解诊断</div>
+                        <div className="mt-0.5 text-amber-800 dark:text-amber-200">
+                          {diagnosis.misconception}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -397,6 +419,15 @@ export function QuizRunner({ cards, onExit, onOpenCard }: QuizRunnerProps) {
               {currentAnswer === currentItem.answerIndex ? '回答正确' : '回答错误'}
             </div>
             <div>{currentItem.explanation}</div>
+            {wrongDiagnosis && (
+              <div className="mt-2 rounded-lg bg-white/70 dark:bg-black/20 px-3 py-2">
+                <div className="font-bold">误解诊断</div>
+                <div className="mt-0.5">{wrongDiagnosis.misconception}</div>
+                {wrongDiagnosis.correction && (
+                  <div className="mt-1 opacity-80">怎么区分：{wrongDiagnosis.correction}</div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

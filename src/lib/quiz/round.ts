@@ -1,10 +1,28 @@
 import type { FlashCard, QuizAttempt, QuizItem, QuizMastery } from '@/types';
-import { isQuizItemStale } from './fingerprint';
+import { isQuizItemCurrent } from './fingerprint';
 
 /** 每轮默认题目数 */
 export const DEFAULT_ROUND_SIZE = 10;
-/** 每轮最多掺几道没测过的新题，避免一轮全是新题直接劝退 */
-const FRESH_QUOTA_RATIO = 0.2;
+
+/**
+ * 本轮给「没测过的新题」留几个位置。
+ *
+ * 不是固定 20%：由到期积压的压力决定。
+ * - 积压 ≥ 60%：只留 1 道新题，先把欠账还完（但不断供，保持新鲜感）
+ * - 积压 ≥ 30%：留 20%
+ * - 积压很轻：留 40%，让用户多接触新内容
+ *
+ * 这个函数是纯的，方便单独测「配额随积压怎么变」。
+ */
+export function freshQuotaFor(total: number, dueCount: number, freshCount: number): number {
+  if (total <= 0 || freshCount <= 0) return 0;
+
+  const pressure = dueCount / total;
+  const ratio = pressure >= 0.6 ? 0.1 : pressure >= 0.3 ? 0.2 : 0.4;
+
+  // 只要还有新题，至少给 1 道，避免连续几轮全是复习
+  return Math.min(Math.max(1, Math.ceil(total * ratio)), freshCount);
+}
 
 export interface RoundPlan {
   total: number;
@@ -130,7 +148,7 @@ export function buildRoundPlan(input: {
     .sort((a, b) => a.lastAt - b.lastAt);
 
   const total = Math.min(size, stats.length);
-  const freshQuota = Math.min(Math.ceil(total * FRESH_QUOTA_RATIO), fresh.length);
+  const freshQuota = freshQuotaFor(total, Math.min(due.length, total), fresh.length);
   // 给新题留位置，剩下的名额才给到期题，避免一轮全是复习题
   const dueQuota = Math.max(0, total - freshQuota);
 
@@ -151,7 +169,7 @@ export function buildRoundPlan(input: {
   const toGenerate: FlashCard[] = [];
   for (const stat of selected) {
     const item = items[stat.card.id];
-    if (item && !isQuizItemStale(item.cardVersion, stat.card)) {
+    if (item && isQuizItemCurrent(item, stat.card)) {
       reuse.push(item);
     } else {
       toGenerate.push(stat.card);

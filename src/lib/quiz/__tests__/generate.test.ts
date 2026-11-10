@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FlashCard } from '@/types';
-import { cardFingerprint } from '../fingerprint';
+import { cardFingerprint, QUIZ_SCHEMA_VERSION } from '../fingerprint';
 
 vi.mock('@/lib/llm/call', () => ({ callLlmJson: vi.fn() }));
 
@@ -86,5 +86,49 @@ describe('sanitizeQuizItems', () => {
       1000
     );
     expect(items).toHaveLength(1);
+  });
+
+  it('保留指向错误选项的误解诊断，并打上结构版本', () => {
+    const items = sanitizeQuizItems(
+      {
+        items: [
+          {
+            ...validEntry,
+            distractors: [
+              { optionIndex: 1, misconception: '把「作用域链」当成了「调用栈」', correction: '两层链的结构不同' },
+            ],
+          },
+        ],
+      },
+      cards,
+      1000
+    );
+
+    expect(items[0].schemaVersion).toBe(QUIZ_SCHEMA_VERSION);
+    expect(items[0].distractors).toHaveLength(1);
+    expect(items[0].distractors?.[0].optionIndex).toBe(1);
+  });
+
+  it('诊断指到正确答案、下标越界或文案空泛的条目被丢掉', () => {
+    const items = sanitizeQuizItems(
+      {
+        items: [
+          {
+            ...validEntry,
+            distractors: [
+              { optionIndex: 0, misconception: '指到正确答案，应该丢掉' },
+              { optionIndex: 9, misconception: '下标越界，应该丢掉' },
+              { optionIndex: 2, misconception: '不行' },
+              { optionIndex: 3, misconception: '把闭包当成每次调用新建作用域' },
+            ],
+          },
+        ],
+      },
+      cards,
+      1000
+    );
+
+    expect(items[0].distractors).toHaveLength(1);
+    expect(items[0].distractors?.[0].optionIndex).toBe(3);
   });
 });

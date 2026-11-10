@@ -1,6 +1,21 @@
 import type { ModuleType } from './card';
 
 /**
+ * 一个干扰项对应的典型误解。
+ *
+ * 它的价值不在「解析得更详细」，而在于用户选错的那一刻能说出
+ * 「你把 X 和 Y 混了」——普通刷题软件只会告诉你答案是什么。
+ */
+export interface DistractorNote {
+  /** 对应的错误选项下标，必须不是正确答案 */
+  optionIndex: number;
+  /** 这个选项背后的典型误解，一句话 */
+  misconception: string;
+  /** 正确的区分方式，可选 */
+  correction?: string;
+}
+
+/**
  * 一道由卡片派生出来的单选题。
  *
  * 设计要点：题目是卡片的「派生视图」，不是新的数据源。
@@ -26,6 +41,13 @@ export interface QuizItem {
   explanation: string;
   /** 考点，一句话 */
   point: string;
+  /** 每个错误选项背后的典型误解，用于答错时就地诊断 */
+  distractors?: DistractorNote[];
+  /**
+   * 题目结构版本。缓存里的旧版本题目（没有误解诊断、或字段改名）
+   * 会在组卷时被淘汰重生成——题目是派生数据，靠版本号淘汰比写迁移脚本便宜。
+   */
+  schemaVersion?: number;
   /** 卡片内容指纹，用于判断题目是否过期 */
   cardVersion: string;
   generatedAt: number;

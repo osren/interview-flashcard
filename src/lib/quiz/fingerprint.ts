@@ -1,4 +1,10 @@
-import type { FlashCard } from '@/types';
+import type { FlashCard, QuizItem } from '@/types';
+
+/**
+ * 题目结构版本。字段或生成规则变了就 +1，
+ * 缓存里的旧题会被当成「不可复用」，自然被淘汰重生成。
+ */
+export const QUIZ_SCHEMA_VERSION = 2;
 
 /**
  * FNV-1a 32 位哈希。
@@ -29,4 +35,13 @@ export function cardFingerprint(card: Pick<FlashCard, 'question' | 'answer'>): s
 /** 题目是否还对应得上当前的卡片内容 */
 export function isQuizItemStale(itemCardVersion: string, card: Pick<FlashCard, 'question' | 'answer'>): boolean {
   return itemCardVersion !== cardFingerprint(card);
+}
+
+/**
+ * 这道缓存题能不能直接复用：内容没变 且 结构版本对得上。
+ * 旧版本题目（比如还没有误解诊断的）即使卡片没改过也要重生成。
+ */
+export function isQuizItemCurrent(item: QuizItem, card: Pick<FlashCard, 'question' | 'answer'>): boolean {
+  if (item.schemaVersion !== QUIZ_SCHEMA_VERSION) return false;
+  return !isQuizItemStale(item.cardVersion, card);
 }
