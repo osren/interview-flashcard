@@ -27,6 +27,7 @@ function lazyPage<T extends ComponentType<unknown>>(
 }
 
 const Favorites = lazyPage(() => import('@/pages/Favorites'), 'Favorites');
+const PlannerPage = lazyPage(() => import('@/pages/Planner'), 'PlannerPage');
 const CoreIndex = lazyPage(() => import('@/pages/Core'), 'CoreIndex');
 const CoreChapter = lazyPage(() => import('@/pages/Core'), 'CoreChapter');
 const ProjectsIndex = lazyPage(() => import('@/pages/Projects'), 'ProjectsIndex');
@@ -137,6 +138,14 @@ function App() {
                 element={
                   <LazyRoute>
                     <Favorites />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="/planner"
+                element={
+                  <LazyRoute>
+                    <PlannerPage />
                   </LazyRoute>
                 }
               />

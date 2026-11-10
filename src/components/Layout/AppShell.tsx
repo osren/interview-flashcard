@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   BookOpen,
   Briefcase,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -59,6 +60,7 @@ const navGroups: NavGroup[] = [
   {
     title: '工具',
     items: [
+      { path: '/planner', label: '本周规划', icon: CalendarDays },
       { path: '/ai', label: 'AI 资讯', icon: Sparkles },
       { path: '/favorites', label: '收藏', icon: Heart },
     ],
