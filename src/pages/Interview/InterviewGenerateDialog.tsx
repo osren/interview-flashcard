@@ -59,7 +59,8 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
   const [date, setDate] = useState('');
   const [questions, setQuestions] = useState('');
   const [resumeKey, setResumeKey] = useState('');
-  const [extractingResume, setExtractingResume] = useState(false);
+  const [extractingId, setExtractingId] = useState<string | null>(null);
+  const attemptedExtractRef = useRef<Set<string>>(new Set());
   const [output, setOutput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState('');
@@ -126,28 +127,46 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
     () => (selectedResume?.kind === 'pdf' ? resumes.find((item) => item.id === selectedResume.id) : undefined),
     [selectedResume, resumes]
   );
-  const missingTextPdfCount = pdfOptions.filter((option) => option.disabled).length;
-
-  // 上传时可能没提取成功，选中后按需补一次，和简历模块的懒提取口径一致
+  // 上传时可能没提取成功，选中后按需补一次，和简历模块的懒提取口径一致。
+  // 设计稿导出的 PDF 常把文字转成轮廓，提取结果为 0 字，这里记下来避免反复重试。
   useEffect(() => {
     if (!open || !selectedPdf) return;
     if (selectedPdf.extractedText?.trim()) return;
+    if (attemptedExtractRef.current.has(selectedPdf.id)) return;
 
     let cancelled = false;
-    setExtractingResume(true);
+    setExtractingId(selectedPdf.id);
     void extractPdfText(selectedPdf.data)
       .then((text) => {
-        if (!cancelled && text.trim()) updateResumeExtractedText(selectedPdf.id, text);
+        if (cancelled) return;
+        if (text.trim()) updateResumeExtractedText(selectedPdf.id, text);
+        else attemptedExtractRef.current.add(selectedPdf.id);
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!cancelled) attemptedExtractRef.current.add(selectedPdf.id);
+      })
       .finally(() => {
-        if (!cancelled) setExtractingResume(false);
+        if (!cancelled) setExtractingId(null);
       });
 
     return () => {
       cancelled = true;
     };
   }, [open, selectedPdf, updateResumeExtractedText]);
+
+  const selectedStatus: 'ready' | 'extracting' | 'empty' | 'pending' = !selectedResume
+    ? 'empty'
+    : selectedResume.text.trim()
+      ? 'ready'
+      : selectedResume.kind === 'markdown'
+        ? 'empty'
+        : extractingId === selectedPdf?.id
+          ? 'extracting'
+          : attemptedExtractRef.current.has(selectedPdf?.id ?? '')
+            ? 'empty'
+            : 'pending';
+
+  const fallbackMarkdown = markdownOptions.find((option) => !option.disabled);
 
   // 流式过程中每来一个 chunk 都重新解析整篇文档代价太高，等生成结束再解析
   const parsedQuestions = useMemo(
@@ -298,22 +317,35 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
                   </optgroup>
                 )}
               </select>
-              <p className="mt-1 flex items-start gap-1 text-[10px] leading-4 text-stone-400">
-                <FileText size={11} className="mt-0.5 shrink-0" />
-                {extractingResume
-                  ? '正在从 PDF 提取文字…'
-                  : selectedResume
-                    ? selectedResume.text.trim()
-                      ? `将注入 ${selectedResume.text.replace(/\s/g, '').length.toLocaleString('zh-CN')} 字，来源：${selectedResume.meta}`
-                      : '该简历没有可注入的文字，请换一份'
-                    : '没有可用的简历来源'}
-              </p>
-              {missingTextPdfCount > 0 && (
-                <p className="mt-1 flex items-start gap-1 text-[10px] leading-4 text-amber-600">
-                  <AlertTriangle size={11} className="mt-0.5 shrink-0" />
-                  {missingTextPdfCount} 份 PDF 尚未提取文字，选中后会自动提取
+              <div className="mt-1.5 space-y-1.5">
+                <p className="flex items-start gap-1 text-[10px] leading-4 text-stone-400">
+                  <FileText size={11} className="mt-0.5 shrink-0" />
+                  {selectedStatus === 'ready' && selectedResume
+                    ? `将注入 ${selectedResume.text.replace(/\s/g, '').length.toLocaleString('zh-CN')} 字，来源：${selectedResume.meta}`
+                    : selectedStatus === 'extracting'
+                      ? '正在从 PDF 提取文字…'
+                      : selectedStatus === 'pending'
+                        ? '该 PDF 尚未提取文字，正在准备'
+                        : '当前没有可注入的简历正文'}
                 </p>
-              )}
+                {selectedStatus === 'empty' && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                    <p className="flex items-start gap-1 text-[10px] leading-4 text-amber-700">
+                      <AlertTriangle size={11} className="mt-0.5 shrink-0" />
+                      这份 PDF{selectedResume?.kind === 'pdf' ? '没有文字层，提取结果是空的（设计稿导出时文字常被转成轮廓）' : '没有正文'}，无法注入。可以换一份 PDF，或直接用下面的 Markdown 简历。
+                    </p>
+                    {fallbackMarkdown && (
+                      <button
+                        type="button"
+                        onClick={() => handleResumeChange(fallbackMarkdown.key)}
+                        className="mt-1.5 rounded-lg bg-white px-2 py-1 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200 transition hover:bg-amber-100"
+                      >
+                        改用「{fallbackMarkdown.label}」
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -340,7 +372,7 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
             <button
               type="button"
               onClick={() => void handleGenerate()}
-              disabled={isStreaming || !canUseAi || !selectedResume || selectedResume.disabled}
+              disabled={isStreaming || !canUseAi || selectedStatus !== 'ready'}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:bg-stone-300"
             >
               {isStreaming ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
