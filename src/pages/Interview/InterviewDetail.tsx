@@ -17,11 +17,15 @@ import {
   Send,
   Save,
   Sparkles,
+  Star,
+  Target,
   Upload,
   X,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInterviewStore } from '@/store/useInterviewStore';
+import { MASTERY_LABELS, MASTERY_LEVELS, type InterviewQuestion, type MasteryLevel } from '@/types/interview';
+import { parseInterviewGuideMarkdown, summariseMastery } from '@/lib/llm/prompts/interview-guide';
 import { LazyMDEditor, LazyMDMarkdown } from '@/components/ui/LazyMDEditor';
 import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
 import { StreamMarkdown } from '@/components/AI/StreamMarkdown';
@@ -75,6 +79,82 @@ function formatDate(date: string) {
     month: 'long',
     day: 'numeric',
   }).format(parsed);
+}
+
+const MASTERY_STYLE: Record<MasteryLevel, string> = {
+  0: 'border-rose-200 bg-rose-50 text-rose-600',
+  1: 'border-amber-200 bg-amber-50 text-amber-600',
+  2: 'border-emerald-200 bg-emerald-50 text-emerald-600',
+  3: 'border-violet-200 bg-violet-50 text-violet-600',
+};
+
+/** 题目清单：按题收藏 + 标记掌握度，是面经里唯一可量化的复习进度入口 */
+function QuestionTracker({
+  questions,
+  mastery,
+  favoriteQuestions,
+  onToggleFavorite,
+  onSetMastery,
+}: {
+  questions: InterviewQuestion[];
+  mastery?: Record<string, MasteryLevel>;
+  favoriteQuestions: InterviewQuestion[];
+  onToggleFavorite: (question: InterviewQuestion) => void;
+  onSetMastery: (questionId: string, level: MasteryLevel | null) => void;
+}) {
+  const summary = summariseMastery(questions, mastery);
+  if (questions.length === 0) return null;
+
+  return (
+    <section className="mb-5 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="inline-flex items-center gap-2 text-sm font-bold text-stone-800">
+          <Target size={16} className="text-[#b87935]" />
+          题目清单
+        </span>
+        <span className="text-xs text-stone-500">共 {summary.total} 题</span>
+        <span className="text-xs text-stone-500">熟练及以上 {summary.solid}/{summary.total}</span>
+        <span className="ml-auto text-xs font-bold text-stone-700">{summary.percent}%</span>
+      </div>
+      <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
+        <div className="h-full rounded-full bg-[#b87935] transition-all duration-300" style={{ width: `${summary.percent}%` }} />
+      </div>
+      <div className="max-h-[46vh] space-y-2 overflow-y-auto pr-1">
+        {questions.map((item, index) => {
+          const level = mastery?.[item.id];
+          const favorited = favoriteQuestions.some((question) => question.id === item.id);
+          return (
+            <div key={item.id} className="rounded-xl border border-stone-100 bg-stone-50/70 px-3 py-2.5">
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 w-4 shrink-0 text-[11px] font-bold text-stone-400">{index + 1}</span>
+                <p className="min-w-0 flex-1 text-xs leading-5 text-stone-700">{item.question}</p>
+                <button
+                  type="button"
+                  onClick={() => onToggleFavorite(item)}
+                  aria-label={favorited ? `取消收藏第 ${index + 1} 题` : `收藏第 ${index + 1} 题`}
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition ${favorited ? 'bg-amber-50 text-amber-500' : 'text-stone-300 hover:bg-stone-100 hover:text-stone-500'}`}
+                >
+                  <Star size={14} fill={favorited ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 pl-6">
+                {MASTERY_LEVELS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => onSetMastery(item.id, level === option ? null : option)}
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${level === option ? MASTERY_STYLE[option] : 'border-stone-200 bg-white text-stone-400 hover:border-stone-300 hover:text-stone-600'}`}
+                  >
+                    {MASTERY_LABELS[option]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function InterviewAiPanel({ context }: { context: string }) {
@@ -192,6 +272,10 @@ export function InterviewDetail() {
   const updateSessionName = useInterviewStore((state) => state.updateSessionName);
   const updateSessionStatus = useInterviewStore((state) => state.updateSessionStatus);
   const updateSessionMarkdown = useInterviewStore((state) => state.updateSessionMarkdown);
+  const favoriteQuestions = useInterviewStore((state) => state.favoriteQuestions);
+  const toggleFavorite = useInterviewStore((state) => state.toggleFavorite);
+  const setQuestionMastery = useInterviewStore((state) => state.setQuestionMastery);
+  const syncSessionQuestions = useInterviewStore((state) => state.syncSessionQuestions);
 
   // The companies subscription ensures these lookups refresh after persisted store updates.
   void companies;
@@ -252,6 +336,12 @@ export function InterviewDetail() {
   const handleSave = () => {
     if (!companyId || !departmentId || !sessionId) return;
     updateSessionMarkdown(companyId, departmentId, sessionId, markdown);
+    // 文档改动后重新解析题目，让题目清单、收藏和掌握度跟着文档走；
+    // 解析不到题目（手写文档或全部删除）时保留原有清单，避免误清空。
+    const parsed = parseInterviewGuideMarkdown(markdown);
+    if (parsed.length > 0) {
+      syncSessionQuestions(companyId, departmentId, sessionId, parsed);
+    }
     setIsEditing(false);
   };
 
@@ -443,6 +533,16 @@ export function InterviewDetail() {
               {fileError}
             </div>
           )}
+
+          <QuestionTracker
+            questions={session.questions}
+            mastery={session.mastery}
+            favoriteQuestions={favoriteQuestions}
+            onToggleFavorite={toggleFavorite}
+            onSetMastery={(questionId, level) =>
+              setQuestionMastery(companyId, departmentId, sessionId, questionId, level)
+            }
+          />
 
           {isEditing ? (
             <div className="overflow-clip rounded-2xl border border-stone-200 bg-white shadow-[0_16px_50px_-36px_rgba(41,37,36,0.4)]" data-color-mode="light">

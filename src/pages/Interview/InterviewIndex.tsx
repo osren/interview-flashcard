@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useInterviewStore, COMPANY_COLOR_OPTIONS } from '@/store/useInterviewStore';
 import { InterviewStatus } from '@/types/interview';
-import { Plus, ChevronDown, ChevronRight, X, Check, Clock, Calendar, Pencil, Trash2, MessageSquare, Cloud, CloudOff, Loader2 } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, X, Check, Clock, Calendar, Pencil, Trash2, MessageSquare, Cloud, CloudOff, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { PageShell, SectionHeader, Button } from '@/components/ui';
 import { useInterviewSync } from '@/hooks/useInterviewSync';
+import { InterviewGenerateDialog } from './InterviewGenerateDialog';
 
 const STATUS_CONFIG = {
   waiting: { label: '等待', color: 'text-blue-600 bg-blue-50 border-blue-200', icon: Clock },
@@ -74,6 +75,7 @@ export function InterviewIndex() {
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newCompanyColor, setNewCompanyColor] = useState('blue');
   const [isAddingCompany, setIsAddingCompany] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   const [editCompanyName, setEditCompanyName] = useState('');
   const [editCompanyColor, setEditCompanyColor] = useState('');
@@ -261,7 +263,11 @@ export function InterviewIndex() {
         </span>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <Button onClick={() => setIsGenerating(true)} className="gap-2">
+          <Sparkles size={16} />
+          AI 生成面经
+        </Button>
         <Button onClick={() => setIsAddingCompany(true)} variant="outline" className="gap-2">
           <Plus size={16} />
           新增公司
@@ -693,6 +699,12 @@ export function InterviewIndex() {
           </div>
         )}
       </>
+
+      <InterviewGenerateDialog
+        open={isGenerating}
+        onClose={() => setIsGenerating(false)}
+        companies={companies}
+      />
     </PageShell>
   );
 }
