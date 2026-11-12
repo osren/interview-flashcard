@@ -4,13 +4,11 @@ import { useInterviewResumeSource } from '@/hooks/useInterviewResumeSource';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
 import { StreamMarkdown } from '@/components/AI/StreamMarkdown';
-import { streamLlm } from '@/lib/llm/call';
+import { generateInterviewGuideBatches } from '@/lib/llm/interviewGuideRun';
 import {
   appendQuestionsToMarkdown,
-  buildInterviewGuideAppendMessages,
   parseInterviewGuideMarkdown,
 } from '@/lib/llm/prompts/interview-guide';
-import { CANDIDATE_CONTEXT } from '@/lib/llm/prompts/candidate-context';
 
 interface InterviewAppendDialogProps {
   open: boolean;
@@ -48,6 +46,8 @@ export function InterviewAppendDialog({
 
   const [questions, setQuestions] = useState('');
   const [output, setOutput] = useState('');
+  const [result, setResult] = useState('');
+  const [progress, setProgress] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState('');
   const generationRef = useRef(0);
@@ -57,7 +57,11 @@ export function InterviewAppendDialog({
     [markdown]
   );
 
-  const appendedCount = useMemo(() => (isStreaming ? 0 : parseInterviewGuideMarkdown(output).length), [output, isStreaming]);
+  const addedCount = useMemo(() => {
+    const source = result || output;
+    if (!source.trim()) return 0;
+    return Math.max(parseInterviewGuideMarkdown(source).length - (result ? existingQuestions.length : 0), 0);
+  }, [output, result, existingQuestions]);
 
   useEffect(() => {
     if (!open) {
@@ -65,6 +69,8 @@ export function InterviewAppendDialog({
       setIsStreaming(false);
       setQuestions('');
       setOutput('');
+      setResult('');
+      setProgress('');
       setError('');
     }
   }, [open]);
@@ -84,47 +90,49 @@ export function InterviewAppendDialog({
 
     const generation = ++generationRef.current;
     setOutput('');
+    setResult('');
     setError('');
+    setProgress('');
     setIsStreaming(true);
 
     try {
-      const messages = buildInterviewGuideAppendMessages({
+      const full = await generateInterviewGuideBatches({
         company: companyName,
         position: departmentName,
         sessionName,
-        existingQuestions,
-        newQuestions: questions,
+        questions,
         resumeText: selectedResume.text,
-        candidateContext: CANDIDATE_CONTEXT,
-        startIndex: existingQuestions.length + 1,
+        baseDocument: markdown,
+        onProgress: ({ batchText, done, total }) => {
+          if (generationRef.current !== generation) return;
+          setOutput(batchText);
+          setProgress(total > 1 ? `第 ${Math.min(done + 1, total)}/${total} 批` : '');
+        },
+        isAborted: () => generationRef.current !== generation,
       });
-
-      let text = '';
-      for await (const chunk of streamLlm({ messages, temperature: 0.4, max_tokens: 3000 })) {
-        if (generationRef.current !== generation) return;
-        text += chunk;
-        setOutput(text);
-      }
       if (generationRef.current !== generation) return;
-      if (!text.trim()) setError('AI 没有返回内容，请重试');
+      setResult(full);
+      setProgress('');
     } catch (cause) {
       if (generationRef.current !== generation) return;
       setError(cause instanceof Error ? cause.message : 'AI 生成失败，请稍后重试');
     } finally {
-      if (generationRef.current === generation) setIsStreaming(false);
+      if (generationRef.current === generation) {
+        setIsStreaming(false);
+        setProgress('');
+      }
       void refresh();
     }
   };
 
   const handleApply = () => {
-    if (!output.trim()) return;
-    const next = appendQuestionsToMarkdown(markdown, output);
+    if (!result.trim() && !output.trim()) return;
+    const next = result || appendQuestionsToMarkdown(markdown, output);
     if (next === markdown) {
       setError('没有识别到新增题目，请调整问题后重新生成');
       return;
     }
-    const added = parseInterviewGuideMarkdown(next).length - existingQuestions.length;
-    onApply(next, Math.max(added, 0));
+    onApply(next, addedCount);
   };
 
   if (!open) return null;
@@ -247,14 +255,14 @@ export function InterviewAppendDialog({
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:bg-stone-300"
           >
             {isStreaming ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-            {isStreaming ? '正在生成…' : '生成新增答案'}
+            {isStreaming ? (progress ? `生成中 ${progress}…` : '正在生成…') : '生成新增答案'}
           </button>
 
           {(output || isStreaming) && (
             <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50/60">
               <div className="flex items-center justify-between border-b border-stone-100 px-4 py-2.5 text-xs text-stone-500">
                 <span className="font-semibold text-stone-700">新增片段预览</span>
-                <span>{appendedCount > 0 ? `将追加 ${appendedCount} 道题` : '等待生成'}</span>
+                <span>{addedCount > 0 ? `将追加 ${addedCount} 道题` : '等待生成'}</span>
               </div>
               <div className="max-h-72 overflow-y-auto p-4">
                 {output ? (

@@ -6,9 +6,8 @@ import { useInterviewResumeSource } from '@/hooks/useInterviewResumeSource';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
 import { StreamMarkdown } from '@/components/AI/StreamMarkdown';
-import { streamLlm } from '@/lib/llm/call';
-import { buildInterviewGuideMessages, parseInterviewGuideMarkdown } from '@/lib/llm/prompts/interview-guide';
-import { CANDIDATE_CONTEXT } from '@/lib/llm/prompts/candidate-context';
+import { parseInterviewGuideMarkdown } from '@/lib/llm/prompts/interview-guide';
+import { generateInterviewGuideBatches } from '@/lib/llm/interviewGuideRun';
 import type { Company } from '@/types/interview';
 
 interface InterviewGenerateDialogProps {
@@ -43,6 +42,7 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
   const [questions, setQuestions] = useState('');
   const [output, setOutput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [progress, setProgress] = useState('');
   const [error, setError] = useState('');
   const generationRef = useRef(0);
 
@@ -88,32 +88,36 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
     const generation = ++generationRef.current;
     setOutput('');
     setError('');
+    setProgress('');
     setIsStreaming(true);
 
     try {
-      const messages = buildInterviewGuideMessages({
+      // 长清单会按「主问题 + 其追问」分批生成，避免单次 max_tokens 被撑满导致截断
+      const result = await generateInterviewGuideBatches({
         company: trimmedCompany,
         position: trimmedDepartment,
         sessionName: trimmedSession,
         sessionDate: date,
         questions,
         resumeText: selectedResume.text,
-        candidateContext: CANDIDATE_CONTEXT,
+        onProgress: ({ fullText, done, total }) => {
+          if (generationRef.current !== generation) return;
+          setOutput(fullText);
+          setProgress(total > 1 ? `第 ${Math.min(done + 1, total)}/${total} 批` : '');
+        },
+        isAborted: () => generationRef.current !== generation,
       });
-
-      let text = '';
-      for await (const chunk of streamLlm({ messages, temperature: 0.4, max_tokens: 4000 })) {
-        if (generationRef.current !== generation) return;
-        text += chunk;
-        setOutput(text);
-      }
       if (generationRef.current !== generation) return;
-      if (!text.trim()) setError('AI 没有返回内容，请重试');
+      setOutput(result);
+      setProgress('');
     } catch (cause) {
       if (generationRef.current !== generation) return;
       setError(cause instanceof Error ? cause.message : 'AI 生成失败，请稍后重试');
     } finally {
-      if (generationRef.current === generation) setIsStreaming(false);
+      if (generationRef.current === generation) {
+        setIsStreaming(false);
+        setProgress('');
+      }
       void refresh();
     }
   };
@@ -256,7 +260,7 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:bg-stone-300"
             >
               {isStreaming ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-              {isStreaming ? '正在生成…' : '一键生成面经'}
+              {isStreaming ? (progress ? `正在生成 ${progress}…` : '正在生成…') : '一键生成面经'}
             </button>
             {!canUseAi && !quotaLoading && <p className="text-[11px] leading-5 text-stone-400">登录并确认 AI 额度后即可生成。</p>}
           </div>
