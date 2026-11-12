@@ -19,8 +19,8 @@ export function splitQuestionsIntoBatches(
   raw: string,
   options: { maxChars?: number; maxGroups?: number } = {}
 ): string[] {
-  const maxChars = options.maxChars ?? 900;
-  const maxGroups = options.maxGroups ?? 4;
+  const maxChars = options.maxChars ?? 1600;
+  const maxGroups = options.maxGroups ?? 8;
 
   const lines = raw
     .replace(/\r\n/g, '\n')
@@ -116,7 +116,7 @@ export async function generateInterviewGuideBatches(options: InterviewGuideRunOp
     for await (const chunk of streamLlm({
       messages,
       temperature: 0.4,
-      max_tokens: 4000,
+      max_tokens: 6000,
     })) {
       if (options.isAborted?.()) return full;
       batchText += chunk;

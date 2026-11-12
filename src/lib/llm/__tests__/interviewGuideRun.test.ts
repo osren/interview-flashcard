@@ -44,6 +44,12 @@ describe('splitQuestionsIntoBatches', () => {
     expect(batches[0]).toContain('追问：这个告警项目每条告警主要是什么告警');
   });
 
+  it('默认参数下同一份清单切出的批数更少（批次调大）', () => {
+    const withOldDefaults = splitQuestionsIntoBatches(LONG_LIST, { maxGroups: 4, maxChars: 900 });
+    const withNewDefaults = splitQuestionsIntoBatches(LONG_LIST);
+    expect(withNewDefaults.length).toBeLessThan(withOldDefaults.length);
+  });
+
   it('所有主问题都被覆盖，不丢行', () => {
     const batches = splitQuestionsIntoBatches(LONG_LIST, { maxGroups: 3, maxChars: 900 });
     const joined = batches.join('\n');
