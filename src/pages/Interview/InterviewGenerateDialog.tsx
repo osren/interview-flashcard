@@ -2,14 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, BookMarked, FileText, Loader2, Sparkles, Wand2, X } from 'lucide-react';
 import { useInterviewStore } from '@/store/useInterviewStore';
-import { useResumeStore } from '@/store/useResumeStore';
+import { useInterviewResumeSource } from '@/hooks/useInterviewResumeSource';
 import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { LlmQuotaBadge } from '@/components/AI/LlmQuotaBadge';
 import { StreamMarkdown } from '@/components/AI/StreamMarkdown';
 import { streamLlm } from '@/lib/llm/call';
 import { buildInterviewGuideMessages, parseInterviewGuideMarkdown } from '@/lib/llm/prompts/interview-guide';
 import { CANDIDATE_CONTEXT } from '@/lib/llm/prompts/candidate-context';
-import { extractPdfText } from '@/utils/extractPdfText';
 import type { Company } from '@/types/interview';
 
 interface InterviewGenerateDialogProps {
@@ -18,49 +17,30 @@ interface InterviewGenerateDialogProps {
   companies: Company[];
 }
 
-interface ResumeOption {
-  key: string;
-  kind: 'pdf' | 'markdown';
-  id: string;
-  label: string;
-  meta: string;
-  text: string;
-  /** PDF 没提取到文本时不可注入 */
-  disabled: boolean;
-}
-
 const inputClass =
   'w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-violet-300 focus:ring-2 focus:ring-violet-100';
 
 const labelClass = 'mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-stone-500';
 
-function formatUploadDate(timestamp: number) {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date(timestamp));
-}
-
 export function InterviewGenerateDialog({ open, onClose, companies }: InterviewGenerateDialogProps) {
   const navigate = useNavigate();
   const createGeneratedSession = useInterviewStore((state) => state.createGeneratedSession);
-  const aiResumeSource = useInterviewStore((state) => state.aiResumeSource);
-  const setAiResumeSource = useInterviewStore((state) => state.setAiResumeSource);
-  const resumes = useResumeStore((state) => state.resumes);
-  const markdownResumes = useResumeStore((state) => state.markdownResumes);
-  const primaryResumeId = useResumeStore((state) => state.primaryResumeId);
-  const updateResumeExtractedText = useResumeStore((state) => state.updateResumeExtractedText);
   const { quota, loading: quotaLoading, error: quotaError, refresh, canUseAi } = useLlmQuota();
+  const {
+    pdfOptions,
+    markdownOptions,
+    resumeKey,
+    choose,
+    selectedResume,
+    selectedStatus,
+    fallbackMarkdown,
+  } = useInterviewResumeSource({ active: open });
 
   const [company, setCompany] = useState('');
   const [department, setDepartment] = useState('');
   const [sessionName, setSessionName] = useState('');
   const [date, setDate] = useState('');
   const [questions, setQuestions] = useState('');
-  const [resumeKey, setResumeKey] = useState('');
-  const [extractingId, setExtractingId] = useState<string | null>(null);
-  const attemptedExtractRef = useRef<Set<string>>(new Set());
   const [output, setOutput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState('');
@@ -74,100 +54,6 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
     [companies, company]
   );
 
-  // 与简历模块的 defaultSource 口径保持一致：先按上传时间倒序列出 PDF，再列 Markdown 简历
-  const pdfOptions = useMemo<ResumeOption[]>(
-    () =>
-      [...resumes]
-        .sort((a, b) => b.uploadTime - a.uploadTime)
-        .map((item) => ({
-          key: `pdf:${item.id}`,
-          kind: 'pdf' as const,
-          id: item.id,
-          label: `${item.name}.pdf`,
-          meta: `${formatUploadDate(item.uploadTime)} · PDF`,
-          text: item.extractedText ?? '',
-          disabled: !(item.extractedText ?? '').trim(),
-        })),
-    [resumes]
-  );
-
-  const markdownOptions = useMemo<ResumeOption[]>(
-    () =>
-      markdownResumes.map((item) => ({
-        key: `markdown:${item.id}`,
-        kind: 'markdown' as const,
-        id: item.id,
-        label: item.id === primaryResumeId ? `${item.title}（主简历）` : item.title,
-        meta: 'Markdown',
-        text: item.content ?? '',
-        disabled: !(item.content ?? '').trim(),
-      })),
-    [markdownResumes, primaryResumeId]
-  );
-
-  const resumeOptions = useMemo(() => [...pdfOptions, ...markdownOptions], [pdfOptions, markdownOptions]);
-
-  const defaultResumeKey = useMemo(() => {
-    if (aiResumeSource) {
-      const key = `${aiResumeSource.kind}:${aiResumeSource.id}`;
-      if (resumeOptions.some((option) => option.key === key && !option.disabled)) return key;
-    }
-    const pdf = pdfOptions[0];
-    if (pdf) return pdf.key;
-    const markdown = markdownOptions.find((option) => !option.disabled);
-    return markdown?.key ?? resumeOptions[0]?.key ?? '';
-  }, [aiResumeSource, resumeOptions, pdfOptions, markdownOptions]);
-
-  useEffect(() => {
-    if (open) setResumeKey(defaultResumeKey);
-  }, [open, defaultResumeKey]);
-
-  const selectedResume = resumeOptions.find((option) => option.key === resumeKey);
-  const selectedPdf = useMemo(
-    () => (selectedResume?.kind === 'pdf' ? resumes.find((item) => item.id === selectedResume.id) : undefined),
-    [selectedResume, resumes]
-  );
-  // 上传时可能没提取成功，选中后按需补一次，和简历模块的懒提取口径一致。
-  // 设计稿导出的 PDF 常把文字转成轮廓，提取结果为 0 字，这里记下来避免反复重试。
-  useEffect(() => {
-    if (!open || !selectedPdf) return;
-    if (selectedPdf.extractedText?.trim()) return;
-    if (attemptedExtractRef.current.has(selectedPdf.id)) return;
-
-    let cancelled = false;
-    setExtractingId(selectedPdf.id);
-    void extractPdfText(selectedPdf.data)
-      .then((text) => {
-        if (cancelled) return;
-        if (text.trim()) updateResumeExtractedText(selectedPdf.id, text);
-        else attemptedExtractRef.current.add(selectedPdf.id);
-      })
-      .catch(() => {
-        if (!cancelled) attemptedExtractRef.current.add(selectedPdf.id);
-      })
-      .finally(() => {
-        if (!cancelled) setExtractingId(null);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, selectedPdf, updateResumeExtractedText]);
-
-  const selectedStatus: 'ready' | 'extracting' | 'empty' | 'pending' = !selectedResume
-    ? 'empty'
-    : selectedResume.text.trim()
-      ? 'ready'
-      : selectedResume.kind === 'markdown'
-        ? 'empty'
-        : extractingId === selectedPdf?.id
-          ? 'extracting'
-          : attemptedExtractRef.current.has(selectedPdf?.id ?? '')
-            ? 'empty'
-            : 'pending';
-
-  const fallbackMarkdown = markdownOptions.find((option) => !option.disabled);
-
   // 流式过程中每来一个 chunk 都重新解析整篇文档代价太高，等生成结束再解析
   const parsedQuestions = useMemo(
     () => (isStreaming ? [] : parseInterviewGuideMarkdown(output)),
@@ -179,12 +65,6 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
     setIsStreaming(false);
     setError('');
     onClose();
-  };
-
-  const handleResumeChange = (key: string) => {
-    setResumeKey(key);
-    const option = resumeOptions.find((item) => item.key === key);
-    if (option) setAiResumeSource({ kind: option.kind, id: option.id });
   };
 
   const handleGenerate = async () => {
@@ -297,7 +177,7 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
                 <BookMarked size={12} />
                 注入的简历
               </label>
-              <select id="gen-resume" value={resumeKey} onChange={(event) => handleResumeChange(event.target.value)} className={inputClass}>
+              <select id="gen-resume" value={resumeKey} onChange={(event) => choose(event.target.value)} className={inputClass}>
                 {pdfOptions.length > 0 && (
                   <optgroup label="上传的 PDF">
                     {pdfOptions.map((option) => (
@@ -337,7 +217,7 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
                     {fallbackMarkdown && (
                       <button
                         type="button"
-                        onClick={() => handleResumeChange(fallbackMarkdown.key)}
+                        onClick={() => choose(fallbackMarkdown.key)}
                         className="mt-1.5 rounded-lg bg-white px-2 py-1 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200 transition hover:bg-amber-100"
                       >
                         改用「{fallbackMarkdown.label}」

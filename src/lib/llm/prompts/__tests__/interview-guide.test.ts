@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { InterviewQuestion } from '@/types/interview';
 import {
+  appendQuestionsToMarkdown,
+  buildInterviewGuideAppendMessages,
   buildInterviewGuideMessages,
   parseInterviewGuideMarkdown,
   summariseMastery,
@@ -115,5 +117,92 @@ describe('buildInterviewGuideMessages', () => {
       resumeText: '',
     });
     expect(messages[1].content).toContain('简历为空');
+  });
+});
+
+describe('appendQuestionsToMarkdown', () => {
+  it('把新增题目插到问答区末尾、复盘之前', () => {
+    const appended = `### 3. 为什么要做分层告警
+
+**结论**：纯数值异常交给规则。
+
+- **分层设计**：L1 规则、L2 语义。
+`;
+    const merged = appendQuestionsToMarkdown(SAMPLE, appended);
+
+    expect(merged.indexOf('为什么要做分层告警')).toBeGreaterThan(merged.indexOf('privacyPopList'));
+    expect(merged.indexOf('为什么要做分层告警')).toBeLessThan(merged.indexOf('## 二、复盘与改进'));
+  });
+
+  it('统一重排编号，原有题目内容不动', () => {
+    const merged = appendQuestionsToMarkdown(SAMPLE, '### 7. 新题\n\n**结论**：x\n');
+
+    expect(merged).toContain('### 1. 自我介绍');
+    expect(merged).toContain('### 2. LCP 从 3.4s 降到 2.1s 做了什么');
+    expect(merged).toContain('### 3. 新题');
+    expect(merged).not.toContain('### 7. 新题');
+  });
+
+  it('丢弃模型多输出的一级/二级标题，不破坏既有结构', () => {
+    const merged = appendQuestionsToMarkdown(
+      SAMPLE,
+      '# 字节跳动 · 前端开发工程师 - APM · 技术一面\n\n## 一、面试问答\n\n### 1. 新题\n\n**结论**：x\n'
+    );
+
+    expect(merged.match(/^# /gm)).toHaveLength(1);
+    expect(merged.match(/^## /gm)).toHaveLength(2);
+  });
+
+  it('没有题目块时原样返回，不写入无关文字', () => {
+    expect(appendQuestionsToMarkdown(SAMPLE, '这里是无关说明')).toBe(SAMPLE);
+  });
+
+  it('追加后能被重新解析，新题进入题目清单', () => {
+    const merged = appendQuestionsToMarkdown(SAMPLE, '### 3. 新题\n\n**结论**：x\n');
+    const questions = parseInterviewGuideMarkdown(merged);
+
+    expect(questions).toHaveLength(3);
+    expect(questions[2].question).toBe('新题');
+    expect(questions[2].id).toMatch(/^q-/);
+  });
+
+  it('代码块内的三级标题不参与重排', () => {
+    const doc = `# 标题
+
+## 一、面试问答
+
+### 1. 旧题
+
+\`\`\`md
+### 9. 这是示例文本
+\`\`\`
+`;
+    const merged = appendQuestionsToMarkdown(doc, '### 2. 新题\n\n**结论**：x\n');
+
+    expect(merged).toContain('### 9. 这是示例文本');
+    expect(merged).toContain('### 2. 新题');
+  });
+});
+
+describe('buildInterviewGuideAppendMessages', () => {
+  it('编号从已有题数继续，并列出已有题干防重复', () => {
+    const messages = buildInterviewGuideAppendMessages({
+      company: '字节跳动',
+      position: '前端开发工程师 - APM',
+      sessionName: '技术一面',
+      existingQuestions: ['自我介绍', 'LCP 优化'],
+      newQuestions: '分层告警怎么设计',
+      resumeText: '简历正文',
+      startIndex: 3,
+    });
+
+    expect(messages[0].content).toContain('只输出新增题目的问答片段');
+    expect(messages[0].content).toContain('编号从 3 开始');
+
+    const user = messages[1].content;
+    expect(user).toContain('1. 自我介绍');
+    expect(user).toContain('2. LCP 优化');
+    expect(user).toContain('分层告警怎么设计');
+    expect(user).toContain('简历正文');
   });
 });

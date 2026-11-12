@@ -14,6 +14,7 @@ import {
   List,
   MessageCircle,
   PencilLine,
+  PlusCircle,
   Send,
   Save,
   Sparkles,
@@ -33,6 +34,7 @@ import { useLlmQuota } from '@/hooks/useLlmQuota';
 import { streamLlm, type ChatMessage } from '@/lib/llm/call';
 import { createInterviewStarterMarkdown, questionsToInterviewMarkdown } from '@/utils/interviewMarkdown';
 import { downloadMd, readFileAsText } from '@/utils/md';
+import { InterviewAppendDialog } from './InterviewAppendDialog';
 
 interface OutlineItem {
   id: string;
@@ -293,6 +295,7 @@ export function InterviewDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [sessionName, setSessionName] = useState(session?.name ?? '');
   const [fileError, setFileError] = useState('');
+  const [appendOpen, setAppendOpen] = useState(false);
 
   const collectOutline = useCallback(() => {
     const container = documentContentRef.current;
@@ -343,6 +346,18 @@ export function InterviewDetail() {
       syncSessionQuestions(companyId, departmentId, sessionId, parsed);
     }
     setIsEditing(false);
+  };
+
+  /** 追加写回：以当前文档为底，追加后立即落库并同步题目清单，收藏与掌握度沿用题干 id */
+  const handleAppendApply = (next: string) => {
+    if (!companyId || !departmentId || !sessionId) return;
+    setMarkdown(next);
+    updateSessionMarkdown(companyId, departmentId, sessionId, next);
+    const parsed = parseInterviewGuideMarkdown(next);
+    if (parsed.length > 0) {
+      syncSessionQuestions(companyId, departmentId, sessionId, parsed);
+    }
+    setAppendOpen(false);
   };
 
   const handleCancel = () => {
@@ -504,6 +519,14 @@ export function InterviewDetail() {
                     阅读
                   </button>
                   <button
+                    onClick={() => setAppendOpen(true)}
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
+                    title="继续问 AI 生成新的问答，追加写入这篇文档"
+                  >
+                    <PlusCircle size={16} />
+                    追加问题
+                  </button>
+                  <button
                     onClick={() => {
                       setMarkdown((current) => current || createInterviewStarterMarkdown(title));
                       setIsEditing(true);
@@ -543,6 +566,18 @@ export function InterviewDetail() {
               setQuestionMastery(companyId, departmentId, sessionId, questionId, level)
             }
           />
+
+          {appendOpen && (
+            <InterviewAppendDialog
+              open={appendOpen}
+              onClose={() => setAppendOpen(false)}
+              companyName={company?.name ?? ''}
+              departmentName={department?.name ?? ''}
+              sessionName={session?.name ?? ''}
+              markdown={markdown}
+              onApply={handleAppendApply}
+            />
+          )}
 
           {isEditing ? (
             <div className="overflow-clip rounded-2xl border border-stone-200 bg-white shadow-[0_16px_50px_-36px_rgba(41,37,36,0.4)]" data-color-mode="light">

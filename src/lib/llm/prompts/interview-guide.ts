@@ -177,3 +177,184 @@ export function summariseMastery(
     percent: total === 0 ? 0 : Math.round((solid / total) * 100),
   };
 }
+
+export interface InterviewGuideAppendInput {
+  company: string;
+  position: string;
+  sessionName: string;
+  /** 文档里已有的题干，用于去重 */
+  existingQuestions: string[];
+  /** 本次新增的问题，一行一条 */
+  newQuestions: string;
+  resumeText: string;
+  candidateContext?: string;
+  /** 新题目的起始编号，通常等于已有题数 + 1 */
+  startIndex: number;
+}
+
+function appendModePrompt(startIndex: number): string {
+  return `
+
+追加模式（本次覆盖上面的输出结构，其余写作要求不变）：
+- 只输出新增题目的问答片段。不要写 \`#\` 一级标题，不要写 \`##\` 二级标题，也不要输出「复盘与改进」段落。
+- 每道题仍以 \`### N. {问题原文}\` 起始，编号从 ${startIndex} 开始连续自增。
+- 已给出的题目清单一律不重复回答，也不要改写它们的题干；只回答这次新增的问题。`;
+}
+
+export function buildInterviewGuideAppendMessages(input: InterviewGuideAppendInput): ChatMessage[] {
+  const company = input.company.trim() || '未填写公司';
+  const position = input.position.trim() || '未填写岗位';
+  const sessionName = input.sessionName.trim() || '未填写场次';
+  const startIndex = Math.max(1, Math.floor(input.startIndex));
+  const existing = input.existingQuestions
+    .map((item) => item.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .slice(0, 80);
+
+  const userPrompt = [
+    `这场面试的文档标题：${company} · ${position} · ${sessionName}`,
+    '',
+    '文档里已经收录的题目（不要重复回答）：',
+    existing.length > 0
+      ? existing.map((item, index) => `${index + 1}. ${item}`).join('\n')
+      : '（暂无）',
+    '',
+    '候选人最新简历：',
+    '```markdown',
+    clip(input.resumeText, MAX_RESUME_CHARS) || '（简历为空，请只讲通用原理，标注为通用知识）',
+    '```',
+    input.candidateContext?.trim()
+      ? ['候选人背景补充：', clip(input.candidateContext, 2000)].join('\n')
+      : '',
+    '',
+    '这次新增的问题（只回答这些）：',
+    clip(input.newQuestions, MAX_QUESTIONS_CHARS),
+  ].filter(Boolean).join('\n');
+
+  return [
+    { role: 'system', content: `${INTERVIEW_GUIDE_SYSTEM_PROMPT}${appendModePrompt(startIndex)}` },
+    { role: 'user', content: userPrompt },
+  ];
+}
+
+/** 从模型输出里取出 `### ` 开头的题目块，丢弃一级/二级标题，避免污染既有文档结构 */
+function extractQuestionBlocks(text: string): string[] {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const blocks: string[] = [];
+  let current: string[] | null = null;
+  let inCodeFence = false;
+
+  const flush = () => {
+    if (current) {
+      const block = current.join('\n').trim();
+      if (block) blocks.push(block);
+      current = null;
+    }
+  };
+
+  for (const line of lines) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inCodeFence = !inCodeFence;
+      if (current) current.push(line);
+      continue;
+    }
+    if (inCodeFence) {
+      if (current) current.push(line);
+      continue;
+    }
+    if (/^###\s+/.test(line)) {
+      flush();
+      // 编号交给统一重排，这里先抹掉
+      current = [line.replace(/^###\s+(?:\d+|[一二三四五六七八九十]+)[.、)）]?\s*/, '### ')];
+      continue;
+    }
+    if (/^#{1,2}\s+/.test(line)) {
+      flush();
+      continue;
+    }
+    if (current) current.push(line);
+  }
+  flush();
+
+  return blocks;
+}
+
+/** 新增题目插到最后一个 `### ` 题目块之后、下一个 `## ` 之前 */
+function findQuestionInsertIndex(lines: string[]): number {
+  let lastQuestion = -1;
+  let inCodeFence = false;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^\s*(```|~~~)/.test(line)) {
+      inCodeFence = !inCodeFence;
+      continue;
+    }
+    if (inCodeFence) continue;
+    if (/^###\s+/.test(line)) lastQuestion = index;
+  }
+
+  if (lastQuestion === -1) return lines.length;
+
+  inCodeFence = false;
+  for (let index = lastQuestion + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^\s*(```|~~~)/.test(line)) {
+      inCodeFence = !inCodeFence;
+      continue;
+    }
+    if (inCodeFence) continue;
+    if (/^#{1,2}\s+/.test(line)) return index;
+  }
+
+  return lines.length;
+}
+
+/** 把所有 `### N. ` 题目标题按出现顺序重排，题干和答案不动，题目 id 由题干 hash 得到因此不受影响 */
+function renumberQuestionHeadings(markdown: string): string {
+  const lines = markdown.split('\n');
+  let inCodeFence = false;
+  let counter = 0;
+
+  const output = lines.map((line) => {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inCodeFence = !inCodeFence;
+      return line;
+    }
+    if (inCodeFence) return line;
+    const heading = line.match(/^###\s+(?:[\d一二三四五六七八九十]+[.、)）]?\s*)?(.+?)\s*$/);
+    if (!heading) return line;
+    counter += 1;
+    return `### ${counter}. ${heading[1]}`;
+  });
+
+  return output.join('\n');
+}
+
+/**
+ * 把追加生成的内容并入既有面经文档：插入问答区末尾，统一重排编号。
+ * 没有识别到题目块时返回原文档，避免把无关文字写进去。
+ */
+export function appendQuestionsToMarkdown(markdown: string, appended: string): string {
+  const base = markdown.replace(/\r\n/g, '\n');
+  const blocks = extractQuestionBlocks(appended);
+  if (blocks.length === 0) return markdown;
+
+  const lines = base.split('\n');
+  const insertAt = findQuestionInsertIndex(lines);
+
+  const before = lines.slice(0, insertAt);
+  const after = lines.slice(insertAt);
+  while (before.length > 0 && before[before.length - 1].trim() === '') before.pop();
+  while (after.length > 0 && after[0].trim() === '') after.shift();
+
+  const parts: string[] = [...before];
+  if (parts.length > 0) parts.push('');
+  parts.push(blocks.join('\n\n'));
+  if (after.length > 0) {
+    parts.push('');
+    parts.push(...after);
+  }
+
+  return renumberQuestionHeadings(parts.join('\n').replace(/\n{3,}/g, '\n\n'));
+}
