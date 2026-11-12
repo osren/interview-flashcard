@@ -29,11 +29,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function normalizeResume(raw: unknown): Resume | null {
   if (!isRecord(raw)) return null;
   if (typeof raw.id !== 'string' || typeof raw.name !== 'string') return null;
-  if (typeof raw.data !== 'string' || typeof raw.uploadTime !== 'number') return null;
+  if (typeof raw.uploadTime !== 'number') return null;
+  // data 是 PDF 的 base64；同步时不带原件，云端可能只有空串，本地合并时会补回
   return {
     id: raw.id,
     name: raw.name,
-    data: raw.data,
+    data: typeof raw.data === 'string' ? raw.data : '',
     uploadTime: raw.uploadTime,
     ...(typeof raw.extractedText === 'string' ? { extractedText: raw.extractedText } : {}),
   };
@@ -97,7 +98,14 @@ function mergeResumes(local: Resume[], remote: Resume[]): Resume[] {
     }
     if (resume.uploadTime === existing.uploadTime) {
       const extractedText = resume.extractedText || existing.extractedText;
-      map.set(resume.id, extractedText ? { ...resume, extractedText } : resume);
+      // 远端为了控制体积不带 PDF 原件，这里用本地那份补回，避免预览/下载失效
+      const data = existing.data || resume.data;
+      map.set(resume.id, { ...resume, data, ...(extractedText ? { extractedText } : {}) });
+      continue;
+    }
+    // 远端更新：原件仍以本地为准
+    if (!existing.data && resume.data) {
+      map.set(resume.id, { ...existing, data: resume.data });
     }
   }
   return [...map.values()];
@@ -218,7 +226,13 @@ export function isResumeSyncTableMissingError(error: unknown): boolean {
 }
 
 export function buildResumeSyncPayload(): ResumeSyncPayload {
-  return useResumeStore.getState().getSyncPayload();
+  const payload = useResumeStore.getState().getSyncPayload();
+  // 上传的 PDF 是 base64，几份就有十几 MB，整份上云会被 Supabase 拒绝；
+  // 云端只保留文本与元信息，原件留在本地（跨设备时由 mergeResumes 补回本地原件）。
+  return {
+    ...payload,
+    resumes: payload.resumes.map((item) => ({ ...item, data: '' })),
+  };
 }
 
 export function applyResumeSyncPayload(payload: ResumeSyncPayload): void {

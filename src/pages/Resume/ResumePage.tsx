@@ -4,7 +4,7 @@ import { ResumeOptimizeTab } from './ResumeOptimizeTab';
 import { ResumePolishTab } from './ResumePolishTab';
 import { ResumeIntroTab } from './ResumeIntroTab';
 import { useResumeSyncContext } from '@/hooks/useResumeSync';
-import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, Edit3, Save, ExternalLink, Globe, Wand2, Cloud, CloudOff, Loader2, PenLine } from 'lucide-react';
+import { Upload, FileText, Trash2, X, Eye, Download, Clock, Sparkles, MessageSquare, ExternalLink, Globe, Wand2, Cloud, CloudOff, Loader2, PenLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { extractPdfText } from '@/utils/extractPdfText';
@@ -385,6 +385,11 @@ export function ResumePage() {
                   <Clock size={14} />
                   {formatDate(resume.uploadTime)}
                 </div>
+                {!resume.data && (
+                  <p className="mt-1.5 text-[11px] leading-4 text-amber-600">
+                    原文件未同步到云端，文本仍可用于 JD 优化；需要预览或下载请在本机重新上传
+                  </p>
+                )}
 
                 {/* 底部操作按钮 */}
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-50">
@@ -393,16 +398,17 @@ export function ResumePage() {
                       e.stopPropagation();
                       openPdfPreview(resume);
                     }}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+                    disabled={!resume.data}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Eye size={16} />
                     预览
                   </button>
                   <a
-                    href={resume.data}
+                    href={resume.data || undefined}
                     download={`${resume.name}.pdf`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors ${resume.data ? '' : 'pointer-events-none opacity-50'}`}
                   >
                     <Download size={16} />
                     下载

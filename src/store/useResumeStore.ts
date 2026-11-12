@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, type PersistStorage } from 'zustand/middleware';
 import introScriptRaw from '@/data/resume/intro-script.md?raw';
 import primaryResumeRaw from '@/data/resume/primary.md?raw';
+import { interviewPersistStorage } from '@/store/interview-persist-storage';
 
 export interface Resume {
   id: string;
@@ -146,8 +147,16 @@ export const useResumeStore = create<ResumeState>()(
           ? payload.primaryResumeId
           : RESUME_PRIMARY_ID;
 
+        // 云端不带 PDF 原件，合并时用本地已有的 data 补回，避免预览/下载失效
+        const localById = new Map(get().resumes.map((item) => [item.id, item]));
+        const resumes = payload.resumes.map((item) => {
+          if (item.data) return item;
+          const local = localById.get(item.id);
+          return local?.data ? { ...item, data: local.data } : item;
+        });
+
         set({
-          resumes: payload.resumes,
+          resumes,
           introScript: payload.introScript,
           markdownResumes,
           primaryResumeId,
@@ -157,6 +166,9 @@ export const useResumeStore = create<ResumeState>()(
     {
       name: 'resume-storage',
       version: 3,
+      // 上传的 PDF 以 base64 存在 state 里，几份就会超出 localStorage 的 5MB 配额，
+      // 这里和面经 / 会话缓存一样走 IndexedDB（并自动迁移旧的 localStorage 数据）。
+      storage: interviewPersistStorage as unknown as PersistStorage<Partial<ResumeState>>,
       migrate: (persisted) => {
         const state = persisted as Partial<ResumeState>;
         if (!state.markdownResumes?.length) {
