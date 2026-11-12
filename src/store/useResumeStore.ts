@@ -28,6 +28,8 @@ export interface ResumeSyncPayload {
   introScript: string;
   markdownResumes: MarkdownResume[];
   primaryResumeId: string;
+  /** 已删除的 PDF 简历 id：云端合并时据此压制回填，避免删掉的条目刷新后又出现 */
+  deletedResumeIds?: string[];
 }
 
 export const RESUME_PRIMARY_ID = 'resume-primary';
@@ -43,6 +45,8 @@ export const DEFAULT_INTRO_SCRIPT = introScriptRaw.replace(/^#.*$/m, '').trim();
 
 interface ResumeState {
   resumes: Resume[];
+  /** 已删除的 PDF 简历 id 台账，随同步一起上云，避免被其他端或旧快照复活 */
+  deletedResumeIds: string[];
   introScript: string;
   markdownResumes: MarkdownResume[];
   primaryResumeId: string;
@@ -64,6 +68,7 @@ export const useResumeStore = create<ResumeState>()(
   persist(
     (set, get) => ({
       resumes: [],
+      deletedResumeIds: [],
       introScript: DEFAULT_INTRO_SCRIPT,
       markdownResumes: [defaultPrimaryMarkdown],
       primaryResumeId: RESUME_PRIMARY_ID,
@@ -82,6 +87,7 @@ export const useResumeStore = create<ResumeState>()(
       removeResume: (id) => {
         set((state) => ({
           resumes: state.resumes.filter((r) => r.id !== id),
+          deletedResumeIds: Array.from(new Set([...(state.deletedResumeIds ?? []), id])),
         }));
       },
 
@@ -133,6 +139,7 @@ export const useResumeStore = create<ResumeState>()(
           introScript: state.introScript,
           markdownResumes: state.markdownResumes,
           primaryResumeId: state.primaryResumeId,
+          deletedResumeIds: state.deletedResumeIds ?? [],
         };
       },
 
@@ -147,16 +154,25 @@ export const useResumeStore = create<ResumeState>()(
           ? payload.primaryResumeId
           : RESUME_PRIMARY_ID;
 
+        // 本端与云端的墓碑取并集：任何一端删过的条目，都不再回填
+        const deletedResumeIds = Array.from(
+          new Set([...(get().deletedResumeIds ?? []), ...(payload.deletedResumeIds ?? [])])
+        );
+        const deleted = new Set(deletedResumeIds);
+
         // 云端不带 PDF 原件，合并时用本地已有的 data 补回，避免预览/下载失效
         const localById = new Map(get().resumes.map((item) => [item.id, item]));
-        const resumes = payload.resumes.map((item) => {
-          if (item.data) return item;
-          const local = localById.get(item.id);
-          return local?.data ? { ...item, data: local.data } : item;
-        });
+        const resumes = payload.resumes
+          .filter((item) => !deleted.has(item.id))
+          .map((item) => {
+            if (item.data) return item;
+            const local = localById.get(item.id);
+            return local?.data ? { ...item, data: local.data } : item;
+          });
 
         set({
           resumes,
+          deletedResumeIds,
           introScript: payload.introScript,
           markdownResumes,
           primaryResumeId,
@@ -165,7 +181,7 @@ export const useResumeStore = create<ResumeState>()(
     }),
     {
       name: 'resume-storage',
-      version: 3,
+      version: 4,
       // 上传的 PDF 以 base64 存在 state 里，几份就会超出 localStorage 的 5MB 配额，
       // 这里和面经 / 会话缓存一样走 IndexedDB（并自动迁移旧的 localStorage 数据）。
       storage: interviewPersistStorage as unknown as PersistStorage<Partial<ResumeState>>,
@@ -181,6 +197,9 @@ export const useResumeStore = create<ResumeState>()(
             extractedText:
               typeof item.extractedText === 'string' ? item.extractedText : undefined,
           }));
+        }
+        if (!Array.isArray(state.deletedResumeIds)) {
+          state.deletedResumeIds = [];
         }
         return state;
       },

@@ -100,6 +100,37 @@ describe('resume sync payload', () => {
     expect(merged.resumes[0].uploadTime).toBe(3000);
   });
 
+  it('已删除的简历不会被云端旧快照回填', () => {
+    const local = payload({ deletedResumeIds: ['pdf-byte'] });
+    const remote = payload({
+      resumes: [{ id: 'pdf-byte', name: '谭成_字节投递', data: '', uploadTime: 1000, extractedText: '删掉的正文' }],
+    });
+
+    const merged = mergeResumePayload(local, remote);
+    expect(merged.resumes).toHaveLength(0);
+    expect(merged.deletedResumeIds).toEqual(['pdf-byte']);
+  });
+
+  it('两端删除台账取并集，任一端删过的都不复活', () => {
+    const local = payload({
+      deletedResumeIds: ['pdf-a'],
+      resumes: [{ id: 'pdf-b', name: '保留的简历', data: 'data:application/pdf;base64,QUJD', uploadTime: 2000 }],
+    });
+    const remote = payload({
+      deletedResumeIds: ['pdf-c'],
+      resumes: [
+        { id: 'pdf-a', name: '本端已删', data: '', uploadTime: 1000 },
+        { id: 'pdf-c', name: '另一端已删', data: '', uploadTime: 1500 },
+        { id: 'pdf-b', name: '保留的简历', data: '', uploadTime: 2000 },
+      ],
+    });
+
+    const merged = mergeResumePayload(local, remote);
+    expect(merged.deletedResumeIds?.sort()).toEqual(['pdf-a', 'pdf-c']);
+    expect(merged.resumes.map((item) => item.id)).toEqual(['pdf-b']);
+    expect(merged.resumes[0].data).toBe('data:application/pdf;base64,QUJD');
+  });
+
   it('远端为空时直接返回本地快照，不做任何裁剪', () => {
     const local = payload({
       resumes: [{ id: 'pdf-byte', name: '谭成_字节投递', data: 'data:application/pdf;base64,QUJD', uploadTime: 1000 }],

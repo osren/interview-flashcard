@@ -20,6 +20,7 @@ const EMPTY_PAYLOAD: ResumeSyncPayload = {
   introScript: DEFAULT_INTRO_SCRIPT,
   markdownResumes: [defaultPrimaryMarkdown],
   primaryResumeId: RESUME_PRIMARY_ID,
+  deletedResumeIds: [],
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -84,13 +85,24 @@ function normalizePayload(raw: unknown): ResumeSyncPayload {
     introScript: typeof raw.introScript === 'string' ? raw.introScript : DEFAULT_INTRO_SCRIPT,
     markdownResumes: mergedMarkdown,
     primaryResumeId,
+    deletedResumeIds: Array.isArray(raw.deletedResumeIds)
+      ? raw.deletedResumeIds.filter((id): id is string => typeof id === 'string')
+      : [],
   };
 }
 
-function mergeResumes(local: Resume[], remote: Resume[]): Resume[] {
+function mergeResumes(
+  local: Resume[],
+  remote: Resume[],
+  deletedIds: Set<string>
+): Resume[] {
   const map = new Map<string, Resume>();
-  for (const resume of remote) map.set(resume.id, resume);
+  for (const resume of remote) {
+    if (deletedIds.has(resume.id)) continue;
+    map.set(resume.id, resume);
+  }
   for (const resume of local) {
+    if (deletedIds.has(resume.id)) continue;
     const existing = map.get(resume.id);
     if (!existing || resume.uploadTime > existing.uploadTime) {
       map.set(resume.id, resume);
@@ -153,9 +165,13 @@ export function mergeResumePayload(
   if (!remote) return local;
 
   const markdownResumes = mergeMarkdownResumes(local.markdownResumes, remote.markdownResumes);
+  // 两端墓碑取并集：任一端删过的简历，合并后都不得再出现
+  const deletedResumeIds = Array.from(
+    new Set([...(local.deletedResumeIds ?? []), ...(remote.deletedResumeIds ?? [])])
+  );
 
   return {
-    resumes: mergeResumes(local.resumes, remote.resumes),
+    resumes: mergeResumes(local.resumes, remote.resumes, new Set(deletedResumeIds)),
     introScript: mergeIntroScript(local.introScript, remote.introScript),
     markdownResumes,
     primaryResumeId: mergePrimaryResumeId(
@@ -163,6 +179,7 @@ export function mergeResumePayload(
       remote.primaryResumeId,
       markdownResumes
     ),
+    deletedResumeIds,
   };
 }
 
