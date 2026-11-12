@@ -184,6 +184,67 @@ describe('appendQuestionsToMarkdown', () => {
   });
 });
 
+describe('追问结构', () => {
+  it('四级标题的追问并入上一题答案，不单独成题', () => {
+    const doc = `# 标题
+
+## 一、面试问答
+
+### 1. 项目难点是什么
+
+**结论**：告警降噪的召回与成本平衡。
+
+#### 追问：告警是业务告警还是外网告警
+
+**结论**：两类都有，外网告警占比更高。
+
+### 2. 浏览器缓存有哪些
+
+**结论**：强缓存与协商缓存。
+`;
+    const questions = parseInterviewGuideMarkdown(doc);
+
+    expect(questions).toHaveLength(2);
+    expect(questions[0].question).toBe('项目难点是什么');
+    expect(questions[0].answer).toContain('追问：告警是业务告警还是外网告警');
+    expect(questions[1].question).toBe('浏览器缓存有哪些');
+  });
+
+  it('追加时追问跟着所属题目一起写入，不参与 ### 编号重排', () => {
+    const merged = appendQuestionsToMarkdown(
+      SAMPLE,
+      '### 3. 新题\n\n**结论**：x\n\n#### 追问：这条追问属于新题\n\n**结论**：y\n'
+    );
+
+    expect(merged).toContain('### 3. 新题');
+    expect(merged).toContain('#### 追问：这条追问属于新题');
+    expect(merged.match(/^#### /gm)).toHaveLength(1);
+  });
+
+  it('生成与追加的提示词都要求追问用四级标题', () => {
+    const generated = buildInterviewGuideMessages({
+      company: '公司',
+      position: '岗位',
+      sessionName: '一面',
+      questions: '1. 项目难点\n追问：告警是业务还是外网',
+      resumeText: '简历',
+    });
+    const appended = buildInterviewGuideAppendMessages({
+      company: '公司',
+      position: '岗位',
+      sessionName: '一面',
+      existingQuestions: ['项目难点'],
+      newQuestions: '追问：告警是业务还是外网',
+      resumeText: '简历',
+      startIndex: 2,
+    });
+
+    expect(generated[0].content).toContain('#### 追问：');
+    expect(appended[0].content).toContain('#### 追问：');
+    expect(appended[0].content).toContain('给追问单独的 `###` 编号');
+  });
+});
+
 describe('buildInterviewGuideAppendMessages', () => {
   it('编号从已有题数继续，并列出已有题干防重复', () => {
     const messages = buildInterviewGuideAppendMessages({
