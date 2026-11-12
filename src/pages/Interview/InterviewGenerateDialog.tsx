@@ -302,7 +302,7 @@ export function InterviewGenerateDialog({ open, onClose, companies }: InterviewG
                   <optgroup label="上传的 PDF">
                     {pdfOptions.map((option) => (
                       <option key={option.key} value={option.key}>
-                        {option.label} · {option.meta}{option.disabled ? ' · 待提取' : ''}
+                        {option.label} · {option.meta}{option.disabled ? ' · 无文字层' : ''}
                       </option>
                     ))}
                   </optgroup>
