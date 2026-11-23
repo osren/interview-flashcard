@@ -18,6 +18,7 @@ import {
   Send,
   Sparkles,
   Bot,
+  Compass,
   UserRound,
   X,
   type LucideIcon,
@@ -42,6 +43,7 @@ const navGroups: NavGroup[] = [
   {
     title: '学习',
     items: [
+      { path: '/intro', label: '使用介绍', icon: Compass },
       { path: '/', label: '首页', icon: Home },
       { path: '/core', label: '核心考点', icon: BookOpen },
       { path: '/mpx', label: 'MPX', icon: Rocket },
@@ -125,6 +127,9 @@ export function AppShell({ children }: AppShellProps) {
   };
 
   const sidebarWidth = collapsed ? 'w-[76px]' : 'w-[240px]';
+
+  // 使用介绍页按落地页呈现：不挂侧边栏、番茄钟与移动顶栏
+  const isLanding = location.pathname === '/intro';
 
   const renderNav = (compact: boolean) => (
     <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-5">
@@ -262,8 +267,9 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen app-bg flex">
-      <FloatingPomodoro />
+      {!isLanding && <FloatingPomodoro />}
       {/* Desktop sidebar */}
+      {!isLanding && (
       <aside
         className={cn(
           'hidden lg:flex flex-col fixed inset-y-0 left-0 z-40 bg-white border-r-2 border-[#e5e5e5] transition-[width] duration-200 overflow-hidden',
@@ -280,6 +286,7 @@ export function AppShell({ children }: AppShellProps) {
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </aside>
+      )}
 
       {/* Mobile drawer */}
       <AnimatePresence>
@@ -320,10 +327,11 @@ export function AppShell({ children }: AppShellProps) {
       <div
         className={cn(
           'flex-1 flex flex-col min-w-0 min-h-screen transition-[padding] duration-200',
-          collapsed ? 'lg:pl-[76px]' : 'lg:pl-[240px]'
+          isLanding ? 'lg:pl-0' : collapsed ? 'lg:pl-[76px]' : 'lg:pl-[240px]'
         )}
       >
         {/* Mobile top bar */}
+        {!isLanding && (
         <header className="lg:hidden sticky top-0 z-30 h-14 bg-white/95 backdrop-blur border-b-2 border-[#e5e5e5] flex items-center justify-between px-3">
           <button
             type="button"
@@ -339,6 +347,7 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
           <div className="w-10" />
         </header>
+        )}
 
         <main className="flex-1">{children}</main>
       </div>

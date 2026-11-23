@@ -1,7 +1,9 @@
-import { Suspense, lazy, type ComponentType, type ReactNode } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Suspense, lazy, useState, type ComponentType, type ReactNode } from 'react';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AppShell, Footer } from '@/components/Layout';
 import { Home } from '@/pages/Home';
+import { Intro } from '@/pages/Intro';
+import { hasSeenIntro } from '@/lib/intro';
 import { CampusIndex } from '@/pages/Campus';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { CampusJobSyncProvider } from '@/hooks/useCampusJobSync';
@@ -53,6 +55,12 @@ function LazyRoute({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteFallback />}>{children}</Suspense>;
 }
 
+/** 第一次进站先看使用介绍，看过之后直接落到工作台 */
+function HomeGate() {
+  const [seen] = useState(hasSeenIntro);
+  return seen ? <Home /> : <Navigate to="/intro" replace />;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -63,7 +71,8 @@ function App() {
           <AppShell>
             {/* 简历上传入口固定在 /resume 页面内，不再全局挂右下角浮动按钮（会与 AI 助手入口重叠） */}
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomeGate />} />
+              <Route path="/intro" element={<Intro />} />
 
               <Route
                 path="/core"
