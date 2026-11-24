@@ -1,193 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://interview-flashcard.vercel.app/</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/intro</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/intro</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/mpx</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/mpx</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/llm-handbook</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/llm-handbook</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/javascript</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/javascript</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/html</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/html</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/css</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/css</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/vue</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/vue</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/nextjs</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/nextjs</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/react</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/react</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/typescript</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/typescript</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/browser-features</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/browser-features</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/browser-security</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/browser-security</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/webpack</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/webpack</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/react-hooks</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/react-hooks</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/engineering</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/engineering</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/performance</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/performance</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/ai-engineering</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/ai-engineering</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/core/system-design</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/core/system-design</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/interviewflash</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/interviewflash</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/didi</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/didi</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/didi-performance</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/didi-performance</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/ai-monitor</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/ai-monitor</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/gresume</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/gresume</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/didi-interview-guide</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/didi-interview-guide</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/projects/comprehensive-interview</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/projects/comprehensive-interview</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/mpx/mpx-guide</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/mpx/mpx-guide</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/mpx/mpx-architecture</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/mpx/mpx-architecture</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/mpx/dev-guide</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/mpx/dev-guide</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://interview-flashcard.vercel.app/mpx/mpx-basic</loc>
+    <loc>https://interview-flashcard-alpha.vercel.app/mpx/mpx-basic</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

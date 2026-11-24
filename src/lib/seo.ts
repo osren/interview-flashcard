@@ -4,10 +4,10 @@ import { projectChapters } from '@/data/projects';
 /**
  * 站点 SEO 常量与路由元信息。
  *
- * 部署到正式域名后，把 SITE_URL 替换为自定义域名（含协议，结尾不带斜杠），
- * 并同步更新 public/robots.txt 与 public/sitemap.xml 中的域名。
+ * SITE_URL 为线上部署域名（含协议，结尾不带斜杠）；若后续更换自定义域名，
+ * 需同步更新 public/robots.txt 与 public/sitemap.xml 中的域名。
  */
-export const SITE_URL = 'https://interview-flashcard.vercel.app';
+export const SITE_URL = 'https://interview-flashcard-alpha.vercel.app';
 export const SITE_NAME = 'InterviewFlash';
 export const SITE_LOCALE = 'zh-CN';
 

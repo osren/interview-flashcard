@@ -12,5 +12,5 @@ Disallow: /ai
 Disallow: /rjsf
 Disallow: /preview
 
-# 部署到正式域名后，同步替换下面的域名
-Sitemap: https://interview-flashcard.vercel.app/sitemap.xml
+# 站点 sitemap（更换自定义域名时同步更新）
+Sitemap: https://interview-flashcard-alpha.vercel.app/sitemap.xml
