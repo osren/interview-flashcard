@@ -1,3 +1,9 @@
 [build]
   command = "npx vite build"
   publish = "dist"
+
+# SPA 路由回退：深链刷新 / 直接访问子路径时返回 index.html，交由前端路由处理
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

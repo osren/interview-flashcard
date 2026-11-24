@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# 工具页 / 本地态 / 对话态 / 演示页，不作为公开落地页收录
+Disallow: /custom
+Disallow: /favorites
+Disallow: /planner
+Disallow: /resume
+Disallow: /interview
+Disallow: /campus
+Disallow: /ai
+Disallow: /rjsf
+Disallow: /preview
+
+# 部署到正式域名后，同步替换下面的域名
+Sitemap: https://interview-flashcard.vercel.app/sitemap.xml

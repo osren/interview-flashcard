@@ -11,6 +11,7 @@ import { LearningSyncProvider } from '@/hooks/useLearningSync';
 import { InterviewSyncProvider } from '@/hooks/useInterviewSync';
 import { ResumeSyncProvider } from '@/hooks/useResumeSync';
 import { Button, PageLoadingSkeleton } from '@/components/ui';
+import { SeoManager } from '@/components/SeoManager';
 
 function lazyPage<T extends ComponentType<unknown>>(
   factory: () => Promise<{ default: T } | Record<string, T>>,
@@ -69,6 +70,7 @@ function App() {
         <InterviewSyncProvider>
           <ResumeSyncProvider>
           <AppShell>
+            <SeoManager />
             {/* 简历上传入口固定在 /resume 页面内，不再全局挂右下角浮动按钮（会与 AI 助手入口重叠） */}
             <Routes>
               <Route path="/" element={<HomeGate />} />
